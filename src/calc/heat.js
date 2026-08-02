@@ -1,18 +1,22 @@
 // アウト/台売上/台粗利のヒートマップ 5段階（低い＝淡い黄 → 高い＝赤）。
 export const HEAT5 = ["#fdf6c2", "#fce588", "#f9b234", "#ef6a1c", "#d62828"];
+export const HEAT_MINUS = "#9fd8ef"; // マイナス（台粗利の赤字台）＝水色
+export const HEAT_ZERO = "#fff";     // 0（稼働なし・撤去台）＝白
 
-// 5段階レベル 0..4（淡黄→赤）。データ無し・0（稼働なし/撤去台）は -1。
+// 5段階レベル 0..4（淡黄→赤）。データ無し・0・マイナスは -1（専用色で表示）。
 export function heatLevel(v, min, max) {
-  if (v == null || isNaN(v) || v === 0 || max <= min) return -1;
+  if (v == null || isNaN(v) || v <= 0 || max <= min) return -1;
   const t = (v - min) / (max - min);
   return Math.min(4, Math.max(0, Math.floor(t * 5)));
 }
 
 // 列ごとの min/max で5段階に量子化して色を返す。
-// 値0（アウトなし）は白＝稼働していない台として色を付けない。
+// マイナス（赤字台）は水色、0（稼働なし）は白、データ無しは無色。
 export function heatColor(v, min, max) {
   const lv = heatLevel(v, min, max);
-  return lv < 0 ? (v === 0 ? "#fff" : "transparent") : HEAT5[lv];
+  if (lv >= 0) return HEAT5[lv];
+  if (v == null || isNaN(v)) return "transparent";
+  return v < 0 ? HEAT_MINUS : HEAT_ZERO;
 }
 
 // ヒートポイント（黄=1pt 〜 赤=5pt、データ無し=0）。
@@ -21,9 +25,10 @@ export function heatPoint(v, min, max) {
   return lv < 0 ? 0 : lv + 1;
 }
 
-// 配列から欠損を除いた min/max。
+// 配列から min/max。0以下（専用色で表示する赤字台・稼働なし台）は
+// 色の基準から除く。含めると赤字台に引きずられて全体が実際より暖色に寄るため。
 export function minMax(values) {
-  const nums = values.filter((v) => v != null && !isNaN(v));
+  const nums = values.filter((v) => v != null && !isNaN(v) && v > 0);
   return nums.length ? { min: Math.min(...nums), max: Math.max(...nums) } : { min: 0, max: 0 };
 }
 
