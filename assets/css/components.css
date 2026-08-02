@@ -1,0 +1,65 @@
+.card {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
+}
+.row { display: flex; gap: var(--gap); }
+.col { display: flex; flex-direction: column; gap: var(--gap); }
+.grow { flex: 1; }
+
+.btn {
+  appearance: none; cursor: pointer; border: 1px solid var(--line);
+  background: var(--panel-2); color: var(--fg);
+  padding: 7px 14px; border-radius: 6px;
+}
+.btn:hover { border-color: var(--fg-dim); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: var(--accent-hi); border-color: var(--accent-hi); }
+.btn.ghost { background: transparent; }
+.btn.danger { color: var(--bad); border-color: var(--accent-dim); }
+.btn.sm { padding: 4px 9px; font-size: 12px; }
+
+input[type=text], input[type=number], input[type=date], select.inp {
+  background: var(--panel-3); border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 8px; width: 100%;
+}
+input:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+/* 数値入力の上下スピナーを非表示 */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; appearance: textfield; }
+label.lbl { font-size: 12px; color: var(--fg-dim); display: block; margin-bottom: 3px; }
+
+table.grid { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.grid th, table.grid td { border: 1px solid var(--line); padding: 7px 9px; text-align: right; }
+table.grid th { background: var(--panel-2); color: var(--fg-dim); font-weight: 600; position: sticky; top: 0; }
+table.grid td.txt, table.grid th.txt { text-align: left; }
+table.grid tbody tr:nth-child(even) td { background: var(--panel-3); }
+table.grid tbody tr:hover td { background: var(--pastel-blue); }
+
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
+.badge.s { color: #3f6bb0; background: var(--pastel-blue); }
+.badge.p { color: #c14b58; background: var(--pastel-red); }
+
+/* ---- toast ---- */
+#toasts { position: fixed; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; z-index: 50; }
+.toast {
+  background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 8px; padding: 10px 14px; min-width: 220px; box-shadow: var(--shadow-lg);
+}
+.toast.ok { border-left-color: var(--ok); }
+.toast.err { border-left-color: var(--bad); }
+
+/* ---- modal ---- */
+.modal-bg {
+  position: fixed; inset: 0; background: #000a; display: flex;
+  align-items: center; justify-content: center; z-index: 40; padding: 24px;
+}
+.modal {
+  background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+  max-width: 720px; width: 100%; max-height: 88vh; overflow: auto; padding: 20px; box-shadow: var(--shadow-lg);
+}
+.modal h2 { display: flex; align-items: center; }
+.modal .close { margin-left: auto; }
+
+.hint { color: var(--fg-dim); font-size: 12px; }
+.mono { font-variant-numeric: tabular-nums; }

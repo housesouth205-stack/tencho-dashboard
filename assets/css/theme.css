@@ -1,0 +1,40 @@
+:root {
+  /* 白ベース＋パステル */
+  --bg: #f5f7fb;
+  --panel: #ffffff;
+  --panel-2: #eef2fa;
+  --panel-3: #f7f9fd;
+  --line: #e3e8f2;
+  --fg: #2f3440;
+  --fg-dim: #8a91a3;
+
+  /* アクセント（やわらかい赤＋パステル各色） */
+  --accent: #e35d6a;
+  --accent-hi: #ef7480;
+  --accent-dim: #f6ccd1;
+  --ok: #43b483;
+  --warn: #e0a52e;
+  --bad: #e35d6a;
+  --blue: #6f9fe0;
+
+  --pastel-blue: #dce8fb;
+  --pastel-green: #d9f2e6;
+  --pastel-yellow: #fbf2d1;
+  --pastel-purple: #e9e2f8;
+  --pastel-red: #fbe0e3;
+
+  /* ヒート5段階（1pt=淡黄 → 5pt=赤） */
+  --heat-1: #fdf6c2;
+  --heat-2: #fce588;
+  --heat-3: #f9b234;
+  --heat-4: #ef6a1c;
+  --heat-5: #d62828;
+
+  --shadow: 0 1px 3px rgba(40, 50, 80, .07), 0 1px 2px rgba(40, 50, 80, .04);
+  --shadow-lg: 0 10px 30px rgba(40, 50, 80, .15);
+
+  --radius: 10px;
+  --gap: 12px;
+  --maxw: 1600px;
+  --font: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", system-ui, sans-serif;
+}

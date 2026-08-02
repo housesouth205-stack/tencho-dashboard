@@ -1,0 +1,13 @@
+@media print {
+  /* #app は min-height:100vh を持つので display:none で丸ごと隠す（空白ページ防止） */
+  #app, #toasts { display: none !important; }
+  body { background: #fff; }
+  #printArea { display: block; }
+  #printArea, #printArea * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #printArea h3 { margin: 0 0 6px; font-size: 14px; color: #000; }
+  #printArea .page-break { break-before: page; }
+  #printArea .floor { break-inside: avoid; }
+  #printArea table { width: 100%; border-collapse: collapse; font-size: 11px; color: #000; }
+  #printArea th, #printArea td { border: 1px solid #999; padding: 3px 5px; }
+}
+#printArea { display: none; }
