@@ -1,3 +1,9 @@
+// 出玉率(機械割)は小数第1位で統一する。表示・入力・保存・計算すべてこの値を使い、
+// 「画面の数字」と「計算に使う数字」を必ず一致させる。
+export const round1 = (v) => (v == null || v === "" || isNaN(v) ? null : Math.round(Number(v) * 10) / 10);
+// 表示用（112 → "112.0"）。常に小数第1位まで見せる。
+export const fmt1 = (v) => (v == null || isNaN(v) ? "—" : Number(v).toFixed(1));
+
 // 出玉率→売上/粗利の計算（社内資料の計数管理方式・貸単価別）。
 // 売上 = アウト × コイン単価
 // 損益分岐出玉率 = 100 + (交換枚数K − 貸出枚数L) × コイン単価
@@ -9,7 +15,8 @@ export function computeMachine({ out, coin, payout, L, K, tanka = 20 }) {
   const sales = out * coin;
   const be = 100 + (K - L) * coin;
   const coinGrossPer1 = (tanka / 100) * (K ? L / K : 0); // 1%あたりコイン粗利
-  const gross = (be - payout) * coinGrossPer1 * out;
+  // 出玉率は画面表示と同じ小数第1位に丸めてから計算する（表示と結果を一致させる）
+  const gross = (be - round1(payout)) * coinGrossPer1 * out;
   return { sales, gross, be, grossRate: sales ? gross / sales : 0 };
 }
 

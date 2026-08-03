@@ -3,7 +3,7 @@ import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num } from "../../util/format.js";
-import { TYPES, TYPE_KEYS, payoutFromDmm } from "../simulator/economics.js";
+import { TYPES, TYPE_KEYS, payoutFromDmm, round1, fmt1 } from "../simulator/economics.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { dmmSearch, dmmFetch, rankCandidates, searchKeyword } from "./dmm.js";
 
@@ -26,7 +26,7 @@ export async function mount(host) {
   const snap = await loadSnapshotRows(period.id);
   const specs = await repo.select("model_spec", {});
   const specMap = new Map();
-  for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = s.payout_rate; specMap.set(s.model_name, a); }
+  for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = round1(s.payout_rate); specMap.set(s.model_name, a); }
   const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
   const dmmMap = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "dmm_map" } }))[0]?.value || {}; // {model: dmm_id}
   const secLabel = new Map(state.sections.map((s) => [s.id, s.label]));
@@ -143,7 +143,11 @@ export async function mount(host) {
         el("td", { class: "txt", text: r.model }),
         el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSel),
       ];
-      for (let s = 0; s < 6; s++) cells.push(el("td", {}, el("input", { type: "number", step: "0.1", value: +r.payout[s].toFixed(1), style: "width:58px;text-align:right", onchange: (e) => { r.payout[s] = Number(e.target.value); r.registered = true; r.source = "manual"; } })));
+      // 出玉率は常に小数第1位で表示・保持（112 → 112.0、112.53 → 112.5）
+      for (let s = 0; s < 6; s++) cells.push(el("td", {}, el("input", {
+        type: "number", step: "0.1", value: fmt1(r.payout[s]), style: "width:62px;text-align:right",
+        onchange: (e) => { const v = round1(e.target.value); if (v == null) { e.target.value = fmt1(r.payout[s]); return; } r.payout[s] = v; e.target.value = fmt1(v); r.registered = true; r.source = "manual"; },
+      })));
       const sc = r.registered ? (r.source === "manual" ? "var(--ok)" : "var(--blue)") : "var(--warn)";
       cells.push(el("td", { style: `color:${sc}`, text: r.registered ? SRC_LABEL[r.source] : "未登録" }));
       cells.push(el("td", {}, el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) })));
@@ -158,7 +162,7 @@ export async function mount(host) {
     try {
       setSaveState("saving");
       const specsOut = [], types = {};
-      for (const r of rows) { types[r.model] = r.type; const src = String(r.source).startsWith("dmm") ? "web" : "manual"; for (let s = 0; s < 6; s++) specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: r.payout[s], source: src }); }
+      for (const r of rows) { types[r.model] = r.type; const src = String(r.source).startsWith("dmm") ? "web" : "manual"; for (let s = 0; s < 6; s++) specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src }); }
       for (let i = 0; i < specsOut.length; i += 200) await repo.upsert("model_spec", specsOut.slice(i, i + 200), { onConflict: ["model_name", "setting"] });
       await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_types", value: types }, { onConflict: ["store_id", "key"] });
       await repo.upsert("app_setting", { store_id: state.storeId, key: "dmm_map", value: dmmMap }, { onConflict: ["store_id", "key"] });

@@ -5,7 +5,7 @@ import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { yen, pct, num, shortModel } from "../../util/format.js";
 import { planCalc } from "../../calc/planCalc.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
-import { computeMachine, TYPES, sectionL, sectionTanka } from "./economics.js";
+import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1 } from "./economics.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
 import { printContent } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
@@ -73,7 +73,7 @@ export async function mount(host) {
     const snap = period ? await loadSnapshotRows(period.id) : [];
     const specs = await repo.select("model_spec", {});
     const specMap = new Map();
-    for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = s.payout_rate; specMap.set(s.model_name, a); }
+    for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = round1(s.payout_rate); specMap.set(s.model_name, a); }
     const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
     st.layout = await repo.select("layout_cell", { eq: { store_id: state.storeId } });
 
@@ -144,7 +144,7 @@ export async function mount(host) {
         prevSetting: diff ? prevSet : null, changed, dim: diff && !changed,
         tip: [
           `アウト ${num(u.out)}・コイン単価 ${u.coin}（機種分析）`,
-          `出玉率(設定${s}) ${curveOf(u)[s - 1]}%（${u.payout ? "取込実データ" : "タイプ既定"}）`,
+          `出玉率(設定${s}) ${fmt1(curveOf(u)[s - 1])}%（${u.payout ? "取込実データ" : "タイプ既定"}）`,
           editable ? `台粗利 ${yen(Math.round(unitGross(u, s)))}` : "",
           changed ? `前回 設定${prevSet} → 今回 設定${s}` : "",
         ].filter(Boolean).join("\n"),
