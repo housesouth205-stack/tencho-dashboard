@@ -33,16 +33,19 @@ export async function mount(host) {
 
   const groups = new Map();
   for (const r of snap) {
-    const g = groups.get(r.model_name) || { model: r.model_name, secs: new Set(), count: 0 };
-    g.secs.add(secLabel.get(r.section_id) || "?"); g.count++; groups.set(r.model_name, g);
+    const g = groups.get(r.model_name) || { model: r.model_name, secs: new Set(), count: 0, minDai: r.dai_no };
+    g.secs.add(secLabel.get(r.section_id) || "?"); g.count++;
+    if (r.dai_no != null) g.minDai = Math.min(g.minDai ?? r.dai_no, r.dai_no);
+    groups.set(r.model_name, g);
   }
+  // 並びは台番号順（その機種の先頭台）。島図・シミュレーターと同じ見え方に揃える。
   const rows = [...groups.values()].map((g) => {
     const saved = specMap.get(g.model);
     const registered = saved && saved.every((x) => x != null);
     const type = typeSetting[g.model] || guessType(g.model);
     const payout = registered ? saved : [...TYPES[type]];
-    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, type, payout, registered, source: registered ? "manual" : "default", dmmId: dmmMap[g.model] || null };
-  }).sort((a, b) => (a.registered - b.registered) || b.count - a.count);
+    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? "manual" : "default", dmmId: dmmMap[g.model] || null };
+  }).sort((a, b) => a.minDai - b.minDai);
 
   const bar = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px" });
   host.appendChild(bar);
@@ -129,13 +132,14 @@ export async function mount(host) {
     const q = filterText.trim().normalize("NFKC");
     const list = rows.filter((r) => (!onlyUnreg || !r.registered) && (!q || r.model.normalize("NFKC").includes(q)));
     const t = el("table", { class: "grid mono" });
-    t.appendChild(el("thead", {}, el("tr", {}, ["機種名", "区分", "台数", "タイプ", "設定1", "設定2", "設定3", "設定4", "設定5", "設定6", "状態", ""].map((h, i) =>
-      el("th", { class: i === 0 ? "txt" : "", text: h })))));
+    t.appendChild(el("thead", {}, el("tr", {}, ["台番", "機種名", "区分", "台数", "タイプ", "設定1", "設定2", "設定3", "設定4", "設定5", "設定6", "状態", ""].map((h, i) =>
+      el("th", { class: i === 1 ? "txt" : "", text: h })))));
     const tb = el("tbody");
     for (const r of list) {
       const typeSel = el("select", { class: "inp", style: "width:92px", onchange: (e) => { r.type = e.target.value; if (!r.registered) r.payout = [...TYPES[r.type]]; draw(); } },
         TYPE_KEYS.map((k) => el("option", { value: k, text: k, selected: k === r.type ? "selected" : null })));
       const cells = [
+        el("td", { style: "color:var(--fg-dim)", title: "この機種の先頭台番", text: r.minDai === 9999 ? "—" : num(r.minDai) }),
         el("td", { class: "txt", text: r.model }),
         el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSel),
       ];
