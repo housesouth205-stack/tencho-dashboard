@@ -99,15 +99,15 @@ export async function mount(host) {
 
   function buildFloor(fl) {
     const cells = layout.filter((l) => l.floor === fl);
-    // セルは常に正方形。最低44pxを確保し（狭い画面では横スクロール）、
-    // 列が少ない時に伸びすぎないよう上限も設ける。行高はaspect-ratioに委ねてauto。
-    const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), "auto", "10px");
-    const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), "minmax(44px,78px)", "8px");
-    const nCols = Cc.tpl.filter((t) => t !== "8px").length;
+    // PC: 従来どおり画面幅にフィット（横スクロールなし）。
+    // スマホ: 画面幅に押し込むと1台が横長に潰れるため、固定サイズ(やや縦長)＋横スクロール。
+    const isMobile = window.matchMedia("(max-width: 700px)").matches;
+    const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), isMobile ? "68px" : "44px", "11px");
+    const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), isMobile ? "58px" : "minmax(0,1fr)", "8px");
     const vals = cells.map((c) => snap.get(c.dai_no)?.[metric]).filter((v) => v != null);
     const mm = minMax(vals);
     // 画面幅にフィット(列=可変幅)＋縦は通路を細く
-    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};min-width:100%;max-width:${nCols * 78}px` });
+    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${isMobile ? "max-content" : "100%"}` });
     for (const c of cells) {
       const s = snap.get(c.dai_no);
       // 機種名は「島図Excel＝今の配置」を優先。Excelに無い台は実績データの機種名。
@@ -128,14 +128,14 @@ export async function mount(host) {
         title: tip,
         style: `grid-column:${Cc.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};overflow:hidden;` +
           `background:${v == null ? "var(--panel-3)" : color};color:${fg};` +
-          `border:${swapped ? "2px solid var(--accent)" : "1px solid var(--line)"};border-radius:3px;padding:1px;cursor:default;` +
-          `aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px`,
+          `border:${swapped ? "2px solid var(--accent)" : "1px solid var(--line)"};border-radius:3px;padding:0 2px;cursor:default;` +
+          `display:flex;flex-direction:column;align-items:center;justify-content:center`,
       }, [
-        el("div", { style: "font-weight:800;font-size:13px;line-height:1", text: String(c.dai_no) }),
-        el("div", { style: "font-size:9px;line-height:1.1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;word-break:break-all;opacity:.9;text-align:center", text: shortModel(model) }),
+        el("div", { style: `font-weight:800;font-size:${isMobile ? 14 : 14}px;line-height:1.1`, text: String(c.dai_no) }),
+        el("div", { style: `font-size:${isMobile ? 9.5 : 7.5}px;line-height:1.1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:${isMobile ? 3 : 2};-webkit-box-orient:vertical;word-break:break-all;opacity:.88;text-align:center`, text: shortModel(model) }),
       ]));
     }
-    return el("div", { style: "overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)" }, grid);
+    return el("div", { style: `overflow-x:${isMobile ? "auto" : "hidden"};-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)` }, grid);
   }
 
   function legend() {
