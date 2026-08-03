@@ -2,7 +2,7 @@ import { el, clear, modal } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
-import { num, yen, shortModel } from "../../util/format.js";
+import { num, yen, shortModel, sameModel } from "../../util/format.js";
 import { heatColor, heatText, minMax, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
 import { printContent } from "../../print/printService.js";
 import { parseIslandXlsx } from "../../import/islandXlsx.js";
@@ -99,20 +99,23 @@ export async function mount(host) {
 
   function buildFloor(fl) {
     const cells = layout.filter((l) => l.floor === fl);
-    const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), "44px", "11px");
-    const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), "minmax(0,1fr)", "8px");
+    // セルは最低幅を確保し、画面が狭ければ横スクロール（潰れて読めなくなるのを防ぐ）。
+    // 広い画面では 1fr で従来どおり画面幅にフィットする。
+    const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), "46px", "11px");
+    const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), "minmax(42px,1fr)", "8px");
     const vals = cells.map((c) => snap.get(c.dai_no)?.[metric]).filter((v) => v != null);
     const mm = minMax(vals);
     // 画面幅にフィット(列=可変幅)＋縦は通路を細く
-    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:100%` });
+    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};min-width:100%;width:max-content` });
     for (const c of cells) {
       const s = snap.get(c.dai_no);
       // 機種名は「島図Excel＝今の配置」を優先。Excelに無い台は実績データの機種名。
       const nowModel = models[c.dai_no] || "";
       const pastModel = s?.model_name || "";
       const model = nowModel || pastModel;
-      // 実績期間と機種が入れ替わっている台は★を付ける（数字は旧機種のものなので注意喚起）
-      const swapped = !!(nowModel && pastModel && nowModel !== pastModel);
+      // 実績期間と機種が入れ替わっている台は印を付ける（数字は旧機種のものなので注意喚起）。
+      // 半角カナ・記号・型式コードの表記ゆれは同一機種として扱う（誤検出防止）。
+      const swapped = !!(nowModel && pastModel && !sameModel(nowModel, pastModel));
       const v = s?.[metric];
       const color = heatColor(v, mm.min, mm.max);
       const fg = v == null ? "var(--fg-dim)" : heatText(color);
@@ -126,11 +129,11 @@ export async function mount(host) {
           `background:${v == null ? "var(--panel-3)" : color};color:${fg};` +
           `border:1px solid ${swapped ? "var(--accent)" : "var(--line)"};border-radius:3px;padding:0 2px;cursor:default;display:flex;flex-direction:column;align-items:center`,
       }, [
-        el("div", { style: "font-weight:800;font-size:14px;line-height:1.1", text: (swapped ? "★" : "") + c.dai_no }),
-        el("div", { style: "font-size:7.5px;line-height:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;opacity:.85;text-align:center", text: shortModel(model) }),
+        el("div", { style: "font-weight:800;font-size:14px;line-height:1.1", text: String(c.dai_no) }),
+        el("div", { style: "font-size:9px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;opacity:.9;text-align:center", text: shortModel(model) }),
       ]));
     }
-    return el("div", { style: "overflow-x:hidden;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)" }, grid);
+    return el("div", { style: "overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)" }, grid);
   }
 
   function legend() {
@@ -143,8 +146,8 @@ export async function mount(host) {
        box(HEAT_MINUS), el("span", { text: "マイナス" }),
        box(HEAT_ZERO), el("span", { text: "稼働なし" }),
        el("span", { style: "width:10px" }),
-       el("span", { style: "color:var(--accent);font-weight:700", text: "★" }),
-       el("span", { text: "期間中と機種が入替（数字は旧機種の実績）" })]);
+       el("span", { style: "display:inline-block;width:20px;height:12px;background:transparent;border:2px solid var(--accent)" }),
+       el("span", { text: "赤枠＝期間中と機種が入替（数字は旧機種の実績）" })]);
   }
 
   // 取込前に「いつからの島図か」を聞く。既定は今日。
