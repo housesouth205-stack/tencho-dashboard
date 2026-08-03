@@ -52,9 +52,10 @@ export function similarity(a, b) {
   return (2 * inter) / (ga.size + gb.size);
 }
 
-// 検索結果から最良候補を選ぶ。score付き降順。設定別実測(per6)持ちを同点なら優先。
+// 検索結果から最良候補を選ぶ。score付き降順。
+// 設定別実測(per6)は補間より正確なので強めに優先する（レンジ補間だと中間設定がずれるため）。
 export function rankCandidates(model, candidates) {
-  const bonus = (c) => ((c.per6 || []).filter((v) => v != null).length >= 3 ? 0.08 : 0);
+  const bonus = (c) => ((c.per6 || []).filter((v) => v != null).length >= 3 ? 0.2 : 0);
   return candidates
     .map((c) => ({ ...c, score: similarity(model, c.name) }))
     .sort((a, b) => (b.score + bonus(b)) - (a.score + bonus(a)));

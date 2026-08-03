@@ -86,7 +86,7 @@ export async function mount(host) {
       let res = r.dmmId ? await savedFetch(r) : null;
       if (!res || (!res.range && !res.per6)) {
         const { candidates = [] } = await dmmSearch(searchKeyword(r.model), 4);
-        const ranked = rankCandidates(r.model, candidates).filter((c) => c.range || c.per6);
+        const ranked = rankCandidates(searchKeyword(r.model),candidates).filter((c) => c.range || c.per6);
         if (!ranked.length) { toast(`「${r.model}」の候補が見つかりませんでした`, "warn"); return; }
         res = await pickCandidate(r.model, ranked);
         if (!res) return; // キャンセル
@@ -107,7 +107,7 @@ export async function mount(host) {
           let res = r.dmmId ? await savedFetch(r) : null;
           if (!res || (!res.range && !res.per6)) {
             const { candidates = [] } = await dmmSearch(searchKeyword(r.model), 4);
-            const ranked = rankCandidates(r.model, candidates).filter((c) => c.range || c.per6);
+            const ranked = rankCandidates(searchKeyword(r.model),candidates).filter((c) => c.range || c.per6);
             if (ranked[0] && ranked[0].score >= AUTO_SCORE) res = ranked[0];
             else { ask.push({ r, ranked }); continue; }
           }
@@ -118,7 +118,7 @@ export async function mount(host) {
       toast(`自動確定 ${ok}件 / 要確認 ${ask.length}件`, "ok");
       // 曖昧な機種を順番に候補選択
       for (const { r, ranked } of ask) {
-        const list = ranked && ranked.length ? ranked : rankCandidates(r.model, (await dmmSearch(searchKeyword(r.model), 4).catch(() => ({ candidates: [] }))).candidates || []).filter((c) => c.range || c.per6);
+        const list = ranked && ranked.length ? ranked : rankCandidates(searchKeyword(r.model),(await dmmSearch(searchKeyword(r.model), 4).catch(() => ({ candidates: [] }))).candidates || []).filter((c) => c.range || c.per6);
         if (!list.length) continue;
         const res = await pickCandidate(r.model, list);
         if (res && applyResult(r, res)) { updateReg(); draw(); }
