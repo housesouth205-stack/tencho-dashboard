@@ -39,7 +39,8 @@ export function attachPinchZoom(container, content, opts = {}) {
   }
 
   const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-  let base = null;
+  let base = null;   // touchイベント方式（Android/Chrome）
+  let gbase = null;  // gestureイベント方式（iOS Safari）
 
   container.addEventListener("touchstart", (e) => {
     if (e.touches.length === 2) base = { d: dist(e.touches) || 1, s: scale };
@@ -48,6 +49,7 @@ export function attachPinchZoom(container, content, opts = {}) {
   container.addEventListener("touchmove", (e) => {
     if (e.touches.length !== 2 || !base) return;
     e.preventDefault(); // 2本指のときだけページズーム/スクロールを止める
+    if (gbase) return;  // iOSではgesturechange側で処理する（二重適用を避ける）
     const t = e.touches;
     set(base.s * (dist(t) / base.d), (t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2);
   }, { passive: false });
@@ -56,6 +58,20 @@ export function attachPinchZoom(container, content, opts = {}) {
   container.addEventListener("touchend", end);
   container.addEventListener("touchcancel", end);
 
+  // iOS Safari対策: WebKit独自のgestureイベントを止めないと、ピンチがブラウザ側に
+  // 取られてページ全体のズームや「タブ一覧」（ピンチインで発動）になってしまう。
+  // touch-actionやtouchmoveのpreventDefaultだけでは防げないため、ここで明示的に潰す。
+  container.addEventListener("gesturestart", (e) => {
+    e.preventDefault();
+    gbase = { s: scale };
+  }, { passive: false });
+  container.addEventListener("gesturechange", (e) => {
+    e.preventDefault();
+    if (gbase) set(gbase.s * e.scale, e.clientX, e.clientY);
+  }, { passive: false });
+  const gend = (e) => { e.preventDefault(); gbase = null; };
+  container.addEventListener("gestureend", gend, { passive: false });
+
   // PC（と検証時）用: Ctrl+ホイールでも同じ操作ができる
   container.addEventListener("wheel", (e) => {
     if (!e.ctrlKey) return;
@@ -63,11 +79,14 @@ export function attachPinchZoom(container, content, opts = {}) {
     set(scale * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX, e.clientY);
   }, { passive: false });
 
-  set(opts.initial ?? 1);
+  // initial: "fit" でフロア全体が収まる倍率から開始する
+  set(opts.initial === "fit" || opts.initial == null ? fitScale() : opts.initial);
 
   return {
     get scale() { return scale; },
     get natural() { return { w: natW, h: natH }; },
+    get min() { return Math.min(min, fitScale()); },
+    get max() { return max; },
     zoomBy: (f) => set(scale * f),
     setScale: (s, fx, fy) => set(s, fx, fy),
     fitWidth: () => set(fitScale()),

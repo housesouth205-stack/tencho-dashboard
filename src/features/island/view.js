@@ -16,7 +16,7 @@ const FIX_STYLE = {
 };
 let floor = "1F";
 let metric = "out_val";
-let zoom = 1; // スマホのピンチ倍率。フロア/指標を切り替えても保つ。
+let zoom = null; // スマホのピンチ倍率。null=初回はフロア全体が収まる倍率から。切替後も保つ。
 
 const isMobileView = () => window.matchMedia("(max-width: 700px)").matches;
 
@@ -93,21 +93,28 @@ export async function mount(host) {
     body.appendChild(legend());
     const box = buildFloor(floor);
     if (!isMobileView()) { body.appendChild(box); return; }
-    // スマホのみ: ピンチズーム＋操作ボタン。倍率は再描画をまたいで維持する。
-    const label = el("span", { style: "min-width:44px;text-align:right;color:var(--fg-dim);font-size:12px" });
+    // スマホのみ: ピンチズーム＋操作バー。倍率は再描画をまたいで維持する。
+    // iOS Safariはピンチインをタブ一覧のジェスチャに取ることがあるため、
+    // 指を使わずに縮小できるスライダーと「全体」ボタンを必ず用意する。
+    const label = el("span", { style: "min-width:40px;text-align:right;color:var(--fg-dim);font-size:12px" });
     const z = { api: null };
-    const btn = (t, fn) => el("button", { class: "btn sm ghost", style: "min-width:38px", text: t, onclick: () => z.api && fn(z.api) });
-    body.appendChild(el("div", { class: "row", style: "gap:6px;align-items:center;margin-bottom:6px" }, [
-      btn("−", (a) => a.zoomBy(1 / 1.25)), btn("＋", (a) => a.zoomBy(1.25)),
-      btn("全体", (a) => a.fitWidth()), btn("100%", (a) => a.reset()), label,
-      el("span", { class: "grow" }),
-      el("span", { style: "font-size:11px;color:var(--fg-dim)", text: "2本指で拡大／1本指で移動" }),
+    const btn = (t, fn) => el("button", { class: "btn sm ghost", style: "min-width:36px", text: t, onclick: () => z.api && fn(z.api) });
+    // スライダーは倍率を対数で割り付ける（低倍率側の刻みを細かく）
+    const slider = el("input", { type: "range", min: 0, max: 1000, value: 0, style: "flex:1;min-width:80px" });
+    const toScale = (v) => { const a = z.api; return a.min * Math.pow(a.max / a.min, v / 1000); };
+    const toSlider = (s) => { const a = z.api; return Math.round(1000 * Math.log(s / a.min) / Math.log(a.max / a.min)); };
+    slider.oninput = () => z.api && z.api.setScale(toScale(+slider.value));
+    body.appendChild(el("div", { class: "row", style: "gap:6px;align-items:center;margin-bottom:4px" }, [
+      btn("−", (a) => a.zoomBy(1 / 1.25)), slider, btn("＋", (a) => a.zoomBy(1.25)),
+      btn("全体", (a) => a.fitWidth()), label,
     ]));
+    body.appendChild(el("div", { style: "font-size:11px;color:var(--fg-dim);margin-bottom:6px", text: "スライダー／2本指で拡大縮小・1本指で移動" }));
     body.appendChild(box);
     z.api = attachPinchZoom(box, box.querySelector(".island-grid"), {
-      min: 0.4, max: 5, initial: zoom,
-      onChange: (s) => { zoom = s; label.textContent = `${Math.round(s * 100)}%`; },
+      min: 0.4, max: 5, initial: zoom ?? "fit",
+      onChange: (s) => { zoom = s; label.textContent = `${Math.round(s * 100)}%`; if (z.api) slider.value = toSlider(s); },
     });
+    slider.value = toSlider(z.api.scale); // 初期化中はonChangeでz.apiがまだ無いのでここで合わせる
   }
 
   // 台のある行・列だけを content、間の空きは細い通路(gap)に圧縮。設備は非表示。
