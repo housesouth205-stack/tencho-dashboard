@@ -7,6 +7,7 @@ import { heatColor, heatText, minMax, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../..
 import { printContent } from "../../print/printService.js";
 import { parseIslandXlsx } from "../../import/islandXlsx.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
+import { attachPinchZoom } from "../../util/pinchZoom.js";
 
 const METRICS = [["out_val", "アウト"], ["sales", "台売上"], ["gross", "台粗利"]];
 const FIX_STYLE = {
@@ -15,6 +16,9 @@ const FIX_STYLE = {
 };
 let floor = "1F";
 let metric = "out_val";
+let zoom = 1; // スマホのピンチ倍率。フロア/指標を切り替えても保つ。
+
+const isMobileView = () => window.matchMedia("(max-width: 700px)").matches;
 
 export async function mount(host) {
   clear(host);
@@ -87,7 +91,23 @@ export async function mount(host) {
     metricChips.forEach((c, i) => setChip(c, METRICS[i][0] === metric));
     clear(body);
     body.appendChild(legend());
-    body.appendChild(buildFloor(floor));
+    const box = buildFloor(floor);
+    if (!isMobileView()) { body.appendChild(box); return; }
+    // スマホのみ: ピンチズーム＋操作ボタン。倍率は再描画をまたいで維持する。
+    const label = el("span", { style: "min-width:44px;text-align:right;color:var(--fg-dim);font-size:12px" });
+    const z = { api: null };
+    const btn = (t, fn) => el("button", { class: "btn sm ghost", style: "min-width:38px", text: t, onclick: () => z.api && fn(z.api) });
+    body.appendChild(el("div", { class: "row", style: "gap:6px;align-items:center;margin-bottom:6px" }, [
+      btn("−", (a) => a.zoomBy(1 / 1.25)), btn("＋", (a) => a.zoomBy(1.25)),
+      btn("全体", (a) => a.fitWidth()), btn("100%", (a) => a.reset()), label,
+      el("span", { class: "grow" }),
+      el("span", { style: "font-size:11px;color:var(--fg-dim)", text: "2本指で拡大／1本指で移動" }),
+    ]));
+    body.appendChild(box);
+    z.api = attachPinchZoom(box, box.querySelector(".island-grid"), {
+      min: 0.4, max: 5, initial: zoom,
+      onChange: (s) => { zoom = s; label.textContent = `${Math.round(s * 100)}%`; },
+    });
   }
 
   // 台のある行・列だけを content、間の空きは細い通路(gap)に圧縮。設備は非表示。
@@ -97,17 +117,18 @@ export async function mount(host) {
     return { map, tpl };
   }
 
-  function buildFloor(fl) {
+  function buildFloor(fl, forPrint) {
     const cells = layout.filter((l) => l.floor === fl);
     // PC: 従来どおり画面幅にフィット（横スクロールなし）。
-    // スマホ: 画面幅に押し込むと1台が横長に潰れるため、固定サイズ(やや縦長)＋横スクロール。
-    const isMobile = window.matchMedia("(max-width: 700px)").matches;
+    // スマホ: 画面幅に押し込むと1台が横長に潰れるため、固定サイズ(やや縦長)＋スクロール＋ピンチズーム。
+    // 印刷は端末を問わずPCレイアウトで出す。
+    const isMobile = !forPrint && isMobileView();
     const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), isMobile ? "68px" : "44px", "11px");
     const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), isMobile ? "58px" : "minmax(0,1fr)", "8px");
     const vals = cells.map((c) => snap.get(c.dai_no)?.[metric]).filter((v) => v != null);
     const mm = minMax(vals);
     // 画面幅にフィット(列=可変幅)＋縦は通路を細く
-    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${isMobile ? "max-content" : "100%"}` });
+    const grid = el("div", { class: "island-grid", style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${isMobile ? "max-content" : "100%"}` });
     for (const c of cells) {
       const s = snap.get(c.dai_no);
       // 機種名は「島図Excel＝今の配置」を優先。Excelに無い台は実績データの機種名。
@@ -135,7 +156,9 @@ export async function mount(host) {
         el("div", { style: `font-size:${isMobile ? 9.5 : 7.5}px;line-height:1.1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:${isMobile ? 3 : 2};-webkit-box-orient:vertical;word-break:break-all;opacity:.88;text-align:center`, text: shortModel(model) }),
       ]));
     }
-    return el("div", { style: `overflow-x:${isMobile ? "auto" : "hidden"};-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)` }, grid);
+    // スマホは高さを区切って中だけスクロール（ズーム時に上下も指で送れるようにする）。
+    const boxStyle = isMobile ? "overflow:auto;height:70vh;min-height:320px;" : "overflow-x:hidden;";
+    return el("div", { style: `${boxStyle}-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)` }, grid);
   }
 
   function legend() {
@@ -198,7 +221,7 @@ export async function mount(host) {
     const label = METRICS.find((m) => m[0] === metric)[1];
     const nodes = ordered.map((fl, i) => el("div", { class: "floor" + (i > 0 ? " page-break" : "") }, [
       el("h3", { text: `島図 ${fl}（${label}）` }),
-      buildFloor(fl),
+      buildFloor(fl, true),
     ]));
     printContent(nodes, { orientation: "landscape" });
   }

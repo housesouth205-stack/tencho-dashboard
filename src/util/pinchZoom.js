@@ -1,0 +1,76 @@
+// スマホの2本指ピンチで中身を拡大縮小する。1本指のパンはブラウザ標準のスクロールに任せる。
+// 実寸レイアウトは変えず transform: scale で見た目だけ拡大し、スクロール範囲は同倍率の
+// sizer で確保する（グリッドを組み直さないので描画が崩れず、文字も滲まない）。
+// container は overflow:auto、content はその直下の実体（呼び出し時に sizer で包む）。
+export function attachPinchZoom(container, content, opts = {}) {
+  const min = opts.min ?? 0.5;
+  const max = opts.max ?? 4;
+  // transform の影響を受けない実寸（offsetサイズ）を基準にする
+  const natW = content.offsetWidth;
+  const natH = content.offsetHeight;
+
+  const sizer = document.createElement("div");
+  container.insertBefore(sizer, content);
+  sizer.appendChild(content);
+  content.style.transformOrigin = "0 0";
+  container.style.touchAction = "pan-x pan-y"; // 2本指ジェスチャは自前処理に回す
+  container.style.overscrollBehavior = "contain";
+
+  let scale = 1;
+
+  // 横幅いっぱいに全体を収める倍率。広いフロアでは min より小さくなるので下限もここまで許す。
+  const fitScale = () => (container.clientWidth - 16) / natW;
+
+  // fx/fy = 画面座標の焦点。拡大前後で焦点が同じ台を指し続けるようスクロールを補正する。
+  function set(next, fx, fy) {
+    const s = Math.min(max, Math.max(Math.min(min, fitScale()), next));
+    const r = container.getBoundingClientRect();
+    const px = fx == null ? r.width / 2 : fx - r.left;
+    const py = fy == null ? r.height / 2 : fy - r.top;
+    const cx = (container.scrollLeft + px) / scale;
+    const cy = (container.scrollTop + py) / scale;
+    scale = s;
+    content.style.transform = `scale(${s})`;
+    sizer.style.width = `${natW * s}px`;
+    sizer.style.height = `${natH * s}px`;
+    container.scrollLeft = cx * s - px;
+    container.scrollTop = cy * s - py;
+    opts.onChange?.(s);
+  }
+
+  const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  let base = null;
+
+  container.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) base = { d: dist(e.touches) || 1, s: scale };
+  }, { passive: true });
+
+  container.addEventListener("touchmove", (e) => {
+    if (e.touches.length !== 2 || !base) return;
+    e.preventDefault(); // 2本指のときだけページズーム/スクロールを止める
+    const t = e.touches;
+    set(base.s * (dist(t) / base.d), (t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2);
+  }, { passive: false });
+
+  const end = (e) => { if (e.touches.length < 2) base = null; };
+  container.addEventListener("touchend", end);
+  container.addEventListener("touchcancel", end);
+
+  // PC（と検証時）用: Ctrl+ホイールでも同じ操作ができる
+  container.addEventListener("wheel", (e) => {
+    if (!e.ctrlKey) return;
+    e.preventDefault();
+    set(scale * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX, e.clientY);
+  }, { passive: false });
+
+  set(opts.initial ?? 1);
+
+  return {
+    get scale() { return scale; },
+    get natural() { return { w: natW, h: natH }; },
+    zoomBy: (f) => set(scale * f),
+    setScale: (s, fx, fy) => set(s, fx, fy),
+    fitWidth: () => set(fitScale()),
+    reset: () => set(1),
+  };
+}
