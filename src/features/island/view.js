@@ -3,7 +3,7 @@ import { repo } from "../../core/repo.js";
 import { state } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num, yen, shortModel, sameModel } from "../../util/format.js";
-import { heatColor, heatText, minMax, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
+import { heatColor, heatText, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
 import { printContent } from "../../print/printService.js";
 import { parseIslandXlsx } from "../../import/islandXlsx.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
@@ -132,8 +132,11 @@ export async function mount(host) {
     const isMobile = !forPrint && isMobileView();
     const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), isMobile ? "68px" : "44px", "11px");
     const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), isMobile ? "58px" : "minmax(0,1fr)", "8px");
-    const vals = cells.map((c) => snap.get(c.dai_no)?.[metric]).filter((v) => v != null);
-    const mm = minMax(vals);
+    // 色の基準は区分（レート）ごと。BFは2スロと5スロが混在し、まとめて基準にすると
+    // 桁の大きい方に引っ張られて片方が一律で淡く見えてしまう。
+    const mmBy = minMaxByGroup(
+      cells.map((c) => snap.get(c.dai_no)).filter(Boolean),
+      (r) => r.section_id, (r) => r[metric]);
     // 画面幅にフィット(列=可変幅)＋縦は通路を細く
     const grid = el("div", { class: "island-grid", style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${isMobile ? "max-content" : "100%"}` });
     for (const c of cells) {
@@ -146,6 +149,7 @@ export async function mount(host) {
       // 半角カナ・記号・型式コードの表記ゆれは同一機種として扱う（誤検出防止）。
       const swapped = !!(nowModel && pastModel && !sameModel(nowModel, pastModel));
       const v = s?.[metric];
+      const mm = groupRange(mmBy, s?.section_id);
       const color = heatColor(v, mm.min, mm.max);
       const fg = v == null ? "var(--fg-dim)" : heatText(color);
       const tip = [`台${c.dai_no} ${model}`,
@@ -174,6 +178,7 @@ export async function mount(host) {
     const sw = HEAT5.map(box);
     return el("div", { class: "row", style: "align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:var(--fg-dim);flex-wrap:wrap" },
       [el("span", { text: `${label}：低` }), ...sw, el("span", { text: "高" }),
+       el("span", { text: "（区分ごと）" }),
        el("span", { style: "width:10px" }),
        box(HEAT_MINUS), el("span", { text: "マイナス" }),
        box(HEAT_ZERO), el("span", { text: "稼働なし" }),

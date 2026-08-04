@@ -32,5 +32,24 @@ export function minMax(values) {
   return nums.length ? { min: Math.min(...nums), max: Math.max(...nums) } : { min: 0, max: 0 };
 }
 
+// 区分（レート）ごとの min/max。20スロと5スロではアウトも売上も桁が違うため、
+// 全区分を一つの基準で色付けすると20スロが一律で低く（淡く）見えてしまう。
+// 色は「その区分の中での高い/低い」で判定する。
+export function minMaxByGroup(items, groupOf, valueOf) {
+  const buckets = new Map();
+  for (const it of items) {
+    const k = groupOf(it);
+    if (k == null) continue;
+    if (!buckets.has(k)) buckets.set(k, []);
+    buckets.get(k).push(valueOf(it));
+  }
+  const out = new Map();
+  for (const [k, vals] of buckets) out.set(k, minMax(vals));
+  return out;
+}
+
+// グループ未該当（区分不明の台）は色の基準なし＝専用色にフォールバックさせる。
+export const groupRange = (map, key) => map.get(key) || { min: 0, max: 0 };
+
 // ヒートセルの文字色（濃い赤背景では白寄り）。
 export const heatText = (color) => (color === "#d62828" || color === "#ef6a1c" ? "#fff" : "#1a1a1d");

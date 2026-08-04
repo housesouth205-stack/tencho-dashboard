@@ -1,7 +1,7 @@
 import { el, clear } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { num, pct, shortModel } from "../../util/format.js";
-import { heatColor, heatPoint, minMax, heatText } from "../../calc/heat.js";
+import { heatColor, heatPoint, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
 import { printContent } from "../../print/printService.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 
@@ -41,7 +41,8 @@ export async function mount(host) {
 
   host.appendChild(el("div", { class: "hint", style: "margin:-4px 0 10px", html:
     'ランク＝アウト/台売上/台粗利のヒート合計(各1〜5pt)。' +
-    '🥇 13pt以上 ／ 🥈 10pt以上 ／ 🥉 7pt以上（ランク列クリックで並べ替え）' }));
+    '🥇 13pt以上 ／ 🥈 10pt以上 ／ 🥉 7pt以上（ランク列クリックで並べ替え）<br>' +
+    '色・ランクは<b>同じ区分（レート）の中での高い/低い</b>で判定します。' }));
 
   const tableHost = el("div", { style: "overflow-x:auto" });
   host.appendChild(tableHost);
@@ -59,12 +60,19 @@ export async function mount(host) {
         rate: r.sales ? r.gross / r.sales : null,
       });
     }
-    // ヒートのmin/max→各行にポイント付与（黄1〜赤5、3指標合計 最大15）
-    const heat = { out: minMax(list.map((r) => r.out)), sales: minMax(list.map((r) => r.sales)), gross: minMax(list.map((r) => r.gross)) };
+    // ヒートのmin/maxは区分（レート）ごと。全区分をまとめると桁の大きい低貸に引っ張られ、
+    // 20スロが一律で低く見えてしまうため、色もランクも「同じ区分の中での高低」で決める。
+    const sec = (r) => r.sec.key;
+    const heat = {
+      out: minMaxByGroup(list, sec, (r) => r.out),
+      sales: minMaxByGroup(list, sec, (r) => r.sales),
+      gross: minMaxByGroup(list, sec, (r) => r.gross),
+    };
     for (const r of list) {
-      r.pOut = heatPoint(r.out, heat.out.min, heat.out.max);
-      r.pSales = heatPoint(r.sales, heat.sales.min, heat.sales.max);
-      r.pGross = heatPoint(r.gross, heat.gross.min, heat.gross.max);
+      const g = (key) => groupRange(heat[key], r.sec.key);
+      r.pOut = heatPoint(r.out, g("out").min, g("out").max);
+      r.pSales = heatPoint(r.sales, g("sales").min, g("sales").max);
+      r.pGross = heatPoint(r.gross, g("gross").min, g("gross").max);
       r.points = r.pOut + r.pSales + r.pGross;
     }
     list.sort((a, b) => ((a[sortCol] ?? -Infinity) - (b[sortCol] ?? -Infinity)) * sortDir);
@@ -91,7 +99,8 @@ export async function mount(host) {
     const tb = el("tbody");
     for (const r of list) {
       const heatCell = (key) => {
-        const c = heatColor(r[key], heat[key].min, heat[key].max);
+        const g = groupRange(heat[key], r.sec.key);
+        const c = heatColor(r[key], g.min, g.max);
         return el("td", { style: `background:${c};color:${heatText(c)}`, text: num(r[key]) });
       };
       tb.appendChild(el("tr", {}, [
