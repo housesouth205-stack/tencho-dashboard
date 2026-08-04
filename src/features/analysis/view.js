@@ -2,12 +2,16 @@ import { el, clear } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { num, pct, shortModel } from "../../util/format.js";
 import { heatColor, heatPoint, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
+import { rateKeyOfDai } from "../../core/config.js";
 import { printContent } from "../../print/printService.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 
 let filterKey = "ALL";
 let sortCol = "dai_no";
 let sortDir = 1;
+
+// ヒートの比較単位＝レート。台番号レンジで判定し、範囲外の台のみ取込時の区分で補う。
+const rateOf = (r) => rateKeyOfDai(r.dai_no) || r.sec.key;
 
 // ランク（金🥇≥13 / 銀🥈≥10 / 銅🥉≥7）。点数は非表示、メダルのみ。
 const RANKS = [[13, "🥇"], [10, "🥈"], [7, "🥉"]];
@@ -42,7 +46,8 @@ export async function mount(host) {
   host.appendChild(el("div", { class: "hint", style: "margin:-4px 0 10px", html:
     'ランク＝アウト/台売上/台粗利のヒート合計(各1〜5pt)。' +
     '🥇 13pt以上 ／ 🥈 10pt以上 ／ 🥉 7pt以上（ランク列クリックで並べ替え）<br>' +
-    '色・ランクは<b>同じ区分（レート）の中での高い/低い</b>で判定します。' }));
+    '色・ランクは<b>同じレート（20スロ/5スロ/2スロ）の中での高い/低い</b>で判定し、' +
+    '<b>真ん中の色＝そのレートの平均</b>です（セルにカーソルを乗せると平均値を表示）。' }));
 
   const tableHost = el("div", { style: "overflow-x:auto" });
   host.appendChild(tableHost);
@@ -60,19 +65,17 @@ export async function mount(host) {
         rate: r.sales ? r.gross / r.sales : null,
       });
     }
-    // ヒートのmin/maxは区分（レート）ごと。全区分をまとめると桁の大きい低貸に引っ張られ、
+    // ヒートの基準は区分（レート）ごと。全区分をまとめると桁の大きい低貸に引っ張られ、
     // 20スロが一律で低く見えてしまうため、色もランクも「同じ区分の中での高低」で決める。
-    const sec = (r) => r.sec.key;
     const heat = {
-      out: minMaxByGroup(list, sec, (r) => r.out),
-      sales: minMaxByGroup(list, sec, (r) => r.sales),
-      gross: minMaxByGroup(list, sec, (r) => r.gross),
+      out: minMaxByGroup(list, rateOf, (r) => r.out),
+      sales: minMaxByGroup(list, rateOf, (r) => r.sales),
+      gross: minMaxByGroup(list, rateOf, (r) => r.gross),
     };
     for (const r of list) {
-      const g = (key) => groupRange(heat[key], r.sec.key);
-      r.pOut = heatPoint(r.out, g("out").min, g("out").max);
-      r.pSales = heatPoint(r.sales, g("sales").min, g("sales").max);
-      r.pGross = heatPoint(r.gross, g("gross").min, g("gross").max);
+      r.pOut = heatPoint(r.out, groupRange(heat.out, rateOf(r)));
+      r.pSales = heatPoint(r.sales, groupRange(heat.sales, rateOf(r)));
+      r.pGross = heatPoint(r.gross, groupRange(heat.gross, rateOf(r)));
       r.points = r.pOut + r.pSales + r.pGross;
     }
     list.sort((a, b) => ((a[sortCol] ?? -Infinity) - (b[sortCol] ?? -Infinity)) * sortDir);
@@ -99,9 +102,9 @@ export async function mount(host) {
     const tb = el("tbody");
     for (const r of list) {
       const heatCell = (key) => {
-        const g = groupRange(heat[key], r.sec.key);
-        const c = heatColor(r[key], g.min, g.max);
-        return el("td", { style: `background:${c};color:${heatText(c)}`, text: num(r[key]) });
+        const g = groupRange(heat[key], rateOf(r));
+        const c = heatColor(r[key], g);
+        return el("td", { style: `background:${c};color:${heatText(c)}`, title: `区分平均 ${num(Math.round(g.avg))}`, text: num(r[key]) });
       };
       tb.appendChild(el("tr", {}, [
         el("td", { text: num(r.dai_no) }),

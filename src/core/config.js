@@ -9,6 +9,17 @@ export const STORE_NAME = "TOHO池袋店";
 
 export const FISCAL_START_MONTH = 4; // 会計年度の開始月
 
+// 店舗固有: 台番号→区分（レート）。1F=20スロ、BF=2スロ＋5スロ。
+// ヒートマップは「同じレートの中での高い/低い」で色を決めるため、スナップショットの
+// 区分に依存せず台番号だけで判定できるようにしておく（データ未取込の台でも効く）。
+export const RATE_RANGES = [
+  { key: "S20", from: 1, to: 144 },
+  { key: "S2", from: 145, to: 192 },
+  { key: "S5", from: 193, to: 304 },
+];
+export const rateKeyOfDai = (dai) =>
+  RATE_RANGES.find((r) => dai >= r.from && dai <= r.to)?.key || null;
+
 export const hasSupabase = () => !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 // ----- 認証（フェーズB）-----

@@ -4,6 +4,7 @@ import { state } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num, yen, shortModel, sameModel } from "../../util/format.js";
 import { heatColor, heatText, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
+import { rateKeyOfDai } from "../../core/config.js";
 import { printContent } from "../../print/printService.js";
 import { parseIslandXlsx } from "../../import/islandXlsx.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
@@ -133,10 +134,8 @@ export async function mount(host) {
     const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), isMobile ? "68px" : "44px", "11px");
     const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), isMobile ? "58px" : "minmax(0,1fr)", "8px");
     // 色の基準は区分（レート）ごと。BFは2スロと5スロが混在し、まとめて基準にすると
-    // 桁の大きい方に引っ張られて片方が一律で淡く見えてしまう。
-    const mmBy = minMaxByGroup(
-      cells.map((c) => snap.get(c.dai_no)).filter(Boolean),
-      (r) => r.section_id, (r) => r[metric]);
+    // 桁の大きい方に引っ張られて片方が一律で淡く見えてしまう。判定は台番号レンジ。
+    const mmBy = minMaxByGroup(cells, (c) => rateKeyOfDai(c.dai_no), (c) => snap.get(c.dai_no)?.[metric]);
     // 画面幅にフィット(列=可変幅)＋縦は通路を細く
     const grid = el("div", { class: "island-grid", style: `display:grid;gap:2px;grid-template-columns:${Cc.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${isMobile ? "max-content" : "100%"}` });
     for (const c of cells) {
@@ -149,13 +148,14 @@ export async function mount(host) {
       // 半角カナ・記号・型式コードの表記ゆれは同一機種として扱う（誤検出防止）。
       const swapped = !!(nowModel && pastModel && !sameModel(nowModel, pastModel));
       const v = s?.[metric];
-      const mm = groupRange(mmBy, s?.section_id);
-      const color = heatColor(v, mm.min, mm.max);
+      const mm = groupRange(mmBy, rateKeyOfDai(c.dai_no));
+      const color = heatColor(v, mm);
       const fg = v == null ? "var(--fg-dim)" : heatText(color);
       const tip = [`台${c.dai_no} ${model}`,
         swapped ? `★期間中は「${pastModel}」→ 下の数字は旧機種の実績です` : "",
         s ? `アウト:${num(s.out_val)} 差玉:${num(s.sa_val)} 出率:${s.payout ?? "—"}` : "データなし",
-        s ? `大当り:${num(s.big_count)} 売上:${yen(s.sales)} 粗利:${yen(s.gross)}` : ""].filter(Boolean).join("\n");
+        s ? `大当り:${num(s.big_count)} 売上:${yen(s.sales)} 粗利:${yen(s.gross)}` : "",
+        mm.avg ? `${METRICS.find((m) => m[0] === metric)[1]}の${rateKeyOfDai(c.dai_no)}平均: ${num(Math.round(mm.avg))}` : ""].filter(Boolean).join("\n");
       grid.appendChild(el("div", {
         title: tip,
         style: `grid-column:${Cc.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};overflow:hidden;` +
@@ -178,7 +178,7 @@ export async function mount(host) {
     const sw = HEAT5.map(box);
     return el("div", { class: "row", style: "align-items:center;gap:6px;margin-bottom:8px;font-size:12px;color:var(--fg-dim);flex-wrap:wrap" },
       [el("span", { text: `${label}：低` }), ...sw, el("span", { text: "高" }),
-       el("span", { text: "（区分ごと）" }),
+       el("span", { text: "（レートごと・真ん中＝平均）" }),
        el("span", { style: "width:10px" }),
        box(HEAT_MINUS), el("span", { text: "マイナス" }),
        box(HEAT_ZERO), el("span", { text: "稼働なし" }),
