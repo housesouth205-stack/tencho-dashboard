@@ -13,8 +13,10 @@ let sortDir = 1;
 // ヒートの比較単位＝レート。台番号レンジで判定し、範囲外の台のみ取込時の区分で補う。
 const rateOf = (r) => rateKeyOfDai(r.dai_no) || r.sec.key;
 
-// ランク（金🥇≥13 / 銀🥈≥10 / 銅🥉≥7）。点数は非表示、メダルのみ。
-const RANKS = [[13, "🥇"], [10, "🥈"], [7, "🥉"]];
+// ランク（金🥇≥14 / 銀🥈≥12 / 銅🥉≥10）。点数は非表示、メダルのみ。
+// ヒートは平均が真ん中(3pt)なので、3指標とも平均ちょうどの台は9pt。
+// 銅を10ptからにして「銅＝平均を超えた台」に揃えている（平均並みは無印）。
+const RANKS = [[14, "🥇"], [12, "🥈"], [10, "🥉"]];
 function rankOf(pts) { for (const r of RANKS) if (pts >= r[0]) return r; return null; }
 function rankCell(pts) {
   const r = rankOf(pts);
@@ -45,7 +47,7 @@ export async function mount(host) {
 
   host.appendChild(el("div", { class: "hint", style: "margin:-4px 0 10px", html:
     'ランク＝アウト/台売上/台粗利のヒート合計(各1〜5pt)。' +
-    '🥇 13pt以上 ／ 🥈 10pt以上 ／ 🥉 7pt以上（ランク列クリックで並べ替え）<br>' +
+    '🥇 14pt以上 ／ 🥈 12pt以上 ／ 🥉 10pt以上＝平均超え（ランク列クリックで並べ替え）<br>' +
     '色・ランクは<b>同じレート（20スロ/5スロ/2スロ）の中での高い/低い</b>で判定し、' +
     '<b>真ん中の色＝そのレートの平均</b>です（セルにカーソルを乗せると平均値を表示）。' }));
 
