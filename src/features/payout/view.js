@@ -6,6 +6,7 @@ import { num } from "../../util/format.js";
 import { TYPES, TYPE_KEYS, payoutFromDmm, round1, fmt1 } from "../simulator/economics.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { dmmSearch, dmmFetch, rankCandidates, searchKeyword } from "./dmm.js";
+import { buildMinSetting, MIN_CHOICES } from "../simulator/minSetting.js";
 
 const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|アイムジャグ|ジャグ/;
 const guessType = (m) => (AT_HINT.test(String(m).normalize("NFKC")) ? "Aタイプ" : "AT機");
@@ -29,6 +30,9 @@ export async function mount(host) {
   for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = round1(s.payout_rate); specMap.set(s.model_name, a); }
   const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
   const dmmMap = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "dmm_map" } }))[0]?.value || {}; // {model: dmm_id}
+  // 設定1でパネルが消灯する機種の最低設定 {model: 1|2}。シミュレーターが参照する。
+  const minSaved = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_min" } }))[0]?.value || {};
+  const minSetting = buildMinSetting(minSaved);
   const secLabel = new Map(state.sections.map((s) => [s.id, s.label]));
 
   const groups = new Map();
@@ -44,7 +48,7 @@ export async function mount(host) {
     const registered = saved && saved.every((x) => x != null);
     const type = typeSetting[g.model] || guessType(g.model);
     const payout = registered ? saved : [...TYPES[type]];
-    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? "manual" : "default", dmmId: dmmMap[g.model] || null };
+    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? "manual" : "default", dmmId: dmmMap[g.model] || null, min: minSetting.of(g.model) };
   }).sort((a, b) => a.minDai - b.minDai);
 
   const bar = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px" });
@@ -132,16 +136,22 @@ export async function mount(host) {
     const q = filterText.trim().normalize("NFKC");
     const list = rows.filter((r) => (!onlyUnreg || !r.registered) && (!q || r.model.normalize("NFKC").includes(q)));
     const t = el("table", { class: "grid mono" });
-    t.appendChild(el("thead", {}, el("tr", {}, ["台番", "機種名", "区分", "台数", "タイプ", "設定1", "設定2", "設定3", "設定4", "設定5", "設定6", "状態", ""].map((h, i) =>
-      el("th", { class: i === 1 ? "txt" : "", text: h })))));
+    t.appendChild(el("thead", {}, el("tr", {}, ["台番", "機種名", "区分", "台数", "タイプ", "最低設定", "設定1", "設定2", "設定3", "設定4", "設定5", "設定6", "状態", ""].map((h, i) =>
+      el("th", { class: i === 1 ? "txt" : "", title: h === "最低設定" ? "設定1にするとパネルが消灯する機種は2にする。シミュレーターが設定1を割り当てなくなる。" : null, text: h })))));
     const tb = el("tbody");
     for (const r of list) {
       const typeSel = el("select", { class: "inp", style: "width:92px", onchange: (e) => { r.type = e.target.value; if (!r.registered) r.payout = [...TYPES[r.type]]; draw(); } },
         TYPE_KEYS.map((k) => el("option", { value: k, text: k, selected: k === r.type ? "selected" : null })));
+      // 最低設定: 2にするとシミュレーターがこの機種に設定1を割り当てなくなる
+      const minSel = el("select", {
+        class: "inp", style: `width:64px${r.min > 1 ? ";border-color:var(--accent);font-weight:700" : ""}`,
+        title: "設定1にするとパネルが消灯する機種は2にする",
+        onchange: (e) => { r.min = Number(e.target.value); draw(); },
+      }, MIN_CHOICES.map((v) => el("option", { value: v, text: `設定${v}`, selected: v === r.min ? "selected" : null })));
       const cells = [
         el("td", { style: "color:var(--fg-dim)", title: "この機種の先頭台番", text: r.minDai === 9999 ? "—" : num(r.minDai) }),
         el("td", { class: "txt", text: r.model }),
-        el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSel),
+        el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSel), el("td", {}, minSel),
       ];
       // 出玉率は常に小数第1位で表示・保持（112 → 112.0、112.53 → 112.5）
       for (let s = 0; s < 6; s++) cells.push(el("td", {}, el("input", {
@@ -161,10 +171,11 @@ export async function mount(host) {
   async function save() {
     try {
       setSaveState("saving");
-      const specsOut = [], types = {};
-      for (const r of rows) { types[r.model] = r.type; const src = String(r.source).startsWith("dmm") ? "web" : "manual"; for (let s = 0; s < 6; s++) specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src }); }
+      const specsOut = [], types = {}, mins = { ...minSaved };
+      for (const r of rows) { types[r.model] = r.type; mins[r.model] = r.min; const src = String(r.source).startsWith("dmm") ? "web" : "manual"; for (let s = 0; s < 6; s++) specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src }); }
       for (let i = 0; i < specsOut.length; i += 200) await repo.upsert("model_spec", specsOut.slice(i, i + 200), { onConflict: ["model_name", "setting"] });
       await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_types", value: types }, { onConflict: ["store_id", "key"] });
+      await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_min", value: mins }, { onConflict: ["store_id", "key"] });
       await repo.upsert("app_setting", { store_id: state.storeId, key: "dmm_map", value: dmmMap }, { onConflict: ["store_id", "key"] });
       rows.forEach((r) => { if (!r.registered) { r.registered = true; r.source = "manual"; } });
       setSaveState("saved"); toast("出玉率を保存しました", "ok"); updateReg(); draw();

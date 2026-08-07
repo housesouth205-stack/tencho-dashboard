@@ -6,6 +6,7 @@ import { yen, pct, num, shortModel } from "../../util/format.js";
 import { planCalc } from "../../calc/planCalc.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1 } from "./economics.js";
+import { buildMinSetting, clampSetting } from "./minSetting.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
 import { printContent } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
@@ -25,7 +26,8 @@ export async function mount(host) {
   const st = {
     section: sSections[0], date: new Date().toISOString().slice(0, 10), L: 5, K: 5, target: 0, targets: {},
     allUnits: [], layout: [], brush: 4, ex: {}, prev: null, diffOn: true, jugMore: false,
-    assign: {}, // 区分キー → { 台番: 設定 }。未指定は設定1。区分を切替えても保持
+    assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
+    min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
   };
 
   const ctrl = el("div", { class: "row", style: "gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px" });
@@ -75,6 +77,9 @@ export async function mount(host) {
     const specMap = new Map();
     for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = round1(s.payout_rate); specMap.set(s.model_name, a); }
     const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
+    // 設定1でパネルが消灯する機種は最低設定2で運用する（出玉率タブで管理）
+    const minSaved = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_min" } }))[0]?.value || {};
+    st.min = buildMinSetting(minSaved);
     st.layout = await repo.select("layout_cell", { eq: { store_id: state.storeId } });
 
     // 前日比較用: 対象日より前で最新の保存済みシミュレーション（新形式assignのみ）
@@ -101,9 +106,11 @@ export async function mount(host) {
 
   const curUnits = () => st.allUnits.filter((u) => u.secKey === st.section.key);
   const curAssign = () => (st.assign[st.section.key] = st.assign[st.section.key] || {});
-  const settingOf = (u) => (st.assign[u.secKey] || {})[u.dai] || 1;
+  // その台で使ってよい最低設定。パネル消灯機種は2（設定1を割り当てない）。
+  const minOf = (u) => st.min.of(u.model);
+  const settingOf = (u) => clampSetting((st.assign[u.secKey] || {})[u.dai] || minOf(u), minOf(u));
   // 前日（保存済みの直近シミュ）の設定。比較不能ならnull。
-  const prevSettingOf = (u) => { const pa = st.prev?.allocation?.assign; return pa ? ((pa[u.secKey] || {})[u.dai] || 1) : null; };
+  const prevSettingOf = (u) => { const pa = st.prev?.allocation?.assign; return pa ? clampSetting((pa[u.secKey] || {})[u.dai] || minOf(u), minOf(u)) : null; };
   const curveOf = (u) => u.payout || TYPES[u.group];
   // 区分ごとの貸出/交換枚数（編集中の区分は入力値、他区分は保存値または既定=等価）
   const lkOf = (sec) => {
@@ -146,6 +153,7 @@ export async function mount(host) {
           `アウト ${num(u.out)}・コイン単価 ${u.coin}（機種分析）`,
           `出玉率(設定${s}) ${fmt1(curveOf(u)[s - 1])}%（${u.payout ? "取込実データ" : "タイプ既定"}）`,
           editable ? `台粗利 ${yen(Math.round(unitGross(u, s)))}` : "",
+          minOf(u) > 1 ? `⚠ 設定1不可（パネル消灯）／最低設定${minOf(u)}` : "",
           changed ? `前回 設定${prevSet} → 今回 設定${s}` : "",
         ].filter(Boolean).join("\n"),
       };
@@ -178,7 +186,7 @@ export async function mount(host) {
           el("span", { style: "font-size:20px;font-weight:800;color:#2fb888", text: yen(tt.gross) }),
           el("span", { style: `font-size:12px;font-weight:700;color:${tt.gross >= tgt ? "#43b483" : "#e35d6a"}`, text: tgt ? `${pct(tt.gross / tgt)}（${gd >= 0 ? "+" : ""}${yen(gd)}）` : "" }),
         ]),
-        anySet ? setBadges(tt.bySet) : el("div", { class: "hint", style: "margin-top:4px", text: "投入設定なし（全台1）" }),
+        anySet ? setBadges(tt.bySet) : el("div", { class: "hint", style: "margin-top:4px", text: "投入なし（全台が最低設定）" }),
       ]);
     });
     const allT = sSections.reduce((a, sec) => { const tt = totalsFor(sec.key); a.gross += tt.gross; a.sales += tt.sales; a.tgt += st.targets[sec.key] || 0; return a; }, { gross: 0, sales: 0, tgt: 0 });
@@ -203,7 +211,7 @@ export async function mount(host) {
       el("label", { style: "display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px", title: "ジャグラー系の島に1台多く、優先して投入します" }, [
         jugChk, el("span", { text: "🎰 ジャグラーに多め" }),
       ]),
-      el("button", { class: "btn ghost", text: `${st.section.label}を全台設定1に戻す`, onclick: () => { st.assign[st.section.key] = {}; render(); } }),
+      el("button", { class: "btn ghost", title: "パネル消灯機種は設定2に戻ります", text: `${st.section.label}を最低設定に戻す`, onclick: () => { st.assign[st.section.key] = {}; render(); } }),
     ]);
     if (st.prev) {
       opRow.appendChild(el("button", {
@@ -229,6 +237,15 @@ export async function mount(host) {
       })),
       el("span", { class: "hint", text: `台をクリックすると設定${st.brush}が入ります（${st.section.label}のみ編集可）` }),
     ]));
+
+    // 設定1が使えない機種があることを明示（該当台は設定1を選んでも2が入る）
+    const noOne = [...new Set(curUnits().filter((u) => minOf(u) > 1).map((u) => shortModel(u.model)))];
+    if (noOne.length) {
+      body.appendChild(el("div", { class: "hint", style: "font-size:11.5px", html:
+        `⚠ <b>設定1が使えない機種</b>（設定1にするとパネルが消灯するため最低設定2）：` +
+        `${noOne.join(" / ")} — 設定1を選んでクリックしても設定2が入ります。` +
+        `対象機種の追加・解除は<b>出玉率タブ</b>の「最低設定」列で行えます。` }));
+    }
 
     // ── データ元の明示（アウト/コイン単価=機種分析、出玉率=取込） ──
     const cu = curUnits();
@@ -256,7 +273,11 @@ export async function mount(host) {
         editable: (dai) => editSet.has(dai),
         onCellClick: (dai) => {
           const A = curAssign();
-          A[dai] = st.brush; // 選択中の設定を置く（消すには設定1を選んでクリック）
+          const u = st.allUnits.find((x) => x.dai === dai && x.secKey === st.section.key);
+          const min = u ? minOf(u) : 1;
+          // パネル消灯機種に設定1を置こうとしたら最低設定に丸めて理由を知らせる
+          if (u && st.brush < min) toast(`${shortModel(u.model)} は設定1不可（パネル消灯）のため設定${min}にしました`, "");
+          A[dai] = clampSetting(st.brush, min); // 選択中の設定を置く（戻すには最低設定を選んでクリック）
           render();
         },
       }));
@@ -312,24 +333,28 @@ export async function mount(host) {
       picks.push({ list: src.slice(0, n), jug: jugIsland });
     }
 
-    // 予算内に収める: 全台設定1を基準に、粗利の下がり幅が小さい台から順に採用。
-    const base = {};
+    // 予算内に収める: 全台を最低設定にした状態を基準に、粗利の下がり幅が小さい台から順に採用。
+    // 基準は設定1固定ではなく機種ごとの最低設定（パネル消灯機種は2）にする。
+    // 設定1を基準にすると、その機種で到達できない粗利を前提に枠を計算してしまうため。
     const target = st.target || 0;
-    const cand = picks.flatMap((p) => p.list.map((u) => ({ u, jug: p.jug, drop: unitGross(u, 1) - unitGross(u, st.brush) })));
+    const cand = picks.flatMap((p) => p.list.map((u) => {
+      const to = clampSetting(st.brush, minOf(u));
+      return { u, jug: p.jug, to, drop: unitGross(u, minOf(u)) - unitGross(u, to) };
+    })).filter((c) => c.to > minOf(c.u)); // 既に最低設定と同じなら投入する意味がない
     // ジャグラー優先時はジャグラーを先に、それ以外はコスト（粗利減）が小さい順
     cand.sort((a, b) => (st.jugMore && a.jug !== b.jug ? (a.jug ? -1 : 1) : a.drop - b.drop));
 
     const A = {};
     let total = 0;
-    for (const u of units) total += unitGross(u, 1); // 全台設定1の粗利
+    for (const u of units) total += unitGross(u, minOf(u)); // 全台を最低設定にしたときの粗利
     const baseGross = total;
-    // 予算枠: 計画粗利を下回らない範囲。ただし全台設定1で既に計画割れの区分は
+    // 予算枠: 計画粗利を下回らない範囲。ただし最低設定で既に計画割れの区分は
     // 投入不能になってしまうため、その場合は現状粗利の95%までを許容枠とする。
     const floor = target && baseGross >= target ? target : baseGross * 0.95;
     let placed = 0, skipped = 0;
     for (const c of cand) {
       if (total - c.drop < floor) { skipped++; continue; } // 枠割れは見送り
-      A[c.u.dai] = st.brush; total -= c.drop; placed++;
+      A[c.u.dai] = c.to; total -= c.drop; placed++;
     }
     st.assign[st.section.key] = A;
     render();
