@@ -28,6 +28,17 @@ export function ymd(year, month, day) {
   return `${year}-${p(month)}-${p(day)}`;
 }
 
+// ローカル日付の YYYY-MM-DD。toISOString() はUTCに変換されるため、日本時間の朝9時前は
+// 前日になってしまう（対象日が1日ずれて保存される）。日付だけを扱う箇所では必ずこちらを使う。
+export const localYmd = (d = new Date()) => ymd(d.getFullYear(), d.getMonth() + 1, d.getDate());
+
+// 日数を足したローカル日付。
+export const addDays = (dateStr, n) => {
+  const d = new Date(`${dateStr}T00:00:00`);
+  d.setDate(d.getDate() + n);
+  return localYmd(d);
+};
+
 export function todayFiscalYear() {
   return fiscalYearOf(new Date());
 }
