@@ -10,6 +10,7 @@ import { renderDayCalendar } from "./dayCalendar.js";
 import { pickMonthlyPlan } from "./importPlan.js";
 import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
+import { openDailyReport } from "./reportModal.js";
 import { hbars, line } from "./charts.js";
 
 let month = new Date().getMonth() + 1;
@@ -52,6 +53,7 @@ export async function mount(host) {
   if (gran === "month") {
     ctrl.appendChild(el("button", { class: "btn primary", text: "日別入力", onclick: openCalendar }));
     ctrl.appendChild(el("button", { class: "btn", text: "🎯 目標粗利→計画", onclick: () => openTargetPlanner({ fy: state.fy, month, sections: state.sections, onDone: refresh }) }));
+    ctrl.appendChild(el("button", { class: "btn", text: "📋 日報", onclick: () => openDailyReport({ fy: state.fy, month, sections: state.sections }) }));
   }
   ctrl.appendChild(el("button", { class: "btn", text: gran === "year" ? "年間目標" : "月間目標", onclick: () => openBudgetInput({ mode: gran, fy: state.fy, month, sections: state.sections, onDone: refresh }) }));
   ctrl.appendChild(el("button", { class: "btn ghost", text: "月計画表を取込", onclick: () => pickMonthlyPlan({ fy: state.fy, sections: state.sections, onDone: refresh }) }));
