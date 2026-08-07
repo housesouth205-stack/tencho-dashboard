@@ -13,6 +13,14 @@ import { printContent } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
 
 const TROPHY = { 2: "🥉", 3: "🥈", 4: "🥇", 5: "🦒", 6: "🌈" }; // 5=キリン柄(サミー基準)
+// 投入時にどこまで計画粗利を割ってよいか。強気の日は計画割れ前提で入れたいことがある。
+const BUDGETS = [
+  ["strict", "計画粗利を下回らない"],
+  ["95", "計画の95%まで"],
+  ["90", "計画の90%まで"],
+  ["85", "計画の85%まで"],
+  ["none", "予算を気にせず入れる"],
+];
 const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|ニューアイム|アイムジャグ|ジャグ/;
 const guessType = (model) => (AT_HINT.test(String(model).normalize("NFKC")) ? "Aタイプ" : "AT機");
 const groupOf = (model, saved) => (((saved || guessType(model)) === "Aタイプ") ? "Aタイプ" : "AT機");
@@ -28,6 +36,7 @@ export async function mount(host) {
     section: sSections[0], date: localYmd(), L: 5, K: 5, target: 0, targets: {},
     allUnits: [], layout: [], brush: 4, ex: {}, prev: null, jugMore: false,
     islandModels: {}, minSaved: {}, sessions: [], savedAt: null, carriedOver: false,
+    budget: "strict", // 投入時に計画粗利をどこまで割ってよいか
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
     min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
   };
@@ -257,6 +266,10 @@ export async function mount(host) {
       el("label", { style: "display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px", title: "マイジャグ・ファンキー・ゴーゴーなど、ジャグラーの機種ごとに最低1台入れます" }, [
         jugChk, el("span", { text: "🎰 ジャグラーは機種ごとに1台以上" }),
       ]),
+      el("span", { class: "hint", text: "予算" }),
+      el("select", { class: "inp", style: "width:190px", title: "投入で計画粗利をどこまで割ってよいか",
+        onchange: (e) => { st.budget = e.target.value; } },
+        BUDGETS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.budget ? "selected" : null }))),
       el("button", { class: "btn ghost", title: "全区分をまとめて戻します（パネル消灯機種は設定2）", text: "全台を最低設定に戻す", onclick: () => { st.assign = {}; render(); } }),
       el("button", { class: "btn ghost sm", title: "設定1にするとパネルが消灯する機種を選ぶ", text: "⚙ 設定1不可の機種", onclick: openMinEditor }),
     ]);
@@ -374,7 +387,8 @@ export async function mount(host) {
   // 対象は全区分。日付をまたぐ一括作成からも同じ関数を使う。
   // seed を渡すと「前日を引き継ぎ、一部だけ入れ替える」動きになる。
   // changeRate は前日投入した台を最低設定へ戻す割合（0.3なら約3割を入れ替え）。
-  function buildRandomAssign(targets, brush = st.brush, seed = null, changeRate = 0.3) {
+  // budget: "strict"=計画粗利を下回らない / "95","90"=計画比その%まで / "none"=枠を見ない
+  function buildRandomAssign(targets, brush = st.brush, seed = null, changeRate = 0.3, budget = st.budget) {
     const isJug = (u) => /ジャグラー|ジャグ/.test(String(u.model).normalize("NFKC"));
     const assign = {};
     let placed = 0, skipped = 0, islandCount = 0, carried = 0, jugPlaced = 0;
@@ -390,7 +404,10 @@ export async function mount(host) {
       const target = targets[sec.key] || 0;
       let total = 0;
       for (const u of units) total += unitGross(u, minOf(u));
-      const floor = target && total >= target ? target : total * 0.95;
+      // 枠の下限。計画が未入力（target=0）の日は現状粗利を基準にする。
+      const floor = budget === "none" ? -Infinity
+        : budget === "strict" ? (target && total >= target ? target : total * 0.95)
+        : (target || total) * (Number(budget) / 100);
 
       // ① 前日ぶんの引き継ぎ（一部は最低設定に戻す）
       const A = {};
@@ -480,9 +497,33 @@ export async function mount(host) {
       el("option", { value: "0.6", text: "多め（約6割を入れ替え）" }),
       el("option", { value: "1", text: "毎日ゼロから組み直す" }),
     ]);
+    const budgetSel = el("select", { class: "inp", style: "width:190px" },
+      BUDGETS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.budget ? "selected" : null })));
+    // 既定で作り直す。作っても画面が変わらない（保存済みの日が飛ばされる）のが分かりにくいため。
     const overwrite = el("input", { type: "checkbox", style: "cursor:pointer" });
-    const log = el("div", { class: "hint", style: "min-height:18px" });
+    overwrite.checked = true;
+    const log = el("div", { class: "hint", style: "min-height:34px;white-space:pre-wrap" });
     const runBtn = el("button", { class: "btn primary", text: "作成して保存" });
+
+    // 実行前に「何日ぶんが対象で、1日あたり何台入るか」を出す。押しても何も起きないように
+    // 見える状態（保存済みでスキップ／予算枠で0台）を事前に気づけるようにする。
+    function preview() {
+      const days = Math.max(1, Math.min(62, Number(daysInp.value) || 30));
+      const start = startInp.value || st.date;
+      const saved = new Set(st.sessions.filter((s) => s.allocation?.assign).map((s) => s.target_date));
+      let already = 0;
+      for (let i = 0; i < days; i++) if (saved.has(addDays(start, i))) already++;
+      const willMake = overwrite.checked ? days : days - already;
+      const trial = buildRandomAssign(st.targets, Number(setSel.value), st.assign, Number(rateSel.value), budgetSel.value);
+      const per = trial.placed + trial.carried;
+      log.textContent =
+        `対象 ${days}日（${start} 〜 ${addDays(start, days - 1)}）／保存済み ${already}日\n`
+        + `作成するのは ${willMake}日ぶん。試算では1日あたり約${per}台に投入`
+        + (per === 0 ? "（枠に余裕がありません。「予算」をゆるめるか、入れる設定を下げてください）" : "");
+    }
+    startInp.onchange = preview; daysInp.oninput = preview;
+    setSel.onchange = preview; rateSel.onchange = preview;
+    overwrite.onchange = preview; budgetSel.onchange = preview;
 
     const close = modal("設定投入をおまかせで作る", el("div", { class: "col", style: "gap:10px;min-width:min(500px,88vw)" }, [
       el("div", { class: "hint", style: "margin:0", html:
@@ -494,14 +535,16 @@ export async function mount(host) {
         el("div", {}, [el("label", { class: "lbl", text: "日数" }), daysInp]),
         el("div", {}, [el("label", { class: "lbl", text: "入れる設定" }), setSel]),
         el("div", {}, [el("label", { class: "lbl", text: "日ごとの変化" }), rateSel]),
+        el("div", {}, [el("label", { class: "lbl", text: "予算" }), budgetSel]),
       ]),
       el("label", { class: "row", style: "gap:6px;align-items:center;cursor:pointer;font-size:13px" },
-        [overwrite, el("span", { text: "保存済みの日も作り直す（既定は空いている日だけ）" })]),
+        [overwrite, el("span", { text: "保存済みの日も作り直す（外すと、既に保存した日はそのまま残ります）" })]),
       el("p", { class: "hint", style: "margin:0;font-size:11.5px", text: "各日の計画粗利は予実タブの計画から読みます。計画が無い日は現状比95%を上限に投入します。" }),
       log,
     ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:10px" }, [
       el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }), runBtn,
     ]));
+    preview();
 
     runBtn.onclick = async () => {
       const days = Math.max(1, Math.min(62, Number(daysInp.value) || 30));
@@ -521,17 +564,18 @@ export async function mount(host) {
         const before = st.sessions.filter((s) => s.allocation?.assign && s.target_date < start)
           .sort((a, b) => (a.target_date < b.target_date ? 1 : -1))[0];
         let seed = JSON.parse(JSON.stringify(before?.allocation?.assign || st.assign || {}));
-        let made = 0, skipped = 0, placedAll = 0;
+        let made = 0, skipped = 0, placedAll = 0, firstMade = null;
         for (let i = 0; i < days; i++) {
           const date = addDays(start, i);
           if (!overwrite.checked && done.has(date)) { skipped++; continue; }
+          if (!firstMade) firstMade = date;
           const targets = {};
           for (const sec of sSections) {
             const p = plans.find((r) => r.ymd === date && r.section_id === sec.id);
             const m = machines.find((r) => r.ymd === date && r.section_id === sec.id);
             targets[sec.key] = p ? planCalc(p, m?.count).gross : 0;
           }
-          const r = buildRandomAssign(targets, brush, seed, changeRate);
+          const r = buildRandomAssign(targets, brush, seed, changeRate, budgetSel.value);
           await saveDay(date, r.assign, targets);
           seed = r.assign; // 翌日はこの日を引き継ぐ
           made++; placedAll += r.placed + r.carried;
@@ -539,8 +583,15 @@ export async function mount(host) {
         }
         st.sessions = await repo.select("sim_session", { eq: { store_id: state.storeId } });
         close();
-        toast(`${made}日ぶん作成しました（1日あたり平均${made ? Math.round(placedAll / made) : 0}台投入）`
-          + (skipped ? `／保存済み${skipped}日はそのまま` : ""), "ok");
+        if (!made) {
+          toast(`作成した日はありません（${skipped}日ぶんは保存済みのためそのまま）。作り直すなら「保存済みの日も作り直す」にチェックしてください。`, "err");
+          return;
+        }
+        // 作った日を実際に開く。開始日が飛ばされると画面が変わらず「何も起きていない」ように見えるため。
+        st.date = firstMade;
+        dateInp.value = firstMade;
+        toast(`${made}日ぶん作成しました（1日あたり平均${Math.round(placedAll / made)}台投入）`
+          + (skipped ? `／保存済み${skipped}日はそのまま` : "") + ` — ${firstMade} を表示しています`, "ok");
         await reload();
       } catch (e) { errorToast(e); runBtn.disabled = false; }
     };
