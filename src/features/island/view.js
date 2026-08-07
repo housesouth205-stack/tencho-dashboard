@@ -8,7 +8,7 @@ import { rateKeyOfDai } from "../../core/config.js";
 import { printContent } from "../../print/printService.js";
 import { parseIslandXlsx } from "../../import/islandXlsx.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
-import { attachPinchZoom } from "../../util/pinchZoom.js";
+import { mountZoomBar } from "../../util/pinchZoom.js";
 
 const METRICS = [["out_val", "アウト"], ["sales", "台売上"], ["gross", "台粗利"]];
 const FIX_STYLE = {
@@ -88,34 +88,23 @@ export async function mount(host) {
   }
 
   function render() {
-    floorChips.forEach((c, i) => setChip(c, floors[i] === floor));
+    const mobile = isMobileView();
+    // スマホは全フロアを同時に出すのでフロア切替は不要
+    floorChips.forEach((c, i) => { c.style.display = mobile ? "none" : ""; setChip(c, floors[i] === floor); });
     metricChips.forEach((c, i) => setChip(c, METRICS[i][0] === metric));
     clear(body);
     body.appendChild(legend());
-    const box = buildFloor(floor);
-    if (!isMobileView()) { body.appendChild(box); return; }
-    // スマホのみ: ピンチズーム＋操作バー。倍率は再描画をまたいで維持する。
+    if (!mobile) { body.appendChild(buildFloor(floor)); return; }
+    // スマホ: 1F/BFを縦に並べて1つの枠に入れ、まとめてピンチズームする。
     // iOS Safariはピンチインをタブ一覧のジェスチャに取ることがあるため、
     // 指を使わずに縮小できるスライダーと「全体」ボタンを必ず用意する。
-    const label = el("span", { style: "min-width:40px;text-align:right;color:var(--fg-dim);font-size:12px" });
-    const z = { api: null };
-    const btn = (t, fn) => el("button", { class: "btn sm ghost", style: "min-width:36px", text: t, onclick: () => z.api && fn(z.api) });
-    // スライダーは倍率を対数で割り付ける（低倍率側の刻みを細かく）
-    const slider = el("input", { type: "range", min: 0, max: 1000, value: 0, style: "flex:1;min-width:80px" });
-    const toScale = (v) => { const a = z.api; return a.min * Math.pow(a.max / a.min, v / 1000); };
-    const toSlider = (s) => { const a = z.api; return Math.round(1000 * Math.log(s / a.min) / Math.log(a.max / a.min)); };
-    slider.oninput = () => z.api && z.api.setScale(toScale(+slider.value));
-    body.appendChild(el("div", { class: "row", style: "gap:6px;align-items:center;margin-bottom:4px" }, [
-      btn("−", (a) => a.zoomBy(1 / 1.25)), slider, btn("＋", (a) => a.zoomBy(1.25)),
-      btn("全体", (a) => a.fitWidth()), label,
-    ]));
-    body.appendChild(el("div", { style: "font-size:11px;color:var(--fg-dim);margin-bottom:6px", text: "スライダー／2本指で拡大縮小・1本指で移動" }));
-    body.appendChild(box);
-    z.api = attachPinchZoom(box, box.querySelector(".island-grid"), {
-      min: 0.4, max: 5, initial: zoom ?? "fit",
-      onChange: (s) => { zoom = s; label.textContent = `${Math.round(s * 100)}%`; if (z.api) slider.value = toSlider(s); },
+    const bar = el("div");
+    body.appendChild(bar);
+    const box = buildAllFloors();
+    body.appendChild(box); // 実寸を測るため先にDOMへ入れる
+    mountZoomBar(bar, box, box.querySelector(".island-grid-all"), {
+      initial: zoom ?? "fit", onChange: (s) => { zoom = s; },
     });
-    slider.value = toSlider(z.api.scale); // 初期化中はonChangeでz.apiがまだ無いのでここで合わせる
   }
 
   // 台のある行・列だけを content、間の空きは細い通路(gap)に圧縮。設備は非表示。
@@ -125,12 +114,8 @@ export async function mount(host) {
     return { map, tpl };
   }
 
-  function buildFloor(fl, forPrint) {
+  function buildGrid(fl, isMobile) {
     const cells = layout.filter((l) => l.floor === fl);
-    // PC: 従来どおり画面幅にフィット（横スクロールなし）。
-    // スマホ: 画面幅に押し込むと1台が横長に潰れるため、固定サイズ(やや縦長)＋スクロール＋ピンチズーム。
-    // 印刷は端末を問わずPCレイアウトで出す。
-    const isMobile = !forPrint && isMobileView();
     const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), isMobile ? "68px" : "44px", "11px");
     const Cc = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), isMobile ? "58px" : "minmax(0,1fr)", "8px");
     // 色の基準は区分（レート）ごと。BFは2スロと5スロが混在し、まとめて基準にすると
@@ -167,9 +152,32 @@ export async function mount(host) {
         el("div", { style: `font-size:${isMobile ? 9.5 : 7.5}px;line-height:1.1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:${isMobile ? 3 : 2};-webkit-box-orient:vertical;word-break:break-all;opacity:.88;text-align:center`, text: shortModel(model) }),
       ]));
     }
-    // スマホは高さを区切って中だけスクロール（ズーム時に上下も指で送れるようにする）。
-    const boxStyle = isMobile ? "overflow:auto;height:70vh;min-height:320px;" : "overflow-x:hidden;";
-    return el("div", { style: `${boxStyle}-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)` }, grid);
+    return grid;
+  }
+
+  // スマホは高さを区切って中だけスクロール（ズーム時に上下も指で送れるようにする）。
+  const BOX_MOBILE = "overflow:auto;height:70vh;min-height:320px;";
+  const boxOf = (inner, isMobile) => el("div", {
+    style: `${isMobile ? BOX_MOBILE : "overflow-x:hidden;"}-webkit-overflow-scrolling:touch;` +
+      "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)",
+  }, inner);
+
+  // PC: 従来どおり画面幅にフィット（横スクロールなし）。印刷も端末を問わずこちら。
+  function buildFloor(fl, forPrint) {
+    const isMobile = !forPrint && isMobileView();
+    return boxOf(buildGrid(fl, isMobile), isMobile);
+  }
+
+  // スマホ: 1FとBFを1つの枠に縦へ並べて同時に見せる（フロア切替をなくす）。
+  // ズームは全体にかかるので、両フロアを同じ縮尺で見比べられる。
+  function buildAllFloors() {
+    const content = el("div", { class: "island-grid-all", style: "width:max-content" });
+    for (const fl of floors) {
+      content.appendChild(el("div", { style: "font-weight:700;font-size:13px;margin:2px 0 3px", text: fl }));
+      content.appendChild(buildGrid(fl, true));
+      content.appendChild(el("div", { style: "height:10px" }));
+    }
+    return boxOf(content, true);
   }
 
   function legend() {

@@ -25,12 +25,13 @@ export function buildLegend(placement) {
 // 1フロア分の島図グリッド。全台を描画。
 // opts.editable(dai)=trueの台はクリック可（onCellClick(dai)を呼ぶ）。編集不可の台は薄表示。
 export function buildPlacementFloor(layout, placement, floor, opts = {}) {
-  const { onCellClick, editable } = opts;
+  const { onCellClick, editable, cellW } = opts;
   const pmap = new Map(placement.map((p) => [p.dai, p]));
   const cells = layout.filter((l) => l.floor === floor);
-  const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), "46px", "8px");
-  const C = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), "minmax(0,1fr)", "6px");
-  const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:100%` });
+  // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
+  const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), cellW ? "56px" : "46px", "8px");
+  const C = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), cellW || "minmax(0,1fr)", "6px");
+  const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${cellW ? "max-content" : "100%"}` });
   for (const c of cells) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
@@ -60,19 +61,21 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     ]);
     grid.appendChild(cell);
   }
-  return el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
+  return opts.cellW ? grid
+    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
 }
 
 // 画面表示: 凡例＋全フロア（1F/BF両方、全台表示）
+// opts.cellW 指定時はズーム対象としてまとめた中身だけを返す（枠は呼び出し側が付ける）。
 export function buildPlacementMap(layout, placement, opts = {}) {
   const floors = [...new Set(layout.map((l) => l.floor))];
-  const wrap = el("div", { class: "col", style: "gap:8px" });
-  wrap.appendChild(buildLegend(placement));
+  const zoomed = !!opts.cellW;
+  const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
+  if (!zoomed) wrap.appendChild(buildLegend(placement));
   for (const fl of floors) {
-    wrap.appendChild(el("div", {}, [
-      el("div", { class: "hint", style: "margin:2px 0;font-weight:700", text: fl }),
-      buildPlacementFloor(layout, placement, fl, opts),
-    ]));
+    wrap.appendChild(el("div", { class: zoomed ? "" : "hint", style: `margin:2px 0 3px;font-weight:700${zoomed ? ";font-size:13px" : ""}`, text: fl }));
+    wrap.appendChild(buildPlacementFloor(layout, placement, fl, opts));
+    if (zoomed) wrap.appendChild(el("div", { style: "height:10px" }));
   }
   return wrap;
 }

@@ -9,6 +9,7 @@ import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1 } from "./economics.js";
 import { buildMinSetting, clampSetting } from "./minSetting.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
+import { mountZoomBar } from "../../util/pinchZoom.js";
 import { printContent } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
 
@@ -37,6 +38,7 @@ export async function mount(host) {
     allUnits: [], layout: [], brush: 4, ex: {}, prev: null, jugMore: false,
     islandModels: {}, minSaved: {}, sessions: [], savedAt: null, carriedOver: false,
     budget: "strict", // 投入時に計画粗利をどこまで割ってよいか
+    zoom: null, // スマホ島図の倍率（再描画をまたいで保つ）
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
     min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
   };
@@ -334,9 +336,12 @@ export async function mount(host) {
     const placement = mergedPlacement();
     const unitByDai = new Map(st.allUnits.filter((u) => u.sec).map((u) => [u.dai, u]));
     if (st.layout.length) {
-      body.appendChild(buildPlacementMap(st.layout, placement, {
+      // スマホは島図タブと同じ操作感にする: 1F/BFを縦に並べて固定サイズ＋ピンチズーム。
+      const mobile = window.matchMedia("(max-width: 700px)").matches;
+      const mapOpts = {
         // 区分を切り替えなくても全台に投入できる。20スロ/5スロ/2スロを行き来する手間をなくす。
         editable: (dai) => unitByDai.has(dai),
+        cellW: mobile ? "46px" : null,
         onCellClick: (dai) => {
           const u = unitByDai.get(dai);
           if (!u) return;
@@ -347,7 +352,24 @@ export async function mount(host) {
           A[dai] = clampSetting(st.brush, min); // 選択中の設定を置く（戻すには最低設定を選んでクリック）
           render();
         },
-      }));
+      };
+      if (!mobile) {
+        body.appendChild(buildPlacementMap(st.layout, placement, mapOpts));
+      } else {
+        body.appendChild(buildLegend(placement));
+        const bar = el("div");
+        body.appendChild(bar);
+        const box = el("div", {
+          style: "overflow:auto;height:64vh;min-height:300px;-webkit-overflow-scrolling:touch;" +
+            "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)",
+        }, buildPlacementMap(st.layout, placement, mapOpts));
+        body.appendChild(box); // 実寸を測るため先にDOMへ入れる
+        mountZoomBar(bar, box, box.querySelector(".placement-all"), {
+          initial: st.zoom ?? "fit",
+          hint: "スライダー／2本指で拡大縮小・1本指で移動。台をタップで設定を投入",
+          onChange: (s) => { st.zoom = s; },
+        });
+      }
     } else {
       body.appendChild(el("div", { class: "placeholder", text: "島図タブで島図Excelを取込むと、ここに配置図が表示されます。" }));
     }

@@ -1,3 +1,5 @@
+import { el } from "./dom.js";
+
 // スマホの2本指ピンチで中身を拡大縮小する。1本指のパンはブラウザ標準のスクロールに任せる。
 // 実寸レイアウトは変えず transform: scale で見た目だけ拡大し、スクロール範囲は同倍率の
 // sizer で確保する（グリッドを組み直さないので描画が崩れず、文字も滲まない）。
@@ -92,4 +94,35 @@ export function attachPinchZoom(container, content, opts = {}) {
     fitWidth: () => set(fitScale()),
     reset: () => set(1),
   };
+}
+
+// 操作バー（− スライダー ＋ 全体 倍率）付きでピンチズームを付ける。
+// 島図タブと設定投入シミュレーターで同じ操作感にするための共通UI。
+// container は既にDOMに入っていること（実寸を測るため）。バーは barHost に追加する。
+export function mountZoomBar(barHost, container, content, opts = {}) {
+  const label = el("span", { style: "min-width:40px;text-align:right;color:var(--fg-dim);font-size:12px" });
+  const slider = el("input", { type: "range", min: 0, max: 1000, value: 0, style: "flex:1;min-width:80px" });
+  const ref = { z: null };
+  const toScale = (v) => ref.z.min * Math.pow(ref.z.max / ref.z.min, v / 1000);
+  const toSlider = (s) => Math.round(1000 * Math.log(s / ref.z.min) / Math.log(ref.z.max / ref.z.min));
+  slider.oninput = () => ref.z && ref.z.setScale(toScale(+slider.value));
+  const btn = (t, fn) => el("button", { class: "btn sm ghost", style: "min-width:36px", text: t, onclick: () => ref.z && fn(ref.z) });
+
+  barHost.appendChild(el("div", { class: "row", style: "gap:6px;align-items:center;margin-bottom:4px" }, [
+    btn("−", (z) => z.zoomBy(1 / 1.25)), slider, btn("＋", (z) => z.zoomBy(1.25)),
+    btn("全体", (z) => z.fitWidth()), label,
+  ]));
+  barHost.appendChild(el("div", { style: "font-size:11px;color:var(--fg-dim);margin-bottom:6px",
+    text: opts.hint || "スライダー／2本指で拡大縮小・1本指で移動" }));
+
+  ref.z = attachPinchZoom(container, content, {
+    min: opts.min ?? 0.4, max: opts.max ?? 5, initial: opts.initial ?? "fit",
+    onChange: (s) => {
+      label.textContent = `${Math.round(s * 100)}%`;
+      if (ref.z) slider.value = toSlider(s);
+      opts.onChange?.(s);
+    },
+  });
+  slider.value = toSlider(ref.z.scale);
+  return ref.z;
 }
