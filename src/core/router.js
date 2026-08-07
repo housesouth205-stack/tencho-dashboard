@@ -6,7 +6,6 @@ const TABS = [
   { id: "simulator", label: "シミュレーター", load: () => import("../features/simulator/view.js") },
   { id: "island", label: "島図", load: () => import("../features/island/view.js") },
   { id: "analysis", label: "機種分析", load: () => import("../features/analysis/view.js") },
-  { id: "swap", label: "入替効果", load: () => import("../features/swap/view.js") },
   { id: "payout", label: "出玉率", load: () => import("../features/payout/view.js") },
   { id: "import", label: "取込", load: () => import("../features/import/view.js") },
   { id: "settings", label: "設定", load: () => import("../features/settings/view.js") },
