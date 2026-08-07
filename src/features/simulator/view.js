@@ -1,4 +1,4 @@
-import { el, clear } from "../../util/dom.js";
+import { el, clear, modal } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
@@ -25,7 +25,8 @@ export async function mount(host) {
   const sSections = state.sections.filter((s) => s.ptype === "S");
   const st = {
     section: sSections[0], date: new Date().toISOString().slice(0, 10), L: 5, K: 5, target: 0, targets: {},
-    allUnits: [], layout: [], brush: 4, ex: {}, prev: null, diffOn: true, jugMore: false,
+    allUnits: [], layout: [], brush: 4, ex: {}, prev: null, jugMore: false,
+    islandModels: {}, minSaved: {},
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
     min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
   };
@@ -79,7 +80,11 @@ export async function mount(host) {
     const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
     // 設定1でパネルが消灯する機種は最低設定2で運用する（出玉率タブで管理）
     const minSaved = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_min" } }))[0]?.value || {};
+    st.minSaved = minSaved;
     st.min = buildMinSetting(minSaved);
+    // 機種名は「今の配置（島図Excel）」を優先する。台が移動・入替されるとスナップショットの
+    // 機種名は前の期間のままなので、それを使うと最低設定の判定が旧機種に引きずられる。
+    st.islandModels = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "island_models" } }))[0]?.value || {};
     st.layout = await repo.select("layout_cell", { eq: { store_id: state.storeId } });
 
     // 前日比較用: 対象日より前で最新の保存済みシミュレーション（新形式assignのみ）
@@ -91,14 +96,17 @@ export async function mount(host) {
     st.prev = prevs[0] || null;
 
     const secById = new Map(state.sections.map((s) => [s.id, s]));
+    const fullSpec = (name) => { const a = specMap.get(name); return a && a.every((x) => x != null) ? a : null; };
     st.allUnits = snap.map((r) => {
       const sec = secById.get(r.section_id);
+      // 今の配置の機種名を優先。無ければスナップショット（実績期間）の機種名。
+      const model = st.islandModels[r.dai_no] || r.model_name;
       return {
-        dai: r.dai_no, model: r.model_name, out: r.out_val || 0,
+        dai: r.dai_no, model, pastModel: r.model_name, out: r.out_val || 0,
         coin: r.out_val ? (+(r.sales / r.out_val).toFixed(3) || 3.0) : 3.0,
-        group: groupOf(r.model_name, typeSetting[r.model_name]),
+        group: groupOf(model, typeSetting[model] || typeSetting[r.model_name]),
         sec, secKey: sec?.key, secLabel: sec?.label || "?",
-        payout: (specMap.get(r.model_name) && specMap.get(r.model_name).every((x) => x != null)) ? specMap.get(r.model_name) : null,
+        payout: fullSpec(model) || fullSpec(r.model_name),
       };
     });
     render();
@@ -140,7 +148,8 @@ export async function mount(host) {
 
   // 島図表示用: 全区分・全台（未指定は設定1）。編集対象区分以外は薄表示。
   function mergedPlacement() {
-    const diff = st.diffOn && st.prev;
+    // 前日比較は常時ON。前日から変えた台が分かることが目的なので切り替えは持たない。
+    const diff = !!st.prev;
     return st.allUnits.filter((u) => u.sec).map((u) => {
       const s = settingOf(u);
       const editable = u.secKey === st.section.key;
@@ -212,22 +221,20 @@ export async function mount(host) {
         jugChk, el("span", { text: "🎰 ジャグラーに多め" }),
       ]),
       el("button", { class: "btn ghost", title: "パネル消灯機種は設定2に戻ります", text: `${st.section.label}を最低設定に戻す`, onclick: () => { st.assign[st.section.key] = {}; render(); } }),
+      el("button", { class: "btn ghost sm", title: "設定1にするとパネルが消灯する機種を選ぶ", text: "⚙ 設定1不可の機種", onclick: openMinEditor }),
     ]);
-    if (st.prev) {
-      opRow.appendChild(el("button", {
-        class: "btn sm " + (st.diffOn ? "primary" : "ghost"),
-        text: `🔺前日比較 ${st.diffOn ? "ON" : "OFF"}`,
-        title: `${st.prev.target_date} の保存内容と比較`,
-        onclick: () => { st.diffOn = !st.diffOn; render(); },
-      }));
-    }
     opRow.appendChild(el("div", { class: "grow" }));
     opRow.appendChild(el("button", { class: "btn ghost", text: "保存", onclick: save }));
     opRow.appendChild(el("button", { class: "btn sm", text: "🖨 印刷（A4 表1F/裏BF）", onclick: printPlacement }));
     body.appendChild(opRow);
 
     // ── 設定パレット（選んで台をクリックで投入） ──
-    body.appendChild(el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center" }, [
+    // 画面に追従させる。地下フロアなど下の方の島を触るたびに上へ戻るのを避けるため。
+    body.appendChild(el("div", {
+      class: "row",
+      style: "gap:6px;flex-wrap:wrap;align-items:center;position:sticky;top:52px;z-index:10;" +
+        "background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:6px 0",
+    }, [
       el("span", { class: "hint", style: "font-weight:700", text: "投入する設定を選択 →" }),
       ...[1, 2, 3, 4, 5, 6].map((s) => el("button", {
         class: "btn sm",
@@ -255,7 +262,7 @@ export async function mount(host) {
       `（この区分 ${realN}/${cu.length}台が取込実データ${realN < cu.length ? "、残りはタイプ既定" : "＝全台実データ"}）。台にマウスを乗せると各値を確認できます。` }));
 
     // ── 前日比較の凡例 ──
-    if (st.prev && st.diffOn) {
+    if (st.prev) {
       const changedN = mergedPlacement().filter((p) => p.changed).length;
       body.appendChild(el("div", { class: "row", style: "gap:10px;flex-wrap:wrap;align-items:center;font-size:12px" }, [
         el("span", { style: "font-weight:700", text: `📅 ${st.prev.target_date} と比較：` }),
@@ -363,6 +370,42 @@ export async function mount(host) {
       + (skipped ? `（${limitTxt}に収めるため${skipped}台見送り）` : `（${limitTxt}）`)
       + (st.jugMore ? "・ジャグラー優先" : "");
     toast(msg, "ok");
+  }
+
+  // 設定1不可（最低設定2）の機種を選ぶ。出玉率タブの「最低設定」列と同じ設定を編集する。
+  function openMinEditor() {
+    const models = [...new Set(st.allUnits.map((u) => u.model))].filter(Boolean)
+      .sort((a, b) => (a < b ? -1 : 1));
+    const draft = { ...st.minSaved };
+    const list = el("div", { class: "col", style: "gap:2px;max-height:56vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px" });
+    const rows = models.map((m) => {
+      const cb = el("input", { type: "checkbox", style: "cursor:pointer" });
+      cb.checked = st.min.of(m) > 1;
+      cb.onchange = () => { draft[m] = cb.checked ? 2 : 1; };
+      const n = st.allUnits.filter((u) => u.model === m).length;
+      const row = el("label", { class: "row", style: "gap:8px;align-items:center;cursor:pointer;padding:2px 4px;font-size:13px" }, [
+        cb, el("span", { class: "grow", text: shortModel(m) }), el("span", { class: "hint", text: `${n}台` }),
+      ]);
+      return { m, row, cb };
+    });
+    const filter = el("input", { type: "text", placeholder: "機種名で絞り込み", style: "width:100%",
+      oninput: (e) => { const q = e.target.value.normalize("NFKC"); rows.forEach((r) => { r.row.style.display = !q || r.m.normalize("NFKC").includes(q) ? "" : "none"; }); } });
+    rows.forEach((r) => list.appendChild(r.row));
+    const close = modal("設定1が使えない機種", el("div", { class: "col", style: "gap:8px;min-width:min(460px,86vw)" }, [
+      el("p", { class: "hint", style: "margin:0", text: "設定1にするとパネルが消灯し、外から設定1と分かってしまう機種にチェックを入れてください。チェックした機種は最低設定2になり、シミュレーターが設定1を割り当てません。" }),
+      filter, list,
+    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:10px" }, [
+      el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }),
+      el("button", { class: "btn primary", text: "保存", onclick: async () => {
+        try {
+          setSaveState("saving");
+          await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_min", value: draft }, { onConflict: ["store_id", "key"] });
+          st.minSaved = draft; st.min = buildMinSetting(draft);
+          setSaveState("saved"); close(); render();
+          toast(`設定1不可の機種を保存しました（${models.filter((m) => st.min.of(m) > 1).length}機種）`, "ok");
+        } catch (e) { errorToast(e); }
+      } }),
+    ]));
   }
 
   // 配置島図をA4横で印刷（表=1F / 裏=BF、両面印刷で1枚に）
