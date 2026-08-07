@@ -36,7 +36,18 @@ export async function mount(host) {
   host.appendChild(ctrl);
   const secChips = sSections.map((s) => el("button", { class: "btn sm", text: s.label, onclick: () => { st.section = s; sync(); reload(); } }));
   ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "貸出/交換枚数の対象区分" }), el("div", { class: "row", style: "gap:4px" }, secChips)]));
-  ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "対象日" }), el("input", { type: "date", value: st.date, style: "width:150px", onchange: (e) => { st.date = e.target.value; reload(); } })]));
+  // 対象日は前後の矢印で送れるようにする（1か月ぶんを日単位で見ていく操作が多いため）
+  const dateInp = el("input", { type: "date", value: st.date, style: "width:150px", onchange: (e) => { st.date = e.target.value; reload(); } });
+  const stepDay = (n) => { st.date = addDays(st.date, n); dateInp.value = st.date; reload(); };
+  ctrl.appendChild(el("div", {}, [
+    el("label", { class: "lbl", text: "対象日" }),
+    el("div", { class: "row", style: "gap:4px;align-items:center" }, [
+      el("button", { class: "btn sm ghost", style: "min-width:34px", title: "前の日へ", text: "◀", onclick: () => stepDay(-1) }),
+      dateInp,
+      el("button", { class: "btn sm ghost", style: "min-width:34px", title: "次の日へ", text: "▶", onclick: () => stepDay(1) }),
+      el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => { st.date = localYmd(); dateInp.value = st.date; reload(); } }),
+    ]),
+  ]));
   const lInp = numI(st.L, (v) => { st.L = v; saveExchange(); render(); }, 0.1, 72);
   const kInp = numI(st.K, (v) => { st.K = v; saveExchange(); render(); }, 0.1, 72);
   ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "貸出枚数/100円" }), lInp]));
