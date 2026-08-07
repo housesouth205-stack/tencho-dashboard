@@ -13,14 +13,14 @@ const local = {
   },
   _save(table, rows) { localStorage.setItem(LKEY(table), JSON.stringify(rows)); },
 
-  async select(table, { eq = {}, order } = {}) {
+  async select(table, { eq = {}, order, limit } = {}) {
     let rows = this._load(table).filter((r) =>
       Object.entries(eq).every(([k, v]) => r[k] === v));
     if (order) {
       const [col, dir] = Array.isArray(order) ? order : [order, "asc"];
       rows.sort((a, b) => (a[col] > b[col] ? 1 : a[col] < b[col] ? -1 : 0) * (dir === "desc" ? -1 : 1));
     }
-    return rows;
+    return limit ? rows.slice(0, limit) : rows;
   },
 
   async upsert(table, input, { onConflict = ["id"] } = {}) {
@@ -50,8 +50,20 @@ const local = {
 const remote = {
   // PostgRESTは1リクエスト最大1000行で打ち切るため、rangeで全ページ取得する。
   // （plan_dayは年度分で1000行を超え、8月以降の計画が欠落する実害があった）
-  async select(table, { eq = {}, order } = {}) {
+  async select(table, { eq = {}, order, limit } = {}) {
     const sb = await getClient();
+    // limit指定時は先頭n件だけでよいのでページングしない（鮮度チェックの1件取得など）。
+    if (limit) {
+      let q = sb.from(table).select("*").limit(limit);
+      for (const [k, v] of Object.entries(eq)) q = q.eq(k, v);
+      if (order) {
+        const [col, dir] = Array.isArray(order) ? order : [order, "asc"];
+        q = q.order(col, { ascending: dir !== "desc" });
+      }
+      const { data, error } = await q;
+      if (error) throw error;
+      return data;
+    }
     const PAGE = 1000;
     const all = [];
     for (let from = 0; ; from += PAGE) {

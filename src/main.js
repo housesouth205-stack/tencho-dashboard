@@ -3,6 +3,7 @@ import { state } from "./core/state.js";
 import { todayFiscalYear } from "./util/dates.js";
 import { el } from "./util/dom.js";
 import { currentSession, signIn, signOut, authErrorMessage } from "./core/auth.js";
+import { mountFreshnessBar } from "./core/freshness.js";
 import { authRequired, AUTH_EMAIL, STORE_NAME } from "./core/config.js";
 
 function initFySelector() {
@@ -36,6 +37,9 @@ function startApp() {
   initFySelector();
   initRouter();
   if (authRequired()) addLogoutButton();
+  // データが古いままになっていないかをタブ直下に常時表示（描画は待たない）
+  const nav = document.getElementById("tabs");
+  mountFreshnessBar(nav.parentNode.insertBefore(el("div"), nav.nextSibling));
 }
 
 // ログイン画面（パスワードのみ）。成功で onOk を呼ぶ。
