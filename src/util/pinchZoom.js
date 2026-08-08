@@ -1,9 +1,13 @@
 import { el } from "./dom.js";
 
-// スマホの2本指ピンチで中身を拡大縮小する。1本指のパンはブラウザ標準のスクロールに任せる。
-// 実寸レイアウトは変えず transform: scale で見た目だけ拡大し、スクロール範囲は同倍率の
-// sizer で確保する（グリッドを組み直さないので描画が崩れず、文字も滲まない）。
-// container は overflow:auto、content はその直下の実体（呼び出し時に sizer で包む）。
+// スマホ向けのピンチズーム＋ドラッグ移動。
+//
+// 位置合わせは transform（translate + scale）だけで行う。以前はスクロール位置を
+// 補正する方式だったが、コンテナのpadding分のずれやiOSのジェスチャ中のスクロール
+// 制御と噛み合わず、指の位置ではなく左上を基準に拡大しているように見えていた。
+// transformなら焦点の計算がそのまま画面座標になるため、指の間を中心に正確に拡大できる。
+//
+// container: 表示枠（overflow:hidden にする）。content: 実寸のまま置いた中身。
 export function attachPinchZoom(container, content, opts = {}) {
   const min = opts.min ?? 0.5;
   const max = opts.max ?? 4;
@@ -11,88 +15,112 @@ export function attachPinchZoom(container, content, opts = {}) {
   const natW = content.offsetWidth;
   const natH = content.offsetHeight;
 
-  const sizer = document.createElement("div");
-  container.insertBefore(sizer, content);
-  sizer.appendChild(content);
-  content.style.transformOrigin = "0 0";
-  container.style.touchAction = "pan-x pan-y"; // 2本指ジェスチャは自前処理に回す
+  // 移動・拡大を担当するラッパ。content自体には触らない。
+  const pane = document.createElement("div");
+  pane.style.cssText = "position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform";
+  container.insertBefore(pane, content);
+  pane.appendChild(content);
+  if (getComputedStyle(container).position === "static") container.style.position = "relative";
+  container.style.overflow = "hidden";
+  container.style.touchAction = "none"; // 移動も拡大も自前で処理する
   container.style.overscrollBehavior = "contain";
 
-  let scale = 1;
+  let scale = 1, tx = 0, ty = 0;
+  const viewW = () => container.clientWidth;
+  const viewH = () => container.clientHeight;
+  const fitScale = () => (viewW() - 8) / natW;
+  const lowest = () => Math.min(min, fitScale());
 
-  // 横幅いっぱいに全体を収める倍率。広いフロアでは min より小さくなるので下限もここまで許す。
-  const fitScale = () => (container.clientWidth - 16) / natW;
-
-  // fx/fy = 画面座標の焦点。拡大前後で焦点が同じ台を指し続けるようスクロールを補正する。
-  function set(next, fx, fy) {
-    const s = Math.min(max, Math.max(Math.min(min, fitScale()), next));
-    const r = container.getBoundingClientRect();
-    const px = fx == null ? r.width / 2 : fx - r.left;
-    const py = fy == null ? r.height / 2 : fy - r.top;
-    const cx = (container.scrollLeft + px) / scale;
-    const cy = (container.scrollTop + py) / scale;
-    scale = s;
-    content.style.transform = `scale(${s})`;
-    sizer.style.width = `${natW * s}px`;
-    sizer.style.height = `${natH * s}px`;
-    container.scrollLeft = cx * s - px;
-    container.scrollTop = cy * s - py;
-    opts.onChange?.(s);
+  // はみ出さない範囲に位置を収める。収まるときは中央（縦は上詰め）に置く。
+  function clampPos() {
+    const w = natW * scale, h = natH * scale;
+    tx = w <= viewW() ? (viewW() - w) / 2 : Math.min(0, Math.max(viewW() - w, tx));
+    ty = h <= viewH() ? 0 : Math.min(0, Math.max(viewH() - h, ty));
+  }
+  function apply() {
+    clampPos();
+    pane.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    opts.onChange?.(scale);
   }
 
+  // 焦点(コンテナ内の座標)を動かさずに拡大率を変える
+  function zoomAt(next, fx, fy) {
+    const s = Math.min(max, Math.max(lowest(), next));
+    const cx = (fx - tx) / scale, cy = (fy - ty) / scale; // 焦点のコンテンツ座標
+    scale = s;
+    tx = fx - cx * scale; ty = fy - cy * scale;
+    apply();
+  }
+  const centerZoom = (next) => zoomAt(next, viewW() / 2, viewH() / 2);
+  const local = (x, y) => { const r = container.getBoundingClientRect(); return [x - r.left, y - r.top]; };
+
+  // ---- タッチ操作: 1本指=移動 / 2本指=拡大縮小＋移動 ----
   const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
-  let base = null;   // touchイベント方式（Android/Chrome）
-  let gbase = null;  // gestureイベント方式（iOS Safari）
+  const mid = (t) => [(t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2];
+  let drag = null, pinch = null;
 
   container.addEventListener("touchstart", (e) => {
-    if (e.touches.length === 2) base = { d: dist(e.touches) || 1, s: scale };
+    if (e.touches.length === 1) { drag = { x: e.touches[0].clientX, y: e.touches[0].clientY }; pinch = null; }
+    else if (e.touches.length >= 2) { drag = null; pinch = { d: dist(e.touches) || 1, s: scale, m: mid(e.touches) }; }
   }, { passive: true });
 
   container.addEventListener("touchmove", (e) => {
-    if (e.touches.length !== 2 || !base) return;
-    e.preventDefault(); // 2本指のときだけページズーム/スクロールを止める
-    if (gbase) return;  // iOSではgesturechange側で処理する（二重適用を避ける）
-    const t = e.touches;
-    set(base.s * (dist(t) / base.d), (t[0].clientX + t[1].clientX) / 2, (t[0].clientY + t[1].clientY) / 2);
+    if (pinch && e.touches.length >= 2) {
+      e.preventDefault();
+      const [mx, my] = mid(e.touches);
+      const [fx, fy] = local(mx, my);
+      // 指の中心の移動ぶんも一緒に動かす（つまんだまま運べるように）
+      const [pmx, pmy] = local(pinch.m[0], pinch.m[1]);
+      tx += fx - pmx; ty += fy - pmy;
+      pinch.m = [mx, my];
+      zoomAt(pinch.s * (dist(e.touches) / pinch.d), fx, fy);
+    } else if (drag && e.touches.length === 1) {
+      e.preventDefault();
+      const t = e.touches[0];
+      tx += t.clientX - drag.x; ty += t.clientY - drag.y;
+      drag = { x: t.clientX, y: t.clientY };
+      apply();
+    }
   }, { passive: false });
 
-  const end = (e) => { if (e.touches.length < 2) base = null; };
-  container.addEventListener("touchend", end);
-  container.addEventListener("touchcancel", end);
+  const endTouch = (e) => {
+    if (e.touches.length === 0) { drag = null; pinch = null; }
+    else if (e.touches.length === 1) { pinch = null; drag = { x: e.touches[0].clientX, y: e.touches[0].clientY }; }
+  };
+  container.addEventListener("touchend", endTouch);
+  container.addEventListener("touchcancel", endTouch);
 
   // iOS Safari対策: WebKit独自のgestureイベントを止めないと、ピンチがブラウザ側に
   // 取られてページ全体のズームや「タブ一覧」（ピンチインで発動）になってしまう。
-  // touch-actionやtouchmoveのpreventDefaultだけでは防げないため、ここで明示的に潰す。
-  container.addEventListener("gesturestart", (e) => {
-    e.preventDefault();
-    gbase = { s: scale };
-  }, { passive: false });
-  container.addEventListener("gesturechange", (e) => {
-    e.preventDefault();
-    if (gbase) set(gbase.s * e.scale, e.clientX, e.clientY);
-  }, { passive: false });
-  const gend = (e) => { e.preventDefault(); gbase = null; };
-  container.addEventListener("gestureend", gend, { passive: false });
+  // 拡大処理そのものは上のtouchmoveで行うため、ここでは打ち消すだけにする。
+  const killGesture = (e) => e.preventDefault();
+  container.addEventListener("gesturestart", killGesture, { passive: false });
+  container.addEventListener("gesturechange", killGesture, { passive: false });
+  container.addEventListener("gestureend", killGesture, { passive: false });
 
-  // PC（と検証時）用: Ctrl+ホイールでも同じ操作ができる
+  // PC（と検証時）用: Ctrl+ホイールはポインタ位置を中心に拡大
   container.addEventListener("wheel", (e) => {
     if (!e.ctrlKey) return;
     e.preventDefault();
-    set(scale * (e.deltaY < 0 ? 1.1 : 1 / 1.1), e.clientX, e.clientY);
+    const [fx, fy] = local(e.clientX, e.clientY);
+    zoomAt(scale * (e.deltaY < 0 ? 1.1 : 1 / 1.1), fx, fy);
   }, { passive: false });
 
-  // initial: "fit" でフロア全体が収まる倍率から開始する
-  set(opts.initial === "fit" || opts.initial == null ? fitScale() : opts.initial);
+  // initial: "fit" で全体が収まる倍率から開始する
+  scale = opts.initial === "fit" || opts.initial == null ? fitScale() : opts.initial;
+  scale = Math.min(max, Math.max(lowest(), scale));
+  apply();
 
   return {
     get scale() { return scale; },
     get natural() { return { w: natW, h: natH }; },
-    get min() { return Math.min(min, fitScale()); },
+    get min() { return lowest(); },
     get max() { return max; },
-    zoomBy: (f) => set(scale * f),
-    setScale: (s, fx, fy) => set(s, fx, fy),
-    fitWidth: () => set(fitScale()),
-    reset: () => set(1),
+    get offset() { return { x: tx, y: ty }; },
+    zoomBy: (f) => centerZoom(scale * f),
+    setScale: (s) => centerZoom(s),
+    fitWidth: () => { scale = Math.min(max, Math.max(lowest(), fitScale())); ty = 0; apply(); },
+    reset: () => centerZoom(1),
   };
 }
 
@@ -113,7 +141,7 @@ export function mountZoomBar(barHost, container, content, opts = {}) {
     btn("全体", (z) => z.fitWidth()), label,
   ]));
   barHost.appendChild(el("div", { style: "font-size:11px;color:var(--fg-dim);margin-bottom:6px",
-    text: opts.hint || "スライダー／2本指で拡大縮小・1本指で移動" }));
+    text: opts.hint || "2本指でつまんだ位置を中心に拡大縮小・1本指で移動" }));
 
   ref.z = attachPinchZoom(container, content, {
     min: opts.min ?? 0.4, max: opts.max ?? 5, initial: opts.initial ?? "fit",

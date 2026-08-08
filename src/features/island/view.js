@@ -162,6 +162,16 @@ export async function mount(host) {
       "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)",
   }, inner);
 
+  // フロアの見出しと区切り。1FとBFを続けて並べるので、どこで階が変わるかを明確にする。
+  const floorLabel = (fl) => el("div", {
+    style: "display:inline-block;font-weight:800;font-size:13px;margin:0 0 4px;padding:2px 10px;" +
+      "border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--fg)",
+    text: `${fl} フロア`,
+  });
+  const floorDivider = () => el("div", {
+    style: "height:0;margin:14px 0 12px;border-top:3px dashed var(--line)",
+  });
+
   // PC: 従来どおり画面幅にフィット（横スクロールなし）。印刷も端末を問わずこちら。
   function buildFloor(fl, forPrint) {
     const isMobile = !forPrint && isMobileView();
@@ -172,11 +182,11 @@ export async function mount(host) {
   // ズームは全体にかかるので、両フロアを同じ縮尺で見比べられる。
   function buildAllFloors() {
     const content = el("div", { class: "island-grid-all", style: "width:max-content" });
-    for (const fl of floors) {
-      content.appendChild(el("div", { style: "font-weight:700;font-size:13px;margin:2px 0 3px", text: fl }));
+    floors.forEach((fl, i) => {
+      if (i) content.appendChild(floorDivider());
+      content.appendChild(floorLabel(fl));
       content.appendChild(buildGrid(fl, true));
-      content.appendChild(el("div", { style: "height:10px" }));
-    }
+    });
     return boxOf(content, true);
   }
 

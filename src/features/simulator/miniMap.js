@@ -72,10 +72,13 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   const zoomed = !!opts.cellW;
   const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
-  for (const fl of floors) {
-    wrap.appendChild(el("div", { class: zoomed ? "" : "hint", style: `margin:2px 0 3px;font-weight:700${zoomed ? ";font-size:13px" : ""}`, text: fl }));
+  floors.forEach((fl, i) => {
+    // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする
+    if (zoomed && i) wrap.appendChild(el("div", { style: "height:0;margin:14px 0 12px;border-top:3px dashed var(--line)" }));
+    wrap.appendChild(zoomed
+      ? el("div", { style: "display:inline-block;font-weight:800;font-size:13px;margin:0 0 4px;padding:2px 10px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line)", text: `${fl} フロア` })
+      : el("div", { class: "hint", style: "margin:2px 0;font-weight:700", text: fl }));
     wrap.appendChild(buildPlacementFloor(layout, placement, fl, opts));
-    if (zoomed) wrap.appendChild(el("div", { style: "height:10px" }));
-  }
+  });
   return wrap;
 }
