@@ -141,7 +141,7 @@ export async function renderDayCalendar(host, { fy, month, sections, onChanged }
       body.appendChild(tr);
     }
     t.appendChild(body);
-    const scroller = el("div", { style: "overflow-x:auto" }, t);
+    const scroller = el("div", { class: "table-wrap" }, t);
     return scroller;
   }
 

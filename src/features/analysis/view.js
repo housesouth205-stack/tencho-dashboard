@@ -118,7 +118,8 @@ export async function mount(host) {
       ]));
     }
     t.appendChild(tb);
-    return t;
+    // 列が多くスマホの画面幅に収まらないので表の中だけ横スクロールさせる
+    return el("div", { class: "table-wrap" }, t);
   }
 
   function sortBy(key) { if (sortCol === key) sortDir *= -1; else { sortCol = key; sortDir = key === "dai_no" ? 1 : -1; } render(); }

@@ -30,7 +30,7 @@ export async function openBudgetInput({ mode, fy, month, sections, onDone }) {
 
   const body = el("div", { class: "col" }, [
     el("p", { class: "hint", text: isYear ? `${fy}年度の年間目標` : `${fy}年度 ${month}月の月間目標` }),
-    t,
+    el("div", { class: "table-wrap" }, t),
     el("p", { class: "hint", text: "空欄は未設定。実績との対比（対目標達成率）に使われます。" }),
   ]);
   const save = el("button", {

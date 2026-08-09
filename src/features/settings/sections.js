@@ -31,7 +31,7 @@ export async function renderSectionEditor(host) {
 
   host.appendChild(el("div", { class: "col" }, [
     el("p", { class: "hint", text: "計画/実績はこの区分ごとに入力します。パチンコ(P)はスタート・ベースを持ちます。" }),
-    table,
+    el("div", { class: "table-wrap" }, table),
     el("div", {}, addBtn),
   ]));
 }

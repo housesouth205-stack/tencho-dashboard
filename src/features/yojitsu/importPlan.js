@@ -60,7 +60,7 @@ function showPreview(filename, rows, warnings, onDone) {
     el("td", { text: yen(tot.aSales) }), el("td", { text: yen(tot.aGross) }),
   ]));
   t.appendChild(tb);
-  body.appendChild(el("div", { style: "overflow-x:auto" }, t));
+  body.appendChild(el("div", { class: "table-wrap" }, t));
 
   body.appendChild(el("p", { class: "hint", text: "計画（アウト/単価/粗利率）と実績（売上/粗利/アウト）を日別で取込みます。既存の同日・同区分は上書きされます。" }));
 

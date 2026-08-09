@@ -141,7 +141,7 @@ export async function openTargetPlanner({ fy, month, sections, onDone }) {
 
   const body = el("div", { class: "col" }, [
     el("p", { class: "hint", text: `${fy}年度 ${month}月：各レートの目標粗利を入れると、前月実績から平日/土日祝の平均アウトとコイン単価を予想して予想売上・粗利率を表示します。「計画を自動生成」で利益率を調整し、月間計画粗利＝目標額になるよう日別計画を自動入力します。` }),
-    el("div", { style: "overflow-x:auto" }, t),
+    el("div", { class: "table-wrap" }, t),
   ]);
   const gen = el("button", {
     class: "btn primary", text: "計画を自動生成（日別に入力）",

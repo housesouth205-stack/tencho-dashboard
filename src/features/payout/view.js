@@ -164,7 +164,8 @@ export async function mount(host) {
       tb.appendChild(el("tr", {}, cells));
     }
     t.appendChild(tb);
-    tableHost.appendChild(t);
+    // 14列あるのでスマホでは表の中だけ横スクロールさせる
+    tableHost.appendChild(el("div", { class: "table-wrap" }, t));
   }
   updateReg(); draw();
 

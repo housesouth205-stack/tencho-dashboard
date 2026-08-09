@@ -39,6 +39,11 @@ table.grid tbody tr:hover td { background: var(--pastel-blue); }
 /* 列の多い表はスマホだと画面幅に収まらない。ページごと横に伸びるとグラフと
    幅が合わなくなるので、表の中だけ横スクロールさせる。 */
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+/* 狭い画面では表が最小幅まで潰れ、機種名が1文字ずつ折り返されて読めなくなる。
+   本来の幅で組んでから横スクロールさせる（広い画面は今までどおり100%で収める）。 */
+@media (max-width: 900px) {
+  .table-wrap > table.grid { min-width: max-content; }
+}
 
 .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }
 .badge.s { color: #3f6bb0; background: var(--pastel-blue); }

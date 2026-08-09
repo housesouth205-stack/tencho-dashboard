@@ -124,7 +124,7 @@ async function renderHistory(host) {
     ]));
   }
   t.appendChild(tb);
-  host.appendChild(t);
+  host.appendChild(el("div", { class: "table-wrap" }, t));
 }
 
 async function setCurrent(p, host) {
