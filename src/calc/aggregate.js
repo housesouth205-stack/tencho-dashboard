@@ -97,7 +97,8 @@ export function fyAggregate(sections, fy, monthMaps) {
       for (const g of ["plan", "actual", "landing"]) for (const k of Object.keys(acc[g])) acc[g][k] += r[g][k];
     }
     for (const g of ["plan", "actual", "landing"]) for (const k of Object.keys(total[g])) total[g][k] += agg.total[g][k];
-    series.push({ label: `${m}月`, plan: agg.total.plan.gross, actual: agg.total.actual.gross });
+    // 実績のない月は null（0だとグラフが0まで落ちて未経過月が「大幅未達」に見える）
+    series.push({ label: `${m}月`, plan: agg.total.plan.gross, actual: agg.total.actualDays ? agg.total.actual.gross : null });
   }
   const finish = (a) => { a.achieveGross = a.plan.gross ? a.actual.gross / a.plan.gross : null; a.achieveSales = a.plan.sales ? a.actual.sales / a.plan.sales : null; return a; };
   const perSection = [...perMap.values()].map(finish);

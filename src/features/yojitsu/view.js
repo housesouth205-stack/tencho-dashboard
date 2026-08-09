@@ -11,7 +11,7 @@ import { pickMonthlyPlan } from "./importPlan.js";
 import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
-import { hbars, line } from "./charts.js";
+import { hbars, cumLine, diffBars } from "./charts.js";
 
 let month = new Date().getMonth() + 1;
 let gran = "month";
@@ -132,7 +132,12 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   const right = el("div", { class: "col", style: "flex:1;min-width:300px;gap:12px" }, [bars, goalPanel(t, opts)]);
 
   host.appendChild(el("div", { class: "row", style: "flex-wrap:wrap;gap:14px;align-items:stretch" }, [left, right]));
-  host.appendChild(el("div", { style: "margin-top:12px" }, line(series, { title: gran === "year" ? "月次推移（粗利）" : "日次推移（粗利）" })));
+  // 推移は2段構え。上=累計で「このままで届くか」、下=日別の過不足で「どこで落としたか」。
+  const unit = gran === "year" ? "月" : "日";
+  host.appendChild(el("div", { class: "col", style: "margin-top:12px;gap:12px" }, [
+    cumLine(series, { title: `粗利の累計 予実｜点線は着地見込み（残りの${unit}は計画どおりの場合）` }),
+    diffBars(series, { title: `${unit}別の過不足（実績−計画・粗利）` }),
+  ]));
 
   // 予実テーブル
   host.appendChild(sectionTable(agg, t));
