@@ -40,16 +40,36 @@ export async function mount(host) {
     budget: "strict", // 投入時に計画粗利をどこまで割ってよいか
     zoom: null, // スマホ島図の倍率（再描画をまたいで保つ）
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
+    baseline: "{}", // 読み込み直後のassign。未保存の変更判定と、保存時の差分抽出に使う
     min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
   };
+  // 未保存の変更があるか。日付を移動する前に必ず確認する（黙って消えるのを防ぐ）
+  const isDirty = () => JSON.stringify(st.assign) !== st.baseline;
 
   const ctrl = el("div", { class: "row", style: "gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px" });
   host.appendChild(ctrl);
   const secChips = sSections.map((s) => el("button", { class: "btn sm", text: s.label, onclick: () => { st.section = s; sync(); reload(); } }));
   ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "貸出/交換枚数の対象区分" }), el("div", { class: "row", style: "gap:4px" }, secChips)]));
   // 対象日は前後の矢印で送れるようにする（1か月ぶんを日単位で見ていく操作が多いため）
-  const dateInp = el("input", { type: "date", value: st.date, style: "width:150px", onchange: (e) => { st.date = e.target.value; reload(); } });
-  const stepDay = (n) => { st.date = addDays(st.date, n); dateInp.value = st.date; reload(); };
+  const dateInp = el("input", { type: "date", value: st.date, style: "width:150px", onchange: (e) => goDate(e.target.value) });
+  const stepDay = (n) => goDate(addDays(st.date, n));
+
+  // 日付移動。未保存の変更があるときは必ず聞く。以前は黙って破棄していて、
+  // 入れたはずの設定が消えたように見える事故につながっていた。
+  function goDate(next) {
+    if (!next || next === st.date) { dateInp.value = st.date; return; }
+    const move = () => { st.date = next; dateInp.value = next; reload(); };
+    if (!isDirty()) { move(); return; }
+    dateInp.value = st.date; // 保存/破棄が決まるまで表示は戻す
+    const close = modal("保存していない変更があります", el("div", { class: "col", style: "gap:6px;min-width:min(420px,86vw)" }, [
+      el("p", { style: "margin:0" }, [el("b", { text: `${st.date}` }), el("span", { text: " の設定を変更しましたが、まだ保存していません。" })]),
+      el("p", { class: "hint", style: "margin:0", text: `このまま ${next} へ移動すると、この変更は失われます。` }),
+    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [
+      el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }),
+      el("button", { class: "btn ghost", style: "color:var(--accent)", text: "破棄して移動", onclick: () => { close(); move(); } }),
+      el("button", { class: "btn primary", text: "保存して移動", onclick: async () => { close(); await save({ silentForward: true }); move(); } }),
+    ]));
+  }
   ctrl.appendChild(el("div", {}, [
     el("label", { class: "lbl", text: "対象日" }),
     el("div", { class: "row", style: "gap:4px;align-items:center" }, [
@@ -128,6 +148,7 @@ export async function mount(host) {
     st.carriedOver = !sameDay[0] && !!st.prev;
     const src = sameDay[0]?.allocation?.assign || st.prev?.allocation?.assign || {};
     st.assign = JSON.parse(JSON.stringify(src));
+    st.baseline = JSON.stringify(st.assign);
 
     const secById = new Map(state.sections.map((s) => [s.id, s]));
     const fullSpec = (name) => { const a = specMap.get(name); return a && a.every((x) => x != null) ? a : null; };
@@ -276,6 +297,7 @@ export async function mount(host) {
       el("button", { class: "btn ghost sm", title: "設定1にするとパネルが消灯する機種を選ぶ", text: "⚙ 設定1不可の機種", onclick: openMinEditor }),
     ]);
     opRow.appendChild(el("button", { class: "btn ghost sm", title: "前日を引き継ぎながら、指定した日数ぶんを自動で作る", text: "🪄 1か月分おまかせ作成", onclick: openBulk }));
+    opRow.appendChild(el("button", { class: "btn ghost sm", title: "どの日に何台入っているかを一覧で確認する", text: "📋 保存状況", onclick: openStatus }));
     opRow.appendChild(el("div", { class: "grow" }));
     // 保存済みかどうかを出す。保存したのに消えたように見える事故を防ぐ。
     opRow.appendChild(el("span", {
@@ -619,6 +641,53 @@ export async function mount(host) {
     };
   }
 
+  // 📋 保存状況の一覧。どの日に何台入っているか、前日から何台変えたかを並べる。
+  // 「入れたはずの設定が反映されていない」を目視で確かめられるようにするための画面。
+  function openStatus() {
+    const WEEK = ["日", "月", "火", "水", "木", "金", "土"];
+    const byDate = new Map();
+    for (const s of st.sessions) {
+      if (!s.allocation?.assign) continue;
+      const cur = byDate.get(s.target_date);
+      if (!cur || (cur.created_at || "") < (s.created_at || "")) byDate.set(s.target_date, s);
+    }
+    const dates = [...byDate.keys()].sort();
+    const countOf = (assign) => sSections.reduce((n, sec) => n + Object.keys(assign[sec.key] || {}).length, 0);
+    const diffOf = (a, b) => {
+      let n = 0;
+      for (const sec of sSections) {
+        const x = a[sec.key] || {}, y = b[sec.key] || {};
+        for (const dai of new Set([...Object.keys(x), ...Object.keys(y)])) if ((x[dai] ?? null) !== (y[dai] ?? null)) n++;
+      }
+      return n;
+    };
+    const t = el("table", { class: "grid mono" });
+    t.appendChild(el("thead", {}, el("tr", {}, ["日付", "曜", "投入台数", "前日から変更", ""].map((h, i) =>
+      el("th", { class: i === 0 ? "txt" : "", text: h })))));
+    const tb = el("tbody");
+    dates.forEach((d, i) => {
+      const a = byDate.get(d).allocation.assign;
+      const prev = i ? byDate.get(dates[i - 1]).allocation.assign : null;
+      const dt = new Date(`${d}T00:00:00`);
+      const changed = prev ? diffOf(prev, a) : null;
+      tb.appendChild(el("tr", { style: d === st.date ? "font-weight:800;background:var(--panel-2)" : "" }, [
+        el("td", { class: "txt", text: d }),
+        el("td", { text: WEEK[dt.getDay()] }),
+        el("td", { text: num(countOf(a)) }),
+        el("td", { style: changed ? "color:var(--accent);font-weight:700" : "color:var(--fg-dim)", text: changed == null ? "—" : `${changed}台` }),
+        el("td", {}, el("button", { class: "btn sm ghost", text: "開く", onclick: () => { close(); goDate(d); } })),
+      ]));
+    });
+    t.appendChild(tb);
+    const close = modal("保存状況（設定投入）", el("div", { class: "col", style: "gap:8px;min-width:min(520px,88vw)" }, [
+      el("p", { class: "hint", style: "margin:0", text:
+        dates.length ? "保存済みの日と、その日の投入台数・前日からの変更台数です。行の「開く」でその日に移動します。"
+          : "保存された日がまだありません。設定を入れて「保存」を押すとここに並びます。" }),
+      el("div", { style: "overflow:auto;max-height:60vh" }, t),
+    ]), el("div", { class: "row", style: "justify-content:flex-end;margin-top:10px" },
+      el("button", { class: "btn ghost", text: "閉じる", onclick: () => close() })));
+  }
+
   // 設定1不可（最低設定2）の機種を選ぶ。出玉率タブの「最低設定」列と同じ設定を編集する。
   function openMinEditor() {
     const models = [...new Set(st.allUnits.map((u) => u.model))].filter(Boolean)
@@ -680,15 +749,87 @@ export async function mount(host) {
     }, { onConflict: ["id"] });
   }
 
-  async function save() {
+  // 読み込み時点(baseline)から変わった台を拾う。値がnullなら最低設定に戻した台。
+  function changedUnits() {
+    const before = JSON.parse(st.baseline || "{}");
+    const out = [];
+    for (const sec of sSections) {
+      const b = before[sec.key] || {}, a = st.assign[sec.key] || {};
+      for (const dai of new Set([...Object.keys(b), ...Object.keys(a)])) {
+        const bv = b[dai] ?? null, av = a[dai] ?? null;
+        if (bv !== av) out.push({ secKey: sec.key, dai, to: av });
+      }
+    }
+    return out;
+  }
+
+  // 変更した台だけを以降の日にも適用する。実機は触らなければ設定が残るので、
+  // ある日に入れた設定はその後も続くのが自然。以降の日をまるごと上書きすると
+  // その日ごとの投入が消えてしまうため、変更した台だけを差し込む。
+  async function applyForward(changes, fromDate) {
+    const later = st.sessions.filter((s) => s.allocation?.assign && s.target_date > fromDate)
+      .sort((a, b) => (a.target_date < b.target_date ? -1 : 1));
+    const seen = new Set();
+    let n = 0;
+    for (const s of later) {
+      if (seen.has(s.target_date)) continue; // 同じ日の重複行は最初の1件だけ
+      seen.add(s.target_date);
+      const assign = JSON.parse(JSON.stringify(s.allocation.assign));
+      for (const c of changes) {
+        const A = (assign[c.secKey] = assign[c.secKey] || {});
+        if (c.to == null) delete A[c.dai]; else A[c.dai] = c.to;
+      }
+      await saveDay(s.target_date, assign, s.allocation.targets || st.targets);
+      n++;
+    }
+    return n;
+  }
+
+  async function save(opts = {}) {
+    const changes = changedUnits();
     try {
       setSaveState("saving");
       await saveDay(st.date, st.assign);
       st.sessions = await repo.select("sim_session", { eq: { store_id: state.storeId } });
       st.savedAt = new Date().toISOString();
-      setSaveState("saved"); toast(`${st.date} の設定を保存しました`, "ok");
+      st.baseline = JSON.stringify(st.assign);
+      setSaveState("saved");
       render();
+      const laterDays = new Set(st.sessions.filter((s) => s.allocation?.assign && s.target_date > st.date).map((s) => s.target_date)).size;
+      // 以降に保存済みの日があると、その日は自分の保存内容を表示するため
+      // 今回の変更が反映されない。黙って放置せず、その場で反映するか聞く。
+      if (changes.length && laterDays && !opts.silentForward) {
+        askForward(changes, laterDays);
+      } else {
+        toast(`${st.date} の設定を保存しました（変更${changes.length}台）`, "ok");
+      }
     } catch (e) { errorToast(e); }
+  }
+
+  function askForward(changes, laterDays) {
+    const close = modal("以降の日にも反映しますか？", el("div", { class: "col", style: "gap:8px;min-width:min(460px,86vw)" }, [
+      el("p", { style: "margin:0" }, [
+        el("b", { text: `${st.date}` }), el("span", { text: ` の設定を保存しました（変更 ${changes.length}台）。` }),
+      ]),
+      el("p", { class: "hint", style: "margin:0", text:
+        `${st.date} より後に保存済みの日が ${laterDays}日あります。それらは自分の保存内容を表示するため、` +
+        "このままだと今回の変更は反映されません。" }),
+      el("p", { class: "hint", style: "margin:0", text:
+        "「以降にも反映」を選ぶと、変更した台だけを後の日にも差し込みます（その日ごとの他の投入はそのまま残ります）。" }),
+    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [
+      el("button", { class: "btn ghost", text: "この日だけ", onclick: () => { close(); toast(`${st.date} のみ保存しました`, "ok"); } }),
+      el("button", { class: "btn primary", text: `以降の${laterDays}日にも反映`, onclick: async () => {
+        close();
+        try {
+          setSaveState("saving");
+          const n = await applyForward(changes, st.date);
+          st.sessions = await repo.select("sim_session", { eq: { store_id: state.storeId } });
+          setSaveState("saved");
+          toast(`${st.date} と以降${n}日に反映しました（変更${changes.length}台）`, "ok");
+          render();
+        } catch (e) { errorToast(e); }
+      } }),
+    ]));
   }
 
   reload();
