@@ -176,7 +176,7 @@ function goalPanel(t, { daysTotal }) {
 }
 
 function sectionTable(agg, t) {
-  const table = el("table", { class: "grid mono", style: "margin-top:14px" });
+  const table = el("table", { class: "grid mono" });
   const gBg = (c) => `background:${tint(c, 0.08)}`;
   // 2段ヘッダー: 計画/実績のグループ + 売上(青)/粗利(緑)
   table.appendChild(el("thead", {}, [
@@ -205,7 +205,8 @@ function sectionTable(agg, t) {
   for (const r of agg.perSection) body.appendChild(dataRow(null, r, false));
   body.appendChild(dataRow(null, t, true));
   table.appendChild(body);
-  return table;
+  // スマホでは6列が画面幅に収まらないので表の中だけスクロールさせる（グラフと幅を揃える）
+  return el("div", { class: "table-wrap", style: "margin-top:14px" }, table);
 }
 
 function averagesTable(agg, t) {
@@ -227,7 +228,7 @@ function averagesTable(agg, t) {
   for (const r of agg.perSection) body.appendChild(rowFor(null, r, false));
   body.appendChild(rowFor(null, t, true));
   table.appendChild(body);
-  wrap.appendChild(table);
+  wrap.appendChild(el("div", { class: "table-wrap" }, table));
   wrap.appendChild(el("p", { class: "hint", text: "進捗ペース＝実績 ÷ 計画（実績のある経過日数分）。100%以上＝順調、90%未満＝計画に対して不足ペース。" }));
   return wrap;
 }
