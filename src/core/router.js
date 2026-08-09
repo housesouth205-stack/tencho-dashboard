@@ -3,8 +3,9 @@ import { el, clear } from "../util/dom.js";
 // タブ定義。loadは遅延importでビューモジュールを読む（未実装は準備中表示）。
 const TABS = [
   { id: "yojitsu", label: "予実", load: () => import("../features/yojitsu/view.js") },
-  { id: "simulator", label: "シミュレーター", load: () => import("../features/simulator/view.js") },
-  { id: "island", label: "島図", load: () => import("../features/island/view.js") },
+  // 島図の閲覧は設定投入シミュレーターに統合した（島図Excelの取込・履歴は取込タブ）。
+  // 旧 #island のブックマークからも開けるよう alias を持たせている。
+  { id: "simulator", label: "島図・設定", alias: ["island"], load: () => import("../features/simulator/view.js") },
   { id: "analysis", label: "機種分析", load: () => import("../features/analysis/view.js") },
   { id: "payout", label: "出玉率", load: () => import("../features/payout/view.js") },
   { id: "import", label: "取込", load: () => import("../features/import/view.js") },
@@ -32,7 +33,7 @@ export function initRouter() {
 
 async function navigate(id) {
   const seq = ++navSeq;
-  const tab = TABS.find((t) => t.id === id) || TABS[0];
+  const tab = TABS.find((t) => t.id === id || (t.alias || []).includes(id)) || TABS[0];
   document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b.dataset.id === tab.id));
   const view = document.getElementById("view");
 

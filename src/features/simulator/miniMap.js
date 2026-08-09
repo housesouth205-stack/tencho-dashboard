@@ -61,9 +61,13 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     }
     // ヒート表示中は背景色に合わせた文字色。濃い赤の上に濃紺の数字だと読めないため。
     const ink = p && p.heat ? heatText(p.heat) : null;
-    // 変更台は「前日→今日」を出す。矢印だけだと、いくつから動かしたのかが分からない。
-    const arrow = p && p.changed ? (p.setting > p.prevSetting ? "▲" : "▼") : "";
-    const valText = p ? (p.changed ? `${p.prevSetting}${arrow}${p.setting}` : String(p.setting)) : "";
+    // 数字は「今日の設定」が主役。前日は小さく添えるだけにする。
+    // 同じ大きさで並べると、どちらを打ち換えるのか一瞬で判断できなかった。
+    const up = p && p.changed && p.setting > p.prevSetting;
+    const arrow = p && p.changed ? (up ? "▲" : "▼") : "";
+    // 据え置きで最低設定の台は主張させない（投入中の台を目立たせるため）
+    const quiet = p && !p.changed && p.setting <= (p.minSetting || 1);
+    const todaySize = p && p.changed ? 17 : quiet ? 11 : 15;
     const cell = el("div", {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
       style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};overflow:hidden;` +
@@ -76,11 +80,21 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${ink || (p && p.dim ? "#6b7382" : "#1b2130")}`, text: String(c.dai_no) }),
       p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;" +
         `-webkit-box-orient:vertical;word-break:break-all;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};font-weight:600;text-align:center`, text: p.model }) : null,
-      p ? el("div", {
-        style: `font-weight:900;line-height:1;color:${ink || (p.dim ? "#9aa2b1" : p.changed ? (p.setting > p.prevSetting ? "#a3282e" : "#12437a") : "#333a46")};` +
-          `font-size:${p.changed ? 14 : 12}px;letter-spacing:${p.changed ? "-.02em" : "0"}`,
-        text: valText,
-      }) : null,
+      p ? el("div", { style: "display:flex;align-items:baseline;justify-content:center;gap:1px;line-height:1" }, [
+        // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
+        p.changed ? el("span", {
+          style: `font-size:9px;font-weight:700;opacity:.7;text-decoration:line-through;` +
+            `color:${ink || (up ? "#a3282e" : "#12437a")}`,
+          text: String(p.prevSetting),
+        }) : null,
+        p.changed ? el("span", { style: `font-size:9px;font-weight:900;color:${ink || (up ? "#d63c43" : "#1f6feb")}`, text: arrow }) : null,
+        // 今日の設定（主役）
+        el("span", {
+          style: `font-size:${todaySize}px;font-weight:900;letter-spacing:-.02em;` +
+            `color:${ink || (quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46")}`,
+          text: String(p.setting),
+        }),
+      ]) : null,
     ]);
     grid.appendChild(cell);
   }
@@ -96,9 +110,13 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
   // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする（島図タブと同じ見た目）
+  // opts.betweenFloors を渡すと階の間に差し込む（設定パレットを両フロアの近くに置くため）
   floors.forEach((fl, i) => {
     // ズーム表示(スマホ)では縮小されるため見出し・区切りを大きめにする
-    if (i) wrap.appendChild(floorSplit(zoomed));
+    if (i) {
+      wrap.appendChild(floorSplit(zoomed));
+      if (opts.betweenFloors) wrap.appendChild(opts.betweenFloors);
+    }
     wrap.appendChild(floorBar(fl, `${layout.filter((l) => l.floor === fl).length}台`, zoomed));
     wrap.appendChild(buildPlacementFloor(layout, placement, fl, opts));
   });

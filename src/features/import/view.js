@@ -4,6 +4,7 @@ import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num } from "../../util/format.js";
 import { parseKtacsKoben } from "../../import/ktacsCsv.js";
+import { importIslandXlsx, showIslandHistory } from "./islandImport.js";
 
 const toDate = (s) => (s ? String(s).replace(/\//g, "-") : null);
 
@@ -30,6 +31,21 @@ export async function mount(host) {
 
   const result = el("div", { class: "col", style: "margin-top:14px" });
   host.appendChild(result);
+
+  // 島図Excel（配置図）の取込。もとは島図タブにあったが、閲覧をシミュレーターへ
+  // 統合したため、取込・履歴という管理作業はこの取込タブにまとめる。
+  const islandInput = el("input", { type: "file", accept: ".xlsx", style: "display:none",
+    onchange: () => importIslandXlsx(islandInput.files[0], () => { islandInput.value = ""; mount(host); }) });
+  host.appendChild(el("div", { class: "card", style: "margin-top:18px;padding:10px 12px" }, [
+    el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
+      el("div", { style: "font-weight:700", text: "島図（配置図）" }),
+      el("span", { class: "hint", text: "島図Excel（島図＋設定表シート）。入替で配置が変わったときに取り込みます" }),
+      el("div", { class: "grow" }),
+      islandInput,
+      el("button", { class: "btn sm", text: "島図Excelを取込", onclick: () => islandInput.click() }),
+      el("button", { class: "btn sm ghost", text: "📅 入替履歴", onclick: showIslandHistory }),
+    ]),
+  ]));
 
   const history = el("div", { class: "col", style: "margin-top:20px" });
   host.appendChild(history);

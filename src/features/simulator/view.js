@@ -73,15 +73,17 @@ export async function mount(host) {
       el("button", { class: "btn primary", text: "保存して移動", onclick: async () => { close(); await save({ silentForward: true }); move(); } }),
     ]));
   }
-  ctrl.appendChild(el("div", {}, [
-    el("label", { class: "lbl", text: "対象日" }),
+  // 日付は島図のすぐ上に置く（1日ずつ送りながら配置を見る操作が中心のため）。
+  // render() で body に差し込むので、ここでは要素だけ作っておく。
+  const dateRow = el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 6px" }, [
+    el("span", { class: "lbl", style: "margin:0", text: "対象日" }),
     el("div", { class: "row", style: "gap:4px;align-items:center" }, [
       el("button", { class: "btn sm ghost", style: "min-width:34px", title: "前の日へ", text: "◀", onclick: () => stepDay(-1) }),
       dateInp,
       el("button", { class: "btn sm ghost", style: "min-width:34px", title: "次の日へ", text: "▶", onclick: () => stepDay(1) }),
-      el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => { st.date = localYmd(); dateInp.value = st.date; reload(); } }),
+      el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => goDate(localYmd()) }),
     ]),
-  ]));
+  ]);
   const lInp = numI(st.L, (v) => { st.L = v; saveExchange(); render(); }, 0.1, 72);
   const kInp = numI(st.K, (v) => { st.K = v; saveExchange(); render(); }, 0.1, 72);
   ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "貸出枚数/100円" }), lInp]));
@@ -239,7 +241,7 @@ export async function mount(host) {
       const changed = diff && prevSet != null && prevSet !== s;
       const min = minOf(u);
       return {
-        dai: u.dai, model: shortModel(u.model), setting: s, secLabel: u.secLabel, color: sectionColor(u.sec),
+        dai: u.dai, model: shortModel(u.model), setting: s, minSetting: min, secLabel: u.secLabel, color: sectionColor(u.sec),
         prevSetting: diff ? prevSet : null, changed,
         // 据え置きでも「最低設定より上＝投入中」の台は色を残す。全部白にすると
         // 前日から入れっぱなしの高設定がどこにあるか分からなくなるため。
@@ -330,8 +332,9 @@ export async function mount(host) {
     body.appendChild(opRow);
 
     // ── 設定パレット（選んで台をクリックで投入） ──
-    // 画面に追従させる。地下フロアなど下の方の島を触るたびに上へ戻るのを避けるため。
-    body.appendChild(el("div", {
+    // PCでは1FとBFの間に置く（どちらのフロアからも近い）。スマホは島図がズーム枠の
+    // 中に入るため枠内に置けず、画面に追従させて常に手元に残す。
+    const palette = el("div", {
       class: "row",
       style: "gap:6px;flex-wrap:wrap;align-items:center;position:sticky;top:52px;z-index:10;" +
         "background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:6px 0",
@@ -350,7 +353,7 @@ export async function mount(host) {
       el("select", { class: "inp", style: "width:130px", title: "台の背景に実績（機種分析の値）のヒートを重ねる",
         onchange: (e) => { st.heat = e.target.value; render(); } },
         HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
-    ]));
+    ]);
 
     // ヒート表示中は色の意味が変わるので凡例を出す
     if (st.heat) {
@@ -394,7 +397,7 @@ export async function mount(host) {
           el("span", { style: "display:inline-block;width:16px;height:16px;border:3px solid #1f6feb;background:#bcd8ff;border-radius:3px" }),
           el("span", { style: "font-weight:700", text: `下げ ${down}台（▼・青塗り）` })]),
         el("span", { style: "display:inline-flex;align-items:center;gap:4px" }, [el("span", { style: "display:inline-block;width:14px;height:14px;border:1px solid var(--line);background:#fff;border-radius:3px" }), el("span", { text: "据え置き（白）" })]),
-        el("span", { class: "hint", text: "台のマスは「前日→今日」で表示します（例 6▼1＝設定6から1へ下げ）" }),
+        el("span", { class: "hint", text: "マスの大きい数字が今日の設定。左の小さい取消線が前日（例 6▼1＝前日6を1へ下げる）" }),
       ]));
     }
 
@@ -419,10 +422,13 @@ export async function mount(host) {
           render();
         },
       };
+      body.appendChild(dateRow); // 日付は島図のすぐ上
       if (!mobile) {
-        body.appendChild(buildPlacementMap(st.layout, placement, mapOpts));
+        // PCはパレットを1FとBFの間に差し込む（どちらのフロアからも近い）
+        body.appendChild(buildPlacementMap(st.layout, placement, { ...mapOpts, betweenFloors: palette }));
       } else {
         body.appendChild(buildLegend(placement));
+        body.appendChild(palette); // スマホはズーム枠に入れられないので追従表示のまま
         const bar = el("div");
         body.appendChild(bar);
         const box = el("div", {
@@ -437,7 +443,8 @@ export async function mount(host) {
         });
       }
     } else {
-      body.appendChild(el("div", { class: "placeholder", text: "島図タブで島図Excelを取込むと、ここに配置図が表示されます。" }));
+      body.appendChild(dateRow);
+      body.appendChild(el("div", { class: "placeholder", text: "「取込」タブで島図Excelを取り込むと、ここに配置図が表示されます。" }));
     }
     requestAnimationFrame(() => { if (document.scrollingElement) document.scrollingElement.scrollTop = sy; });
   }
