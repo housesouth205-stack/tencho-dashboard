@@ -345,12 +345,19 @@ export async function mount(host) {
 
     // ── 前日比較の凡例 ──
     if (st.prev) {
-      const changedN = mergedPlacement().filter((p) => p.changed).length;
+      const ch = mergedPlacement().filter((p) => p.changed);
+      const up = ch.filter((p) => p.setting > p.prevSetting).length;
+      const down = ch.length - up;
       body.appendChild(el("div", { class: "row", style: "gap:10px;flex-wrap:wrap;align-items:center;font-size:12px" }, [
         el("span", { style: "font-weight:700", text: `📅 ${st.prev.target_date} と比較：` }),
-        el("span", { style: "display:inline-flex;align-items:center;gap:4px" }, [el("span", { style: "display:inline-block;width:14px;height:14px;border:2.5px solid #e5484d;border-radius:3px" }), el("span", { text: `変更する台 ${changedN}台（色付き・太枠）` })]),
-        el("span", { style: "display:inline-flex;align-items:center;gap:4px" }, [el("span", { style: "display:inline-block;width:14px;height:14px;border:1px solid var(--line);background:#fff;border-radius:3px" }), el("span", { text: "据え置き（白・目立たない）" })]),
-        el("span", { class: "hint", text: "▲＝上げ ▼＝下げ。色付きの台だけ設定変更すればOK" }),
+        el("span", { style: "display:inline-flex;align-items:center;gap:4px" }, [
+          el("span", { style: "display:inline-block;width:16px;height:16px;border:3px solid #d63c43;border-radius:3px" }),
+          el("span", { style: "font-weight:700", text: `上げ ${up}台（▲・赤枠）` })]),
+        el("span", { style: "display:inline-flex;align-items:center;gap:4px" }, [
+          el("span", { style: "display:inline-block;width:16px;height:16px;border:3px solid #1f6feb;background:#bcd8ff;border-radius:3px" }),
+          el("span", { style: "font-weight:700", text: `下げ ${down}台（▼・青塗り）` })]),
+        el("span", { style: "display:inline-flex;align-items:center;gap:4px" }, [el("span", { style: "display:inline-block;width:14px;height:14px;border:1px solid var(--line);background:#fff;border-radius:3px" }), el("span", { text: "据え置き（白）" })]),
+        el("span", { class: "hint", text: "台のマスは「前日→今日」で表示します（例 6▼1＝設定6から1へ下げ）" }),
       ]));
     }
 

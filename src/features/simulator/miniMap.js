@@ -40,14 +40,19 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     if (!p) { bg = "var(--panel-3)"; border = "1px solid var(--line)"; }
     else if (p.dim) { bg = "#fff"; border = "1px solid var(--line)"; }
     else if (p.changed) {
+      // 変更台は遠目でも分かるようにする。特に「下げて設定1」は設定色がほぼ白で
+      // 据え置きと見分けが付かなかったため、下げは青系で塗りつぶす。
       const up = p.setting > p.prevSetting;
-      bg = SET_COLORS[p.setting]; border = "2.5px solid " + (up ? "#e5484d" : "#3b82f6");
-      extra = "box-shadow:0 0 0 1px " + (up ? "#e5484d" : "#3b82f6") + ";";
+      bg = up ? SET_COLORS[p.setting] : "#bcd8ff";
+      border = "3px solid " + (up ? "#d63c43" : "#1f6feb");
+      extra = "box-shadow:0 0 0 2px " + (up ? "#f3b0b4" : "#a8c8ff") + ";";
     } else {
       bg = SET_COLORS[p.setting]; border = "1px solid " + (p.color || "var(--line)");
       if (p.setting >= 4) extra = "box-shadow:0 0 0 1px " + (p.color || "var(--line)") + ";";
     }
+    // 変更台は「前日→今日」を出す。矢印だけだと、いくつから動かしたのかが分からない。
     const arrow = p && p.changed ? (p.setting > p.prevSetting ? "▲" : "▼") : "";
+    const valText = p ? (p.changed ? `${p.prevSetting}${arrow}${p.setting}` : String(p.setting)) : "";
     const cell = el("div", {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
       style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};overflow:hidden;` +
@@ -57,7 +62,11 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     }, [
       el("div", { style: `font-size:9px;font-weight:700;line-height:1.1;color:${p && p.dim ? "#9aa2b1" : "#3d4454"}`, text: String(c.dai_no) }),
       p ? el("div", { style: `font-size:6.5px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;opacity:${p.dim ? ".55" : ".85"};text-align:center`, text: p.model }) : null,
-      p ? el("div", { style: `font-weight:800;font-size:12px;line-height:1;color:${p.dim ? "#9aa2b1" : "#333a46"}`, text: arrow ? `${arrow}${p.setting}` : String(p.setting) }) : null,
+      p ? el("div", {
+        style: `font-weight:900;line-height:1;color:${p.dim ? "#9aa2b1" : p.changed ? (p.setting > p.prevSetting ? "#a3282e" : "#12437a") : "#333a46"};` +
+          `font-size:${p.changed ? 14 : 12}px;letter-spacing:${p.changed ? "-.02em" : "0"}`,
+        text: valText,
+      }) : null,
     ]);
     grid.appendChild(cell);
   }
