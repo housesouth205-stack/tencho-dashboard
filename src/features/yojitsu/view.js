@@ -175,7 +175,48 @@ function goalPanel(t, { daysTotal }) {
   ]);
 }
 
+// スマホでは列の多い表が画面幅に収まらない。横スクロールさせるとグラフや達成状況と
+// 見た目の幅が合わないため、区分ごとのカードに組み替えて縦に積む（横移動なしで読める）。
+const narrow = () => window.matchMedia("(max-width: 700px)").matches;
+
+// カード1枚。見出し（区分＋右肩の指標）＋ラベル/値の行。
+function statCard(head, right, pairs, cols) {
+  const line = ([label, value, color]) => el("div", { class: "row", style: "justify-content:space-between;gap:6px;align-items:baseline;min-width:0" }, [
+    el("span", { class: "hint", style: "white-space:nowrap", text: label }),
+    el("b", { style: `font-size:13px;text-align:right${color ? ";color:" + color : ""}`, text: value }),
+  ]);
+  return el("div", { class: "card col", style: "padding:10px 12px;gap:6px" }, [
+    el("div", { class: "row", style: "align-items:center;gap:8px" }, [head, el("div", { class: "grow" }), right].filter(Boolean)),
+    el("div", { style: `display:grid;grid-template-columns:repeat(${cols}, minmax(0,1fr));gap:2px 14px` }, pairs.map(line)),
+  ]);
+}
+
+function sectionCards(agg, t) {
+  const card = (r, isTotal) => statCard(
+    isTotal ? el("b", { text: "合計" }) : secBadge(r.section),
+    el("span", {}, [
+      el("span", { class: "hint", style: "margin-right:4px", text: "達成率" }),
+      el("b", { style: (achieveColor(r.achieveGross) || "") + ";font-size:15px", text: r.achieveGross == null ? "—" : pct(r.achieveGross) }),
+    ]),
+    [["計画 売上", yen(r.plan.sales)], ["実績 売上", yen(r.actual.sales)],
+      ["計画 粗利", yen(r.plan.gross)], ["実績 粗利", yen(r.actual.gross)]], 1);
+  return el("div", { class: "col", style: "gap:8px;margin-top:14px" },
+    [...agg.perSection.map((r) => card(r, false)), card(t, true)]);
+}
+
+function averagesCards(agg, t) {
+  const card = (r, isTotal) => statCard(
+    isTotal ? el("b", { text: "合計" }) : secBadge(r.section),
+    r.paceGross == null ? null : el("b", { style: `color:${achieveHex(r.paceGross)};font-size:13px`, text: `${pct(r.paceGross)} ${r.paceGross >= 1 ? "順調" : r.paceGross >= 0.9 ? "やや遅れ" : "未達ペース"}` }),
+    [["平均アウト", num(r.avgOut)], ["粗利率", r.grossRate == null ? "—" : pct(r.grossRate)],
+      ["日平均売上", yen(r.avgSalesDay)], ["玉単価", dec(r.coinPrice, 2)],
+      ["日平均粗利", yen(r.avgGrossDay)], ["玉粗利", dec(r.coinGross, 3)]], 2);
+  return el("div", { class: "col", style: "gap:8px" },
+    [...agg.perSection.map((r) => card(r, false)), card(t, true)]);
+}
+
 function sectionTable(agg, t) {
+  if (narrow()) return sectionCards(agg, t);
   const table = el("table", { class: "grid mono" });
   const gBg = (c) => `background:${tint(c, 0.08)}`;
   // 2段ヘッダー: 計画/実績のグループ + 売上(青)/粗利(緑)
@@ -211,6 +252,11 @@ function sectionTable(agg, t) {
 
 function averagesTable(agg, t) {
   const wrap = el("div", { class: "col", style: "margin-top:18px" }, el("h2", { style: "font-size:15px", text: "実績平均・進捗" }));
+  if (narrow()) {
+    wrap.appendChild(averagesCards(agg, t));
+    wrap.appendChild(el("p", { class: "hint", text: "進捗ペース＝実績 ÷ 計画（実績のある経過日数分）。100%以上＝順調、90%未満＝計画に対して不足ペース。" }));
+    return wrap;
+  }
   const table = el("table", { class: "grid mono" });
   table.appendChild(el("thead", {}, el("tr", {}, ["区分", "平均アウト", "日平均売上", "日平均粗利", "粗利率", "玉単価", "玉粗利", "進捗ペース"].map((h, i) =>
     el("th", { class: i === 0 ? "txt" : "", text: h })))));

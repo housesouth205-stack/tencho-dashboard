@@ -54,16 +54,23 @@ export async function mount(host) {
   const secChips = sSections.map((s) => el("button", { class: "btn sm", text: s.label, onclick: () => { st.section = s; sync(); reload(); } }));
   ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "貸出/交換枚数の対象区分" }), el("div", { class: "row", style: "gap:4px" }, secChips)]));
   // 対象日は前後の矢印で送れるようにする（1か月ぶんを日単位で見ていく操作が多いため）
-  const dateInp = el("input", { type: "date", value: st.date, style: "width:150px", onchange: (e) => goDate(e.target.value) });
+  // 日付欄は島図の上と下に1つずつ出るので、作った分をまとめて持っておく。
+  const dateInps = [];
+  const makeDateInp = () => {
+    const i = el("input", { type: "date", value: st.date, style: "width:150px", onchange: (e) => goDate(e.target.value) });
+    dateInps.push(i);
+    return i;
+  };
+  const setDateVal = (v) => dateInps.forEach((i) => { i.value = v; });
   const stepDay = (n) => goDate(addDays(st.date, n));
 
   // 日付移動。未保存の変更があるときは必ず聞く。以前は黙って破棄していて、
   // 入れたはずの設定が消えたように見える事故につながっていた。
   function goDate(next) {
-    if (!next || next === st.date) { dateInp.value = st.date; return; }
-    const move = () => { st.date = next; dateInp.value = next; reload(); };
+    if (!next || next === st.date) { setDateVal(st.date); return; }
+    const move = () => { st.date = next; setDateVal(next); reload(); };
     if (!isDirty()) { move(); return; }
-    dateInp.value = st.date; // 保存/破棄が決まるまで表示は戻す
+    setDateVal(st.date); // 保存/破棄が決まるまで表示は戻す
     const close = modal("保存していない変更があります", el("div", { class: "col", style: "gap:6px;min-width:min(420px,86vw)" }, [
       el("p", { style: "margin:0" }, [el("b", { text: `${st.date}` }), el("span", { text: " の設定を変更しましたが、まだ保存していません。" })]),
       el("p", { class: "hint", style: "margin:0", text: `このまま ${next} へ移動すると、この変更は失われます。` }),
@@ -75,11 +82,13 @@ export async function mount(host) {
   }
   // 日付は島図のすぐ上に置く（1日ずつ送りながら配置を見る操作が中心のため）。
   // render() で body に差し込むので、ここでは要素だけ作っておく。
-  const dateRow = el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 6px" }, [
+  // 島図の上と下の両方に置くので、呼ぶたびに新しい行を作る（同じ要素は1箇所にしか置けない）。
+  // 日付入力は複数になるため、値の書き戻しは setDateVal() で全部まとめて行う。
+  const makeDateRow = () => el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 6px" }, [
     el("span", { class: "lbl", style: "margin:0", text: "対象日" }),
     el("div", { class: "row", style: "gap:4px;align-items:center" }, [
       el("button", { class: "btn sm ghost", style: "min-width:34px", title: "前の日へ", text: "◀", onclick: () => stepDay(-1) }),
-      dateInp,
+      makeDateInp(),
       el("button", { class: "btn sm ghost", style: "min-width:34px", title: "次の日へ", text: "▶", onclick: () => stepDay(1) }),
       el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => goDate(localYmd()) }),
     ]),
@@ -262,6 +271,7 @@ export async function mount(host) {
   function render() {
     const sy = document.scrollingElement ? document.scrollingElement.scrollTop : 0;
     clear(body);
+    dateInps.length = 0; // 前回描画の日付欄は捨てる（body ごと作り直すため）
     if (!st.allUnits.length) { body.appendChild(el("div", { class: "placeholder", text: "「取込」タブで遊技台個別CSVを取込むと表示されます。" })); return; }
     // ── 4ブロック: レート別（計画粗利・予想粗利・計画比・投入設定）＋ 全体（総粗利・総売上） ──
     const setBadges = (bySet) => el("div", { class: "row", style: "gap:4px;flex-wrap:wrap;margin-top:4px" },
@@ -334,25 +344,37 @@ export async function mount(host) {
     // ── 設定パレット（選んで台をクリックで投入） ──
     // PCでは1FとBFの間に置く（どちらのフロアからも近い）。スマホは島図がズーム枠の
     // 中に入るため枠内に置けず、画面に追従させて常に手元に残す。
-    const palette = el("div", {
-      class: "row",
-      style: "gap:6px;flex-wrap:wrap;align-items:center;position:sticky;top:52px;z-index:10;" +
-        "background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:6px 0",
+    // 1〜6は幅を詰めて必ず横一列に収める（以前は「設定1」表記で幅を取り、スマホでは
+    // 折り返して縦に伸びていた）。島図の上と下の両方に置くので毎回作り直す。
+    const makePalette = ({ sticky = false } = {}) => el("div", {
+      class: "col",
+      style: "gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:6px 0" +
+        (sticky ? ";position:sticky;top:52px;z-index:10" : ""),
     }, [
-      el("span", { class: "hint", style: "font-weight:700", text: "投入する設定を選択 →" }),
-      ...[1, 2, 3, 4, 5, 6].map((s) => el("button", {
-        class: "btn sm",
-        style: `background:${SET_COLORS[s]};color:#333a46;border:2px solid ${s === st.brush ? "var(--accent)" : "var(--line)"};font-weight:${s === st.brush ? "800" : "600"};min-width:74px`,
-        text: `設定${s}${TROPHY[s] || ""}${s === st.brush ? " ✓" : ""}`,
-        onclick: () => { st.brush = s; render(); },
-      })),
-      el("span", { class: "hint", text: `台をクリックすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
-      el("span", { style: "width:8px" }),
-      // 実績ヒートを背景に重ねられるようにする。数字の良し悪しを見ながら設定を置ける。
-      el("span", { class: "hint", style: "font-weight:700", text: "背景" }),
-      el("select", { class: "inp", style: "width:130px", title: "台の背景に実績（機種分析の値）のヒートを重ねる",
-        onchange: (e) => { st.heat = e.target.value; render(); } },
-        HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
+      el("div", { class: "row", style: "gap:4px;align-items:center" }, [
+        el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "投入する設定" }),
+        ...[1, 2, 3, 4, 5, 6].map((s) => el("button", {
+          class: "btn sm",
+          title: `設定${s}を選ぶ`,
+          // 選択中は枠色と太字で示す（✓を足すと6行目が折り返して高さが揃わなかった）。
+          // PCで間延びしないよう max-width も付ける。
+          style: `flex:1;min-width:0;max-width:120px;height:36px;line-height:1;padding:0;text-align:center;white-space:nowrap;overflow:hidden;` +
+            `background:${SET_COLORS[s]};color:#333a46;` +
+            `border:2px solid ${s === st.brush ? "var(--accent)" : "var(--line)"};` +
+            `box-shadow:${s === st.brush ? "0 0 0 2px var(--accent-dim)" : "none"};` +
+            `font-weight:${s === st.brush ? "900" : "700"};font-size:${s === st.brush ? "17px" : "15px"}`,
+          text: `${s}${TROPHY[s] || ""}`,
+          onclick: () => { st.brush = s; render(); },
+        })),
+      ]),
+      el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, [
+        // 実績ヒートを背景に重ねられるようにする。数字の良し悪しを見ながら設定を置ける。
+        el("span", { class: "hint", style: "font-weight:700", text: "背景" }),
+        el("select", { class: "inp", style: "width:130px", title: "台の背景に実績（機種分析の値）のヒートを重ねる",
+          onchange: (e) => { st.heat = e.target.value; render(); } },
+          HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
+        el("span", { class: "hint", style: "font-size:11.5px", text: `台をタップすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
+      ]),
     ]);
 
     // ヒート表示中は色の意味が変わるので凡例を出す
@@ -422,13 +444,13 @@ export async function mount(host) {
           render();
         },
       };
-      body.appendChild(dateRow); // 日付は島図のすぐ上
+      body.appendChild(makeDateRow()); // 日付は島図のすぐ上
       if (!mobile) {
         // PCはパレットを1FとBFの間に差し込む（どちらのフロアからも近い）
-        body.appendChild(buildPlacementMap(st.layout, placement, { ...mapOpts, betweenFloors: palette }));
+        body.appendChild(buildPlacementMap(st.layout, placement, { ...mapOpts, betweenFloors: makePalette() }));
       } else {
         body.appendChild(buildLegend(placement));
-        body.appendChild(palette); // スマホはズーム枠に入れられないので追従表示のまま
+        body.appendChild(makePalette({ sticky: true })); // スマホはズーム枠に入れられないので追従表示のまま
         const bar = el("div");
         body.appendChild(bar);
         const box = el("div", {
@@ -443,8 +465,11 @@ export async function mount(host) {
           onChange: (s) => { st.zoom = s; },
         });
       }
+      // BFの下にも日付と設定パレットを置く。下まで見たあと上へ戻らずに操作できるようにする。
+      body.appendChild(makePalette());
+      body.appendChild(makeDateRow());
     } else {
-      body.appendChild(dateRow);
+      body.appendChild(makeDateRow());
       body.appendChild(el("div", { class: "placeholder", text: "「取込」タブで島図Excelを取り込むと、ここに配置図が表示されます。" }));
     }
     requestAnimationFrame(() => { if (document.scrollingElement) document.scrollingElement.scrollTop = sy; });
@@ -685,7 +710,7 @@ export async function mount(host) {
         }
         // 作った日を実際に開く。開始日が飛ばされると画面が変わらず「何も起きていない」ように見えるため。
         st.date = firstMade;
-        dateInp.value = firstMade;
+        setDateVal(firstMade);
         toast(`${made}日ぶん作成しました（1日あたり平均${Math.round(placedAll / made)}台投入）`
           + (skipped ? `／保存済み${skipped}日はそのまま` : "") + ` — ${firstMade} を表示しています`, "ok");
         await reload();
