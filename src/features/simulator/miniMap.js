@@ -37,8 +37,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const pmap = new Map(placement.map((p) => [p.dai, p]));
   const cells = layout.filter((l) => l.floor === floor);
   const rowH = cellW ? "56px" : "46px";
-  // レートの変わり目（2スロ／5スロなど）は通路を広めに取って区切りを分かりやすくする
-  const rateGap = opts.rateGap || (cellW ? "92px" : "56px");
+  // レートの変わり目（2スロ／5スロなど）は通路を4マスぶん取って区切りを分かりやすくする
+  const rateGap = opts.rateGap || (cellW ? "184px" : "104px");
 
   // 連続した列のまとまり
   const allCols = [...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b);
@@ -48,19 +48,23 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   // 縦向きの島（145〜148や212〜219のように1台ずつ縦に並ぶ脇の列）は1台で1行を使う。
   // 本体と同じグリッドに入れると、その行では横向きの島の列が丸ごと空になり
   // 大きな白帯ができる。幅の狭いまとまりだけ別グリッドに切り出して行を共有しない。
-  const narrowCols = opts.narrowCols ?? 2;
-  const groups = [];
-  let wide = null;
-  for (const run of runs) {
-    if (run.length <= narrowCols) { groups.push(run); wide = null; }
-    else if (wide) { wide.push(...run); }          // 本体どうしは列番号を保ったまま1枚に戻す
-    else { wide = run.slice(); groups.push(wide); }
-  }
-
-  // 列がどのレート帯かを見て、境目だけ通路を広げる
+  // 列がどのレート帯か（2スロ／5スロ／20スロ）
   const rateOfCol = new Map();
   for (const c of cells) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
   const colGap = (prev, next) => (rateOfCol.get(prev) !== rateOfCol.get(next) ? rateGap : "6px");
+
+  // レートが変わるところでもグリッドを分ける。2スロの島と5スロの島は互い違いに
+  // 並んでいるため、同じグリッドだと片方の行がもう片方では空になり白帯になる。
+  const narrowCols = opts.narrowCols ?? 2;
+  const splitByRate = opts.splitByRate ?? true;
+  const groups = [];
+  let wide = null, wideRate = null;
+  for (const run of runs) {
+    const rate = rateOfCol.get(run[0]);
+    if (run.length <= narrowCols) { groups.push(run); wide = null; }
+    else if (wide && (!splitByRate || rate === wideRate)) { wide.push(...run); } // 同じレートの本体は1枚に戻す
+    else { wide = run.slice(); wideRate = rate; groups.push(wide); }
+  }
 
   const build = (groupCols) => {
     const inGroup = new Set(groupCols);
@@ -138,8 +142,15 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     return grid;
   };
 
+  // グリッドを分けたので、レートの境目の通路はグリッド間の余白として空ける
   const inner = groups.length === 1 ? build(groups[0])
-    : el("div", { style: `display:flex;gap:8px;align-items:flex-start;${cellW ? "width:max-content" : "width:100%"}` }, groups.map(build));
+    : el("div", { style: `display:flex;gap:8px;align-items:flex-start;${cellW ? "width:max-content" : "width:100%"}` },
+      groups.map((g, i) => {
+        const node = build(g);
+        const prev = i ? groups[i - 1] : null;
+        if (prev && rateOfCol.get(g[0]) !== rateOfCol.get(prev[prev.length - 1])) node.style.marginLeft = rateGap;
+        return node;
+      }));
   return opts.cellW ? inner
     : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, inner);
 }
