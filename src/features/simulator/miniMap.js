@@ -1,14 +1,21 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
 import { el, floorBar, floorSplit } from "../../util/dom.js";
 import { heatText } from "../../calc/heat.js";
+import { rateKeyOfDai } from "../../core/config.js";
 import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
 
 // 台のある行・列だけ残し、間の空きは細い通路に圧縮（島図ビューと同方式）。
+// content / gap は関数も受け付ける（列ごとに通路幅を変えるため）。
 function pack(sorted, content, gap) {
   const map = new Map(); const tpl = []; let prev = null;
-  for (const o of sorted) { if (prev !== null && o - prev !== 1) tpl.push(gap); map.set(o, tpl.length); tpl.push(content); prev = o; }
+  for (const o of sorted) {
+    if (prev !== null && o - prev !== 1) tpl.push(typeof gap === "function" ? gap(prev, o) : gap);
+    map.set(o, tpl.length);
+    tpl.push(typeof content === "function" ? content(o) : content);
+    prev = o;
+  }
   return { map, tpl };
 }
 
@@ -29,11 +36,41 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const { onCellClick, editable, cellW } = opts;
   const pmap = new Map(placement.map((p) => [p.dai, p]));
   const cells = layout.filter((l) => l.floor === floor);
-  // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
-  const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), cellW ? "56px" : "46px", "8px");
-  const C = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), cellW || "minmax(0,1fr)", "6px");
-  const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${cellW ? "max-content" : "100%"}` });
-  for (const c of cells) {
+  const rowH = cellW ? "56px" : "46px";
+  // レートの変わり目（2スロ／5スロなど）は通路を広めに取って区切りを分かりやすくする
+  const rateGap = opts.rateGap || (cellW ? "92px" : "56px");
+
+  // 連続した列のまとまり
+  const allCols = [...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b);
+  const runs = [];
+  { let cur = []; for (const c of allCols) { if (cur.length && c - cur[cur.length - 1] > 1) { runs.push(cur); cur = []; } cur.push(c); } if (cur.length) runs.push(cur); }
+
+  // 縦向きの島（145〜148や212〜219のように1台ずつ縦に並ぶ脇の列）は1台で1行を使う。
+  // 本体と同じグリッドに入れると、その行では横向きの島の列が丸ごと空になり
+  // 大きな白帯ができる。幅の狭いまとまりだけ別グリッドに切り出して行を共有しない。
+  const narrowCols = opts.narrowCols ?? 2;
+  const groups = [];
+  let wide = null;
+  for (const run of runs) {
+    if (run.length <= narrowCols) { groups.push(run); wide = null; }
+    else if (wide) { wide.push(...run); }          // 本体どうしは列番号を保ったまま1枚に戻す
+    else { wide = run.slice(); groups.push(wide); }
+  }
+
+  // 列がどのレート帯かを見て、境目だけ通路を広げる
+  const rateOfCol = new Map();
+  for (const c of cells) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
+  const colGap = (prev, next) => (rateOfCol.get(prev) !== rateOfCol.get(next) ? rateGap : "6px");
+
+  const build = (groupCols) => {
+    const inGroup = new Set(groupCols);
+    const gc = cells.filter((c) => inGroup.has(c.grid_col));
+    // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
+    const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), rowH, "8px");
+    const C = pack(groupCols, cellW || "minmax(0,1fr)", colGap);
+    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
+      (cellW ? "width:max-content" : `flex:${groupCols.length} 1 0;min-width:0`) });
+  for (const c of gc) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
     // 前日比較モード: dim=据え置き(白で目立たなくする) / changed=変更台(色付き・太枠・▲▼)
@@ -98,8 +135,13 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     ]);
     grid.appendChild(cell);
   }
-  return opts.cellW ? grid
-    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
+    return grid;
+  };
+
+  const inner = groups.length === 1 ? build(groups[0])
+    : el("div", { style: `display:flex;gap:8px;align-items:flex-start;${cellW ? "width:max-content" : "width:100%"}` }, groups.map(build));
+  return opts.cellW ? inner
+    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, inner);
 }
 
 // 画面表示: 凡例＋全フロア（1F/BF両方、全台表示）
