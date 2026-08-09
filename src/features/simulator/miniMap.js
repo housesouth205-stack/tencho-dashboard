@@ -38,6 +38,14 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 前日比較モード: dim=据え置き(白で目立たなくする) / changed=変更台(色付き・太枠・▲▼)
     let bg, border, extra = "";
     if (!p) { bg = "var(--panel-3)"; border = "1px solid var(--line)"; }
+    else if (p.heat) {
+      // 実績ヒート表示中は背景をヒート色にし、設定の変化は枠と数字で表す
+      bg = p.heat;
+      const up = p.changed && p.setting > p.prevSetting;
+      border = p.changed ? "3px solid " + (up ? "#d63c43" : "#1f6feb")
+        : (p.setting > 1 ? "2px solid #333a46" : "1px solid var(--line)");
+      if (p.changed) extra = "box-shadow:0 0 0 2px " + (up ? "#f3b0b4" : "#a8c8ff") + ";";
+    }
     else if (p.dim) { bg = "#fff"; border = "1px solid var(--line)"; }
     else if (p.changed) {
       // 変更台は遠目でも分かるようにする。特に「下げて設定1」は設定色がほぼ白で
@@ -60,8 +68,10 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` + extra,
       onclick: canEdit && onCellClick ? () => onCellClick(c.dai_no) : null,
     }, [
-      el("div", { style: `font-size:9px;font-weight:700;line-height:1.1;color:${p && p.dim ? "#9aa2b1" : "#3d4454"}`, text: String(c.dai_no) }),
-      p ? el("div", { style: `font-size:6.5px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;opacity:${p.dim ? ".55" : ".85"};text-align:center`, text: p.model }) : null,
+      // 台番・機種名は薄いと読めないので濃さと大きさを上げる（据え置き台も判別できる程度に）
+      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${p && p.dim ? "#6b7382" : "#1b2130"}`, text: String(c.dai_no) }),
+      p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;" +
+        `-webkit-box-orient:vertical;word-break:break-all;color:${p.dim ? "#6b7382" : "#2a3140"};font-weight:600;text-align:center`, text: p.model }) : null,
       p ? el("div", {
         style: `font-weight:900;line-height:1;color:${p.dim ? "#9aa2b1" : p.changed ? (p.setting > p.prevSetting ? "#a3282e" : "#12437a") : "#333a46"};` +
           `font-size:${p.changed ? 14 : 12}px;letter-spacing:${p.changed ? "-.02em" : "0"}`,

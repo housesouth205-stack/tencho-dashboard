@@ -8,6 +8,8 @@ import { localYmd, addDays } from "../../util/dates.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1 } from "./economics.js";
 import { buildMinSetting, clampSetting } from "./minSetting.js";
+import { heatColor, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
+import { rateKeyOfDai } from "../../core/config.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
 import { printContent } from "../../print/printService.js";
@@ -39,6 +41,7 @@ export async function mount(host) {
     islandModels: {}, minSaved: {}, sessions: [], savedAt: null, carriedOver: false,
     budget: "strict", // 投入時に計画粗利をどこまで割ってよいか
     zoom: null, // スマホ島図の倍率（再描画をまたいで保つ）
+    heat: "", // 背景に重ねる実績ヒート（""=設定色のみ / out / sales / gross）
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
     baseline: "{}", // 読み込み直後のassign。未保存の変更判定と、保存時の差分抽出に使う
     min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
@@ -158,6 +161,7 @@ export async function mount(host) {
       const model = st.islandModels[r.dai_no] || r.model_name;
       return {
         dai: r.dai_no, model, pastModel: r.model_name, out: r.out_val || 0,
+        sales: r.sales, gross: r.gross, // 実績ヒート表示用（機種分析と同じ値）
         coin: r.out_val ? (+(r.sales / r.out_val).toFixed(3) || 3.0) : 3.0,
         group: groupOf(model, typeSetting[model] || typeSetting[r.model_name]),
         sec, secKey: sec?.key, secLabel: sec?.label || "?",
@@ -216,22 +220,37 @@ export async function mount(host) {
   }
 
   // 島図表示用: 全区分・全台（未指定は設定1）。編集対象区分以外は薄表示。
+  // 実績ヒート（機種分析と同じ考え方）。レートごとに基準を分け、平均が真ん中になる。
+  const HEATS = [["", "設定のみ"], ["out", "アウト"], ["sales", "台売上"], ["gross", "台粗利"]];
+  function heatRanges() {
+    if (!st.heat) return null;
+    return minMaxByGroup(st.allUnits.filter((u) => u.sec), (u) => rateKeyOfDai(u.dai), (u) => u[st.heat]);
+  }
+
   function mergedPlacement() {
     // 前日比較は常時ON。前日から変えた台が分かることが目的なので切り替えは持たない。
     const diff = !!st.prev;
+    const hr = heatRanges();
+    const heatLabel = (HEATS.find((h) => h[0] === st.heat) || [])[1];
     return st.allUnits.filter((u) => u.sec).map((u) => {
       const s = settingOf(u);
       const editable = true; // 全区分を直接編集できる
       const prevSet = prevSettingOf(u);
       const changed = diff && prevSet != null && prevSet !== s;
+      const min = minOf(u);
       return {
         dai: u.dai, model: shortModel(u.model), setting: s, secLabel: u.secLabel, color: sectionColor(u.sec),
-        prevSetting: diff ? prevSet : null, changed, dim: diff && !changed,
+        prevSetting: diff ? prevSet : null, changed,
+        // 据え置きでも「最低設定より上＝投入中」の台は色を残す。全部白にすると
+        // 前日から入れっぱなしの高設定がどこにあるか分からなくなるため。
+        dim: diff && !changed && s <= min,
+        heat: hr ? heatColor(u[st.heat], groupRange(hr, rateKeyOfDai(u.dai))) : null,
         tip: [
           `アウト ${num(u.out)}・コイン単価 ${u.coin}（機種分析）`,
+          st.heat ? `${heatLabel} ${num(u[st.heat])}（背景色＝同レート内の高低）` : "",
           `出玉率(設定${s}) ${fmt1(curveOf(u)[s - 1])}%（${u.payout ? "取込実データ" : "タイプ既定"}）`,
           editable ? `台粗利 ${yen(Math.round(unitGross(u, s)))}` : "",
-          minOf(u) > 1 ? `⚠ 設定1不可（パネル消灯）／最低設定${minOf(u)}` : "",
+          min > 1 ? `⚠ 設定1不可（パネル消灯）／最低設定${min}` : "",
           changed ? `前回 設定${prevSet} → 今回 設定${s}` : "",
         ].filter(Boolean).join("\n"),
       };
@@ -325,7 +344,25 @@ export async function mount(host) {
         onclick: () => { st.brush = s; render(); },
       })),
       el("span", { class: "hint", text: `台をクリックすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
+      el("span", { style: "width:8px" }),
+      // 実績ヒートを背景に重ねられるようにする。数字の良し悪しを見ながら設定を置ける。
+      el("span", { class: "hint", style: "font-weight:700", text: "背景" }),
+      el("select", { class: "inp", style: "width:130px", title: "台の背景に実績（機種分析の値）のヒートを重ねる",
+        onchange: (e) => { st.heat = e.target.value; render(); } },
+        HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
     ]));
+
+    // ヒート表示中は色の意味が変わるので凡例を出す
+    if (st.heat) {
+      const box = (c) => el("span", { style: `display:inline-block;width:20px;height:12px;background:${c};border:1px solid var(--line)` });
+      body.appendChild(el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--fg-dim)" }, [
+        el("span", { style: "font-weight:700", text: `背景＝${(HEATS.find((h) => h[0] === st.heat) || [])[1]}の実績：低` }),
+        ...HEAT5.map(box), el("span", { text: "高" }),
+        el("span", { text: "（レートごと・真ん中＝平均）" }),
+        box(HEAT_MINUS), el("span", { text: "マイナス" }), box(HEAT_ZERO), el("span", { text: "稼働なし" }),
+        el("span", { class: "hint", text: "数字と枠は設定・前日比のまま" }),
+      ]));
+    }
 
     // 設定1が使えない機種があることを明示（該当台は設定1を選んでも2が入る）
     const noOne = [...new Set(st.allUnits.filter((u) => u.sec && minOf(u) > 1).map((u) => shortModel(u.model)))];
