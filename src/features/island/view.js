@@ -1,4 +1,4 @@
-import { el, clear, modal } from "../../util/dom.js";
+import { el, clear, modal, floorBar, floorSplit } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
@@ -57,9 +57,8 @@ export async function mount(host) {
 
   const floors = [...new Set(layout.map((l) => l.floor))];
   floor = floors.includes(floor) ? floor : floors[0];
-  const floorChips = floors.map((f) => mkChip(f, () => { floor = f; render(); }));
+  // フロアは1F/BFを同時に表示するので切替チップは持たない
   const metricChips = METRICS.map(([key, label]) => mkChip(label, () => { metric = key; render(); }));
-  floorChips.forEach((c) => bar.appendChild(c));
   bar.appendChild(sep());
   metricChips.forEach((c) => bar.appendChild(c));
   bar.appendChild(el("div", { class: "grow" }));
@@ -89,12 +88,20 @@ export async function mount(host) {
 
   function render() {
     const mobile = isMobileView();
-    // スマホは全フロアを同時に出すのでフロア切替は不要
-    floorChips.forEach((c, i) => { c.style.display = mobile ? "none" : ""; setChip(c, floors[i] === floor); });
     metricChips.forEach((c, i) => setChip(c, METRICS[i][0] === metric));
     clear(body);
     body.appendChild(legend());
-    if (!mobile) { body.appendChild(buildFloor(floor)); return; }
+    if (!mobile) {
+      // PCも1F/BFを縦に並べて同時に見せる（フロア切替は持たない）
+      const wrap = el("div");
+      floors.forEach((fl, i) => {
+        if (i) wrap.appendChild(floorSplit());
+        wrap.appendChild(floorBar(fl, `${layout.filter((l) => l.floor === fl).length}台`));
+        wrap.appendChild(boxOf(buildGrid(fl, false), false));
+      });
+      body.appendChild(wrap);
+      return;
+    }
     // スマホ: 1F/BFを縦に並べて1つの枠に入れ、まとめてピンチズームする。
     // iOS Safariはピンチインをタブ一覧のジェスチャに取ることがあるため、
     // 指を使わずに縮小できるスライダーと「全体」ボタンを必ず用意する。
@@ -162,16 +169,6 @@ export async function mount(host) {
       "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)",
   }, inner);
 
-  // フロアの見出しと区切り。1FとBFを続けて並べるので、どこで階が変わるかを明確にする。
-  const floorLabel = (fl) => el("div", {
-    style: "display:inline-block;font-weight:800;font-size:13px;margin:0 0 4px;padding:2px 10px;" +
-      "border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--fg)",
-    text: `${fl} フロア`,
-  });
-  const floorDivider = () => el("div", {
-    style: "height:0;margin:14px 0 12px;border-top:3px dashed var(--line)",
-  });
-
   // PC: 従来どおり画面幅にフィット（横スクロールなし）。印刷も端末を問わずこちら。
   function buildFloor(fl, forPrint) {
     const isMobile = !forPrint && isMobileView();
@@ -183,8 +180,9 @@ export async function mount(host) {
   function buildAllFloors() {
     const content = el("div", { class: "island-grid-all", style: "width:max-content" });
     floors.forEach((fl, i) => {
-      if (i) content.appendChild(floorDivider());
-      content.appendChild(floorLabel(fl));
+      // ズームで縮小されるので見出し・区切りは大きめにする
+      if (i) content.appendChild(floorSplit(true));
+      content.appendChild(floorBar(fl, `${layout.filter((l) => l.floor === fl).length}台`, true));
       content.appendChild(buildGrid(fl, true));
     });
     return boxOf(content, true);

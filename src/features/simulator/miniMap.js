@@ -1,5 +1,5 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
-import { el } from "../../util/dom.js";
+import { el, floorBar, floorSplit } from "../../util/dom.js";
 import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
@@ -72,12 +72,11 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   const zoomed = !!opts.cellW;
   const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
+  // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする（島図タブと同じ見た目）
   floors.forEach((fl, i) => {
-    // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする
-    if (zoomed && i) wrap.appendChild(el("div", { style: "height:0;margin:14px 0 12px;border-top:3px dashed var(--line)" }));
-    wrap.appendChild(zoomed
-      ? el("div", { style: "display:inline-block;font-weight:800;font-size:13px;margin:0 0 4px;padding:2px 10px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line)", text: `${fl} フロア` })
-      : el("div", { class: "hint", style: "margin:2px 0;font-weight:700", text: fl }));
+    // ズーム表示(スマホ)では縮小されるため見出し・区切りを大きめにする
+    if (i) wrap.appendChild(floorSplit(zoomed));
+    wrap.appendChild(floorBar(fl, `${layout.filter((l) => l.floor === fl).length}台`, zoomed));
     wrap.appendChild(buildPlacementFloor(layout, placement, fl, opts));
   });
   return wrap;

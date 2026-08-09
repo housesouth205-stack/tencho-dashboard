@@ -30,3 +30,23 @@ export function modal(title, bodyNode, footerNode) {
   document.body.appendChild(bg);
   return close;
 }
+
+// フロアの見出しバーと区切り。島図タブと設定投入シミュレーターで同じ見た目に揃える。
+// 1FとBFを続けて並べるため、どこで階が変わるかが一目で分かる強さにしている。
+// big=true はズーム表示（スマホ）用。縮小してもフロア名が読めるよう大きめにする。
+export function floorBar(label, sub, big) {
+  const fs = big ? 26 : 15;
+  return el("div", {
+    style: `display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:${big ? 10 : 7}px ${big ? 18 : 14}px;` +
+      `border-radius:8px;background:var(--accent);color:#fff;font-weight:800;font-size:${fs}px;` +
+      "letter-spacing:.06em;box-shadow:0 1px 0 rgba(0,0,0,.08)",
+  }, [
+    el("span", { text: `${label} フロア` }),
+    sub ? el("span", { style: `font-weight:600;font-size:${big ? 18 : 12}px;opacity:.92`, text: sub }) : null,
+  ]);
+}
+
+// 階と階のあいだ。太い二重線＋広めの余白で切れ目をはっきりさせる。
+export function floorSplit(big) {
+  return el("div", { style: `margin:${big ? 40 : 26}px 0 ${big ? 28 : 18}px;border-top:${big ? 10 : 5}px double var(--accent-dim)` });
+}
