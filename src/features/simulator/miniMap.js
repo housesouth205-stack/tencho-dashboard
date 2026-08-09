@@ -27,42 +27,13 @@ export function buildLegend(placement) {
 // opts.editable(dai)=trueの台はクリック可（onCellClick(dai)を呼ぶ）。編集不可の台は薄表示。
 export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const { onCellClick, editable, cellW } = opts;
-  // 縦の詰め具合。行が高いと全体を見渡せないため、行高・行間・島間の通路・
-  // 機種名の行数をまとめて調整できるようにしてある。
-  const rowH = opts.rowH || (cellW ? "56px" : "46px");
-  const rowGap = opts.rowGap ?? 2;
-  const aisle = opts.aisle ?? 8;
-  const nameLines = opts.nameLines ?? 2;
   const pmap = new Map(placement.map((p) => [p.dai, p]));
   const cells = layout.filter((l) => l.floor === floor);
-
-  // 大きく空いた列（メイン通路）で縦に区切り、区画ごとに行を詰める。
-  // 1枚のグリッドだと左右の島が互い違いに並ぶぶん、反対側は空セルになり
-  // 1行まるごと（56px）の白帯が何本もできていた。区画を分ければ行を共有しない。
-  const allCols = [...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b);
-  const splitCols = opts.splitCols ?? 2; // これ以上列が空いていたら別区画
-  let blocks = [];
-  if (splitCols > 0) {
-    let cur = [];
-    for (const c of allCols) {
-      if (cur.length && c - cur[cur.length - 1] > splitCols) { blocks.push(cur); cur = []; }
-      cur.push(c);
-    }
-    if (cur.length) blocks.push(cur);
-  }
-  // 細かく割れすぎると島の位置関係が壊れるので、その場合は従来どおり1枚で描く
-  if (!blocks.length || blocks.length > 4) blocks = [allCols];
-
-  const build = (blockCols) => {
-    const inBlock = new Set(blockCols);
-    const bc = cells.filter((c) => inBlock.has(c.grid_col));
-    // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
-    const R = pack([...new Set(bc.map((c) => c.grid_row))].sort((a, b) => a - b), rowH, aisle + "px");
-    const C = pack(blockCols, cellW || "minmax(0,1fr)", "6px");
-    const grid = el("div", { style: `display:grid;column-gap:2px;row-gap:${rowGap}px;` +
-      `grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
-      (cellW ? "width:max-content" : `flex:${blockCols.length} 1 0;min-width:0`) });
-  for (const c of bc) {
+  // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
+  const R = pack([...new Set(cells.map((c) => c.grid_row))].sort((a, b) => a - b), cellW ? "56px" : "46px", "8px");
+  const C = pack([...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b), cellW || "minmax(0,1fr)", "6px");
+  const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};width:${cellW ? "max-content" : "100%"}` });
+  for (const c of cells) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
     // 前日比較モード: dim=据え置き(白で目立たなくする) / changed=変更台(色付き・太枠・▲▼)
@@ -107,7 +78,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       // 台番・機種名は薄いと読めないので濃さと大きさを上げる（据え置き台も判別できる程度に）。
       // ヒート表示中は背景が濃くなるため、背景に合わせて文字色を反転させる。
       el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${ink || (p && p.dim ? "#6b7382" : "#1b2130")}`, text: String(c.dai_no) }),
-      p && nameLines ? el("div", { style: `font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:${nameLines};` +
+      p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;" +
         `-webkit-box-orient:vertical;word-break:break-all;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};font-weight:600;text-align:center`, text: p.model }) : null,
       p ? el("div", { style: "display:flex;align-items:baseline;justify-content:center;gap:1px;line-height:1" }, [
         // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
@@ -127,15 +98,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     ]);
     grid.appendChild(cell);
   }
-    return grid;
-  };
-
-  // 区画が複数なら横に並べる。区画の間がメイン通路にあたる。
-  const inner = blocks.length === 1 ? build(blocks[0])
-    : el("div", { style: `display:flex;gap:10px;align-items:flex-start;${cellW ? "width:max-content" : "width:100%"}` },
-      blocks.map(build));
-  return opts.cellW ? inner
-    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, inner);
+  return opts.cellW ? grid
+    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
 }
 
 // 画面表示: 凡例＋全フロア（1F/BF両方、全台表示）
