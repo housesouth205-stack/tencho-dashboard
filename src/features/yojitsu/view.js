@@ -191,15 +191,37 @@ function statCard(head, right, pairs, cols) {
   ]);
 }
 
+// 計画と実績は枠で囲って分け、売上=青 / 粗利=緑 で色を分ける（画面上部の
+// 📋計画/✅実績パネルと同じ配色にそろえる）。4行が同じ色・太さだと
+// どれが計画でどれが実績か読み取れなかった。
+function kv(label, value, color) {
+  return el("div", { class: "row", style: "justify-content:space-between;gap:4px;align-items:baseline;min-width:0" }, [
+    el("span", { class: "hint", style: "font-size:11px", text: label }),
+    el("b", { style: `font-size:13.5px;color:${color};white-space:nowrap`, text: value }),
+  ]);
+}
+function grpBlock(title, accent, sales, gross) {
+  return el("div", { class: "col", style: `flex:1;min-width:0;gap:2px;border:1px solid ${tint(accent, 0.3)};` +
+    `border-top:3px solid ${accent};background:${tint(accent, 0.06)};border-radius:6px;padding:5px 7px` }, [
+    el("div", { style: `font-weight:800;font-size:11.5px;color:${accent};margin-bottom:1px`, text: title }),
+    kv("売上", sales, MC.sales),
+    kv("粗利", gross, MC.gross),
+  ]);
+}
+
 function sectionCards(agg, t) {
-  const card = (r, isTotal) => statCard(
-    isTotal ? el("b", { text: "合計" }) : secBadge(r.section),
-    el("span", {}, [
-      el("span", { class: "hint", style: "margin-right:4px", text: "達成率" }),
-      el("b", { style: (achieveColor(r.achieveGross) || "") + ";font-size:15px", text: r.achieveGross == null ? "—" : pct(r.achieveGross) }),
+  const card = (r, isTotal) => el("div", { class: "card col", style: "padding:10px 12px;gap:8px" }, [
+    el("div", { class: "row", style: "align-items:center;gap:8px" }, [
+      isTotal ? el("b", { text: "合計" }) : secBadge(r.section),
+      el("div", { class: "grow" }),
+      el("span", { class: "hint", style: "margin-right:4px", text: "達成率(粗利)" }),
+      el("b", { style: (achieveColor(r.achieveGross) || "") + ";font-size:16px", text: r.achieveGross == null ? "—" : pct(r.achieveGross) }),
     ]),
-    [["計画 売上", yen(r.plan.sales)], ["実績 売上", yen(r.actual.sales)],
-      ["計画 粗利", yen(r.plan.gross)], ["実績 粗利", yen(r.actual.gross)]], 1);
+    el("div", { class: "row", style: "gap:6px;align-items:stretch" }, [
+      grpBlock("📋 計画", GC.plan, yen(r.plan.sales), yen(r.plan.gross)),
+      grpBlock("✅ 実績", GC.actual, yen(r.actual.sales), yen(r.actual.gross)),
+    ]),
+  ]);
   return el("div", { class: "col", style: "gap:8px;margin-top:14px" },
     [...agg.perSection.map((r) => card(r, false)), card(t, true)]);
 }
@@ -208,9 +230,10 @@ function averagesCards(agg, t) {
   const card = (r, isTotal) => statCard(
     isTotal ? el("b", { text: "合計" }) : secBadge(r.section),
     r.paceGross == null ? null : el("b", { style: `color:${achieveHex(r.paceGross)};font-size:13px`, text: `${pct(r.paceGross)} ${r.paceGross >= 1 ? "順調" : r.paceGross >= 0.9 ? "やや遅れ" : "未達ペース"}` }),
-    [["平均アウト", num(r.avgOut)], ["粗利率", r.grossRate == null ? "—" : pct(r.grossRate)],
-      ["日平均売上", yen(r.avgSalesDay)], ["玉単価", dec(r.coinPrice, 2)],
-      ["日平均粗利", yen(r.avgGrossDay)], ["玉粗利", dec(r.coinGross, 3)]], 2);
+    // 売上系=青 / 粗利系=緑。区分別カードと同じ色分けにそろえる。
+    [["平均アウト", num(r.avgOut)], ["粗利率", r.grossRate == null ? "—" : pct(r.grossRate), MC.gross],
+      ["日平均売上", yen(r.avgSalesDay), MC.sales], ["玉単価", dec(r.coinPrice, 2), MC.sales],
+      ["日平均粗利", yen(r.avgGrossDay), MC.gross], ["玉粗利", dec(r.coinGross, 3), MC.gross]], 2);
   return el("div", { class: "col", style: "gap:8px" },
     [...agg.perSection.map((r) => card(r, false)), card(t, true)]);
 }
