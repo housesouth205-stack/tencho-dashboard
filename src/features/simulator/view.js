@@ -432,7 +432,8 @@ export async function mount(host) {
         const bar = el("div");
         body.appendChild(bar);
         const box = el("div", {
-          style: "overflow:auto;height:64vh;min-height:300px;-webkit-overflow-scrolling:touch;" +
+          // 高さは上限。実際は中身（縮小後の島図）に合わせて縮む（pinchZoom の autoHeight）
+          style: "overflow:auto;height:64vh;-webkit-overflow-scrolling:touch;" +
             "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)",
         }, buildPlacementMap(st.layout, placement, mapOpts));
         body.appendChild(box); // 実寸を測るため先にDOMへ入れる

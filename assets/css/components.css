@@ -43,6 +43,12 @@ table.grid tbody tr:hover td { background: var(--pastel-blue); }
    本来の幅で組んでから横スクロールさせる（広い画面は今までどおり100%で収める）。 */
 @media (max-width: 900px) {
   .table-wrap > table.grid { min-width: max-content; }
+  /* iOSは触るまでスクロールバーが出ないため、右が切れているだけに見えてしまう。
+     常時表示にして「横に動かせる」ことを分かるようにする。 */
+  .table-wrap { scrollbar-width: thin; padding-bottom: 2px; }
+  .table-wrap::-webkit-scrollbar { -webkit-appearance: none; height: 7px; }
+  .table-wrap::-webkit-scrollbar-track { background: var(--panel-2); border-radius: 4px; }
+  .table-wrap::-webkit-scrollbar-thumb { background: var(--fg-dim); border-radius: 4px; }
 }
 
 .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; border: 1px solid transparent; }

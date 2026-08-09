@@ -25,6 +25,15 @@ export function attachPinchZoom(container, content, opts = {}) {
   container.style.touchAction = "none"; // 移動も拡大も自前で処理する
   container.style.overscrollBehavior = "contain";
 
+  // autoHeight: 枠の高さを中身に合わせる。固定高だと縮小したとき地図の下に
+  // 空きスペースが残るため。拡大時は初期の高さ（64vh など）を上限にする。
+  const cs0 = getComputedStyle(container);
+  const bordY = (parseFloat(cs0.borderTopWidth) || 0) + (parseFloat(cs0.borderBottomWidth) || 0);
+  const padY = (parseFloat(cs0.paddingTop) || 0) + (parseFloat(cs0.paddingBottom) || 0);
+  const borderBox = cs0.boxSizing === "border-box";
+  const maxClientH = container.clientHeight;
+  const setClientH = (h) => { container.style.height = (borderBox ? h + bordY : h - padY) + "px"; };
+
   let scale = 1, tx = 0, ty = 0;
   const viewW = () => container.clientWidth;
   const viewH = () => container.clientHeight;
@@ -38,6 +47,8 @@ export function attachPinchZoom(container, content, opts = {}) {
     ty = h <= viewH() ? 0 : Math.min(0, Math.max(viewH() - h, ty));
   }
   function apply() {
+    // 高さを先に決めてから位置を収める（clampPos が枠の高さを見るため）
+    if (opts.autoHeight) setClientH(Math.min(maxClientH, Math.ceil(natH * scale)));
     clampPos();
     pane.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
     opts.onChange?.(scale);
@@ -144,7 +155,7 @@ export function mountZoomBar(barHost, container, content, opts = {}) {
     text: opts.hint || "2本指でつまんだ位置を中心に拡大縮小・1本指で移動" }));
 
   ref.z = attachPinchZoom(container, content, {
-    min: opts.min ?? 0.4, max: opts.max ?? 5, initial: opts.initial ?? "fit",
+    min: opts.min ?? 0.4, max: opts.max ?? 5, initial: opts.initial ?? "fit", autoHeight: opts.autoHeight ?? true,
     onChange: (s) => {
       label.textContent = `${Math.round(s * 100)}%`;
       if (ref.z) slider.value = toSlider(s);
