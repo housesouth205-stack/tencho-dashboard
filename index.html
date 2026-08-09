@@ -27,5 +27,12 @@
   <div id="toasts"></div>
   <div id="printArea"></div>
   <script type="module" src="src/main.js"></script>
+  <script>
+    // 更新が端末のキャッシュに阻まれて届かないのを防ぐ（sw.js がネットワーク優先にする）。
+    // updateViaCache:"none" で sw.js 自身もキャッシュ経由で取らない。
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      addEventListener("load", () => navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => {}));
+    }
+  </script>
 </body>
 </html>
