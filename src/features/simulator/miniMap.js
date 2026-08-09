@@ -1,5 +1,6 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
 import { el, floorBar, floorSplit } from "../../util/dom.js";
+import { heatText } from "../../calc/heat.js";
 import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
@@ -58,6 +59,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       bg = SET_COLORS[p.setting]; border = "1px solid " + (p.color || "var(--line)");
       if (p.setting >= 4) extra = "box-shadow:0 0 0 1px " + (p.color || "var(--line)") + ";";
     }
+    // ヒート表示中は背景色に合わせた文字色。濃い赤の上に濃紺の数字だと読めないため。
+    const ink = p && p.heat ? heatText(p.heat) : null;
     // 変更台は「前日→今日」を出す。矢印だけだと、いくつから動かしたのかが分からない。
     const arrow = p && p.changed ? (p.setting > p.prevSetting ? "▲" : "▼") : "";
     const valText = p ? (p.changed ? `${p.prevSetting}${arrow}${p.setting}` : String(p.setting)) : "";
@@ -68,12 +71,13 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` + extra,
       onclick: canEdit && onCellClick ? () => onCellClick(c.dai_no) : null,
     }, [
-      // 台番・機種名は薄いと読めないので濃さと大きさを上げる（据え置き台も判別できる程度に）
-      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${p && p.dim ? "#6b7382" : "#1b2130"}`, text: String(c.dai_no) }),
+      // 台番・機種名は薄いと読めないので濃さと大きさを上げる（据え置き台も判別できる程度に）。
+      // ヒート表示中は背景が濃くなるため、背景に合わせて文字色を反転させる。
+      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${ink || (p && p.dim ? "#6b7382" : "#1b2130")}`, text: String(c.dai_no) }),
       p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;" +
-        `-webkit-box-orient:vertical;word-break:break-all;color:${p.dim ? "#6b7382" : "#2a3140"};font-weight:600;text-align:center`, text: p.model }) : null,
+        `-webkit-box-orient:vertical;word-break:break-all;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};font-weight:600;text-align:center`, text: p.model }) : null,
       p ? el("div", {
-        style: `font-weight:900;line-height:1;color:${p.dim ? "#9aa2b1" : p.changed ? (p.setting > p.prevSetting ? "#a3282e" : "#12437a") : "#333a46"};` +
+        style: `font-weight:900;line-height:1;color:${ink || (p.dim ? "#9aa2b1" : p.changed ? (p.setting > p.prevSetting ? "#a3282e" : "#12437a") : "#333a46")};` +
           `font-size:${p.changed ? 14 : 12}px;letter-spacing:${p.changed ? "-.02em" : "0"}`,
         text: valText,
       }) : null,
