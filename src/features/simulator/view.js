@@ -9,7 +9,7 @@ import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1 } from "./economics.js";
 import { buildMinSetting, clampSetting } from "./minSetting.js";
 import { heatColor, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
-import { rateKeyOfDai } from "../../core/config.js";
+import { rateKeyOfDai, isBulkExcluded, bulkExcludeLabel } from "../../core/config.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
 import { printContent } from "../../print/printService.js";
@@ -30,9 +30,10 @@ export async function mount(host) {
     section: sSections[0], date: localYmd(), L: 5, K: 5, target: 0, targets: {},
     allUnits: [], layout: [], brush: 4, ex: {}, prev: null,
     // 実績で選んで投入するときの条件
-    pick: { rate: "*", metric: "out", dir: "low", n: 10, set: 6 },
+    pick: { rate: "*", metric: "out", dir: "low", n: 10, set: 6, skipJug: true },
     islandModels: {}, minSaved: {}, sessions: [], savedAt: null, carriedOver: false,
     zoom: null, // スマホ島図の倍率（再描画をまたいで保つ）
+    pan: null, // 同じく、見ている位置
     heat: "", // 背景に重ねる実績ヒート（""=設定色のみ / out / sales / gross）
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
     baseline: "{}", // 読み込み直後のassign。未保存の変更判定と、保存時の差分抽出に使う
@@ -237,7 +238,9 @@ export async function mount(host) {
   function pickUnits() {
     const p = st.pick;
     const val = (u) => (p.metric === "out" ? u.out : u.gross);
-    const pool = st.allUnits.filter((u) => u.sec && (p.rate === "*" || u.sec.key === p.rate) && Number.isFinite(val(u)));
+    // ジャグラーの島は方針で設定を固定しているので、外すかどうかを選べるようにする
+    const pool = st.allUnits.filter((u) => u.sec && !(p.skipJug && isBulkExcluded(u.dai))
+      && (p.rate === "*" || u.sec.key === p.rate) && Number.isFinite(val(u)));
     pool.sort((a, b) => (p.dir === "low" ? val(a) - val(b) : val(b) - val(a)));
     return pool.slice(0, p.n);
   }
@@ -265,6 +268,13 @@ export async function mount(host) {
     };
     const pick = (w, list, key, cast = (v) => v) => el("select", { class: "inp", style: `width:${w}px`,
       onchange: (e) => { p[key] = cast(e.target.value); refresh(); } }, opt(list, p[key]));
+    // ジャグラー島を外すかどうか。方針で固定していることが多いので既定は外す。
+    const jugBox = el("input", { type: "checkbox", style: "cursor:pointer",
+      onchange: (e) => { p.skipJug = e.target.checked; refresh(); } });
+    jugBox.checked = p.skipJug;
+    const jugChk = el("label", { style: "display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:12px",
+      title: `${bulkExcludeLabel()}番。チェックを外すとこの島も対象に含めます` },
+      [jugBox, el("span", { text: "ジャグラー島は変更しない" })]);
     refresh();
     return el("div", { class: "card row", style: "gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px" }, [
       el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "実績で選んで投入" }),
@@ -276,6 +286,7 @@ export async function mount(host) {
       el("span", { class: "hint", text: "台に" }),
       pick(84, [1, 2, 3, 4, 5, 6].map((s) => [s, `設定${s}`]), "set", Number),
       el("button", { class: "btn primary sm", text: "入れる", onclick: applyPick }),
+      jugChk,
       preview,
     ]);
   }
@@ -495,8 +506,12 @@ export async function mount(host) {
         body.appendChild(box); // 実寸を測るため先にDOMへ入れる
         mountZoomBar(bar, box, box.querySelector(".placement-all"), {
           initial: st.zoom ?? "fit",
+          // 1台入れるたびに島図を作り直すので、倍率と見ている位置の両方を持ち越す。
+          // 位置を持たないと設定を入れるたび左上へ戻ってしまう。
+          offset: st.pan,
           hint: "スライダー／2本指で拡大縮小・1本指で移動。台をタップで設定を投入",
           onChange: (s) => { st.zoom = s; },
+          onMove: (x, y) => { st.pan = { x, y }; },
         });
       }
       // BFの下にも日付と設定パレットを置く。下まで見たあと上へ戻らずに操作できるようにする。

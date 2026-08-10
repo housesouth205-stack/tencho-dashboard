@@ -45,6 +45,16 @@ export const SETTING_SIDES = [
 export const settingSideOfDai = (dai) =>
   SETTING_SIDES.find((r) => dai >= r.from && dai <= r.to)?.side || null;
 
+// まとめて投入するとき（実績で選んで投入）に触らない台。
+// ジャグラーの島は方針で設定を固定しているため、実績の良し悪しで動かさない。
+// 1台ずつクリックして入れる操作は今までどおりできる。
+export const BULK_EXCLUDE = [
+  { from: 98, to: 105 },   // ジャグラー島
+  { from: 114, to: 144 },  // ジャグラー島
+];
+export const isBulkExcluded = (dai) => BULK_EXCLUDE.some((r) => dai >= r.from && dai <= r.to);
+export const bulkExcludeLabel = () => BULK_EXCLUDE.map((r) => `${r.from}〜${r.to}`).join("・");
+
 // ISLAND_TWEAKS / SETTING_SIDES は台番の範囲で書いてあるので、入替で並びが
 // 変わると黙って違う場所に効いてしまう。島図を取り込んだときにここで照合する。
 // layout は取込直後の生の配置（tweakCell を通す前）。
@@ -56,7 +66,7 @@ export function checkIslandRules(layout) {
     for (let d = r.from; d <= r.to; d++) { const c = byDai.get(d); if (c) a.push(c); }
     return a;
   };
-  for (const r of [...ISLAND_TWEAKS, ...SETTING_SIDES]) {
+  for (const r of [...ISLAND_TWEAKS, ...SETTING_SIDES, ...BULK_EXCLUDE]) {
     const label = `${r.from}〜${r.to}番`;
     const cs = cellsOf(r);
     if (!cs.length) { warn.push(`${label}：この台番が島図にありません`); continue; }

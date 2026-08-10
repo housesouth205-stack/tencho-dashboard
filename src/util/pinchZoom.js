@@ -60,6 +60,7 @@ export function attachPinchZoom(container, content, opts = {}) {
     const x = canPanX(), y = canPanY();
     container.style.touchAction = x && y ? "none" : x ? "pan-y" : y ? "pan-x" : "auto";
     opts.onChange?.(scale);
+    opts.onMove?.(tx, ty); // 再描画をまたいで見ている位置を保つために外へ渡す
   }
 
   // 焦点(コンテナ内の座標)を動かさずに拡大率を変える
@@ -132,6 +133,9 @@ export function attachPinchZoom(container, content, opts = {}) {
   // initial: "fit" で全体が収まる倍率から開始する
   scale = opts.initial === "fit" || opts.initial == null ? fitScale() : opts.initial;
   scale = Math.min(max, Math.max(lowest(), scale));
+  // offset: 前回見ていた位置。設定を1台入れるたびに島図を作り直すので、
+  // これがないと毎回左上（中央）へ戻ってしまう。
+  if (opts.offset) { tx = opts.offset.x; ty = opts.offset.y; }
   apply();
 
   return {
@@ -168,6 +172,7 @@ export function mountZoomBar(barHost, container, content, opts = {}) {
 
   ref.z = attachPinchZoom(container, content, {
     min: opts.min ?? 0.4, max: opts.max ?? 5, initial: opts.initial ?? "fit", autoHeight: opts.autoHeight ?? true,
+    offset: opts.offset, onMove: opts.onMove,
     onChange: (s) => {
       label.textContent = `${Math.round(s * 100)}%`;
       if (ref.z) slider.value = toSlider(s);
