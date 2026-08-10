@@ -50,7 +50,7 @@ export async function mount(host) {
   host.appendChild(ctrl);
 
   host.appendChild(el("div", { class: "hint", style: "margin:-4px 0 10px", html:
-    'ランク＝アウト/台売上/台粗利のヒート合計(各1〜5pt)。' +
+    'ランク＝アウト/コイン単価/台粗利のヒート合計(各1〜5pt)。' +
     '🥇 14pt以上 ／ 🥈 12pt以上 ／ 🥉 10pt以上＝平均超え（ランク列クリックで並べ替え）<br>' +
     '色・ランクは<b>同じレート（20スロ/5スロ/2スロ）の中での高い/低い</b>で判定し、' +
     '<b>真ん中の色＝そのレートの平均</b>です（セルにカーソルを乗せると平均値を表示）。' }));
@@ -67,7 +67,9 @@ export async function mount(host) {
       if (filterKey !== "ALL" && sec.key !== filterKey) continue;
       list.push({
         dai_no: r.dai_no, model: r.model_name, sec,
-        out: r.out_val, sales: r.sales, gross: r.gross,
+        out: r.out_val, gross: r.gross,
+        // コイン単価＝台売上 ÷ アウト。シミュレーターと同じ出し方にそろえている。
+        coin: r.out_val ? +(r.sales / r.out_val).toFixed(3) : null,
         rate: r.sales ? r.gross / r.sales : null,
       });
     }
@@ -75,14 +77,14 @@ export async function mount(host) {
     // 20スロが一律で低く見えてしまうため、色もランクも「同じ区分の中での高低」で決める。
     const heat = {
       out: minMaxByGroup(list, rateOf, (r) => r.out),
-      sales: minMaxByGroup(list, rateOf, (r) => r.sales),
+      coin: minMaxByGroup(list, rateOf, (r) => r.coin),
       gross: minMaxByGroup(list, rateOf, (r) => r.gross),
     };
     for (const r of list) {
       r.pOut = heatPoint(r.out, groupRange(heat.out, rateOf(r)));
-      r.pSales = heatPoint(r.sales, groupRange(heat.sales, rateOf(r)));
+      r.pCoin = heatPoint(r.coin, groupRange(heat.coin, rateOf(r)));
       r.pGross = heatPoint(r.gross, groupRange(heat.gross, rateOf(r)));
-      r.points = r.pOut + r.pSales + r.pGross;
+      r.points = r.pOut + r.pCoin + r.pGross;
     }
     list.sort((a, b) => ((a[sortCol] ?? -Infinity) - (b[sortCol] ?? -Infinity)) * sortDir);
     return { list, heat };
@@ -121,7 +123,7 @@ export async function mount(host) {
       // 幅は実測で決めた。見出しは並べ替え矢印込みで59px、区分は「20スロ」の
       // バッジが71px必要。どの列もこれを下回ると見出しか中身が切れる。
       ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 200], ["secLabel", "区分", "", 74],
-      ["out", "アウト", "heat", 62], ["sales", "台売上", "heat", 76], ["gross", "台粗利", "heat", 76],
+      ["out", "アウト", "heat", 62], ["coin", "コイン単価", "heat", 86], ["gross", "台粗利", "heat", 76],
       ["rate", "利益率", "", 62], ["points", "ランク", "", 60],
     ];
     const totalW = cols.reduce((a, c) => a + c[3], 0);
@@ -133,10 +135,12 @@ export async function mount(host) {
       el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis", onclick: () => sortBy(key), text: label + (sortCol === key ? (sortDir < 0 ? " ▼" : " ▲") : "") })))));
     const tb = el("tbody");
     for (const r of list) {
+      // コイン単価は小数、それ以外は整数で出す
+      const fmt = (key, val) => (val == null ? "—" : key === "coin" ? Number(val).toFixed(2) : num(val));
       const heatCell = (key) => {
         const g = groupRange(heat[key], rateOf(r));
         const c = heatColor(r[key], g);
-        return el("td", { style: `background:${c};color:${heatText(c)}`, title: `区分平均 ${num(Math.round(g.avg))}`, text: num(r[key]) });
+        return el("td", { style: `background:${c};color:${heatText(c)}`, title: `区分平均 ${fmt(key, g.avg)}`, text: fmt(key, r[key]) });
       };
       tb.appendChild(el("tr", {}, [
         el("td", { text: num(r.dai_no) }),
@@ -144,7 +148,7 @@ export async function mount(host) {
         el("td", { class: "txt", style: "white-space:nowrap;overflow:hidden;text-overflow:ellipsis",
           title: r.model, text: shortModel(r.model) }),
         el("td", {}, el("span", { class: "badge " + r.sec.ptype.toLowerCase(), style: "white-space:nowrap", text: r.sec.label })),
-        heatCell("out"), heatCell("sales"), heatCell("gross"),
+        heatCell("out"), heatCell("coin"), heatCell("gross"),
         el("td", { text: r.rate == null ? "—" : pct(r.rate) }),
         rankCell(r.points),
       ]));
