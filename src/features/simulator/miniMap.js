@@ -39,17 +39,11 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const cells = all.filter((l) => l.floor === floor);
   // 島図Excelのマスは 44px幅 × 43px高（ほぼ正方形）。以前は 46 × 56 で縦が3割長く、
   // 全体が間延びして見えていたので、Excelと同じ比率にそろえる。
+  // 台数の少ない行だけ低くしていたことがあるが、212・217のマスだけ縦に縮んで
+  // 見た目が揃わなかったのでやめた。全部の行を同じ高さにする。
   const rowH = opts.rowH || "43px";
-  // 台が1〜2台しかない行（212・217・218のような縦向きの島の途中）は、
-  // 通常の高さを取ると全幅にわたる白帯になる。この行だけ低くする。
-  const sparseH = opts.sparseH || "28px";
-  const sparseMax = opts.sparseMax ?? 2;
   // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
   const rateGap = opts.rateGap || (cellW ? "44px" : "28px");
-
-  const perRow = new Map();
-  for (const c of cells) perRow.set(c.grid_row, (perRow.get(c.grid_row) || 0) + 1);
-  const isSparse = (r) => perRow.get(r) <= sparseMax;
 
   // レート判定はその階の台だけで持つ。全フロアぶんで持つと1F(20スロ)とBF(2/5スロ)が
   // 同じ列番号を共有したときに境目と誤判定し、関係ない場所に広い通路が入ってしまう。
@@ -74,7 +68,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 端の台が画面の縁に触れて見づらい・押しにくいので、まわりに1マスぶん余白を取る
     const pad = opts.pad || (cellW ? "44px" : "0px");
     // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
-    const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), (r) => (isSparse(r) ? sparseH : rowH), "8px");
+    const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), rowH, "8px");
     const C = pack(cols, cellW || "minmax(0,1fr)", colGap);
     const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
       `padding:${pad};box-sizing:content-box;width:${targetW ? targetW + "px" : cellW ? "max-content" : "100%"}` });
@@ -124,7 +118,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       // ヒート表示中は背景が濃くなるため、背景に合わせて文字色を反転させる。
       el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${ink || (p && p.dim ? "#6b7382" : "#1b2130")}`, text: String(c.dai_no) }),
       // Excelと同じ正方形のマスに収めるため機種名は1行。低くした行では省く。
-      p && !isSparse(c.grid_row) ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;" +
+      p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;" +
         `-webkit-box-orient:vertical;word-break:break-all;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};font-weight:600;text-align:center`, text: p.model }) : null,
       p ? el("div", { style: "display:flex;align-items:baseline;justify-content:center;gap:1px;line-height:1" }, [
         // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。

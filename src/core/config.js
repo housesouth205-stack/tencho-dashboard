@@ -27,7 +27,9 @@ export const rateKeyOfDai = (dai) =>
 // 間隔は miniMap の rateGap で決まる。ここで右にずらすとBFだけ右へはみ出して
 // 1Fと右端がそろわなくなるので、列の移動は入れない。
 export const ISLAND_TWEAKS = [
-  { from: 270, to: 287, drow: -2 }, // 上の空き行に詰める
+  // 254〜287で1つの島（254-270と271-287の2列）。範囲を270からにすると島が
+  // 分断されて271-287だけ上にずれるので、必ず島全体を指定する。
+  { from: 254, to: 287, drow: -1 },
   { from: 288, to: 304, drow: -1 },
 ];
 export const tweakCell = (c) => {
