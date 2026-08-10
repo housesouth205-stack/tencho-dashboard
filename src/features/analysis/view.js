@@ -50,7 +50,7 @@ export async function mount(host) {
   host.appendChild(ctrl);
 
   host.appendChild(el("div", { class: "hint", style: "margin:-4px 0 10px", html:
-    'ランク＝アウト/コイン単価/台粗利のヒート合計(各1〜5pt)。' +
+    'ランク＝アウト/玉単価/台粗利のヒート合計(各1〜5pt)。' +
     '🥇 14pt以上 ／ 🥈 12pt以上 ／ 🥉 10pt以上＝平均超え（ランク列クリックで並べ替え）<br>' +
     '色・ランクは<b>同じレート（20スロ/5スロ/2スロ）の中での高い/低い</b>で判定し、' +
     '<b>真ん中の色＝そのレートの平均</b>です（セルにカーソルを乗せると平均値を表示）。' }));
@@ -68,7 +68,7 @@ export async function mount(host) {
       list.push({
         dai_no: r.dai_no, model: r.model_name, sec,
         out: r.out_val, gross: r.gross,
-        // コイン単価＝台売上 ÷ アウト。シミュレーターと同じ出し方にそろえている。
+        // 玉単価＝台売上 ÷ アウト。シミュレーターと同じ出し方にそろえている。
         coin: r.out_val ? +(r.sales / r.out_val).toFixed(3) : null,
         rate: r.sales ? r.gross / r.sales : null,
       });
@@ -120,22 +120,27 @@ export async function mount(host) {
     // 列幅は固定。中身に合わせると、区分を切り替えるたびに台番号や機種名の幅が
     // 変わって見比べにくかった。全区分でも各レートでも同じ幅になる。
     const cols = [
-      // 幅は実測で決めた。見出しは並べ替え矢印込みで59px、区分は「20スロ」の
+      // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
       // バッジが71px必要。どの列もこれを下回ると見出しか中身が切れる。
       ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 200], ["secLabel", "区分", "", 74],
-      ["out", "アウト", "heat", 62], ["coin", "コイン単価", "heat", 86], ["gross", "台粗利", "heat", 76],
-      ["rate", "利益率", "", 62], ["points", "ランク", "", 60],
+      ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 56], ["gross", "台粗利", "heat", 76],
+      ["rate", "利益率", "", 62], ["points", "ランク", "", 56],
     ];
     const totalW = cols.reduce((a, c) => a + c[3], 0);
     // compact: スマホは余白と見出しを詰めて1行を低くする（拡大して読む前提）
     const t = el("table", { class: "grid mono" + (mobile ? " compact" : ""),
       style: `table-layout:fixed;width:${mobile ? totalW + "px" : "100%"}` });
     t.appendChild(el("colgroup", {}, cols.map(([, , , w]) => el("col", { style: `width:${w}px` }))));
+    // 並べ替えの矢印は小さく添える。見出しと同じ大きさだと、その幅ぶん
+    // 列を広げないと切れてしまい、ランクなど短い列を詰められなかった。
     t.appendChild(el("thead", {}, el("tr", {}, cols.map(([key, label, cls]) =>
-      el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis", onclick: () => sortBy(key), text: label + (sortCol === key ? (sortDir < 0 ? " ▼" : " ▲") : "") })))));
+      el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis", onclick: () => sortBy(key) }, [
+        label,
+        sortCol === key ? el("span", { style: "font-size:9px;margin-left:1px", text: sortDir < 0 ? "▼" : "▲" }) : null,
+      ])))));
     const tb = el("tbody");
     for (const r of list) {
-      // コイン単価は小数、それ以外は整数で出す
+      // 玉単価は小数、それ以外は整数で出す
       const fmt = (key, val) => (val == null ? "—" : key === "coin" ? Number(val).toFixed(2) : num(val));
       const heatCell = (key) => {
         const g = groupRange(heat[key], rateOf(r));
