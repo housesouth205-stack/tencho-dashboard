@@ -1,7 +1,7 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
 import { el, floorBar, floorSplit } from "../../util/dom.js";
 import { heatText } from "../../calc/heat.js";
-import { rateKeyOfDai } from "../../core/config.js";
+import { rateKeyOfDai, tweakCell } from "../../core/config.js";
 import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
@@ -35,7 +35,8 @@ export function buildLegend(placement) {
 export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const { onCellClick, editable, cellW } = opts;
   const pmap = new Map(placement.map((p) => [p.dai, p]));
-  const cells = layout.filter((l) => l.floor === floor);
+  const all = layout.map(tweakCell);
+  const cells = all.filter((l) => l.floor === floor);
   // 島図Excelのマスは 44px幅 × 43px高（ほぼ正方形）。以前は 46 × 56 で縦が3割長く、
   // 全体が間延びして見えていたので、Excelと同じ比率にそろえる。
   const rowH = opts.rowH || "43px";
@@ -50,18 +51,23 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   for (const c of cells) perRow.set(c.grid_row, (perRow.get(c.grid_row) || 0) + 1);
   const isSparse = (r) => perRow.get(r) <= sparseMax;
 
-  // 列がどのレート帯かを見て、境目だけ通路を広げる
+  // 列がどのレート帯かは全フロアぶんで持つ（列を階でそろえるため、その階に台がない列も出る）
   const rateOfCol = new Map();
-  for (const c of cells) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
+  for (const c of all) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
   const colGap = (prev, next) => (rateOfCol.get(prev) !== rateOfCol.get(next) ? rateGap : "6px");
 
   {
     const gc = cells;
+    // 列は1F/BFで共通にする。階ごとに自分の列数ぶんしか幅を持たないと、スマホ（固定幅）で
+    // 左右の端がそろわずズレて見えていた。PCは1frで伸びるため元からそろっていた。
+    const cols = opts.cols || [...new Set(gc.map((c) => c.grid_col))].sort((a, b) => a - b);
+    // 端の台が画面の縁に触れて見づらい・押しにくいので、まわりに1マスぶん余白を取る
+    const pad = opts.pad || (cellW ? "44px" : "0px");
     // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
     const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), (r) => (isSparse(r) ? sparseH : rowH), "8px");
-    const C = pack([...new Set(gc.map((c) => c.grid_col))].sort((a, b) => a - b), cellW || "minmax(0,1fr)", colGap);
+    const C = pack(cols, cellW || "minmax(0,1fr)", colGap);
     const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
-      `width:${cellW ? "max-content" : "100%"}` });
+      `padding:${pad};box-sizing:content-box;width:${cellW ? "max-content" : "100%"}` });
   for (const c of gc) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
@@ -138,6 +144,9 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
 export function buildPlacementMap(layout, placement, opts = {}) {
   const floors = [...new Set(layout.map((l) => l.floor))];
   const zoomed = !!opts.cellW;
+  // 全フロア共通の列。これを各階に渡すことで左右の端がそろう。
+  const cols = [...new Set(layout.map(tweakCell).map((l) => l.grid_col))].sort((a, b) => a - b);
+  opts = { ...opts, cols };
   const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
   // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする（島図タブと同じ見た目）

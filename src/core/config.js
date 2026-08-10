@@ -20,6 +20,22 @@ export const RATE_RANGES = [
 export const rateKeyOfDai = (dai) =>
   RATE_RANGES.find((r) => dai >= r.from && dai <= r.to)?.key || null;
 
+// 島図の見た目の微調整。台番の範囲ごとにマス単位でずらす（drow=下が＋ / dcol=右が＋）。
+// 島図Excelそのままだと空いた行が白帯になったり区分の境目が分かりにくいため、
+// 画面で見やすい位置に寄せる。入替で台番が変わったらここを直す。
+export const ISLAND_TWEAKS = [
+  { from: 270, to: 287, drow: -2 }, // 上の空き行に詰める
+  { from: 288, to: 304, drow: -1 },
+  { from: 193, to: 304, dcol: 3 },  // 2スロとの間を空ける
+];
+export const tweakCell = (c) => {
+  let grid_row = c.grid_row, grid_col = c.grid_col;
+  for (const t of ISLAND_TWEAKS) {
+    if (c.dai_no >= t.from && c.dai_no <= t.to) { grid_row += t.drow || 0; grid_col += t.dcol || 0; }
+  }
+  return grid_row === c.grid_row && grid_col === c.grid_col ? c : { ...c, grid_row, grid_col };
+};
+
 export const hasSupabase = () => !!(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 // ----- 認証（フェーズB）-----
