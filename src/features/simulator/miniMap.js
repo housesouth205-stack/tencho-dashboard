@@ -90,7 +90,22 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     (occupied.has(c.grid_row + 1 + ":" + c.grid_col) && !occupied.has(c.grid_row - 1 + ":" + c.grid_col) ? "top" : "bottom");
   const UPC = "#d63c43", DNC = "#1f6feb";
 
-  for (const c of gc) {
+  // 縦向きの島は行の高さ（通常の台の分だけ高い）より低いので、そのままだと
+  // 台と台の間が広く空く。縦に連なっているぶんを1つの枠にまとめて入れ、
+  // 中では通常と同じ2pxで詰めて並べる（枠自体は縦中央に置く）。
+  const runOfRow = new Map(); // "列:行" → その台が属する縦の連なり
+  for (const col of hCols) {
+    const rows = gc.filter((c) => c.grid_col === col && sideOf(c) !== "top" && sideOf(c) !== "bottom")
+      .map((c) => c.grid_row).sort((a, b) => a - b);
+    let run = [];
+    const push = () => { if (run.length) for (const r of run) runOfRow.set(col + ":" + r, run); };
+    for (const r of rows) { if (run.length && r - run[run.length - 1] !== 1) { push(); run = []; } run.push(r); }
+    push();
+  }
+  const hBoxes = new Map();
+  const ordered = [...gc].sort((a, b) => a.grid_row - b.grid_row || a.grid_col - b.grid_col);
+
+  for (const c of ordered) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
     const up = p && p.changed && p.setting > p.prevSetting;
@@ -145,16 +160,26 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     const first = side === "top" || side === "left";
     const cell = el("div", {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
-      style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};` +
+      style: (horiz ? `height:${hHead}px;` // 位置はまとめ枠が持つ
+        : `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};`) +
         `display:flex;flex-direction:${horiz ? "row" : "column"};gap:1px;border-radius:3px;` +
-        // 左右に置く台は行の高さより低いので上下中央に置く（上に寄ると隙間が下に偏る）
-        (horiz ? `height:${hHead}px;align-self:center;` : "") +
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` +
         // 変更台は台全体を囲って遠目でも分かるようにする
         (p && p.changed ? `box-shadow:0 0 0 2px ${up ? "#f3b0b4" : "#a8c8ff"};` : ""),
       onclick: canEdit && onCellClick ? () => onCellClick(c.dai_no) : null,
     }, first ? [setBlk, head] : [head, setBlk]);
-    grid.appendChild(cell);
+    if (!horiz) { grid.appendChild(cell); continue; }
+    // 縦の連なりごとのまとめ枠に入れる。枠は連なる行ぶんを占め、中は2pxで詰める。
+    const run = runOfRow.get(c.grid_col + ":" + c.grid_row) || [c.grid_row];
+    const key = c.grid_col + ":" + run[0];
+    let box = hBoxes.get(key);
+    if (!box) {
+      box = el("div", { style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(run[0]) + 1} / span ${run.length};` +
+        "display:flex;flex-direction:column;gap:2px;align-items:center;justify-content:center" });
+      hBoxes.set(key, box);
+      grid.appendChild(box);
+    }
+    box.appendChild(cell);
   }
   return opts.cellW ? grid
     : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
