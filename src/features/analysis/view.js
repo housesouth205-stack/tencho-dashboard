@@ -114,14 +114,19 @@ export async function mount(host) {
   }
 
   function buildTable(list, heat, mobile) {
-    const t = el("table", { class: "grid mono", style: mobile ? "width:max-content" : "" });
+    // 列幅は固定。中身に合わせると、区分を切り替えるたびに台番号や機種名の幅が
+    // 変わって見比べにくかった。全区分でも各レートでも同じ幅になる。
     const cols = [
-      ["dai_no", "台番号", ""], ["model", "機種名", "txt"], ["secLabel", "区分", ""],
-      ["out", "アウト", "heat"], ["sales", "台売上", "heat"], ["gross", "台粗利", "heat"],
-      ["rate", "利益率", ""], ["points", "ランク", ""],
+      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 200], ["secLabel", "区分", "", 72],
+      ["out", "アウト", "heat", 84], ["sales", "台売上", "heat", 100], ["gross", "台粗利", "heat", 100],
+      ["rate", "利益率", "", 70], ["points", "ランク", "", 60],
     ];
+    const totalW = cols.reduce((a, c) => a + c[3], 0);
+    const t = el("table", { class: "grid mono",
+      style: `table-layout:fixed;width:${mobile ? totalW + "px" : "100%"}` });
+    t.appendChild(el("colgroup", {}, cols.map(([, , , w]) => el("col", { style: `width:${w}px` }))));
     t.appendChild(el("thead", {}, el("tr", {}, cols.map(([key, label, cls]) =>
-      el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer", onclick: () => sortBy(key), text: label + (sortCol === key ? (sortDir < 0 ? " ▼" : " ▲") : "") })))));
+      el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis", onclick: () => sortBy(key), text: label + (sortCol === key ? (sortDir < 0 ? " ▼" : " ▲") : "") })))));
     const tb = el("tbody");
     for (const r of list) {
       const heatCell = (key) => {
@@ -131,7 +136,9 @@ export async function mount(host) {
       };
       tb.appendChild(el("tr", {}, [
         el("td", { text: num(r.dai_no) }),
-        el("td", { class: "txt", title: r.model, text: shortModel(r.model) }),
+        // 幅を固定したので、長い機種名は末尾を省略する（全文はカーソルを乗せると出る）
+        el("td", { class: "txt", style: "white-space:nowrap;overflow:hidden;text-overflow:ellipsis",
+          title: r.model, text: shortModel(r.model) }),
         el("td", {}, el("span", { class: "badge " + r.sec.ptype.toLowerCase(), text: r.sec.label })),
         heatCell("out"), heatCell("sales"), heatCell("gross"),
         el("td", { text: r.rate == null ? "—" : pct(r.rate) }),
