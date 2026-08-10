@@ -43,10 +43,10 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const setSize = opts.setSize || Math.round(headSize / 2);
   const rowPx = headSize + 1 + setSize;
   const rowH = opts.rowH || rowPx + "px";
-  // 設定を左右に置く台（縦向きの島）は行の高さいっぱいを使う。正方形を保ったまま
-  // 44pxにすると下に隙間が残り、縦に並んだ台がとびとびに見えていた。
-  const hHead = rowPx;
-  const hSet = Math.round(rowPx / 2);
+  // 設定を左右に置く台（縦向きの島）も他の台と同じ大きさ。台番は正方形、
+  // 設定はその半分の幅。行の高さより低くなるぶんは上下中央に置く。
+  const hHead = headSize;
+  const hSet = setSize;
   // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
   const rateGap = opts.rateGap || (cellW ? "44px" : "28px");
 
@@ -133,10 +133,10 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
         "gap:1px;line-height:1;overflow:hidden",
     }, p ? [
       // 前日の数字は出さない。上げたか下げたかだけ分かればよい。
-      p.changed ? el("span", { style: `font-size:${horiz ? 10 : 8}px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null,
+      p.changed ? el("span", { style: `font-size:8px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null,
       // 今日の設定（主役）
       el("span", {
-        style: `font-size:${horiz ? 14 : quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
+        style: `font-size:${quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
           `color:${quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46"}`,
         text: String(p.setting),
       }),
@@ -147,6 +147,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
       style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};` +
         `display:flex;flex-direction:${horiz ? "row" : "column"};gap:1px;border-radius:3px;` +
+        // 左右に置く台は行の高さより低いので上下中央に置く（上に寄ると隙間が下に偏る）
+        (horiz ? `height:${hHead}px;align-self:center;` : "") +
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` +
         // 変更台は台全体を囲って遠目でも分かるようにする
         (p && p.changed ? `box-shadow:0 0 0 2px ${up ? "#f3b0b4" : "#a8c8ff"};` : ""),
