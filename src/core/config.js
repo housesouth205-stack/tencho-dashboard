@@ -23,10 +23,12 @@ export const rateKeyOfDai = (dai) =>
 // 島図の見た目の微調整。台番の範囲ごとにマス単位でずらす（drow=下が＋ / dcol=右が＋）。
 // 島図Excelそのままだと空いた行が白帯になったり区分の境目が分かりにくいため、
 // 画面で見やすい位置に寄せる。入替で台番が変わったらここを直す。
+// 2スロ／5スロの間隔は列をずらしても変わらない（空いた列は通路1本に詰められるため）。
+// 間隔は miniMap の rateGap で決まる。ここで右にずらすとBFだけ右へはみ出して
+// 1Fと右端がそろわなくなるので、列の移動は入れない。
 export const ISLAND_TWEAKS = [
   { from: 270, to: 287, drow: -2 }, // 上の空き行に詰める
   { from: 288, to: 304, drow: -1 },
-  { from: 193, to: 304, dcol: 3 },  // 2スロとの間を空ける
 ];
 export const tweakCell = (c) => {
   let grid_row = c.grid_row, grid_col = c.grid_col;

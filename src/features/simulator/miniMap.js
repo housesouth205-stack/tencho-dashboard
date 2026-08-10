@@ -44,30 +44,40 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   // 通常の高さを取ると全幅にわたる白帯になる。この行だけ低くする。
   const sparseH = opts.sparseH || "28px";
   const sparseMax = opts.sparseMax ?? 2;
-  // レートの変わり目（2スロ／5スロ）は通路を2マスぶん取って区切りを分かりやすくする
-  const rateGap = opts.rateGap || (cellW ? "88px" : "52px");
+  // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
+  const rateGap = opts.rateGap || (cellW ? "44px" : "28px");
 
   const perRow = new Map();
   for (const c of cells) perRow.set(c.grid_row, (perRow.get(c.grid_row) || 0) + 1);
   const isSparse = (r) => perRow.get(r) <= sparseMax;
 
-  // 列がどのレート帯かは全フロアぶんで持つ（列を階でそろえるため、その階に台がない列も出る）
+  // レート判定はその階の台だけで持つ。全フロアぶんで持つと1F(20スロ)とBF(2/5スロ)が
+  // 同じ列番号を共有したときに境目と誤判定し、関係ない場所に広い通路が入ってしまう。
+  // 両側に台がある列どうしでレートが違うときだけ広げる。
   const rateOfCol = new Map();
-  for (const c of all) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
-  const colGap = (prev, next) => (rateOfCol.get(prev) !== rateOfCol.get(next) ? rateGap : "6px");
+  for (const c of cells) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
+  const colGap = (prev, next) => {
+    const a = rateOfCol.get(prev), b = rateOfCol.get(next);
+    const base = a && b && a !== b ? rateGap : "6px";
+    // 幅をそろえる指定があるときは通路を伸縮させ、余りをここで吸収する
+    return opts.targetW && cellW ? `minmax(${base},1fr)` : base;
+  };
 
   {
     const gc = cells;
-    // 列は1F/BFで共通にする。階ごとに自分の列数ぶんしか幅を持たないと、スマホ（固定幅）で
-    // 左右の端がそろわずズレて見えていた。PCは1frで伸びるため元からそろっていた。
-    const cols = opts.cols || [...new Set(gc.map((c) => c.grid_col))].sort((a, b) => a - b);
+    // 列はその階で使っているぶんだけ。1Fの列まで共有すると、BFでは空の列が
+    // 何本も挿入されて2スロと5スロが離れすぎた。
+    // 代わりに全体の幅を階でそろえ、余った幅は通路（伸びるトラック）に吸わせる。
+    // これで左右の端がぴったり揃い、通路の広さも自然に決まる。
+    const cols = [...new Set(gc.map((c) => c.grid_col))].sort((a, b) => a - b);
+    const targetW = cellW ? opts.targetW : null;
     // 端の台が画面の縁に触れて見づらい・押しにくいので、まわりに1マスぶん余白を取る
     const pad = opts.pad || (cellW ? "44px" : "0px");
     // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
     const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), (r) => (isSparse(r) ? sparseH : rowH), "8px");
     const C = pack(cols, cellW || "minmax(0,1fr)", colGap);
     const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
-      `padding:${pad};box-sizing:content-box;width:${cellW ? "max-content" : "100%"}` });
+      `padding:${pad};box-sizing:content-box;width:${targetW ? targetW + "px" : cellW ? "max-content" : "100%"}` });
   for (const c of gc) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
@@ -144,9 +154,19 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
 export function buildPlacementMap(layout, placement, opts = {}) {
   const floors = [...new Set(layout.map((l) => l.floor))];
   const zoomed = !!opts.cellW;
-  // 全フロア共通の列。これを各階に渡すことで左右の端がそろう。
-  const cols = [...new Set(layout.map(tweakCell).map((l) => l.grid_col))].sort((a, b) => a - b);
-  opts = { ...opts, cols };
+  // スマホ（固定幅）では階ごとに列数が違うと左右の端がそろわない。
+  // いちばん広い階の幅に合わせ、足りないぶんは通路が伸びて吸収する。
+  if (zoomed) {
+    const all = layout.map(tweakCell);
+    const W = parseFloat(opts.cellW) || 44;
+    const widthOf = (fl) => {
+      const cs = [...new Set(all.filter((l) => l.floor === fl).map((l) => l.grid_col))].sort((a, b) => a - b);
+      let w = cs.length * W + Math.max(0, cs.length - 1) * 2;
+      for (let i = 1; i < cs.length; i++) if (cs[i] - cs[i - 1] !== 1) w += 6;
+      return w;
+    };
+    opts = { ...opts, targetW: Math.max(...floors.map(widthOf)) };
+  }
   const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
   // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする（島図タブと同じ見た目）
