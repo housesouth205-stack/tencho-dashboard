@@ -99,14 +99,15 @@ export async function mount(host) {
     // 島図と同じ操作にそろえてある（並べ替えの見出しタップもそのまま効く）。
     const bar = el("div");
     const content = el("div", { style: "width:max-content" }, table);
-    const box = el("div", { style: "overflow:auto;height:64vh;-webkit-overflow-scrolling:touch;" +
-      "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)" }, content);
+    // 高さは打ち切らない。枠の中で動かすより、ページをそのまま縦スクロールして
+    // 読めるほうが表には合っている（横に広がったぶんだけ指で動かす）。
+    const box = el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)" }, content);
     tableHost.appendChild(bar);
     tableHost.appendChild(box); // 実寸を測るため先にDOMへ入れる
     mountZoomBar(bar, box, content, {
       // 並べ替えや区分の切替で作り直すので、倍率と見ている位置を持ち越す
-      initial: zoomSt.zoom ?? "fit", offset: zoomSt.pan,
-      hint: "スライダー／2本指で拡大縮小・1本指で移動。見出しをタップで並べ替え",
+      initial: zoomSt.zoom ?? "fit", offset: zoomSt.pan, fullHeight: true,
+      hint: "スライダー／2本指で拡大縮小。縦はページをそのままスクロール。見出しをタップで並べ替え",
       onChange: (s) => { zoomSt.zoom = s; },
       onMove: (x, y) => { zoomSt.pan = { x, y }; },
     });

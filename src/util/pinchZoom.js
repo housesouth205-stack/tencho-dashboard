@@ -38,7 +38,9 @@ export function attachPinchZoom(container, content, opts = {}) {
   const viewW = () => container.clientWidth;
   const viewH = () => container.clientHeight;
   const fitScale = () => (viewW() - 8) / natW;
-  const lowest = () => Math.min(min, fitScale());
+  // いちばん縮めた状態＝横幅にぴったり合う倍率。これより小さくしても余白が
+  // 増えるだけで読みにくくなるため、下限をここに置く。
+  const lowest = () => Math.min(1, fitScale());
 
   // はみ出さない範囲に位置を収める。収まるときは中央（縦は上詰め）に置く。
   function clampPos() {
@@ -52,7 +54,9 @@ export function attachPinchZoom(container, content, opts = {}) {
 
   function apply() {
     // 高さを先に決めてから位置を収める（clampPos が枠の高さを見るため）
-    if (opts.autoHeight) setClientH(Math.min(maxClientH, Math.ceil(natH * scale)));
+    // fullHeight: 高さを打ち切らず中身のぶんだけ伸ばす。縦に長い表はこちらにすると
+    // 枠の中で動かすのではなく、ページをそのまま縦スクロールして読める。
+    if (opts.autoHeight) setClientH(opts.fullHeight ? Math.ceil(natH * scale) : Math.min(maxClientH, Math.ceil(natH * scale)));
     clampPos();
     pane.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
     // 動かせない向きはブラウザに返す。そうしないと島図の上が「触っても何も
@@ -172,7 +176,7 @@ export function mountZoomBar(barHost, container, content, opts = {}) {
 
   ref.z = attachPinchZoom(container, content, {
     min: opts.min ?? 0.4, max: opts.max ?? 5, initial: opts.initial ?? "fit", autoHeight: opts.autoHeight ?? true,
-    offset: opts.offset, onMove: opts.onMove,
+    offset: opts.offset, onMove: opts.onMove, fullHeight: opts.fullHeight,
     onChange: (s) => {
       label.textContent = `${Math.round(s * 100)}%`;
       if (ref.z) slider.value = toSlider(s);
