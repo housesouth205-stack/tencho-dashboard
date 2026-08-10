@@ -2,7 +2,7 @@
 const NS = "http://www.w3.org/2000/svg";
 // pos/neg は色覚多様性・コントラストの検証を通した発散ペア（青↔赤）。
 // ref は計画（基準線）用のグレー。塗りではなく線なので plan より濃いものを使う。
-const C = { ok: "#43b483", warn: "#e0a52e", bad: "#e35d6a", accent: "#e35d6a", blue: "#6f9fe0", dim: "#8a91a3", line: "#e3e8f2", plan: "#c3cbdb", fg: "#2f3440", pos: "#2a78d6", neg: "#e34948", ref: "#7d8595" };
+const C = { ok: "#43b483", warn: "#e0a52e", bad: "#e35d6a", accent: "#e35d6a", dim: "#8a91a3", line: "#e3e8f2", plan: "#c3cbdb", fg: "#2f3440", pos: "#2a78d6", neg: "#e34948", ref: "#7d8595" };
 
 function s(tag, attrs = {}, children = []) {
   const n = document.createElementNS(NS, tag);
@@ -12,22 +12,6 @@ function s(tag, attrs = {}, children = []) {
 }
 const achColor = (r) => (r == null ? C.dim : r >= 1 ? C.ok : r >= 0.9 ? C.warn : C.bad);
 const abbr = (n) => (n == null ? "—" : Math.abs(n) >= 1e8 ? (n / 1e8).toFixed(1) + "億" : Math.abs(n) >= 1e4 ? Math.round(n / 1e4) + "万" : String(Math.round(n)));
-
-// 達成率ドーナツ
-export function donut(label, ratio) {
-  const size = 130, cx = size / 2, cy = size / 2, r = 52, circ = 2 * Math.PI * r;
-  const val = ratio == null ? 0 : Math.max(0, Math.min(ratio, 1.3));
-  const svg = s("svg", { viewBox: `0 0 ${size} ${size + 22}`, width: "150", style: "max-width:100%" });
-  svg.appendChild(s("circle", { cx, cy, r, fill: "none", stroke: C.line, "stroke-width": 12 }));
-  svg.appendChild(s("circle", {
-    cx, cy, r, fill: "none", stroke: achColor(ratio), "stroke-width": 12, "stroke-linecap": "round",
-    "stroke-dasharray": `${(circ * val) / 1.3} ${circ}`, transform: `rotate(-90 ${cx} ${cy})`,
-  }));
-  svg.appendChild(s("text", { x: cx, y: cy + 2, "text-anchor": "middle", "font-size": "22", "font-weight": "700", fill: C.fg }, ratio == null ? "—" : Math.round(ratio * 100) + "%"));
-  svg.appendChild(s("text", { x: cx, y: cy + 20, "text-anchor": "middle", "font-size": "11", fill: C.dim }, "達成率"));
-  svg.appendChild(s("text", { x: cx, y: size + 14, "text-anchor": "middle", "font-size": "12", fill: C.dim }, label));
-  return svg;
-}
 
 // 区分別 予算(計画)vs実績 横棒
 export function hbars(rows, { title } = {}) {

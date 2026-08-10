@@ -45,6 +45,51 @@ export const SETTING_SIDES = [
 export const settingSideOfDai = (dai) =>
   SETTING_SIDES.find((r) => dai >= r.from && dai <= r.to)?.side || null;
 
+// ISLAND_TWEAKS / SETTING_SIDES は台番の範囲で書いてあるので、入替で並びが
+// 変わると黙って違う場所に効いてしまう。島図を取り込んだときにここで照合する。
+// layout は取込直後の生の配置（tweakCell を通す前）。
+export function checkIslandRules(layout) {
+  const warn = [];
+  const byDai = new Map(layout.map((c) => [c.dai_no, c]));
+  const cellsOf = (r) => {
+    const a = [];
+    for (let d = r.from; d <= r.to; d++) { const c = byDai.get(d); if (c) a.push(c); }
+    return a;
+  };
+  for (const r of [...ISLAND_TWEAKS, ...SETTING_SIDES]) {
+    const label = `${r.from}〜${r.to}番`;
+    const cs = cellsOf(r);
+    if (!cs.length) { warn.push(`${label}：この台番が島図にありません`); continue; }
+    const missing = r.to - r.from + 1 - cs.length;
+    if (missing) warn.push(`${label}：${missing}台が島図に見つかりません`);
+  }
+  // 行をずらす指定は、同じ島の台を置き去りにすると島が分断される
+  for (const r of ISLAND_TWEAKS) {
+    if (!r.drow) continue;
+    const cs = cellsOf(r);
+    if (!cs.length) continue;
+    // 行番号は階ごとに振られているので、必ず同じ階どうしで比べる
+    const floors = new Set(cs.map((c) => c.floor));
+    const rows = new Set(cs.map((c) => c.floor + ":" + c.grid_row));
+    const left = layout.filter((c) => floors.has(c.floor) && rows.has(c.floor + ":" + c.grid_row)
+      && (c.dai_no < r.from || c.dai_no > r.to)
+      && cs.some((x) => x.floor === c.floor && Math.abs(x.grid_col - c.grid_col) <= 1));
+    if (left.length) {
+      const names = left.slice(0, 4).map((c) => c.dai_no).join("・");
+      warn.push(`${r.from}〜${r.to}番：同じ島の ${names}${left.length > 4 ? " ほか" : ""} が範囲外です（島が分断されます）`);
+    }
+  }
+  // 設定を左右に置く指定は、縦1列に並んでいることが前提
+  for (const r of SETTING_SIDES) {
+    if (r.side !== "left" && r.side !== "right") continue;
+    const cs = cellsOf(r);
+    if (cs.length && new Set(cs.map((c) => c.grid_col)).size > 1) {
+      warn.push(`${r.from}〜${r.to}番：縦1列ではなくなっています（設定を横に置く指定です）`);
+    }
+  }
+  return warn;
+}
+
 export const tweakCell = (c) => {
   let grid_row = c.grid_row, grid_col = c.grid_col;
   for (const t of ISLAND_TWEAKS) {

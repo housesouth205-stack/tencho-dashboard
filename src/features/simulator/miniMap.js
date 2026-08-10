@@ -6,6 +6,16 @@ import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
 
+// マスの寸法。台番＋機種名は正方形、設定はその半分。
+// 設定を上下に置く台は縦に「正方形＋半分」、左右に置く台は横に同じだけ使うので、
+// 行の高さと横置きの列の幅は同じ値になる。描画と幅計算で必ずこれを使うこと
+// （以前は同じ計算を2か所に書いていて、片方が古いまま通路が広がっていた）。
+export function cellGeom(cellW) {
+  const head = cellW ? parseFloat(cellW) : 34;
+  const set = Math.round(head / 2);
+  return { head, set, span: head + 1 + set };
+}
+
 // 台のある行・列だけ残し、間の空きは細い通路に圧縮（島図ビューと同方式）。
 // content / gap は関数も受け付ける（列ごとに通路幅を変えるため）。
 function pack(sorted, content, gap) {
@@ -39,14 +49,9 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const cells = all.filter((l) => l.floor === floor);
   // 台番＋機種名のブロックは正方形、設定ブロックはその半分。
   // 設定を上下に置く台は「正方形＋半分」の高さ、左右に置く台はその幅になる。
-  const headSize = opts.headSize || (cellW ? parseFloat(cellW) : 34);
-  const setSize = opts.setSize || Math.round(headSize / 2);
-  const rowPx = headSize + 1 + setSize;
-  const rowH = opts.rowH || rowPx + "px";
-  // 設定を左右に置く台（縦向きの島）も他の台と同じ大きさ。台番は正方形、
-  // 設定はその半分の幅。行の高さより低くなるぶんは上下中央に置く。
-  const hHead = headSize;
-  const hSet = setSize;
+  const geom = cellGeom(cellW);
+  const headSize = geom.head, setSize = geom.set;
+  const rowH = opts.rowH || geom.span + "px";
   // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
   const rateGap = opts.rateGap || (cellW ? "44px" : "28px");
 
@@ -73,7 +78,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 設定を左右に置く台がいる列は、そのぶん列を広げる
     const hCols = new Set(gc.filter((c) => /^(left|right)$/.test(settingSideOfDai(c.dai_no) || "")).map((c) => c.grid_col));
     const colW = (col) => (hCols.has(col)
-      ? (cellW ? hHead + 1 + hSet + "px" : "minmax(0,2.3fr)")
+      ? (cellW ? geom.span + "px" : "minmax(0,2.3fr)")
       : (cellW || "minmax(0,1fr)"));
     // 端の台が画面の縁に触れて見づらい・押しにくいので、まわりに1マスぶん余白を取る
     const pad = opts.pad || (cellW ? "44px" : "0px");
@@ -122,7 +127,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     const horiz = side === "left" || side === "right";
     // 台番＋機種名は正方形。機種名は2行まで入るので、以前より読める。
     const head = el("div", {
-      style: (horiz ? `width:${hHead}px;height:${hHead}px;flex:none;` : "flex:1;min-width:0;min-height:0;") +
+      style: (horiz ? `width:${headSize}px;height:${headSize}px;flex:none;` : "flex:1;min-width:0;min-height:0;") +
         `box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
         `border:1px solid ${p && p.heat ? "transparent" : "var(--line)"};` +
         "display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1",
@@ -141,7 +146,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     else if (p.changed) { setBg = SET_COLORS[p.setting]; setBorder = "2px solid " + (up ? UPC : DNC); }
     else { setBg = SET_COLORS[p.setting]; setBorder = "1px solid " + (p.setting >= 4 ? (p.color || "#b9a45e") : "var(--line)"); }
     const setBlk = el("div", {
-      style: (horiz ? `width:${hSet}px;height:${hHead}px;` : `height:${setSize}px;`) + "flex:none;box-sizing:border-box;" +
+      style: (horiz ? `width:${setSize}px;height:${headSize}px;` : `height:${setSize}px;`) + "flex:none;box-sizing:border-box;" +
         `background:${setBg};border:${setBorder};border-radius:3px;` +
         // 縦向きの島は横幅が狭いので▲▼と数字を縦に並べる
         `display:flex;flex-direction:${horiz ? "column" : "row"};align-items:center;justify-content:center;` +
@@ -160,7 +165,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     const first = side === "top" || side === "left";
     const cell = el("div", {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
-      style: (horiz ? `height:${hHead}px;` // 位置はまとめ枠が持つ
+      style: (horiz ? `height:${headSize}px;` // 位置はまとめ枠が持つ
         : `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};`) +
         `display:flex;flex-direction:${horiz ? "row" : "column"};gap:1px;border-radius:3px;` +
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` +
@@ -195,10 +200,8 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   // いちばん広い階の幅に合わせ、足りないぶんは通路が伸びて吸収する。
   if (zoomed) {
     const all = layout.map(tweakCell);
-    const W = parseFloat(opts.cellW) || 44;
-    // 設定を左右に置く列は行の高さぶんの正方形＋その半分になる（buildPlacementFloorと同じ計算）
-    const hH = W + 1 + Math.round(W / 2);
-    const hW = hH + 1 + Math.round(hH / 2);
+    const geom = cellGeom(opts.cellW);
+    const W = geom.head;
     const widthOf = (fl) => {
       const mine = all.filter((l) => l.floor === fl);
       const cs = [...new Set(mine.map((l) => l.grid_col))].sort((a, b) => a - b);
@@ -206,7 +209,7 @@ export function buildPlacementMap(layout, placement, opts = {}) {
       const hCols = new Set(mine.filter((l) => /^(left|right)$/.test(settingSideOfDai(l.dai_no) || "")).map((l) => l.grid_col));
       let w = Math.max(0, cs.length - 1) * 2;
       for (let i = 0; i < cs.length; i++) {
-        w += hCols.has(cs[i]) ? hW : W;
+        w += hCols.has(cs[i]) ? geom.span : W;
         if (i && cs[i] - cs[i - 1] !== 1) w += 6;
       }
       return w;
@@ -215,14 +218,10 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   }
   const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
-  // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする（島図タブと同じ見た目）
-  // opts.betweenFloors を渡すと階の間に差し込む（設定パレットを両フロアの近くに置くため）
+  // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする
   floors.forEach((fl, i) => {
     // ズーム表示(スマホ)では縮小されるため見出し・区切りを大きめにする
-    if (i) {
-      wrap.appendChild(floorSplit(zoomed));
-      if (opts.betweenFloors) wrap.appendChild(opts.betweenFloors);
-    }
+    if (i) wrap.appendChild(floorSplit(zoomed));
     wrap.appendChild(floorBar(fl, `${layout.filter((l) => l.floor === fl).length}台`, zoomed));
     wrap.appendChild(buildPlacementFloor(layout, placement, fl, opts));
   });

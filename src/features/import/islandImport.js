@@ -3,6 +3,7 @@
 import { el, modal } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state } from "../../core/state.js";
+import { checkIslandRules } from "../../core/config.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num } from "../../util/format.js";
 import { localYmd } from "../../util/dates.js";
@@ -73,6 +74,18 @@ export async function importIslandXlsx(file, onDone) {
     await repo.upsert("app_setting", { store_id: state.storeId, key: "island_meta", value: { ...entry, history } }, { onConflict: ["store_id", "key"] });
     setSaveState("saved");
     toast(`${counts.total}台を配置（1F ${counts.f1} / BF ${counts.bf}）・${effectiveFrom}から適用${warnings.length ? "・警告" + warnings.length : ""}`, "ok");
+    // 島図の見た目調整は台番の範囲で書いてあるため、配置が変わると黙ってずれる。
+    // 取込のたびに照合して、合わなくなっていたらここで知らせる。
+    const ruleWarn = checkIslandRules(lc);
+    if (ruleWarn.length) {
+      modal("島図の調整設定を見直してください", el("div", { class: "col", style: "gap:8px;min-width:min(460px,86vw)" }, [
+        el("p", { class: "hint", style: "margin:0", text:
+          "島図の見た目を整えるために、台番の範囲を指定した調整が入っています。新しい配置と合わなくなりました。" }),
+        el("ul", { style: "margin:0;padding-left:1.2em;line-height:1.7" }, ruleWarn.map((w) => el("li", { text: w }))),
+        el("p", { class: "hint", style: "margin:0;font-size:11.5px", text:
+          "島図の表示は崩れますが、設定の投入や保存には影響しません。調整の台番を直してもらうよう伝えてください。" }),
+      ]), null);
+    }
     onDone?.();
   } catch (e) { errorToast(e); }
 }
