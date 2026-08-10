@@ -41,7 +41,12 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   // 設定を上下に置く台は「正方形＋半分」の高さ、左右に置く台はその幅になる。
   const headSize = opts.headSize || (cellW ? parseFloat(cellW) : 34);
   const setSize = opts.setSize || Math.round(headSize / 2);
-  const rowH = opts.rowH || headSize + 1 + setSize + "px";
+  const rowPx = headSize + 1 + setSize;
+  const rowH = opts.rowH || rowPx + "px";
+  // 設定を左右に置く台（縦向きの島）は行の高さいっぱいを使う。正方形を保ったまま
+  // 44pxにすると下に隙間が残り、縦に並んだ台がとびとびに見えていた。
+  const hHead = rowPx;
+  const hSet = Math.round(rowPx / 2);
   // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
   const rateGap = opts.rateGap || (cellW ? "44px" : "28px");
 
@@ -68,7 +73,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 設定を左右に置く台がいる列は、そのぶん列を広げる
     const hCols = new Set(gc.filter((c) => /^(left|right)$/.test(settingSideOfDai(c.dai_no) || "")).map((c) => c.grid_col));
     const colW = (col) => (hCols.has(col)
-      ? (cellW ? headSize + 1 + setSize + "px" : "minmax(0,1.6fr)")
+      ? (cellW ? hHead + 1 + hSet + "px" : "minmax(0,2.3fr)")
       : (cellW || "minmax(0,1fr)"));
     // 端の台が画面の縁に触れて見づらい・押しにくいので、まわりに1マスぶん余白を取る
     const pad = opts.pad || (cellW ? "44px" : "0px");
@@ -102,7 +107,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     const horiz = side === "left" || side === "right";
     // 台番＋機種名は正方形。機種名は2行まで入るので、以前より読める。
     const head = el("div", {
-      style: `flex:1;min-width:0;min-height:0;box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
+      style: (horiz ? `width:${hHead}px;height:${hHead}px;flex:none;` : "flex:1;min-width:0;min-height:0;") +
+        `box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
         `border:1px solid ${p && p.heat ? "transparent" : "var(--line)"};` +
         "display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1",
     }, [
@@ -112,23 +118,25 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
         "max-width:100%;text-align:center", text: p.model }) : null,
     ]);
 
-    // 下段（または上段）＝設定だけの小さいブロック。台番ブロックの約半分の高さ。
-    // 変更台は「下げて設定1」が設定色ではほぼ白で見分けられないため、下げは青で塗る。
+    // 設定だけの小さいブロック。台番ブロックの半分の大きさ。
+    // 塗りは上げ・下げ・据え置きとも設定色で統一する（下げを青で塗ると濃すぎた）。
+    // 変わったことは枠の色と▲▼で示す。
     let setBg, setBorder;
     if (!p) { setBg = "var(--panel-3)"; setBorder = "1px solid var(--line)"; }
-    else if (p.changed) { setBg = up ? SET_COLORS[p.setting] : "#bcd8ff"; setBorder = "2px solid " + (up ? UPC : DNC); }
+    else if (p.changed) { setBg = SET_COLORS[p.setting]; setBorder = "2px solid " + (up ? UPC : DNC); }
     else { setBg = SET_COLORS[p.setting]; setBorder = "1px solid " + (p.setting >= 4 ? (p.color || "#b9a45e") : "var(--line)"); }
     const setBlk = el("div", {
-      style: `${horiz ? "width" : "height"}:${setSize}px;flex:none;box-sizing:border-box;` +
+      style: (horiz ? `width:${hSet}px;height:${hHead}px;` : `height:${setSize}px;`) + "flex:none;box-sizing:border-box;" +
         `background:${setBg};border:${setBorder};border-radius:3px;` +
-        "display:flex;align-items:center;justify-content:center;gap:1px;line-height:1;overflow:hidden",
+        // 縦向きの島は横幅が狭いので▲▼と数字を縦に並べる
+        `display:flex;flex-direction:${horiz ? "column" : "row"};align-items:center;justify-content:center;` +
+        "gap:1px;line-height:1;overflow:hidden",
     }, p ? [
-      // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
-      p.changed ? el("span", { style: `font-size:8px;font-weight:700;opacity:.75;text-decoration:line-through;color:${up ? "#a3282e" : "#12437a"}`, text: String(p.prevSetting) }) : null,
-      p.changed ? el("span", { style: `font-size:8px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null,
+      // 前日の数字は出さない。上げたか下げたかだけ分かればよい。
+      p.changed ? el("span", { style: `font-size:${horiz ? 10 : 8}px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null,
       // 今日の設定（主役）
       el("span", {
-        style: `font-size:${quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
+        style: `font-size:${horiz ? 14 : quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
           `color:${quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46"}`,
         text: String(p.setting),
       }),
@@ -139,8 +147,6 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
       style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};` +
         `display:flex;flex-direction:${horiz ? "row" : "column"};gap:1px;border-radius:3px;` +
-        // 上下に置く台は「正方形＋半分」で行の高さいっぱい。左右に置く台は正方形の高さに揃える。
-        (horiz ? `height:${headSize}px;align-self:start;` : "") +
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` +
         // 変更台は台全体を囲って遠目でも分かるようにする
         (p && p.changed ? `box-shadow:0 0 0 2px ${up ? "#f3b0b4" : "#a8c8ff"};` : ""),
@@ -163,7 +169,9 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   if (zoomed) {
     const all = layout.map(tweakCell);
     const W = parseFloat(opts.cellW) || 44;
-    const S = Math.round(W / 2);
+    // 設定を左右に置く列は行の高さぶんの正方形＋その半分になる（buildPlacementFloorと同じ計算）
+    const hH = W + 1 + Math.round(W / 2);
+    const hW = hH + 1 + Math.round(hH / 2);
     const widthOf = (fl) => {
       const mine = all.filter((l) => l.floor === fl);
       const cs = [...new Set(mine.map((l) => l.grid_col))].sort((a, b) => a - b);
@@ -171,7 +179,7 @@ export function buildPlacementMap(layout, placement, opts = {}) {
       const hCols = new Set(mine.filter((l) => /^(left|right)$/.test(settingSideOfDai(l.dai_no) || "")).map((l) => l.grid_col));
       let w = Math.max(0, cs.length - 1) * 2;
       for (let i = 0; i < cs.length; i++) {
-        w += hCols.has(cs[i]) ? W + 1 + S : W;
+        w += hCols.has(cs[i]) ? hW : W;
         if (i && cs[i] - cs[i - 1] !== 1) w += 6;
       }
       return w;
