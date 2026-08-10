@@ -22,7 +22,7 @@ export function attachPinchZoom(container, content, opts = {}) {
   pane.appendChild(content);
   if (getComputedStyle(container).position === "static") container.style.position = "relative";
   container.style.overflow = "hidden";
-  container.style.touchAction = "none"; // 移動も拡大も自前で処理する
+  container.style.touchAction = "none"; // 実際の値は apply() が倍率に応じて決める
   container.style.overscrollBehavior = "contain";
 
   // autoHeight: 枠の高さを中身に合わせる。固定高だと縮小したとき地図の下に
@@ -46,11 +46,19 @@ export function attachPinchZoom(container, content, opts = {}) {
     tx = w <= viewW() ? (viewW() - w) / 2 : Math.min(0, Math.max(viewW() - w, tx));
     ty = h <= viewH() ? 0 : Math.min(0, Math.max(viewH() - h, ty));
   }
+  // その向きに動かす余地があるか。全体表示のように中身が収まっているときは無い。
+  const canPanX = () => natW * scale > viewW() + 1;
+  const canPanY = () => natH * scale > viewH() + 1;
+
   function apply() {
     // 高さを先に決めてから位置を収める（clampPos が枠の高さを見るため）
     if (opts.autoHeight) setClientH(Math.min(maxClientH, Math.ceil(natH * scale)));
     clampPos();
     pane.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    // 動かせない向きはブラウザに返す。そうしないと島図の上が「触っても何も
+    // 起きない領域」になり、全体表示のときページのスクロールまで止まっていた。
+    const x = canPanX(), y = canPanY();
+    container.style.touchAction = x && y ? "none" : x ? "pan-y" : y ? "pan-x" : "auto";
     opts.onChange?.(scale);
   }
 
@@ -86,9 +94,13 @@ export function attachPinchZoom(container, content, opts = {}) {
       pinch.m = [mx, my];
       zoomAt(pinch.s * (dist(e.touches) / pinch.d), fx, fy);
     } else if (drag && e.touches.length === 1) {
-      e.preventDefault();
       const t = e.touches[0];
-      tx += t.clientX - drag.x; ty += t.clientY - drag.y;
+      const dx = t.clientX - drag.x, dy = t.clientY - drag.y;
+      // 動かす向きに余地がなければ横取りしない（ページのスクロールに任せる）
+      const x = canPanX(), y = canPanY();
+      if (Math.abs(dy) > Math.abs(dx) ? !y : !x) { drag = null; return; }
+      e.preventDefault();
+      tx += x ? dx : 0; ty += y ? dy : 0;
       drag = { x: t.clientX, y: t.clientY };
       apply();
     }
