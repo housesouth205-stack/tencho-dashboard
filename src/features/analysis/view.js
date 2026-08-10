@@ -4,11 +4,14 @@ import { num, pct, shortModel } from "../../util/format.js";
 import { heatColor, heatPoint, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
 import { rateKeyOfDai } from "../../core/config.js";
 import { printContent } from "../../print/printService.js";
+import { mountZoomBar } from "../../util/pinchZoom.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 
 let filterKey = "ALL";
 let sortCol = "dai_no";
 let sortDir = 1;
+// スマホの拡大表示。並べ替えや区分の切替で作り直しても倍率と位置を保つ。
+const zoomSt = { zoom: null, pan: null };
 
 // ヒートの比較単位＝レート。台番号レンジで判定し、範囲外の台のみ取込時の区分で補う。
 const rateOf = (r) => rateKeyOfDai(r.dai_no) || r.sec.key;
@@ -89,11 +92,28 @@ export async function mount(host) {
       b.className = "btn sm " + ((b.textContent === "全区分" ? "ALL" : state.sections.find((s) => s.label === b.textContent)?.key) === filterKey ? "primary" : "ghost");
     clear(tableHost);
     const { list, heat } = aggregate();
-    tableHost.appendChild(buildTable(list, heat));
+    const mobile = window.matchMedia("(max-width: 700px)").matches;
+    const table = buildTable(list, heat, mobile);
+    if (!mobile) { tableHost.appendChild(el("div", { class: "table-wrap" }, table)); return; }
+    // スマホは横スクロールをやめ、全体を縮めて表示する。細かい数字は指で拡大して読む。
+    // 島図と同じ操作にそろえてある（並べ替えの見出しタップもそのまま効く）。
+    const bar = el("div");
+    const content = el("div", { style: "width:max-content" }, table);
+    const box = el("div", { style: "overflow:auto;height:64vh;-webkit-overflow-scrolling:touch;" +
+      "border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--panel)" }, content);
+    tableHost.appendChild(bar);
+    tableHost.appendChild(box); // 実寸を測るため先にDOMへ入れる
+    mountZoomBar(bar, box, content, {
+      // 並べ替えや区分の切替で作り直すので、倍率と見ている位置を持ち越す
+      initial: zoomSt.zoom ?? "fit", offset: zoomSt.pan,
+      hint: "スライダー／2本指で拡大縮小・1本指で移動。見出しをタップで並べ替え",
+      onChange: (s) => { zoomSt.zoom = s; },
+      onMove: (x, y) => { zoomSt.pan = { x, y }; },
+    });
   }
 
-  function buildTable(list, heat) {
-    const t = el("table", { class: "grid mono" });
+  function buildTable(list, heat, mobile) {
+    const t = el("table", { class: "grid mono", style: mobile ? "width:max-content" : "" });
     const cols = [
       ["dai_no", "台番号", ""], ["model", "機種名", "txt"], ["secLabel", "区分", ""],
       ["out", "アウト", "heat"], ["sales", "台売上", "heat"], ["gross", "台粗利", "heat"],
@@ -118,8 +138,7 @@ export async function mount(host) {
       ]));
     }
     t.appendChild(tb);
-    // 列が多くスマホの画面幅に収まらないので表の中だけ横スクロールさせる
-    return el("div", { class: "table-wrap" }, t);
+    return t;
   }
 
   function sortBy(key) { if (sortCol === key) sortDir *= -1; else { sortCol = key; sortDir = key === "dai_no" ? 1 : -1; } render(); }
