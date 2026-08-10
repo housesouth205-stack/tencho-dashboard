@@ -15,29 +15,36 @@ export function attachPinchZoom(container, content, opts = {}) {
   const natW = content.offsetWidth;
   const natH = content.offsetHeight;
 
+  const cs0 = getComputedStyle(container);
+  const px = (v) => parseFloat(v) || 0;
+  const padT = px(cs0.paddingTop), padL = px(cs0.paddingLeft);
+  const padY = padT + px(cs0.paddingBottom), padX = padL + px(cs0.paddingRight);
+  const bordT = px(cs0.borderTopWidth), bordL = px(cs0.borderLeftWidth);
+  const bordY = bordT + px(cs0.borderBottomWidth);
+  const borderBox = cs0.boxSizing === "border-box";
+
   // 移動・拡大を担当するラッパ。content自体には触らない。
+  // 枠の余白のぶん内側から始める。top:0 にすると余白を飛び越えて枠線に張り付き、
+  // 一番上の行が丸角で欠けて見えていた。
   const pane = document.createElement("div");
-  pane.style.cssText = "position:absolute;top:0;left:0;transform-origin:0 0;will-change:transform";
+  pane.style.cssText = `position:absolute;top:${padT}px;left:${padL}px;transform-origin:0 0;will-change:transform`;
   container.insertBefore(pane, content);
   pane.appendChild(content);
-  if (getComputedStyle(container).position === "static") container.style.position = "relative";
+  if (cs0.position === "static") container.style.position = "relative";
   container.style.overflow = "hidden";
   container.style.touchAction = "none"; // 実際の値は apply() が倍率に応じて決める
   container.style.overscrollBehavior = "contain";
 
   // autoHeight: 枠の高さを中身に合わせる。固定高だと縮小したとき地図の下に
   // 空きスペースが残るため。拡大時は初期の高さ（64vh など）を上限にする。
-  const cs0 = getComputedStyle(container);
-  const bordY = (parseFloat(cs0.borderTopWidth) || 0) + (parseFloat(cs0.borderBottomWidth) || 0);
-  const padY = (parseFloat(cs0.paddingTop) || 0) + (parseFloat(cs0.paddingBottom) || 0);
-  const borderBox = cs0.boxSizing === "border-box";
-  const maxClientH = container.clientHeight;
-  const setClientH = (h) => { container.style.height = (borderBox ? h + bordY : h - padY) + "px"; };
+  // 高さは「中身の高さ」で扱い、余白ぶんは setContentH の中で足す。
+  const maxContentH = container.clientHeight - padY;
+  const setContentH = (h) => { container.style.height = (borderBox ? h + padY + bordY : h) + "px"; };
 
   let scale = 1, tx = 0, ty = 0;
-  const viewW = () => container.clientWidth;
-  const viewH = () => container.clientHeight;
-  const fitScale = () => (viewW() - 8) / natW;
+  const viewW = () => container.clientWidth - padX;
+  const viewH = () => container.clientHeight - padY;
+  const fitScale = () => viewW() / natW;
   // いちばん縮めた状態＝横幅にぴったり合う倍率。これより小さくしても余白が
   // 増えるだけで読みにくくなるため、下限をここに置く。
   const lowest = () => Math.min(1, fitScale());
@@ -56,7 +63,7 @@ export function attachPinchZoom(container, content, opts = {}) {
     // 高さを先に決めてから位置を収める（clampPos が枠の高さを見るため）
     // fullHeight: 高さを打ち切らず中身のぶんだけ伸ばす。縦に長い表はこちらにすると
     // 枠の中で動かすのではなく、ページをそのまま縦スクロールして読める。
-    if (opts.autoHeight) setClientH(opts.fullHeight ? Math.ceil(natH * scale) : Math.min(maxClientH, Math.ceil(natH * scale)));
+    if (opts.autoHeight) setContentH(opts.fullHeight ? Math.ceil(natH * scale) : Math.min(maxContentH, Math.ceil(natH * scale)));
     clampPos();
     pane.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
     // 動かせない向きはブラウザに返す。そうしないと島図の上が「触っても何も
@@ -76,7 +83,11 @@ export function attachPinchZoom(container, content, opts = {}) {
     apply();
   }
   const centerZoom = (next) => zoomAt(next, viewW() / 2, viewH() / 2);
-  const local = (x, y) => { const r = container.getBoundingClientRect(); return [x - r.left, y - r.top]; };
+  // 枠の左上（余白の内側）を原点にした座標。ラッパの位置と揃える必要がある。
+  const local = (x, y) => {
+    const r = container.getBoundingClientRect();
+    return [x - r.left - bordL - padL, y - r.top - bordT - padT];
+  };
 
   // ---- タッチ操作: 1本指=移動 / 2本指=拡大縮小＋移動 ----
   const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
