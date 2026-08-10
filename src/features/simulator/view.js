@@ -446,8 +446,10 @@ export async function mount(host) {
       };
       body.appendChild(makeDateRow()); // 日付は島図のすぐ上
       if (!mobile) {
-        // PCはパレットを1FとBFの間に差し込む（どちらのフロアからも近い）
-        body.appendChild(buildPlacementMap(st.layout, placement, { ...mapOpts, betweenFloors: makePalette() }));
+        // パレットは島図の上（1Fの手前）。以前は1FとBFの間に挟んでいたが、
+        // 上にあるほうが探さずに済むため移した。下にも同じものを置いてある。
+        body.appendChild(makePalette());
+        body.appendChild(buildPlacementMap(st.layout, placement, mapOpts));
       } else {
         body.appendChild(buildLegend(placement));
         body.appendChild(makePalette({ sticky: true })); // スマホはズーム枠に入れられないので追従表示のまま

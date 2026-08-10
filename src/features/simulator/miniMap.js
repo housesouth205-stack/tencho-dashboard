@@ -1,7 +1,7 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
 import { el, floorBar, floorSplit } from "../../util/dom.js";
 import { heatText } from "../../calc/heat.js";
-import { rateKeyOfDai, tweakCell } from "../../core/config.js";
+import { rateKeyOfDai, tweakCell, settingSideOfDai } from "../../core/config.js";
 import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
@@ -37,11 +37,11 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const pmap = new Map(placement.map((p) => [p.dai, p]));
   const all = layout.map(tweakCell);
   const cells = all.filter((l) => l.floor === floor);
-  // 島図Excelのマスは 44px幅 × 43px高（ほぼ正方形）。以前は 46 × 56 で縦が3割長く、
-  // 全体が間延びして見えていたので、Excelと同じ比率にそろえる。
-  // 台数の少ない行だけ低くしていたことがあるが、212・217のマスだけ縦に縮んで
-  // 見た目が揃わなかったのでやめた。全部の行を同じ高さにする。
-  const rowH = opts.rowH || "43px";
+  // 台番＋機種名のブロックは正方形、設定ブロックはその半分。
+  // 設定を上下に置く台は「正方形＋半分」の高さ、左右に置く台はその幅になる。
+  const headSize = opts.headSize || (cellW ? parseFloat(cellW) : 34);
+  const setSize = opts.setSize || Math.round(headSize / 2);
+  const rowH = opts.rowH || headSize + 1 + setSize + "px";
   // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
   const rateGap = opts.rateGap || (cellW ? "44px" : "28px");
 
@@ -65,19 +65,24 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // これで左右の端がぴったり揃い、通路の広さも自然に決まる。
     const cols = [...new Set(gc.map((c) => c.grid_col))].sort((a, b) => a - b);
     const targetW = cellW ? opts.targetW : null;
+    // 設定を左右に置く台がいる列は、そのぶん列を広げる
+    const hCols = new Set(gc.filter((c) => /^(left|right)$/.test(settingSideOfDai(c.dai_no) || "")).map((c) => c.grid_col));
+    const colW = (col) => (hCols.has(col)
+      ? (cellW ? headSize + 1 + setSize + "px" : "minmax(0,1.6fr)")
+      : (cellW || "minmax(0,1fr)"));
     // 端の台が画面の縁に触れて見づらい・押しにくいので、まわりに1マスぶん余白を取る
     const pad = opts.pad || (cellW ? "44px" : "0px");
     // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
     const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), rowH, "8px");
-    const C = pack(cols, cellW || "minmax(0,1fr)", colGap);
+    const C = pack(cols, colW, colGap);
     const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
       `padding:${pad};box-sizing:content-box;width:${targetW ? targetW + "px" : cellW ? "max-content" : "100%"}` });
-  // 設定ブロックを通路側に置く。2列の島は上段が上・下段が下、壁ぎわの1列は下。
-  // 「行が隣にあるか」で見ると島どうしが隣接する場所で誤るので、同じ列の
-  // 真上・真下に台があるかで判定する。真下にあって真上にない＝島の上段。
+  // 設定ブロックは通路側。島ごとの指定（config の SETTING_SIDES）が最優先で、
+  // 指定がなければ同じ列の真上・真下に台があるかで自動判定する。
+  // 「行が隣にあるか」で見ると島どうしが隣接する場所で誤るため列で見る。
   const occupied = new Set(gc.map((c) => c.grid_row + ":" + c.grid_col));
-  const settingOnTop = (c) =>
-    occupied.has(c.grid_row + 1 + ":" + c.grid_col) && !occupied.has(c.grid_row - 1 + ":" + c.grid_col);
+  const sideOf = (c) => settingSideOfDai(c.dai_no) ||
+    (occupied.has(c.grid_row + 1 + ":" + c.grid_col) && !occupied.has(c.grid_row - 1 + ":" + c.grid_col) ? "top" : "bottom");
   const UPC = "#d63c43", DNC = "#1f6feb";
 
   for (const c of gc) {
@@ -93,14 +98,18 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 上段＝台番と機種名。実績ヒートはこちらの背景に出す。
     const headBg = p && p.heat ? p.heat : "#fff";
     const headInk = ink || (p && p.dim ? "#6b7382" : "#1b2130");
+    const side = sideOf(c);
+    const horiz = side === "left" || side === "right";
+    // 台番＋機種名は正方形。機種名は2行まで入るので、以前より読める。
     const head = el("div", {
-      style: `height:28px;box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
+      style: `flex:1;min-width:0;min-height:0;box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
         `border:1px solid ${p && p.heat ? "transparent" : "var(--line)"};` +
         "display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1",
     }, [
       el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${headInk}`, text: String(c.dai_no) }),
       p ? el("div", { style: `font-size:8px;font-weight:600;line-height:1.05;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};` +
-        "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center", text: p.model }) : null,
+        "overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;" +
+        "max-width:100%;text-align:center", text: p.model }) : null,
     ]);
 
     // 下段（または上段）＝設定だけの小さいブロック。台番ブロックの約半分の高さ。
@@ -110,7 +119,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     else if (p.changed) { setBg = up ? SET_COLORS[p.setting] : "#bcd8ff"; setBorder = "2px solid " + (up ? UPC : DNC); }
     else { setBg = SET_COLORS[p.setting]; setBorder = "1px solid " + (p.setting >= 4 ? (p.color || "#b9a45e") : "var(--line)"); }
     const setBlk = el("div", {
-      style: `height:14px;box-sizing:border-box;background:${setBg};border:${setBorder};border-radius:3px;` +
+      style: `${horiz ? "width" : "height"}:${setSize}px;flex:none;box-sizing:border-box;` +
+        `background:${setBg};border:${setBorder};border-radius:3px;` +
         "display:flex;align-items:center;justify-content:center;gap:1px;line-height:1;overflow:hidden",
     }, p ? [
       // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
@@ -124,16 +134,18 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       }),
     ] : null);
 
-    const onTop = settingOnTop(c);
+    const first = side === "top" || side === "left";
     const cell = el("div", {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
       style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};` +
-        "display:flex;flex-direction:column;gap:1px;border-radius:3px;" +
+        `display:flex;flex-direction:${horiz ? "row" : "column"};gap:1px;border-radius:3px;` +
+        // 上下に置く台は「正方形＋半分」で行の高さいっぱい。左右に置く台は正方形の高さに揃える。
+        (horiz ? `height:${headSize}px;align-self:start;` : "") +
         `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` +
         // 変更台は台全体を囲って遠目でも分かるようにする
         (p && p.changed ? `box-shadow:0 0 0 2px ${up ? "#f3b0b4" : "#a8c8ff"};` : ""),
       onclick: canEdit && onCellClick ? () => onCellClick(c.dai_no) : null,
-    }, onTop ? [setBlk, head] : [head, setBlk]);
+    }, first ? [setBlk, head] : [head, setBlk]);
     grid.appendChild(cell);
   }
   return opts.cellW ? grid
@@ -151,10 +163,17 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   if (zoomed) {
     const all = layout.map(tweakCell);
     const W = parseFloat(opts.cellW) || 44;
+    const S = Math.round(W / 2);
     const widthOf = (fl) => {
-      const cs = [...new Set(all.filter((l) => l.floor === fl).map((l) => l.grid_col))].sort((a, b) => a - b);
-      let w = cs.length * W + Math.max(0, cs.length - 1) * 2;
-      for (let i = 1; i < cs.length; i++) if (cs[i] - cs[i - 1] !== 1) w += 6;
+      const mine = all.filter((l) => l.floor === fl);
+      const cs = [...new Set(mine.map((l) => l.grid_col))].sort((a, b) => a - b);
+      // 設定を左右に置く台がいる列は広い
+      const hCols = new Set(mine.filter((l) => /^(left|right)$/.test(settingSideOfDai(l.dai_no) || "")).map((l) => l.grid_col));
+      let w = Math.max(0, cs.length - 1) * 2;
+      for (let i = 0; i < cs.length; i++) {
+        w += hCols.has(cs[i]) ? W + 1 + S : W;
+        if (i && cs[i] - cs[i - 1] !== 1) w += 6;
+      }
       return w;
     };
     opts = { ...opts, targetW: Math.max(...floors.map(widthOf)) };

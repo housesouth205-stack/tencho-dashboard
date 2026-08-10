@@ -32,6 +32,19 @@ export const ISLAND_TWEAKS = [
   { from: 254, to: 287, drow: -1 },
   { from: 288, to: 304, drow: -1 },
 ];
+// 設定ブロックを台のどちら側に置くか。通路に面している側に置く。
+// 指定がない台は「同じ列の真下に台があれば上・なければ下」で自動判定する。
+// 縦向きの島（145〜148・212〜219）は通路が左右にあるので横に置く。
+export const SETTING_SIDES = [
+  { from: 11, to: 17, side: "top" },
+  { from: 130, to: 144, side: "top" },
+  { from: 185, to: 192, side: "top" },
+  { from: 145, to: 148, side: "right" },
+  { from: 212, to: 219, side: "left" },
+];
+export const settingSideOfDai = (dai) =>
+  SETTING_SIDES.find((r) => dai >= r.from && dai <= r.to)?.side || null;
+
 export const tweakCell = (c) => {
   let grid_row = c.grid_row, grid_col = c.grid_col;
   for (const t of ISLAND_TWEAKS) {
