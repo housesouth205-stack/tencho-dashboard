@@ -21,13 +21,19 @@ export function sameModel(a, b) {
   return ka === kb || ka.includes(kb) || kb.includes(ka);
 }
 
-// 島図・ヒートマップの狭いセル用に機種名を短縮。先頭の「L」「スマスロ」等を除去。
+// 島図・ヒートマップの狭いセル用に機種名を短縮。
+// 先頭の機種種別（L / S / LB / Ｌ / Ｓ）と、その後ろの「/」や空白、
+// 続く「スマスロ」「パチスロ」を除去する。例「LB/ クレアの秘宝伝」→「クレアの秘宝伝」。
+// 後ろ側の「/」は型式コードの区切りなので残す（「ハナビ /KM」はそのまま）。
+// 英字が続くとき（Lupin など）は機種種別ではないので消さない。
 export function shortModel(name) {
   let s = String(name || "");
   let prev;
   do {
     prev = s;
-    s = s.replace(/^\s*[LＬ]\s*/, "").replace(/^\s*(?:スマスロ|ｽﾏｽﾛ)\s*/, "").replace(/^\s*(?:パチスロ|ﾊﾟﾁｽﾛ)\s*/, "");
+    s = s.replace(/^[\s　]*[LSＬＳ][BＢ]?(?=[\s　/／]|$|[^0-9A-Za-z])[\s　]*[/／]?[\s　]*/, "");
+    s = s.replace(/^[\s　]*(?:スマスロ|ｽﾏｽﾛ)[\s　]*/, "");
+    s = s.replace(/^[\s　]*(?:パチスロ|ﾊﾟﾁｽﾛ)[\s　]*/, "");
   } while (s !== prev);
   return s.trim() || String(name || "");
 }

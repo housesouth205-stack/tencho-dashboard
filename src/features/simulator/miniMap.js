@@ -72,70 +72,68 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     const C = pack(cols, cellW || "minmax(0,1fr)", colGap);
     const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
       `padding:${pad};box-sizing:content-box;width:${targetW ? targetW + "px" : cellW ? "max-content" : "100%"}` });
+  // 設定ブロックを通路側に置く。2列の島は上段が上・下段が下、壁ぎわの1列は下。
+  // 「行が隣にあるか」で見ると島どうしが隣接する場所で誤るので、同じ列の
+  // 真上・真下に台があるかで判定する。真下にあって真上にない＝島の上段。
+  const occupied = new Set(gc.map((c) => c.grid_row + ":" + c.grid_col));
+  const settingOnTop = (c) =>
+    occupied.has(c.grid_row + 1 + ":" + c.grid_col) && !occupied.has(c.grid_row - 1 + ":" + c.grid_col);
+  const UPC = "#d63c43", DNC = "#1f6feb";
+
   for (const c of gc) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
-    // 前日比較モード: dim=据え置き(白で目立たなくする) / changed=変更台(色付き・太枠・▲▼)
-    let bg, border, extra = "";
-    if (!p) { bg = "var(--panel-3)"; border = "1px solid var(--line)"; }
-    else if (p.heat) {
-      // 実績ヒート表示中は背景をヒート色にし、設定の変化は枠と数字で表す
-      bg = p.heat;
-      const up = p.changed && p.setting > p.prevSetting;
-      border = p.changed ? "3px solid " + (up ? "#d63c43" : "#1f6feb")
-        : (p.setting > 1 ? "2px solid #333a46" : "1px solid var(--line)");
-      if (p.changed) extra = "box-shadow:0 0 0 2px " + (up ? "#f3b0b4" : "#a8c8ff") + ";";
-    }
-    else if (p.dim) { bg = "#fff"; border = "1px solid var(--line)"; }
-    else if (p.changed) {
-      // 変更台は遠目でも分かるようにする。特に「下げて設定1」は設定色がほぼ白で
-      // 据え置きと見分けが付かなかったため、下げは青系で塗りつぶす。
-      const up = p.setting > p.prevSetting;
-      bg = up ? SET_COLORS[p.setting] : "#bcd8ff";
-      border = "3px solid " + (up ? "#d63c43" : "#1f6feb");
-      extra = "box-shadow:0 0 0 2px " + (up ? "#f3b0b4" : "#a8c8ff") + ";";
-    } else {
-      bg = SET_COLORS[p.setting]; border = "1px solid " + (p.color || "var(--line)");
-      if (p.setting >= 4) extra = "box-shadow:0 0 0 1px " + (p.color || "var(--line)") + ";";
-    }
-    // ヒート表示中は背景色に合わせた文字色。濃い赤の上に濃紺の数字だと読めないため。
-    const ink = p && p.heat ? heatText(p.heat) : null;
-    // 数字は「今日の設定」が主役。前日は小さく添えるだけにする。
-    // 同じ大きさで並べると、どちらを打ち換えるのか一瞬で判断できなかった。
     const up = p && p.changed && p.setting > p.prevSetting;
     const arrow = p && p.changed ? (up ? "▲" : "▼") : "";
     // 据え置きで最低設定の台は主張させない（投入中の台を目立たせるため）
     const quiet = p && !p.changed && p.setting <= (p.minSetting || 1);
-    const todaySize = p && p.changed ? 17 : quiet ? 11 : 15;
+    // ヒート表示中は背景色に合わせた文字色。濃い赤の上に濃紺の数字だと読めないため。
+    const ink = p && p.heat ? heatText(p.heat) : null;
+
+    // 上段＝台番と機種名。実績ヒートはこちらの背景に出す。
+    const headBg = p && p.heat ? p.heat : "#fff";
+    const headInk = ink || (p && p.dim ? "#6b7382" : "#1b2130");
+    const head = el("div", {
+      style: `height:28px;box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
+        `border:1px solid ${p && p.heat ? "transparent" : "var(--line)"};` +
+        "display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1",
+    }, [
+      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${headInk}`, text: String(c.dai_no) }),
+      p ? el("div", { style: `font-size:8px;font-weight:600;line-height:1.05;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};` +
+        "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center", text: p.model }) : null,
+    ]);
+
+    // 下段（または上段）＝設定だけの小さいブロック。台番ブロックの約半分の高さ。
+    // 変更台は「下げて設定1」が設定色ではほぼ白で見分けられないため、下げは青で塗る。
+    let setBg, setBorder;
+    if (!p) { setBg = "var(--panel-3)"; setBorder = "1px solid var(--line)"; }
+    else if (p.changed) { setBg = up ? SET_COLORS[p.setting] : "#bcd8ff"; setBorder = "2px solid " + (up ? UPC : DNC); }
+    else { setBg = SET_COLORS[p.setting]; setBorder = "1px solid " + (p.setting >= 4 ? (p.color || "#b9a45e") : "var(--line)"); }
+    const setBlk = el("div", {
+      style: `height:14px;box-sizing:border-box;background:${setBg};border:${setBorder};border-radius:3px;` +
+        "display:flex;align-items:center;justify-content:center;gap:1px;line-height:1;overflow:hidden",
+    }, p ? [
+      // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
+      p.changed ? el("span", { style: `font-size:8px;font-weight:700;opacity:.75;text-decoration:line-through;color:${up ? "#a3282e" : "#12437a"}`, text: String(p.prevSetting) }) : null,
+      p.changed ? el("span", { style: `font-size:8px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null,
+      // 今日の設定（主役）
+      el("span", {
+        style: `font-size:${quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
+          `color:${quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46"}`,
+        text: String(p.setting),
+      }),
+    ] : null);
+
+    const onTop = settingOnTop(c);
     const cell = el("div", {
       title: p ? `台${c.dai_no} ${p.model}${p.secLabel ? `（${p.secLabel}）` : ""}\n設定${p.setting}${p.tip ? "\n" + p.tip : ""}${canEdit ? "\nクリックで選択中の設定を投入" : ""}` : `台${c.dai_no}（対象外）`,
-      style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};overflow:hidden;` +
-        `background:${bg};color:#333a46;border:${border};border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;padding:1px;` +
-        `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` + extra,
+      style: `grid-column:${C.map.get(c.grid_col) + 1};grid-row:${R.map.get(c.grid_row) + 1};` +
+        "display:flex;flex-direction:column;gap:1px;border-radius:3px;" +
+        `${p ? (canEdit ? "cursor:pointer;" : (p.dim ? "" : "opacity:.55;")) : "opacity:.35;"}` +
+        // 変更台は台全体を囲って遠目でも分かるようにする
+        (p && p.changed ? `box-shadow:0 0 0 2px ${up ? "#f3b0b4" : "#a8c8ff"};` : ""),
       onclick: canEdit && onCellClick ? () => onCellClick(c.dai_no) : null,
-    }, [
-      // 台番・機種名は薄いと読めないので濃さと大きさを上げる（据え置き台も判別できる程度に）。
-      // ヒート表示中は背景が濃くなるため、背景に合わせて文字色を反転させる。
-      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${ink || (p && p.dim ? "#6b7382" : "#1b2130")}`, text: String(c.dai_no) }),
-      // Excelと同じ正方形のマスに収めるため機種名は1行。低くした行では省く。
-      p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;" +
-        `-webkit-box-orient:vertical;word-break:break-all;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};font-weight:600;text-align:center`, text: p.model }) : null,
-      p ? el("div", { style: "display:flex;align-items:baseline;justify-content:center;gap:1px;line-height:1" }, [
-        // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
-        p.changed ? el("span", {
-          style: `font-size:9px;font-weight:700;opacity:.7;text-decoration:line-through;` +
-            `color:${ink || (up ? "#a3282e" : "#12437a")}`,
-          text: String(p.prevSetting),
-        }) : null,
-        p.changed ? el("span", { style: `font-size:9px;font-weight:900;color:${ink || (up ? "#d63c43" : "#1f6feb")}`, text: arrow }) : null,
-        // 今日の設定（主役）
-        el("span", {
-          style: `font-size:${todaySize}px;font-weight:900;letter-spacing:-.02em;` +
-            `color:${ink || (quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46")}`,
-          text: String(p.setting),
-        }),
-      ]) : null,
-    ]);
+    }, onTop ? [setBlk, head] : [head, setBlk]);
     grid.appendChild(cell);
   }
   return opts.cellW ? grid
