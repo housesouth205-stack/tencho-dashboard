@@ -16,18 +16,9 @@ import { printContent } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
 
 const TROPHY = { 2: "🥉", 3: "🥈", 4: "🥇", 5: "🦒", 6: "🌈" }; // 5=キリン柄(サミー基準)
-// 投入時にどこまで計画粗利を割ってよいか。強気の日は計画割れ前提で入れたいことがある。
-const BUDGETS = [
-  ["strict", "計画粗利を下回らない"],
-  ["95", "計画の95%まで"],
-  ["90", "計画の90%まで"],
-  ["85", "計画の85%まで"],
-  ["none", "予算を気にせず入れる"],
-];
 const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|ニューアイム|アイムジャグ|ジャグ/;
 const guessType = (model) => (AT_HINT.test(String(model).normalize("NFKC")) ? "Aタイプ" : "AT機");
 const groupOf = (model, saved) => (((saved || guessType(model)) === "Aタイプ") ? "Aタイプ" : "AT機");
-const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
 export async function mount(host) {
   await loadSections();
@@ -37,9 +28,10 @@ export async function mount(host) {
   const sSections = state.sections.filter((s) => s.ptype === "S");
   const st = {
     section: sSections[0], date: localYmd(), L: 5, K: 5, target: 0, targets: {},
-    allUnits: [], layout: [], brush: 4, ex: {}, prev: null, jugMore: false,
+    allUnits: [], layout: [], brush: 4, ex: {}, prev: null,
+    // 実績で選んで投入するときの条件
+    pick: { rate: "*", metric: "out", dir: "low", n: 10, set: 6 },
     islandModels: {}, minSaved: {}, sessions: [], savedAt: null, carriedOver: false,
-    budget: "strict", // 投入時に計画粗利をどこまで割ってよいか
     zoom: null, // スマホ島図の倍率（再描画をまたいで保つ）
     heat: "", // 背景に重ねる実績ヒート（""=設定色のみ / out / sales / gross）
     assign: {}, // 区分キー → { 台番: 設定 }。未指定は最低設定（通常1、パネル消灯機種は2）
@@ -238,6 +230,56 @@ export async function mount(host) {
     return minMaxByGroup(st.allUnits.filter((u) => u.sec), (u) => rateKeyOfDai(u.dai), (u) => u[st.heat]);
   }
 
+  // ── 実績の低い／高い台にまとめて投入 ──
+  // 「20スロで アウトが低い順に 10台 に 設定6 を入れる」のように指定する。
+  // 島を1台ずつ目で追わなくても、数字の悪い台・良い台へ一気に置ける。
+  const METRICS = [["out", "アウト"], ["gross", "台粗利"]];
+  function pickUnits() {
+    const p = st.pick;
+    const val = (u) => (p.metric === "out" ? u.out : u.gross);
+    const pool = st.allUnits.filter((u) => u.sec && (p.rate === "*" || u.sec.key === p.rate) && Number.isFinite(val(u)));
+    pool.sort((a, b) => (p.dir === "low" ? val(a) - val(b) : val(b) - val(a)));
+    return pool.slice(0, p.n);
+  }
+  function applyPick() {
+    const chosen = pickUnits();
+    if (!chosen.length) { toast("対象になる台がありません（実績が未取込かもしれません）", "err"); return; }
+    let rounded = 0;
+    for (const u of chosen) {
+      const A = (st.assign[u.secKey] = st.assign[u.secKey] || {});
+      const s = clampSetting(st.pick.set, minOf(u));
+      if (s !== st.pick.set) rounded++;
+      A[u.dai] = s;
+    }
+    toast(`${chosen.length}台に設定${st.pick.set}を入れました${rounded ? `（うち${rounded}台は設定1不可のため2）` : ""}`, "ok");
+    render();
+  }
+  function buildPicker() {
+    const p = st.pick;
+    const opt = (list, cur) => list.map(([v, t]) => el("option", { value: v, text: t, selected: String(v) === String(cur) ? "selected" : null }));
+    const preview = el("span", { class: "hint", style: "font-size:11.5px" });
+    // 選び直すたびに対象台数だけ出し直す（島図まで描き直すと入力欄から手が離れる）
+    const refresh = () => {
+      const c = pickUnits();
+      preview.textContent = c.length ? `対象 ${c.length}台（${c[0].dai}番〜）` : "対象になる台がありません";
+    };
+    const pick = (w, list, key, cast = (v) => v) => el("select", { class: "inp", style: `width:${w}px`,
+      onchange: (e) => { p[key] = cast(e.target.value); refresh(); } }, opt(list, p[key]));
+    refresh();
+    return el("div", { class: "card row", style: "gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px" }, [
+      el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "実績で選んで投入" }),
+      pick(96, [["*", "全レート"], ...sSections.map((s) => [s.key, s.label])], "rate"),
+      pick(92, METRICS, "metric"),
+      pick(84, [["low", "低い順"], ["high", "高い順"]], "dir"),
+      el("input", { type: "number", min: "1", max: "999", value: String(p.n), style: "width:66px",
+        onchange: (e) => { p.n = Math.max(1, Math.min(999, Math.round(+e.target.value || 1))); e.target.value = p.n; refresh(); } }),
+      el("span", { class: "hint", text: "台に" }),
+      pick(84, [1, 2, 3, 4, 5, 6].map((s) => [s, `設定${s}`]), "set", Number),
+      el("button", { class: "btn primary sm", text: "入れる", onclick: applyPick }),
+      preview,
+    ]);
+  }
+
   function mergedPlacement() {
     // 前日比較は常時ON。前日から変えた台が分かることが目的なので切り替えは持たない。
     const diff = !!st.prev;
@@ -311,23 +353,13 @@ export async function mount(host) {
     ]));
     body.appendChild(el("div", { class: "row", style: "flex-wrap:wrap;gap:10px" }, rateCards));
 
-    // ── 操作: 🎲ランダム投入 ＋ 前日比較 ＋ リセット/保存/印刷 ──
-    const jugChk = el("input", { type: "checkbox", id: "jugMore", style: "cursor:pointer",
-      onchange: (e) => { st.jugMore = e.target.checked; } });
-    jugChk.checked = st.jugMore;
+    // ── 実績の低い／高い台にまとめて投入 ──
+    body.appendChild(buildPicker());
+
+    // ── 操作: リセット/保存/印刷 ──
     const opRow = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center" }, [
-      el("button", { class: "btn primary", text: "🎲 各島に1〜2台ランダムで入れる（予算内・選択中の設定）", onclick: randomPerRow }),
-      el("label", { style: "display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:13px", title: "マイジャグ・ファンキー・ゴーゴーなど、ジャグラーの機種ごとに最低1台入れます" }, [
-        jugChk, el("span", { text: "🎰 ジャグラーは機種ごとに1台以上" }),
-      ]),
-      el("span", { class: "hint", text: "予算" }),
-      el("select", { class: "inp", style: "width:190px", title: "投入で計画粗利をどこまで割ってよいか",
-        onchange: (e) => { st.budget = e.target.value; } },
-        BUDGETS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.budget ? "selected" : null }))),
       el("button", { class: "btn ghost", title: "全区分をまとめて戻します（パネル消灯機種は設定2）", text: "全台を最低設定に戻す", onclick: () => { st.assign = {}; render(); } }),
-      el("button", { class: "btn ghost sm", title: "設定1にするとパネルが消灯する機種を選ぶ", text: "⚙ 設定1不可の機種", onclick: openMinEditor }),
     ]);
-    opRow.appendChild(el("button", { class: "btn ghost sm", title: "前日を引き継ぎながら、指定した日数ぶんを自動で作る", text: "🪄 1か月分おまかせ作成", onclick: openBulk }));
     opRow.appendChild(el("button", { class: "btn ghost sm", title: "どの日に何台入っているかを一覧で確認する", text: "📋 保存状況", onclick: openStatus }));
     opRow.appendChild(el("div", { class: "grow" }));
     // 保存済みかどうかを出す。保存したのに消えたように見える事故を防ぐ。
@@ -389,21 +421,21 @@ export async function mount(host) {
       ]));
     }
 
-    // 設定1が使えない機種があることを明示（該当台は設定1を選んでも2が入る）
+    // ── 補足説明。常時出しておくと場所を取るので折りたたみにする ──
     const noOne = [...new Set(st.allUnits.filter((u) => u.sec && minOf(u) > 1).map((u) => shortModel(u.model)))];
-    if (noOne.length) {
-      body.appendChild(el("div", { class: "hint", style: "font-size:11.5px", html:
-        `⚠ <b>設定1が使えない機種</b>（設定1にするとパネルが消灯するため最低設定2）：` +
-        `${noOne.join(" / ")} — 設定1を選んでクリックしても設定2が入ります。` +
-        `対象機種の追加・解除は<b>出玉率タブ</b>の「最低設定」列で行えます。` }));
-    }
-
-    // ── データ元の明示（アウト/コイン単価=機種分析、出玉率=取込） ──
     const cu = curUnits();
     const realN = cu.filter((u) => u.payout).length;
-    body.appendChild(el("div", { class: "hint", style: "font-size:11.5px", html:
-      `データ元：<b>アウト・コイン単価</b>＝機種分析の実績（台ごと） ／ <b>出玉率</b>＝出玉率タブの取込値` +
-      `（この区分 ${realN}/${cu.length}台が取込実データ${realN < cu.length ? "、残りはタイプ既定" : "＝全台実データ"}）。台にマウスを乗せると各値を確認できます。` }));
+    const notes = el("details", { style: "font-size:11.5px" }, [
+      el("summary", { style: "cursor:pointer;color:var(--fg-dim);padding:2px 0", text: "ℹ 設定1が使えない機種・データ元について" }),
+      noOne.length ? el("div", { class: "hint", style: "font-size:11.5px;margin-top:4px", html:
+        `⚠ <b>設定1が使えない機種</b>（設定1にするとパネルが消灯するため最低設定2）：` +
+        `${noOne.join(" / ")} — 設定1を選んでクリックしても設定2が入ります。` +
+        `対象機種の追加・解除は<b>出玉率タブ</b>の「最低設定」列で行えます。` }) : null,
+      el("div", { class: "hint", style: "font-size:11.5px;margin-top:4px", html:
+        `データ元：<b>アウト・コイン単価</b>＝機種分析の実績（台ごと） ／ <b>出玉率</b>＝出玉率タブの取込値` +
+        `（この区分 ${realN}/${cu.length}台が取込実データ${realN < cu.length ? "、残りはタイプ既定" : "＝全台実データ"}）。台にマウスを乗せると各値を確認できます。` }),
+    ]);
+    body.appendChild(notes);
 
     // ── 前日比較の凡例 ──
     if (st.prev) {
@@ -504,221 +536,8 @@ export async function mount(host) {
     return merged;
   }
 
-  // 🎲 各島に1台（10台以上の島は2台）、選択設定をランダム投入。
-  // ・区分ごとに予算（計画粗利）を下回らない範囲へ自動で収める
-  // ・「ジャグラーに多め」ONならジャグラー系の島を優先
-  // 対象は全区分。日付をまたぐ一括作成からも同じ関数を使う。
-  // seed を渡すと「前日を引き継ぎ、一部だけ入れ替える」動きになる。
-  // changeRate は前日投入した台を最低設定へ戻す割合（0.3なら約3割を入れ替え）。
-  // budget: "strict"=計画粗利を下回らない / "95","90"=計画比その%まで / "none"=枠を見ない
-  function buildRandomAssign(targets, brush = st.brush, seed = null, changeRate = 0.3, budget = st.budget) {
-    const isJug = (u) => /ジャグラー|ジャグ/.test(String(u.model).normalize("NFKC"));
-    const assign = {};
-    let placed = 0, skipped = 0, islandCount = 0, carried = 0, jugPlaced = 0;
-    for (const sec of sSections) {
-      const units = st.allUnits.filter((u) => u.secKey === sec.key);
-      if (!units.length) continue;
-      const islands = islandsOf(units);
-      islandCount += islands.length;
-      const byDai = new Map(units.map((u) => [u.dai, u]));
 
-      // 予算枠: 全台を最低設定にした粗利を基準にする。計画粗利を下回らない範囲。
-      // 最低設定で既に計画割れの区分は投入不能になるため、その場合は現状比95%を枠とする。
-      const target = targets[sec.key] || 0;
-      let total = 0;
-      for (const u of units) total += unitGross(u, minOf(u));
-      // 枠の下限。計画が未入力（target=0）の日は現状粗利を基準にする。
-      const floor = budget === "none" ? -Infinity
-        : budget === "strict" ? (target && total >= target ? target : total * 0.95)
-        : (target || total) * (Number(budget) / 100);
 
-      // ① 前日ぶんの引き継ぎ（一部は最低設定に戻す）
-      const A = {};
-      const covered = new Set(); // 既に投入済みの島
-      const islandIdx = new Map();
-      islands.forEach((pool, i) => pool.forEach((u) => islandIdx.set(u.dai, i)));
-      for (const [daiStr, s] of Object.entries((seed && seed[sec.key]) || {})) {
-        const u = byDai.get(Number(daiStr));
-        if (!u || Math.random() < changeRate) continue; // 入れ替え対象は引き継がない
-        const to = clampSetting(s, minOf(u));
-        if (to <= minOf(u)) continue;
-        const drop = unitGross(u, minOf(u)) - unitGross(u, to);
-        if (total - drop < floor) continue;
-        A[u.dai] = to; total -= drop; carried++;
-        covered.add(islandIdx.get(u.dai));
-      }
-
-      // ② ジャグラーは機種ごとに最低1台入れる（島単位だと機種によって入らない日が出るため）
-      if (st.jugMore) {
-        const byModel = new Map();
-        for (const u of units) {
-          if (!isJug(u)) continue;
-          const k = modelKey(u.model) || u.model;
-          if (!byModel.has(k)) byModel.set(k, []);
-          byModel.get(k).push(u);
-        }
-        for (const list of byModel.values()) {
-          if (list.some((u) => A[u.dai] != null)) continue; // 引き継ぎ等で既に入っている
-          const cands = list.map((u) => {
-            const to = clampSetting(brush, minOf(u));
-            return { u, to, drop: unitGross(u, minOf(u)) - unitGross(u, to) };
-          }).filter((c) => c.to > minOf(c.u)).sort((a, b) => a.drop - b.drop);
-          for (const c of cands) {
-            if (total - c.drop < floor) continue; // 枠に入らない候補は次へ
-            A[c.u.dai] = c.to; total -= c.drop; placed++; jugPlaced++;
-            covered.add(islandIdx.get(c.u.dai));
-            break;
-          }
-        }
-      }
-
-      // ③ まだ投入の無い島に、1台（10台以上の島は2台）ずつ入れる
-      const picks = [];
-      islands.forEach((pool, i) => {
-        if (covered.has(i)) return;
-        const jugPool = pool.filter(isJug);
-        const jugIsland = st.jugMore && jugPool.length >= Math.max(2, pool.length / 2);
-        let n = pool.length >= 10 ? 2 : 1;
-        if (jugIsland) n = Math.min(pool.length, n + 1); // ジャグラー島は1台増
-        const src = st.jugMore && jugPool.length ? shuffle([...jugPool]).concat(shuffle(pool.filter((u) => !isJug(u)))) : shuffle([...pool]);
-        picks.push({ list: src.slice(0, n).filter((u) => A[u.dai] == null), jug: jugIsland });
-      });
-      const cand = picks.flatMap((p) => p.list.map((u) => {
-        const to = clampSetting(brush, minOf(u));
-        return { u, jug: p.jug, to, drop: unitGross(u, minOf(u)) - unitGross(u, to) };
-      })).filter((c) => c.to > minOf(c.u)); // 既に最低設定と同じなら投入する意味がない
-      // ジャグラー優先時はジャグラーを先に、それ以外はコスト（粗利減）が小さい順
-      cand.sort((a, b) => (st.jugMore && a.jug !== b.jug ? (a.jug ? -1 : 1) : a.drop - b.drop));
-      for (const c of cand) {
-        if (total - c.drop < floor) { skipped++; continue; } // 枠割れは見送り
-        A[c.u.dai] = c.to; total -= c.drop; placed++;
-      }
-      assign[sec.key] = A;
-    }
-    return { assign, placed, skipped, carried, jugPlaced, islands: islandCount };
-  }
-
-  function randomPerRow() {
-    const r = buildRandomAssign(st.targets);
-    st.assign = r.assign;
-    render();
-    toast(`全区分 ${r.islands}島に 設定${st.brush}${TROPHY[st.brush] || ""} を計${r.placed}台投入`
-      + (r.jugPlaced ? `（うちジャグラー各機種に${r.jugPlaced}台）` : "")
-      + (r.skipped ? `／予算に収めるため${r.skipped}台見送り` : ""), "ok");
-  }
-
-  // 📅 まとめて作成: 指定日から日数分をまとめて作って保存する。
-  // 毎日ゼロから組むのは現実的でないため、たたき台を先に作って後から個別に直す運用にする。
-  function openBulk() {
-    const startInp = el("input", { type: "date", value: st.date, style: "width:150px" });
-    const daysInp = el("input", { type: "number", value: 30, min: 1, max: 62, style: "width:80px" });
-    const setSel = el("select", { class: "inp", style: "width:120px" },
-      [2, 3, 4, 5, 6].map((s) => el("option", { value: s, text: `設定${s}${TROPHY[s] || ""}`, selected: s === st.brush ? "selected" : null })));
-    const rateSel = el("select", { class: "inp", style: "width:200px" }, [
-      el("option", { value: "0.2", text: "少なめ（約2割を入れ替え）" }),
-      el("option", { value: "0.3", text: "ふつう（約3割を入れ替え）", selected: "selected" }),
-      el("option", { value: "0.6", text: "多め（約6割を入れ替え）" }),
-      el("option", { value: "1", text: "毎日ゼロから組み直す" }),
-    ]);
-    const budgetSel = el("select", { class: "inp", style: "width:190px" },
-      BUDGETS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.budget ? "selected" : null })));
-    // 既定で作り直す。作っても画面が変わらない（保存済みの日が飛ばされる）のが分かりにくいため。
-    const overwrite = el("input", { type: "checkbox", style: "cursor:pointer" });
-    overwrite.checked = true;
-    const log = el("div", { class: "hint", style: "min-height:34px;white-space:pre-wrap" });
-    const runBtn = el("button", { class: "btn primary", text: "作成して保存" });
-
-    // 実行前に「何日ぶんが対象で、1日あたり何台入るか」を出す。押しても何も起きないように
-    // 見える状態（保存済みでスキップ／予算枠で0台）を事前に気づけるようにする。
-    function preview() {
-      const days = Math.max(1, Math.min(62, Number(daysInp.value) || 30));
-      const start = startInp.value || st.date;
-      const saved = new Set(st.sessions.filter((s) => s.allocation?.assign).map((s) => s.target_date));
-      let already = 0;
-      for (let i = 0; i < days; i++) if (saved.has(addDays(start, i))) already++;
-      const willMake = overwrite.checked ? days : days - already;
-      const trial = buildRandomAssign(st.targets, Number(setSel.value), st.assign, Number(rateSel.value), budgetSel.value);
-      const per = trial.placed + trial.carried;
-      log.textContent =
-        `対象 ${days}日（${start} 〜 ${addDays(start, days - 1)}）／保存済み ${already}日\n`
-        + `作成するのは ${willMake}日ぶん。試算では1日あたり約${per}台に投入`
-        + (per === 0 ? "（枠に余裕がありません。「予算」をゆるめるか、入れる設定を下げてください）" : "");
-    }
-    startInp.onchange = preview; daysInp.oninput = preview;
-    setSel.onchange = preview; rateSel.onchange = preview;
-    overwrite.onchange = preview; budgetSel.onchange = preview;
-
-    const close = modal("設定投入をおまかせで作る", el("div", { class: "col", style: "gap:10px;min-width:min(500px,88vw)" }, [
-      el("div", { class: "hint", style: "margin:0", html:
-        "指定した日数ぶんの設定投入を自動で作ります。1日ごとにこの3つを行います。<br>" +
-        "① 前日の投入を引き継ぐ　② 一部の台を最低設定に戻す　③ 投入の無い島に1〜2台入れる<br>" +
-        "いずれも<b>その日の計画粗利を下回らない範囲</b>に収めます。作成後は日付を切り替えて直せます。" }),
-      el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:flex-end" }, [
-        el("div", {}, [el("label", { class: "lbl", text: "開始日" }), startInp]),
-        el("div", {}, [el("label", { class: "lbl", text: "日数" }), daysInp]),
-        el("div", {}, [el("label", { class: "lbl", text: "入れる設定" }), setSel]),
-        el("div", {}, [el("label", { class: "lbl", text: "日ごとの変化" }), rateSel]),
-        el("div", {}, [el("label", { class: "lbl", text: "予算" }), budgetSel]),
-      ]),
-      el("label", { class: "row", style: "gap:6px;align-items:center;cursor:pointer;font-size:13px" },
-        [overwrite, el("span", { text: "保存済みの日も作り直す（外すと、既に保存した日はそのまま残ります）" })]),
-      el("p", { class: "hint", style: "margin:0;font-size:11.5px", text: "各日の計画粗利は予実タブの計画から読みます。計画が無い日は現状比95%を上限に投入します。" }),
-      log,
-    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:10px" }, [
-      el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }), runBtn,
-    ]));
-    preview();
-
-    runBtn.onclick = async () => {
-      const days = Math.max(1, Math.min(62, Number(daysInp.value) || 30));
-      const start = startInp.value;
-      if (!start) { log.textContent = "開始日を入れてください。"; return; }
-      const brush = Number(setSel.value);
-      const changeRate = Number(rateSel.value);
-      runBtn.disabled = true;
-      try {
-        // 期間ぶんの計画をまとめて取得（1日ずつ問い合わせると回数が増えるため）
-        const [plans, machines] = await Promise.all([
-          repo.select("plan_day", { eq: { store_id: state.storeId } }),
-          repo.select("machines_day", { eq: { store_id: state.storeId } }),
-        ]);
-        const done = new Set(st.sessions.filter((s) => s.allocation?.assign).map((s) => s.target_date));
-        // 起点は「開始日より前の最新の保存」。無ければ今の画面の配置を引き継ぐ。
-        const before = st.sessions.filter((s) => s.allocation?.assign && s.target_date < start)
-          .sort((a, b) => (a.target_date < b.target_date ? 1 : -1))[0];
-        let seed = JSON.parse(JSON.stringify(before?.allocation?.assign || st.assign || {}));
-        let made = 0, skipped = 0, placedAll = 0, firstMade = null;
-        for (let i = 0; i < days; i++) {
-          const date = addDays(start, i);
-          if (!overwrite.checked && done.has(date)) { skipped++; continue; }
-          if (!firstMade) firstMade = date;
-          const targets = {};
-          for (const sec of sSections) {
-            const p = plans.find((r) => r.ymd === date && r.section_id === sec.id);
-            const m = machines.find((r) => r.ymd === date && r.section_id === sec.id);
-            targets[sec.key] = p ? planCalc(p, m?.count).gross : 0;
-          }
-          const r = buildRandomAssign(targets, brush, seed, changeRate, budgetSel.value);
-          await saveDay(date, r.assign, targets);
-          seed = r.assign; // 翌日はこの日を引き継ぐ
-          made++; placedAll += r.placed + r.carried;
-          log.textContent = `作成中… ${made}日ぶん（スキップ${skipped}）`;
-        }
-        st.sessions = await repo.select("sim_session", { eq: { store_id: state.storeId } });
-        close();
-        if (!made) {
-          toast(`作成した日はありません（${skipped}日ぶんは保存済みのためそのまま）。作り直すなら「保存済みの日も作り直す」にチェックしてください。`, "err");
-          return;
-        }
-        // 作った日を実際に開く。開始日が飛ばされると画面が変わらず「何も起きていない」ように見えるため。
-        st.date = firstMade;
-        setDateVal(firstMade);
-        toast(`${made}日ぶん作成しました（1日あたり平均${Math.round(placedAll / made)}台投入）`
-          + (skipped ? `／保存済み${skipped}日はそのまま` : "") + ` — ${firstMade} を表示しています`, "ok");
-        await reload();
-      } catch (e) { errorToast(e); runBtn.disabled = false; }
-    };
-  }
 
   // 📋 保存状況の一覧。どの日に何台入っているか、前日から何台変えたかを並べる。
   // 「入れたはずの設定が反映されていない」を目視で確かめられるようにするための画面。
@@ -767,41 +586,6 @@ export async function mount(host) {
       el("button", { class: "btn ghost", text: "閉じる", onclick: () => close() })));
   }
 
-  // 設定1不可（最低設定2）の機種を選ぶ。出玉率タブの「最低設定」列と同じ設定を編集する。
-  function openMinEditor() {
-    const models = [...new Set(st.allUnits.map((u) => u.model))].filter(Boolean)
-      .sort((a, b) => (a < b ? -1 : 1));
-    const draft = { ...st.minSaved };
-    const list = el("div", { class: "col", style: "gap:2px;max-height:56vh;overflow:auto;border:1px solid var(--line);border-radius:8px;padding:6px" });
-    const rows = models.map((m) => {
-      const cb = el("input", { type: "checkbox", style: "cursor:pointer" });
-      cb.checked = st.min.of(m) > 1;
-      cb.onchange = () => { draft[m] = cb.checked ? 2 : 1; };
-      const n = st.allUnits.filter((u) => u.model === m).length;
-      const row = el("label", { class: "row", style: "gap:8px;align-items:center;cursor:pointer;padding:2px 4px;font-size:13px" }, [
-        cb, el("span", { class: "grow", text: shortModel(m) }), el("span", { class: "hint", text: `${n}台` }),
-      ]);
-      return { m, row, cb };
-    });
-    const filter = el("input", { type: "text", placeholder: "機種名で絞り込み", style: "width:100%",
-      oninput: (e) => { const q = e.target.value.normalize("NFKC"); rows.forEach((r) => { r.row.style.display = !q || r.m.normalize("NFKC").includes(q) ? "" : "none"; }); } });
-    rows.forEach((r) => list.appendChild(r.row));
-    const close = modal("設定1が使えない機種", el("div", { class: "col", style: "gap:8px;min-width:min(460px,86vw)" }, [
-      el("p", { class: "hint", style: "margin:0", text: "設定1にするとパネルが消灯し、外から設定1と分かってしまう機種にチェックを入れてください。チェックした機種は最低設定2になり、シミュレーターが設定1を割り当てません。" }),
-      filter, list,
-    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:10px" }, [
-      el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }),
-      el("button", { class: "btn primary", text: "保存", onclick: async () => {
-        try {
-          setSaveState("saving");
-          await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_min", value: draft }, { onConflict: ["store_id", "key"] });
-          st.minSaved = draft; st.min = buildMinSetting(draft);
-          setSaveState("saved"); close(); render();
-          toast(`設定1不可の機種を保存しました（${models.filter((m) => st.min.of(m) > 1).length}機種）`, "ok");
-        } catch (e) { errorToast(e); }
-      } }),
-    ]));
-  }
 
   // 配置島図をA4横で印刷（表=1F / 裏=BF、両面印刷で1枚に）
   function printPlacement() {
