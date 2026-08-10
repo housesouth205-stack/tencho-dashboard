@@ -41,6 +41,13 @@ table.grid tbody tr:hover td { background: var(--pastel-blue); }
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 /* 狭い画面では表が最小幅まで潰れ、機種名が1文字ずつ折り返されて読めなくなる。
    本来の幅で組んでから横スクロールさせる（広い画面は今までどおり100%で収める）。 */
+/* スマホの機種分析など、拡大して読む前提の表。余白と見出しを詰めて
+   1行の高さを抑える（既定のままだと行が無駄に高く、1画面に入る台数が減る）。 */
+@media (max-width: 700px) {
+  table.grid.compact th, table.grid.compact td { padding: 3px 5px; }
+  table.grid.compact th { font-size: 11.5px; }
+}
+
 @media (max-width: 900px) {
   .table-wrap > table.grid { min-width: max-content; }
   /* iOSは触るまでスクロールバーが出ないため、右が切れているだけに見えてしまう。

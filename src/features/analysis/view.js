@@ -23,7 +23,8 @@ const RANKS = [[14, "🥇"], [12, "🥈"], [10, "🥉"]];
 function rankOf(pts) { for (const r of RANKS) if (pts >= r[0]) return r; return null; }
 function rankCell(pts) {
   const r = rankOf(pts);
-  return el("td", { style: "text-align:center;font-size:17px", title: `${pts}pt` }, r ? r[1] : "");
+  // メダルが大きいと行の高さがそれに引っ張られるので控えめにする
+  return el("td", { style: "text-align:center;font-size:15px", title: `${pts}pt` }, r ? r[1] : "");
 }
 
 export async function mount(host) {
@@ -117,12 +118,15 @@ export async function mount(host) {
     // 列幅は固定。中身に合わせると、区分を切り替えるたびに台番号や機種名の幅が
     // 変わって見比べにくかった。全区分でも各レートでも同じ幅になる。
     const cols = [
-      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 200], ["secLabel", "区分", "", 72],
-      ["out", "アウト", "heat", 84], ["sales", "台売上", "heat", 100], ["gross", "台粗利", "heat", 100],
-      ["rate", "利益率", "", 70], ["points", "ランク", "", 60],
+      // 幅は実測で決めた。見出しは並べ替え矢印込みで59px、区分は「20スロ」の
+      // バッジが71px必要。どの列もこれを下回ると見出しか中身が切れる。
+      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 200], ["secLabel", "区分", "", 74],
+      ["out", "アウト", "heat", 62], ["sales", "台売上", "heat", 76], ["gross", "台粗利", "heat", 76],
+      ["rate", "利益率", "", 62], ["points", "ランク", "", 60],
     ];
     const totalW = cols.reduce((a, c) => a + c[3], 0);
-    const t = el("table", { class: "grid mono",
+    // compact: スマホは余白と見出しを詰めて1行を低くする（拡大して読む前提）
+    const t = el("table", { class: "grid mono" + (mobile ? " compact" : ""),
       style: `table-layout:fixed;width:${mobile ? totalW + "px" : "100%"}` });
     t.appendChild(el("colgroup", {}, cols.map(([, , , w]) => el("col", { style: `width:${w}px` }))));
     t.appendChild(el("thead", {}, el("tr", {}, cols.map(([key, label, cls]) =>
@@ -139,7 +143,7 @@ export async function mount(host) {
         // 幅を固定したので、長い機種名は末尾を省略する（全文はカーソルを乗せると出る）
         el("td", { class: "txt", style: "white-space:nowrap;overflow:hidden;text-overflow:ellipsis",
           title: r.model, text: shortModel(r.model) }),
-        el("td", {}, el("span", { class: "badge " + r.sec.ptype.toLowerCase(), text: r.sec.label })),
+        el("td", {}, el("span", { class: "badge " + r.sec.ptype.toLowerCase(), style: "white-space:nowrap", text: r.sec.label })),
         heatCell("out"), heatCell("sales"), heatCell("gross"),
         el("td", { text: r.rate == null ? "—" : pct(r.rate) }),
         rankCell(r.points),
