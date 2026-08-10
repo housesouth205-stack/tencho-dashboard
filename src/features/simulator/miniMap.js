@@ -36,40 +36,32 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const { onCellClick, editable, cellW } = opts;
   const pmap = new Map(placement.map((p) => [p.dai, p]));
   const cells = layout.filter((l) => l.floor === floor);
-  const rowH = cellW ? "56px" : "46px";
-  // レートの変わり目（2スロ／5スロなど）は通路を広めに取って区切りを分かりやすくする
-  const rateGap = opts.rateGap || (cellW ? "92px" : "56px");
+  // 島図Excelのマスは 44px幅 × 43px高（ほぼ正方形）。以前は 46 × 56 で縦が3割長く、
+  // 全体が間延びして見えていたので、Excelと同じ比率にそろえる。
+  const rowH = opts.rowH || "43px";
+  // 台が1〜2台しかない行（212・217・218のような縦向きの島の途中）は、
+  // 通常の高さを取ると全幅にわたる白帯になる。この行だけ低くする。
+  const sparseH = opts.sparseH || "28px";
+  const sparseMax = opts.sparseMax ?? 2;
+  // レートの変わり目（2スロ／5スロ）は通路を2マスぶん取って区切りを分かりやすくする
+  const rateGap = opts.rateGap || (cellW ? "88px" : "52px");
 
-  // 連続した列のまとまり
-  const allCols = [...new Set(cells.map((c) => c.grid_col))].sort((a, b) => a - b);
-  const runs = [];
-  { let cur = []; for (const c of allCols) { if (cur.length && c - cur[cur.length - 1] > 1) { runs.push(cur); cur = []; } cur.push(c); } if (cur.length) runs.push(cur); }
-
-  // 縦向きの島（145〜148や212〜219のように1台ずつ縦に並ぶ脇の列）は1台で1行を使う。
-  // 本体と同じグリッドに入れると、その行では横向きの島の列が丸ごと空になり
-  // 大きな白帯ができる。幅の狭いまとまりだけ別グリッドに切り出して行を共有しない。
-  const narrowCols = opts.narrowCols ?? 2;
-  const groups = [];
-  let wide = null;
-  for (const run of runs) {
-    if (run.length <= narrowCols) { groups.push(run); wide = null; }
-    else if (wide) { wide.push(...run); }          // 本体どうしは列番号を保ったまま1枚に戻す
-    else { wide = run.slice(); groups.push(wide); }
-  }
+  const perRow = new Map();
+  for (const c of cells) perRow.set(c.grid_row, (perRow.get(c.grid_row) || 0) + 1);
+  const isSparse = (r) => perRow.get(r) <= sparseMax;
 
   // 列がどのレート帯かを見て、境目だけ通路を広げる
   const rateOfCol = new Map();
   for (const c of cells) if (!rateOfCol.has(c.grid_col)) rateOfCol.set(c.grid_col, rateKeyOfDai(c.dai_no));
   const colGap = (prev, next) => (rateOfCol.get(prev) !== rateOfCol.get(next) ? rateGap : "6px");
 
-  const build = (groupCols) => {
-    const inGroup = new Set(groupCols);
-    const gc = cells.filter((c) => inGroup.has(c.grid_col));
+  {
+    const gc = cells;
     // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
-    const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), rowH, "8px");
-    const C = pack(groupCols, cellW || "minmax(0,1fr)", colGap);
+    const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), (r) => (isSparse(r) ? sparseH : rowH), "8px");
+    const C = pack([...new Set(gc.map((c) => c.grid_col))].sort((a, b) => a - b), cellW || "minmax(0,1fr)", colGap);
     const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
-      (cellW ? "width:max-content" : `flex:${groupCols.length} 1 0;min-width:0`) });
+      `width:${cellW ? "max-content" : "100%"}` });
   for (const c of gc) {
     const p = pmap.get(c.dai_no);
     const canEdit = !!(p && editable && editable(c.dai_no));
@@ -115,7 +107,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
       // 台番・機種名は薄いと読めないので濃さと大きさを上げる（据え置き台も判別できる程度に）。
       // ヒート表示中は背景が濃くなるため、背景に合わせて文字色を反転させる。
       el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${ink || (p && p.dim ? "#6b7382" : "#1b2130")}`, text: String(c.dai_no) }),
-      p ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;" +
+      // Excelと同じ正方形のマスに収めるため機種名は1行。低くした行では省く。
+      p && !isSparse(c.grid_row) ? el("div", { style: "font-size:8px;line-height:1.05;overflow:hidden;display:-webkit-box;-webkit-line-clamp:1;" +
         `-webkit-box-orient:vertical;word-break:break-all;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};font-weight:600;text-align:center`, text: p.model }) : null,
       p ? el("div", { style: "display:flex;align-items:baseline;justify-content:center;gap:1px;line-height:1" }, [
         // 前日の設定（小さく・薄く）。打ち換え前の数字がどれかを添えるだけ。
@@ -135,13 +128,9 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     ]);
     grid.appendChild(cell);
   }
-    return grid;
-  };
-
-  const inner = groups.length === 1 ? build(groups[0])
-    : el("div", { style: `display:flex;gap:8px;align-items:flex-start;${cellW ? "width:max-content" : "width:100%"}` }, groups.map(build));
-  return opts.cellW ? inner
-    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, inner);
+  return opts.cellW ? grid
+    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
+  }
 }
 
 // 画面表示: 凡例＋全フロア（1F/BF両方、全台表示）

@@ -432,7 +432,7 @@ export async function mount(host) {
       const mapOpts = {
         // 区分を切り替えなくても全台に投入できる。20スロ/5スロ/2スロを行き来する手間をなくす。
         editable: (dai) => unitByDai.has(dai),
-        cellW: mobile ? "46px" : null,
+        cellW: mobile ? "44px" : null,
         onCellClick: (dai) => {
           const u = unitByDai.get(dai);
           if (!u) return;
