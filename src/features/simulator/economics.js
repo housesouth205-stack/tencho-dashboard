@@ -55,20 +55,52 @@ export function interpolateCurve(lo, hi, type) {
 }
 
 // Web取得結果から設定別出玉率を決める。per6(設定別実測)優先、無ければrange+補間。
-// per6に欠番(null)がある機種(設定3が存在しない等)は、前後の実測値の平均で埋める。
+//
+// per6の欠番(null)は「その機種にその設定が無い」という情報そのものなので、埋めずに残す。
+// 設定3が無い機種・設定1256しかない機種があり、シミュレーターはこれを見て
+// 存在しない設定を割り当てないようにしている。
+// レンジ(設定1と6だけ)からの補間では欠番は分からないため、そちらは6つとも埋まる。
 export function payoutFromDmm({ range, per6 }, type) {
   if (per6 && per6.filter((v) => v != null).length >= 3) {
-    const a = [...per6];
-    for (let i = 0; i < 6; i++) {
-      if (a[i] != null) continue;
-      let lo = i - 1, hi = i + 1;
-      while (lo >= 0 && a[lo] == null) lo--;
-      while (hi < 6 && a[hi] == null) hi++;
-      const L = lo >= 0 ? a[lo] : null, H = hi < 6 ? a[hi] : null;
-      a[i] = L != null && H != null ? (L + H) / 2 : (L != null ? L : H);
-    }
-    return a.map((v) => Math.round(v * 10) / 10);
+    return per6.map((v) => (v == null ? null : Math.round(v * 10) / 10));
   }
   if (range && range.length === 2) return interpolateCurve(range[0], range[1], type);
   return null;
+}
+
+// 欠番を前後の値から埋める。**計算用にだけ**使う。
+// 存在しない設定でも粗利の式が数値を要求する場面があるため穴を塞ぐが、
+// 「使える設定かどうか」の判定には使わない（判定は元の配列の null を見る）。
+export function fillHoles(a6) {
+  const a = [...a6];
+  for (let i = 0; i < 6; i++) {
+    if (a[i] != null) continue;
+    let lo = i - 1, hi = i + 1;
+    while (lo >= 0 && a[lo] == null) lo--;
+    while (hi < 6 && a[hi] == null) hi++;
+    const L = lo >= 0 ? a[lo] : null, H = hi < 6 ? a[hi] : null;
+    a[i] = L != null && H != null ? (L + H) / 2 : (L != null ? L : H);
+  }
+  return a.map((v) => (v == null ? null : Math.round(v * 10) / 10));
+}
+
+// その機種で実際に使える設定の一覧。
+// payout の空欄＝その機種に無い設定。1つも登録が無い機種は判断材料が無いので1〜6すべて。
+// min（設定1でパネルが消灯する機種の最低設定）より下も除く。
+export function usableSettings(payout, min = 1) {
+  const ALL = [1, 2, 3, 4, 5, 6];
+  const known = payout && payout.some((v) => v != null);
+  const exist = known ? ALL.filter((s) => payout[s - 1] != null) : ALL;
+  const above = exist.filter((s) => s >= (min || 1));
+  // 最低設定より上が1つも無いなら、最低設定の縛りより「実在すること」を優先する
+  return above.length ? above : exist;
+}
+
+// 入れたい設定を、その機種にある設定に寄せる。
+// 無ければ上の設定へ（設定4が無ければ5）。上に無ければ一番上へ落とす。
+export function snapSetting(want, usable) {
+  const w = Number(want) || 1;
+  if (!usable || !usable.length || usable.includes(w)) return w;
+  const up = usable.filter((s) => s > w);
+  return up.length ? Math.min(...up) : Math.max(...usable);
 }

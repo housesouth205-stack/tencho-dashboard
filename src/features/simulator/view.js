@@ -6,7 +6,7 @@ import { yen, pct, num, shortModel, modelKey } from "../../util/format.js";
 import { planCalc } from "../../calc/planCalc.js";
 import { localYmd, addDays } from "../../util/dates.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
-import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1 } from "./economics.js";
+import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1, fillHoles, usableSettings, snapSetting } from "./economics.js";
 import { buildMinSetting, clampSetting } from "./minSetting.js";
 import { heatColor, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
 import { rateKeyOfDai, isBulkExcluded, bulkExcludeLabel } from "../../core/config.js";
@@ -86,7 +86,7 @@ export async function mount(host) {
       el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => goDate(localYmd()) }),
     ]),
     // 全部やり直すときの操作なので、日付のとなりに置く（島図の上にまとめる）
-    reset ? el("button", { class: "btn sm ghost", title: "全区分をまとめて戻します（パネル消灯機種は設定2）",
+    reset ? el("button", { class: "btn sm ghost", title: "全区分をまとめて戻します（機種ごとに使える一番下の設定。パネル消灯機種は設定2）",
       // スマホは長いラベルだと日付の行が折り返して2段になるので短くする
       text: window.matchMedia("(max-width: 700px)").matches ? "全台リセット" : "全台を最低設定に戻す",
       onclick: () => { st.assign = {}; render(); } }) : null,
@@ -163,18 +163,23 @@ export async function mount(host) {
     st.baseline = JSON.stringify(st.assign);
 
     const secById = new Map(state.sections.map((s) => [s.id, s]));
-    const fullSpec = (name) => { const a = specMap.get(name); return a && a.every((x) => x != null) ? a : null; };
+    // 出玉率が1つでも入っていればその機種の実データとして扱う。
+    // 空欄は「その機種に無い設定」なので、どの設定が使えるかの判定材料になる。
+    const specOf = (name) => { const a = specMap.get(name); return a && a.some((x) => x != null) ? a : null; };
     st.allUnits = snap.map((r) => {
       const sec = secById.get(r.section_id);
       // 今の配置の機種名を優先。無ければスナップショット（実績期間）の機種名。
       const model = st.islandModels[r.dai_no] || r.model_name;
+      const raw = specOf(model) || specOf(r.model_name);
       return {
         dai: r.dai_no, model, pastModel: r.model_name, out: r.out_val || 0,
         sales: r.sales, gross: r.gross, // 実績ヒート表示用（機種分析と同じ値）
         coin: r.out_val ? (+(r.sales / r.out_val).toFixed(3) || 3.0) : 3.0,
         group: groupOf(model, typeSetting[model] || typeSetting[r.model_name]),
         sec, secKey: sec?.key, secLabel: sec?.label || "?",
-        payout: fullSpec(model) || fullSpec(r.model_name),
+        // 計算には穴を埋めた曲線を、割り当ての可否には穴のある元データを使う
+        payout: raw ? fillHoles(raw) : null,
+        spec: raw,
       };
     });
     render();
@@ -183,10 +188,26 @@ export async function mount(host) {
   const curUnits = () => st.allUnits.filter((u) => u.secKey === st.section.key);
   // その台で使ってよい最低設定。パネル消灯機種は2（設定1を割り当てない）。
   const minOf = (u) => st.min.of(u.model);
-  const settingIn = (assign, u) => clampSetting((assign[u.secKey] || {})[u.dai] || minOf(u), minOf(u));
+  // その台で実際に選べる設定の一覧（機種に無い設定と、最低設定より下を除く）
+  const usableOf = (u) => usableSettings(u.spec, minOf(u));
+  // 入れたい設定をその台で選べる設定に寄せる。変わったときは理由も返す。
+  const placeSetting = (u, want) => {
+    const list = usableOf(u);
+    const got = snapSetting(want, list);
+    if (got === want) return { setting: got, reason: null };
+    const reason = want < minOf(u) ? "設定1不可（パネル消灯）" : `この機種に設定${want}が無い`;
+    return { setting: got, reason };
+  };
+  // 何も入れていない台の設定。その機種で使える一番下の設定にする
+  // （設定1が無い機種で「設定1」と表示されてしまうのを防ぐ）。
+  const baseOf = (u) => usableOf(u)[0] || minOf(u);
+  const settingIn = (assign, u) => {
+    const v = (assign[u.secKey] || {})[u.dai];
+    return v ? clampSetting(v, minOf(u)) : baseOf(u);
+  };
   const settingOf = (u) => settingIn(st.assign, u);
   // 前日（保存済みの直近シミュ）の設定。比較不能ならnull。
-  const prevSettingOf = (u) => { const pa = st.prev?.allocation?.assign; return pa ? clampSetting((pa[u.secKey] || {})[u.dai] || minOf(u), minOf(u)) : null; };
+  const prevSettingOf = (u) => { const pa = st.prev?.allocation?.assign; return pa ? settingIn(pa, u) : null; };
   const curveOf = (u) => u.payout || TYPES[u.group];
   // 区分ごとの貸出/交換枚数（編集中の区分は入力値、他区分は保存値または既定=等価）
   const lkOf = (sec) => {
@@ -252,14 +273,17 @@ export async function mount(host) {
   function applyPick() {
     const chosen = pickUnits();
     if (!chosen.length) { toast("対象になる台がありません（実績が未取込かもしれません）", "err"); return; }
-    let rounded = 0;
+    // 置けない台は選べる設定に寄せる。どこがどう変わったかは後でまとめて知らせる。
+    const moved = new Map(); // 実際に入った設定 → 台数
     for (const u of chosen) {
       const A = (st.assign[u.secKey] = st.assign[u.secKey] || {});
-      const s = clampSetting(st.pick.set, minOf(u));
-      if (s !== st.pick.set) rounded++;
-      A[u.dai] = s;
+      const { setting } = placeSetting(u, st.pick.set);
+      if (setting !== st.pick.set) moved.set(setting, (moved.get(setting) || 0) + 1);
+      A[u.dai] = setting;
     }
-    toast(`${chosen.length}台に設定${st.pick.set}を入れました${rounded ? `（うち${rounded}台は設定1不可のため2）` : ""}`, "ok");
+    const note = [...moved.entries()].sort((a, b) => a[0] - b[0])
+      .map(([s, n]) => `${n}台は設定${s}`).join("・");
+    toast(`${chosen.length}台に設定${st.pick.set}を入れました${note ? `（うち${note}）` : ""}`, "ok");
     render();
   }
   function buildPicker() {
@@ -322,12 +346,13 @@ export async function mount(host) {
       const prevSet = prevSettingOf(u);
       const changed = diff && prevSet != null && prevSet !== s;
       const min = minOf(u);
+      const base = baseOf(u);
       return {
         dai: u.dai, model: shortModel(u.model), setting: s, minSetting: min, secLabel: u.secLabel, color: sectionColor(u.sec),
         prevSetting: diff ? prevSet : null, changed,
         // 据え置きでも「最低設定より上＝投入中」の台は色を残す。全部白にすると
         // 前日から入れっぱなしの高設定がどこにあるか分からなくなるため。
-        dim: diff && !changed && s <= min,
+        dim: diff && !changed && s <= base,
         heat: hr ? heatColor(u[st.heat], groupRange(hr, rateKeyOfDai(u.dai))) : null,
         tip: [
           `アウト ${num(u.out)}・コイン単価 ${u.coin}（機種分析）`,
@@ -335,6 +360,8 @@ export async function mount(host) {
           `出玉率(設定${s}) ${fmt1(curveOf(u)[s - 1])}%（${u.payout ? "取込実データ" : "タイプ既定"}）`,
           editable ? `台粗利 ${yen(Math.round(unitGross(u, s)))}` : "",
           min > 1 ? `⚠ 設定1不可（パネル消灯）／最低設定${min}` : "",
+          // どの設定が実在するかは台を触る前に知りたいので、全部そろっていない機種だけ出す
+          u.spec && usableOf(u).length < 6 ? `使える設定: ${usableOf(u).join("・")}` : "",
           changed ? `前回 設定${prevSet} → 今回 設定${s}` : "",
         ].filter(Boolean).join("\n"),
       };
@@ -499,10 +526,10 @@ export async function mount(host) {
           const u = unitByDai.get(dai);
           if (!u) return;
           const A = (st.assign[u.secKey] = st.assign[u.secKey] || {}); // その台自身の区分に入れる
-          const min = minOf(u);
-          // パネル消灯機種に設定1を置こうとしたら最低設定に丸めて理由を知らせる
-          if (st.brush < min) toast(`${shortModel(u.model)} は設定1不可（パネル消灯）のため設定${min}にしました`, "");
-          A[dai] = clampSetting(st.brush, min); // 選択中の設定を置く（戻すには最低設定を選んでクリック）
+          // 置けない設定（機種に無い・パネル消灯）は選べる設定に寄せて理由を知らせる
+          const { setting, reason } = placeSetting(u, st.brush);
+          if (reason) toast(`${shortModel(u.model)} は${reason}ため設定${setting}にしました`, "");
+          A[dai] = setting; // 選択中の設定を置く（戻すには最低設定を選んでクリック）
           render();
         },
       };

@@ -45,7 +45,9 @@ export async function mount(host) {
   // 並びは台番号順（その機種の先頭台）。島図・シミュレーターと同じ見え方に揃える。
   const rows = [...groups.values()].map((g) => {
     const saved = specMap.get(g.model);
-    const registered = saved && saved.every((x) => x != null);
+    // 空欄は「その機種に無い設定」を表すので、全部埋まっていることを登録済みの条件にしない。
+    // 1つでも数字が入っていれば登録済みとして扱う。
+    const registered = !!saved && saved.some((x) => x != null);
     const type = typeSetting[g.model] || guessType(g.model);
     const payout = registered ? saved : [...TYPES[type]];
     return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? "manual" : "default", dmmId: dmmMap[g.model] || null, min: minSetting.of(g.model) };
@@ -66,7 +68,8 @@ export async function mount(host) {
 
   const info = el("div", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px", html:
     "出玉率(機械割)を機種×設定で登録すると、シミュレーターが自動で使います。<br>" +
-    "🌐 <b>Web取得</b>: <a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>、最近のスマスロ中心)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジ(設定1・6)からタイプ標準カーブで補間(<b>Web推定</b>)。行の🌐で個別、上の一括で自動照合(名前一致が曖昧な機種は候補から選択)。" });
+    "🌐 <b>Web取得</b>: <a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>、最近のスマスロ中心)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジ(設定1・6)からタイプ標準カーブで補間(<b>Web推定</b>)。行の🌐で個別、上の一括で自動照合(名前一致が曖昧な機種は候補から選択)。<br>" +
+    "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。Web実測で取れた機種は自動で空欄になります。" });
   host.appendChild(info);
 
   const tableHost = el("div", { style: "overflow:auto;max-height:66vh" });
@@ -154,10 +157,20 @@ export async function mount(host) {
         el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSel), el("td", {}, minSel),
       ];
       // 出玉率は常に小数第1位で表示・保持（112 → 112.0、112.53 → 112.5）
-      for (let s = 0; s < 6; s++) cells.push(el("td", {}, el("input", {
-        type: "number", step: "0.1", value: fmt1(r.payout[s]), style: "width:62px;text-align:right",
-        onchange: (e) => { const v = round1(e.target.value); if (v == null) { e.target.value = fmt1(r.payout[s]); return; } r.payout[s] = v; e.target.value = fmt1(v); r.registered = true; r.source = "manual"; },
-      })));
+      // 空欄＝その機種にその設定は無い。シミュレーターはその設定を割り当てなくなる。
+      for (let s = 0; s < 6; s++) {
+        const none = r.payout[s] == null;
+        cells.push(el("td", { style: none ? "background:var(--panel-2)" : "" }, el("input", {
+          type: "number", step: "0.1", value: none ? "" : fmt1(r.payout[s]), placeholder: "なし",
+          title: none ? "空欄＝この機種に設定" + (s + 1) + "は無い（投入されません）" : null,
+          style: "width:62px;text-align:right",
+          onchange: (e) => {
+            r.payout[s] = round1(e.target.value); // 空欄はnull＝設定なし
+            r.registered = true; r.source = "manual";
+            draw();
+          },
+        })));
+      }
       const sc = r.registered ? (r.source === "manual" ? "var(--ok)" : "var(--blue)") : "var(--warn)";
       cells.push(el("td", { style: `color:${sc}`, text: r.registered ? SRC_LABEL[r.source] : "未登録" }));
       cells.push(el("td", {}, el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) })));
