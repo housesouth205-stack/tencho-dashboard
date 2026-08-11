@@ -77,7 +77,7 @@ export async function mount(host) {
   // render() で body に差し込むので、ここでは要素だけ作っておく。
   // 島図の上と下の両方に置くので、呼ぶたびに新しい行を作る（同じ要素は1箇所にしか置けない）。
   // 日付入力は複数になるため、値の書き戻しは setDateVal() で全部まとめて行う。
-  const makeDateRow = () => el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 6px" }, [
+  const makeDateRow = ({ reset = false } = {}) => el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 6px" }, [
     el("span", { class: "lbl", style: "margin:0", text: "対象日" }),
     el("div", { class: "row", style: "gap:4px;align-items:center" }, [
       el("button", { class: "btn sm ghost", style: "min-width:34px", title: "前の日へ", text: "◀", onclick: () => stepDay(-1) }),
@@ -85,6 +85,11 @@ export async function mount(host) {
       el("button", { class: "btn sm ghost", style: "min-width:34px", title: "次の日へ", text: "▶", onclick: () => stepDay(1) }),
       el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => goDate(localYmd()) }),
     ]),
+    // 全部やり直すときの操作なので、日付のとなりに置く（島図の上にまとめる）
+    reset ? el("button", { class: "btn sm ghost", title: "全区分をまとめて戻します（パネル消灯機種は設定2）",
+      // スマホは長いラベルだと日付の行が折り返して2段になるので短くする
+      text: window.matchMedia("(max-width: 700px)").matches ? "全台リセット" : "全台を最低設定に戻す",
+      onclick: () => { st.assign = {}; render(); } }) : null,
   ]);
   const lInp = numI(st.L, (v) => { st.L = v; saveExchange(); render(); }, 0.1, 72);
   const kInp = numI(st.K, (v) => { st.K = v; saveExchange(); render(); }, 0.1, 72);
@@ -276,18 +281,33 @@ export async function mount(host) {
       title: `${bulkExcludeLabel()}番。チェックを外すとこの島も対象に含めます` },
       [jugBox, el("span", { text: "ジャグラー島は変更しない" })]);
     refresh();
-    return el("div", { class: "card row", style: "gap:6px;align-items:center;flex-wrap:wrap;padding:8px 10px" }, [
-      el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "実績で選んで投入" }),
-      pick(96, [["*", "全レート"], ...sSections.map((s) => [s.key, s.label])], "rate"),
-      pick(92, METRICS, "metric"),
-      pick(84, [["low", "低い順"], ["high", "高い順"]], "dir"),
-      el("input", { type: "number", min: "1", max: "999", value: String(p.n), style: "width:66px",
-        onchange: (e) => { p.n = Math.max(1, Math.min(999, Math.round(+e.target.value || 1))); e.target.value = p.n; refresh(); } }),
-      el("span", { class: "hint", text: "台に" }),
-      pick(84, [1, 2, 3, 4, 5, 6].map((s) => [s, `設定${s}`]), "set", Number),
-      el("button", { class: "btn primary sm", text: "入れる", onclick: applyPick }),
-      jugChk,
-      preview,
+    // スマホは幅が狭くバラバラに折り返すので、「どれを選ぶか」と「何を入れるか」の
+    // 2行に分けておく。PCでも意味の区切りが分かりやすい。
+    const line = (children) => el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, children);
+    const mobile = window.matchMedia("(max-width: 700px)").matches;
+    const inner = el("div", { class: "col", style: "gap:6px" }, [
+      line([
+        mobile ? null : el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "実績で選んで投入" }),
+        pick(92, [["*", "全レート"], ...sSections.map((s) => [s.key, s.label])], "rate"),
+        pick(88, METRICS, "metric"),
+        pick(80, [["low", "低い順"], ["high", "高い順"]], "dir"),
+        el("input", { type: "number", min: "1", max: "999", value: String(p.n), style: "width:58px",
+          onchange: (e) => { p.n = Math.max(1, Math.min(999, Math.round(+e.target.value || 1))); e.target.value = p.n; refresh(); } }),
+        el("span", { class: "hint", style: "white-space:nowrap", text: "台" }),
+      ]),
+      line([
+        el("span", { class: "hint", style: "white-space:nowrap", text: "→" }),
+        pick(80, [1, 2, 3, 4, 5, 6].map((s) => [s, `設定${s}`]), "set", Number),
+        el("button", { class: "btn primary sm", text: "入れる", onclick: applyPick }),
+        jugChk,
+        preview,
+      ]),
+    ]);
+    // スマホは縦が貴重なので折りたたむ。毎回使う操作ではないため既定は閉じる。
+    if (!mobile) return el("div", { class: "card", style: "padding:8px 10px" }, inner);
+    return el("details", { class: "card", style: "padding:6px 10px" }, [
+      el("summary", { style: "cursor:pointer;font-weight:700;font-size:13px;padding:2px 0", text: "🎯 実績で選んで投入" }),
+      el("div", { style: "margin-top:6px" }, inner),
     ]);
   }
 
@@ -364,14 +384,10 @@ export async function mount(host) {
     ]));
     body.appendChild(el("div", { class: "row", style: "flex-wrap:wrap;gap:10px" }, rateCards));
 
-    // ── 実績の低い／高い台にまとめて投入 ──
-    body.appendChild(buildPicker());
-
-    // ── 操作: リセット/保存/印刷 ──
+    // ── 操作: 保存/印刷（投入まわりは島図のすぐ上にまとめた） ──
     const opRow = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center" }, [
-      el("button", { class: "btn ghost", title: "全区分をまとめて戻します（パネル消灯機種は設定2）", text: "全台を最低設定に戻す", onclick: () => { st.assign = {}; render(); } }),
+      el("button", { class: "btn ghost sm", title: "どの日に何台入っているかを一覧で確認する", text: "📋 保存状況", onclick: openStatus }),
     ]);
-    opRow.appendChild(el("button", { class: "btn ghost sm", title: "どの日に何台入っているかを一覧で確認する", text: "📋 保存状況", onclick: openStatus }));
     opRow.appendChild(el("div", { class: "grow" }));
     // 保存済みかどうかを出す。保存したのに消えたように見える事故を防ぐ。
     opRow.appendChild(el("span", {
@@ -416,7 +432,10 @@ export async function mount(host) {
         el("select", { class: "inp", style: "width:130px", title: "台の背景に実績（機種分析の値）のヒートを重ねる",
           onchange: (e) => { st.heat = e.target.value; render(); } },
           HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
-        el("span", { class: "hint", style: "font-size:11.5px", text: `台をタップすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
+        el("span", { class: "hint", style: "font-size:11.5px",
+          text: window.matchMedia("(max-width: 700px)").matches
+            ? `タップで設定${st.brush}を投入`
+            : `台をタップすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
       ]),
     ]);
 
@@ -487,10 +506,11 @@ export async function mount(host) {
           render();
         },
       };
-      body.appendChild(makeDateRow()); // 日付は島図のすぐ上
+      // 投入に使うものを島図のすぐ上にまとめる（上から順に使う流れになる）:
+      // 対象日＋全台リセット → 実績で選んで投入 → 投入する設定 → 島図
+      body.appendChild(makeDateRow({ reset: true }));
+      body.appendChild(buildPicker());
       if (!mobile) {
-        // パレットは島図の上（1Fの手前）。以前は1FとBFの間に挟んでいたが、
-        // 上にあるほうが探さずに済むため移した。下にも同じものを置いてある。
         body.appendChild(makePalette());
         body.appendChild(buildPlacementMap(st.layout, placement, mapOpts));
       } else {
