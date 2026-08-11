@@ -2,8 +2,8 @@ import { el, clear } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
-import { num } from "../../util/format.js";
 import { parseKtacsKoben } from "../../import/ktacsCsv.js";
+import { parsePlCsv } from "../../import/plCsv.js";
 import { importIslandXlsx, showIslandHistory } from "./islandImport.js";
 
 const toDate = (s) => (s ? String(s).replace(/\//g, "-") : null);
@@ -13,7 +13,7 @@ export async function mount(host) {
   clear(host);
   host.appendChild(el("div", { class: "view-title" }, [
     el("h1", { text: "データ取込" }),
-    el("small", { text: "K-TACs 遊技台個別CSV（20円/5円/2円）" }),
+    el("small", { text: "K-TACs 遊技台個別CSV（20円/5円/2円）・島図Excel・月次の損益/経費CSV" }),
   ]));
 
   const zone = el("div", {
@@ -45,6 +45,25 @@ export async function mount(host) {
       el("button", { class: "btn sm", text: "島図Excelを取込", onclick: () => islandInput.click() }),
       el("button", { class: "btn sm ghost", text: "📅 入替履歴", onclick: showIslandHistory }),
     ]),
+  ]));
+
+  // 月次の損益・経費。会議資料は月1回・紙(PDF)でしか出ないので、読み取ったCSVを
+  // ここから入れる。日次のデータと違って月に一度きりの作業。
+  const plMsg = el("div", { class: "col", style: "margin-top:6px" });
+  const plInput = el("input", {
+    type: "file", accept: ".csv", style: "display:none",
+    onchange: () => importPlCsv(plInput.files[0], plMsg).finally(() => { plInput.value = ""; }),
+  });
+  host.appendChild(el("div", { class: "card", style: "margin-top:14px;padding:10px 12px" }, [
+    el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
+      el("div", { style: "font-weight:700", text: "月次の損益・経費" }),
+      el("span", { class: "hint", text: "会議資料から作ったCSV。月1回、資料をもらったときに入れます" }),
+      el("div", { class: "grow" }),
+      plInput,
+      el("button", { class: "btn sm", text: "月次CSVを取込", onclick: () => plInput.click() }),
+      el("button", { class: "btn sm ghost", text: "経費タブを見る", onclick: () => { location.hash = "expense"; } }),
+    ]),
+    plMsg,
   ]));
 
   const history = el("div", { class: "col", style: "margin-top:20px" });
@@ -92,6 +111,35 @@ export async function mount(host) {
       toast(`${snaps.length}台を取込みました`, "ok");
     } catch (e) { errorToast(e); }
   }
+}
+
+// 月次の損益・経費CSVを取り込む。同じ月度が既にあれば上書きする（読み直しても増えない）。
+async function importPlCsv(file, msgHost) {
+  if (!file) return;
+  clear(msgHost);
+  try {
+    const { rows, warnings } = parsePlCsv(await file.arrayBuffer(), file.name);
+    if (!rows.length) {
+      msgHost.appendChild(el("div", { class: "hint", style: "color:var(--accent)", text: warnings[0] || "取り込める行がありませんでした" }));
+      return;
+    }
+    setSaveState("saving");
+    const recs = rows.map((r) => ({ ...r, store_id: state.storeId }));
+    for (let i = 0; i < recs.length; i += 200) {
+      await repo.upsert("pl_month", recs.slice(i, i + 200), { onConflict: ["store_id", "ym", "kind"] });
+    }
+    await repo.upsert("import_log", {
+      store_id: state.storeId, kind: "pl_csv", filename: file.name,
+      row_count: recs.length, status: warnings.length ? "warn" : "ok",
+      message: `${recs[0].label}〜${recs[recs.length - 1].label}`,
+    }, { onConflict: ["id"] });
+    setSaveState("saved");
+
+    const span = `${rows[0].label}〜${rows[rows.length - 1].label}`;
+    msgHost.appendChild(el("div", { class: "hint", text: `${rows.length}か月ぶんを取込みました（${span}）` }));
+    for (const w of warnings) msgHost.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
+    toast(`${rows.length}か月ぶんを取込みました`, "ok");
+  } catch (e) { errorToast(e); }
 }
 
 function renderResult(host, label, summary, total) {

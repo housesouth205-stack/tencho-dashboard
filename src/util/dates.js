@@ -42,3 +42,10 @@ export const addDays = (dateStr, n) => {
 export function todayFiscalYear() {
   return fiscalYearOf(new Date());
 }
+
+// 会議資料の月度表記（令和）。"2025-01-01" → "R7.01"。令和1年＝2019年。
+export const waMonthLabel = (ym) => {
+  const [y, m] = String(ym).slice(0, 10).split("-").map(Number);
+  if (!y || !m) return "";
+  return `R${y - 2018}.${String(m).padStart(2, "0")}`;
+};

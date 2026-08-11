@@ -4,11 +4,15 @@
 import { repo } from "./repo.js";
 import { state } from "./state.js";
 import { el } from "../util/dom.js";
+import { waMonthLabel } from "../util/dates.js";
 
-// 経過日数のしきい値。超えたら注意(warn)・警告(bad)。運用に合わせてここだけ触ればよい。
+// しきい値。超えたら注意(warn)・警告(bad)。運用に合わせてここだけ触ればよい。
+// unit:"month" のものは日数ではなく「何か月ぶん未取込か」で見る。
 const RULES = {
   actual: { warn: 2, bad: 4, label: "日次実績", tab: "yojitsu", hint: "予実タブで入力" },
   snapshot: { warn: 14, bad: 21, label: "台別CSV", tab: "import", hint: "取込タブでCSVを取込" },
+  // 会議資料は月1回しか出ない。日数で見ると常に古い扱いになるので月で数える。
+  plmonth: { warn: 2, bad: 3, label: "月次経費", tab: "expense", unit: "month", hint: "会議資料をもらったら取込タブで月次CSVを取込" },
 };
 
 const DAY = 86400000;
@@ -27,21 +31,34 @@ function daysAgo(dateLike) {
 
 const levelOf = (lag, rule) => (lag == null ? "none" : lag >= rule.bad ? "bad" : lag >= rule.warn ? "warn" : "ok");
 
+// 何か月ぶん取り込めていないか。当月ぶんの資料はまだ出ないので、1か月ぶんは遅れに数えない。
+function monthsLate(ym) {
+  if (!ym) return null;
+  const [y, m] = String(ym).slice(0, 10).split("-").map(Number);
+  if (!y || !m) return null;
+  const now = new Date();
+  return Math.max(0, (now.getFullYear() - y) * 12 + (now.getMonth() + 1 - m) - 1);
+}
+
 export async function loadFreshness() {
   const eq = { store_id: state.storeId };
   // 取得に失敗したらここで投げる。空配列で代用すると「未取込」と表示され、
   // 実際は接続できていないだけなのに一度も取り込んでいないように見えてしまう。
-  const [periods, actuals] = await Promise.all([
+  const [periods, actuals, pls] = await Promise.all([
     repo.select("snapshot_period", { eq, order: ["created_at", "desc"], limit: 1 }),
     repo.select("actual_day", { eq, order: ["ymd", "desc"], limit: 1 }),
+    // pl_monthは後から足したテーブル。DB側の追加作業がまだなら読めないので、
+    // ここだけは失敗を握りつぶす（他の2つが生きていれば接続自体は正常と分かる）。
+    repo.select("pl_month", { eq: { ...eq, kind: "actual" }, order: ["ym", "desc"], limit: 1 }).catch(() => []),
   ]);
   const items = [
     { key: "actual", date: actuals[0]?.ymd || null },
     { key: "snapshot", date: periods[0]?.created_at || null },
+    { key: "plmonth", date: pls[0]?.ym || null },
   ];
   return items.map((it) => {
     const rule = RULES[it.key];
-    const lag = daysAgo(it.date);
+    const lag = rule.unit === "month" ? monthsLate(it.date) : daysAgo(it.date);
     return { ...it, rule, lag, level: levelOf(lag, rule) };
   });
 }
@@ -50,13 +67,16 @@ function chip(item) {
   const { rule, lag, level, date } = item;
   const COLOR = { ok: "var(--fg-dim)", warn: "#c77700", bad: "var(--accent)", none: "var(--fg-dim)" };
   const mark = { ok: "", warn: "⚠ ", bad: "⚠ ", none: "" }[level];
+  const unit = rule.unit === "month" ? "か月" : "日";
   const text = lag == null
     ? `${rule.label}: 未取込`
-    : `${rule.label}: ${String(date).slice(5, 10).replace("-", "/")}（${lag === 0 ? "今日" : lag + "日前"}）`;
+    : rule.unit === "month"
+      ? `${rule.label}: ${waMonthLabel(date)}まで` + (lag === 0 ? "" : `（${lag}か月ぶん未取込）`)
+      : `${rule.label}: ${String(date).slice(5, 10).replace("-", "/")}（${lag === 0 ? "今日" : lag + "日前"}）`;
   return el("button", {
     class: "btn sm ghost",
     style: `color:${COLOR[level]};${level === "bad" ? "border-color:var(--accent);font-weight:700" : ""}`,
-    title: `${rule.hint}（${rule.warn}日で注意 / ${rule.bad}日で警告）`,
+    title: `${rule.hint}（${rule.warn}${unit}で注意 / ${rule.bad}${unit}で警告）`,
     text: mark + text,
     onclick: () => { location.hash = rule.tab; },
   });

@@ -4,6 +4,19 @@ export function decodeCsv(arrayBuffer) {
   return parseCsv(text);
 }
 
+// 文字コードを見分けて文字列にする。K-TACsはcp932固定だが、こちらで作るCSVは
+// Excelでも開けるようBOM付きUTF-8にしている。人が一度Excelで保存し直すと
+// cp932に化けることがあるので、どちらでも読めるようにしておく。
+export function decodeText(arrayBuffer) {
+  const b = new Uint8Array(arrayBuffer);
+  if (b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF) {
+    return new TextDecoder("utf-8").decode(arrayBuffer.slice(3));
+  }
+  // fatal:true にすると不正なバイト列で例外になる＝UTF-8でないと分かる。
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(arrayBuffer); }
+  catch { return new TextDecoder("shift_jis").decode(arrayBuffer); }
+}
+
 export function parseCsv(text) {
   const rows = [];
   let row = [], field = "", inQ = false;

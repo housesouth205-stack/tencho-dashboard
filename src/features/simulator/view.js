@@ -12,7 +12,7 @@ import { heatColor, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } fr
 import { rateKeyOfDai, isBulkExcluded, bulkExcludeLabel } from "../../core/config.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
-import { printContent } from "../../print/printService.js";
+import { printContent, fitToPages } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
 
 const TROPHY = { 2: "🥉", 3: "🥈", 4: "🥇", 5: "🦒", 6: "🌈" }; // 5=キリン柄(サミー基準)
@@ -623,15 +623,19 @@ export async function mount(host) {
 
 
   // 配置島図をA4横で印刷（表=1F / 裏=BF、両面印刷で1枚に）
+  // BFは紙の高さをわずかに超えるので、fitToPages で1階＝1ページに収める。
   function printPlacement() {
     const placement = mergedPlacement();
     const floors = [...new Set(st.layout.map((l) => l.floor))];
-    const nodes = floors.map((fl, i) => el("div", { class: "floor" + (i > 0 ? " page-break" : "") }, [
+    const bodies = floors.map((fl) => el("div", {}, [
       el("h3", { text: `設定投入配置 ${st.date} — ${fl}` }),
       buildLegend(placement),
       el("div", { style: "height:6px" }),
       buildPlacementFloor(st.layout, placement, fl),
     ]));
+    const fitted = fitToPages(bodies, { orientation: "landscape" });
+    // 改ページ指定は一番外側の要素に付いていないと効かない
+    const nodes = fitted.map((n, i) => el("div", { class: "floor" + (i > 0 ? " page-break" : "") }, n));
     printContent(nodes, { title: "", orientation: "landscape" });
   }
 
