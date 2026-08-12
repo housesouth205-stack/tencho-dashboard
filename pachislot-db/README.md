@@ -58,6 +58,9 @@ www.sankyo-fever.co.jp, www.fujishoji.co.jp, www.olympia-tokyo.co.jp
 | `output/quality_report.txt` | データ品質チェック結果＋最終報告 |
 | `data/machines.json` | **唯一の入力**。出典URLを配列で保持する原本 |
 | `scripts/build_database.py` | CSV/Excel生成＋品質チェック |
+| `scripts/check_egress.py` | 情報源ドメインの到達可否＋robots許可状況を一括確認 |
+| `scripts/fetch_specs.py` | robots準拠・レート制限付きの取得＋設定1〜6の表抽出 |
+| `scripts/test_extract.py` | 抽出ロジックのオフライン検証（5ケース） |
 
 ### Excelのシート構成
 
@@ -75,6 +78,40 @@ python3 scripts/build_database.py
 ```
 
 `data/machines.json` を編集して再実行すれば、CSV・Excel・品質レポートが全て更新される。
+
+---
+
+## 全件取得フェーズの手順（egress解放後）
+
+```bash
+# 1. 許可状況の確認。全ドメインが ✓ になるまで先に進まない
+python3 scripts/check_egress.py
+
+# 2. 抽出ロジックの健全性確認
+python3 scripts/test_extract.py
+
+# 3. 対象機種一覧の作成（一覧ページから機械的に列挙）
+#    p-town.dmm.com/machines/slot, /machines/smart_slot 等
+
+# 4. スペック取得＋抽出（キャッシュされるので再実行してもサイトに再アクセスしない）
+python3 scripts/fetch_specs.py --urls data/target_urls.txt
+
+# 5. candidates/extracted.json を照合してから data/machines.json へ反映
+#    ※ 自動マージはしない。2情報源で一致したものだけ信頼度「高」にする
+
+# 6. 再ビルド
+python3 scripts/build_database.py
+```
+
+`fetch_specs.py` の設計方針:
+
+- **robots.txt を必ず確認**し、Disallow のURLは取得しない（代替情報源に切り替える）
+- `Crawl-delay` を尊重し、指定が無くても**最低2.5秒**間隔。並列アクセスは行わない
+- 取得したHTMLは `cache/` に保存し、**再実行時はサイトへ再アクセスしない**
+- 範囲表記（「97.7〜114.9%」）は個別設定値ではないため**意図的に捨てる**。
+  設定2〜5を範囲から内挿しないための実装上の担保
+- 抽出結果は `candidates/` に出すだけで `data/machines.json` には自動マージしない。
+  機械抽出をそのまま正とせず、必ず照合工程を挟む
 
 ---
 
