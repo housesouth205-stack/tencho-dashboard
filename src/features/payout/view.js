@@ -202,7 +202,7 @@ function pickCandidate(model, ranked) {
   return new Promise((resolve) => {
     const close = (v) => { document.body.removeChild(ov); resolve(v); };
     const rows = ranked.slice(0, 6).map((c) => {
-      const site = SITE_LABEL[c.source] || "DMM";
+      const site = SITE_LABEL[c.source] || c.source || "Web";
       const known = (c.per6 || []).filter((v) => v != null);
       const info = known.length >= 3 ? `${site}・設定別 ${known[0]}〜${known[known.length - 1]}%` : (c.range ? `${site}・レンジ ${c.range[0]}〜${c.range[1]}%` : `${site}・データ無`);
       return el("button", { class: "btn", style: "display:flex;justify-content:space-between;gap:12px;width:100%;text-align:left", onclick: () => close(c) },

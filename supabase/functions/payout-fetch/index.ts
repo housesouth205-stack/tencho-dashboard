@@ -1,18 +1,22 @@
 // Supabase Edge Function: payout-fetch
-// 出玉率(機械割)のWeb取得。一撃(1geki.jp)=設定別フルデータ優先、
-// DMMぱちタウン(p-town.dmm.com)=レンジ(設定1・6)フォールバック。
+// 出玉率(機械割)のWeb取得。取得元はSOURCESに登録し、tier昇順(1=メーカー公式 → 2=解析サイト)、
+// 同tier内は登録順に試す。設定別フルデータ(per6)が取れるソースが先、無ければレンジ(設定1・6)にフォールバック。
 // ブラウザ直取得はCORS不可のため、このサーバ関数が代理取得して返す。
 //
 // リクエスト(POST JSON):
 //   { "action": "search", "keyword": "モンキーターン5", "limit": 3 }
-//     -> { candidates: [{ id, source:"1geki"|"dmm", name, range:[lo,hi]|null, per6:[..6, 欠番null..]|null }] }
+//     -> { candidates: [Spec, ...] }
 //   { "action": "fetch", "id": 1037 | "l_monkeyturn5", "source": "dmm"|"1geki" }
-//     -> { id, source, name, range, per6 }
+//     -> Spec
+//   { "action": "sources" }
+//     -> { sources: [{ key, label, tier, origin, ready }, ...] }
 //
+//   Spec = { id, source, name, range:[lo,hi]|null, per6:[..6, 欠番null..]|null }
+//
+// 取得元を足す手順: SOURCESの該当エントリにfetch/searchを実装し、ready:trueにする。
+// 呼び出し側(search/fetch/振り分け)の変更は不要。
 // デプロイ: supabase functions deploy payout-fetch --no-verify-jwt
 
-const DMM = "https://p-town.dmm.com";
-const GEKI = "https://1geki.jp";
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36";
 
 const CORS = {
@@ -20,6 +24,27 @@ const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+type Spec = {
+  id: string | number;
+  source: string;
+  name: string;
+  range: [number, number] | null;
+  per6: (number | null)[] | null;
+};
+
+type Source = {
+  key: string; // Spec.sourceに入る識別子。クライアントのSITE_LABELのキーと対応。
+  label: string;
+  tier: 1 | 2; // 1=メーカー公式, 2=解析サイト。小さいほど優先。
+  origin: string;
+  ready: boolean; // false=パーサ未実装。search/fetchのどちらからも使われない。
+  idKind?: "num" | "slug"; // sourceが省略されたfetchを、idの形から振り分けるのに使う。
+  fetch?: (id: string) => Promise<Spec>;
+  search?: (keyword: string, limit: number) => Promise<(Spec | null)[]>;
+};
+
+// ---------- 共通ユーティリティ ----------
 
 function decodeEntities(s: string): string {
   return s
@@ -61,7 +86,15 @@ function similarity(a: string, b: string): number {
   return (2 * inter) / (ga.size + gb.size);
 }
 
+// 設定別が3つ以上埋まっていれば、その最小・最大をレンジとして併記する。
+function rangeOf(per6: (number | null)[] | null): [number, number] | null {
+  const known = per6 ? per6.filter((v) => v !== null) as number[] : [];
+  return known.length >= 2 ? [Math.min(...known), Math.max(...known)] : null;
+}
+
 // ---------- 一撃 (1geki.jp): 設定別フルデータ ----------
+
+const GEKI = "https://1geki.jp";
 
 // slug->機種名の一覧。ウォーム起動間で30分キャッシュ。
 let gekiIndex: { slug: string; name: string }[] | null = null;
@@ -86,7 +119,7 @@ async function getGekiIndex() {
 }
 
 // 機種ページのスペック早見表(設定/初当り/出玉率)から設定別出玉率を抽出。欠番設定はnull。
-function parseGeki(html: string, slug: string) {
+function parseGeki(html: string, slug: string): Spec {
   let text = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "");
   text = decodeEntities(text.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ");
   const tm = html.match(/<title>([^<|｜]+)/);
@@ -106,18 +139,34 @@ function parseGeki(html: string, slug: string) {
       break;
     }
   }
-  const known = per6 ? per6.filter((v) => v !== null) as number[] : [];
-  const range: [number, number] | null = known.length >= 2 ? [Math.min(...known), Math.max(...known)] : null;
-  return { id: slug, source: "1geki", name, range, per6 };
+  return { id: slug, source: "1geki", name, range: rangeOf(per6), per6 };
 }
 
-async function fetchGeki(slug: string) {
+async function fetchGeki(slug: string): Promise<Spec> {
   return parseGeki(await fetchText(`${GEKI}/slot/${slug}/`), slug);
+}
+
+// インデックスから類似名を探し、上位2件だけ詳細を取る(1件ずつHTMLを引くため)。
+async function searchGeki(keyword: string, _limit: number): Promise<(Spec | null)[]> {
+  const idx = await getGekiIndex();
+  const hits = idx
+    .map((e) => ({ ...e, score: similarity(keyword, e.name) }))
+    .filter((e) => e.score >= 0.4)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 2);
+  const out: (Spec | null)[] = [];
+  for (const h of hits) {
+    const d = await fetchGeki(h.slug).catch(() => null);
+    if (d && (d.per6 || d.range)) out.push({ ...d, name: h.name });
+  }
+  return out;
 }
 
 // ---------- DMMぱちタウン: レンジ(大半) / 設定別(稀) ----------
 
-function parseDmm(html: string, id: number) {
+const DMM = "https://p-town.dmm.com";
+
+function parseDmm(html: string, id: number): Spec {
   const tm = html.match(/<title>([^（<]+)/);
   const name = tm ? tm[1].trim() : "";
 
@@ -138,11 +187,12 @@ function parseDmm(html: string, id: number) {
   return { id, source: "dmm", name, range, per6 };
 }
 
-async function fetchDmm(id: number) {
-  return parseDmm(await fetchText(`${DMM}/machines/${id}`), id);
+async function fetchDmm(id: string): Promise<Spec> {
+  const n = parseInt(id, 10);
+  return parseDmm(await fetchText(`${DMM}/machines/${n}`), n);
 }
 
-async function searchDmm(keyword: string, limit: number) {
+async function searchDmm(keyword: string, limit: number): Promise<(Spec | null)[]> {
   const html = await fetchText(`${DMM}/machines/search?keyword=${encodeURIComponent(keyword)}`);
   const ids: number[] = [];
   for (const m of html.matchAll(/\/machines\/(\d+)"/g)) {
@@ -150,30 +200,73 @@ async function searchDmm(keyword: string, limit: number) {
     if (!ids.includes(n)) ids.push(n);
     if (ids.length >= limit) break;
   }
-  return await Promise.all(ids.map((id) => fetchDmm(id).catch(() => null)));
+  return await Promise.all(ids.map((id) => fetchDmm(String(id)).catch(() => null)));
 }
 
-// ---------- 統合検索: 一撃(設定別)優先 → DMM(レンジ) ----------
+// ---------- 取得元レジストリ ----------
 
-async function search(keyword: string, limit: number) {
-  const out: unknown[] = [];
-  // 一撃: インデックスから類似名を探し、上位を詳細取得
-  try {
-    const idx = await getGekiIndex();
-    const hits = idx
-      .map((e) => ({ ...e, score: similarity(keyword, e.name) }))
-      .filter((e) => e.score >= 0.4)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 2);
-    for (const h of hits) {
-      const d = await fetchGeki(h.slug).catch(() => null);
-      if (d && (d.per6 || d.range)) out.push({ ...d, name: h.name });
-    }
-  } catch { /* 一撃が落ちてもDMMで続行 */ }
-  // DMM
-  const dmm = await searchDmm(keyword, limit).catch(() => []);
-  for (const d of dmm) if (d && d.name) out.push(d);
+// tier1(メーカー公式)を上、tier2(解析サイト)を下に置き、同tier内はこの配列の順で試す。
+// ready:false はパーサ未実装。fetch/searchを書いてready:trueにすれば、他を触らずに参戦する。
+// 各originは、開発時にHTML構造を調べるため環境のAllowed domainsに入れておく必要がある。
+const SOURCES: Source[] = [
+  // --- 第1優先: メーカー公式 ---
+  { key: "sammy", label: "サミー", tier: 1, origin: "https://www.sammy.co.jp", ready: false },
+  { key: "kitadenshi", label: "北電子", tier: 1, origin: "https://www.kitadenshi.co.jp", ready: false },
+  { key: "yamasa", label: "山佐", tier: 1, origin: "https://www.yamasa.co.jp", ready: false },
+  { key: "daito", label: "大都技研", tier: 1, origin: "https://www.daito.co.jp", ready: false },
+  { key: "sankyo", label: "SANKYO", tier: 1, origin: "https://www.sankyo-fever.co.jp", ready: false },
+  { key: "fujishoji", label: "藤商事", tier: 1, origin: "https://www.fujishoji.co.jp", ready: false },
+  { key: "olympia", label: "オリンピア", tier: 1, origin: "https://www.olympia-tokyo.co.jp", ready: false },
+  { key: "bisty", label: "ビスティ", tier: 1, origin: "https://www.bisty.co.jp", ready: false },
+  { key: "pioneer", label: "パイオニア", tier: 1, origin: "https://www.pioneer-net.jp", ready: false },
+
+  // --- 第2優先: 解析サイト ---
+  // 実装済みの2件を先頭に置くことで、既存の「一撃 → DMM」の優先順を維持する。
+  { key: "1geki", label: "一撃", tier: 2, origin: GEKI, ready: true, idKind: "slug", fetch: fetchGeki, search: searchGeki },
+  { key: "dmm", label: "DMMぱちタウン", tier: 2, origin: DMM, ready: true, idKind: "num", fetch: fetchDmm, search: searchDmm },
+  { key: "csplaza", label: "cs-plaza.com", tier: 2, origin: "https://cs62.cs-plaza.com", ready: false },
+  { key: "pachi7", label: "パチ7", tier: 2, origin: "https://pachi7.jp", ready: false },
+  { key: "pachiseven", label: "パチセブン", tier: 2, origin: "https://pachiseven.jp", ready: false },
+  { key: "pworld", label: "P-WORLD", tier: 2, origin: "https://www.p-world.co.jp", ready: false },
+  { key: "slobase", label: "slobase.jp", tier: 2, origin: "https://slobase.jp", ready: false },
+  { key: "nanapress", label: "ナナプレス", tier: 2, origin: "https://nana-press.com", ready: false },
+  { key: "chonborista", label: "ちょんぼりすた", tier: 2, origin: "https://chonborista.com", ready: false },
+  { key: "pgabu", label: "p-gabu.jp", tier: 2, origin: "https://p-gabu.jp", ready: false },
+  { key: "hazuse", label: "hazuse.com", tier: 2, origin: "https://hazuse.com", ready: false },
+];
+
+// 優先順に並べた、実装済みソースだけの配列。
+function activeSources(): Source[] {
+  return SOURCES.filter((s) => s.ready).sort((a, b) => a.tier - b.tier);
+}
+
+function sourceByKey(key: string): Source | undefined {
+  return activeSources().find((s) => s.key === key);
+}
+
+// sourceが指定されない古い保存データ(dmm_mapにidだけが入っている場合)を、idの形から振り分ける。
+function sourceForId(id: string): Source | undefined {
+  const kind = isNaN(Number(id)) ? "slug" : "num";
+  return activeSources().find((s) => s.idKind === kind);
+}
+
+// ---------- 統合検索 ----------
+
+async function search(keyword: string, limit: number): Promise<Spec[]> {
+  const out: Spec[] = [];
+  for (const s of activeSources()) {
+    try {
+      const found = await s.search!(keyword, limit);
+      for (const d of found) if (d && d.name) out.push(d);
+    } catch { /* 1ソースが落ちても次のソースで続行 */ }
+  }
   return out;
+}
+
+async function fetchOne(id: string, sourceKey?: string): Promise<Spec> {
+  const s = (sourceKey && sourceByKey(sourceKey)) || sourceForId(id);
+  if (!s) throw new Error(`no source for id=${id} source=${sourceKey ?? "-"}`);
+  return await s.fetch!(id);
 }
 
 Deno.serve(async (req) => {
@@ -185,9 +278,9 @@ Deno.serve(async (req) => {
     if (action === "search") {
       out = { candidates: await search(String(body.keyword || ""), Math.min(body.limit || 3, 6)) };
     } else if (action === "fetch") {
-      out = (body.source === "1geki" || typeof body.id === "string" && isNaN(Number(body.id)))
-        ? await fetchGeki(String(body.id))
-        : await fetchDmm(parseInt(body.id, 10));
+      out = await fetchOne(String(body.id), body.source ? String(body.source) : undefined);
+    } else if (action === "sources") {
+      out = { sources: SOURCES.map(({ key, label, tier, origin, ready }) => ({ key, label, tier, origin, ready })) };
     } else {
       return new Response(JSON.stringify({ error: "unknown action" }), { status: 400, headers: { ...CORS, "Content-Type": "application/json" } });
     }
