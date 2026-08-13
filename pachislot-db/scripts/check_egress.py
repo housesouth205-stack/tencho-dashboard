@@ -40,6 +40,7 @@ DOMAINS = {
         "www.kitadenshi.co.jp",
         "www.yamasa.co.jp",
         "www.daito.co.jp",
+        "www.daitogiken.com",
         "www.sankyo-fever.co.jp",
         "www.fujishoji.co.jp",
         "www.olympia-tokyo.co.jp",
@@ -76,6 +77,42 @@ def probe(host: str) -> tuple[str, str]:
     return ("OK" if allowed else "ROBOTS_DENY"), detail
 
 
+def check_packages() -> int:
+    """取得・ビルドに必要なパッケージが揃っているかを確認する。
+
+    ドメインが全て開いても、パッケージレジストリが遮断されていると
+    fetch_specs.py / build_database.py は起動すらできない。
+    全件取得フェーズのもう一つの開始条件として明示的に確認する。
+    """
+    import importlib
+
+    need = {
+        "requests": "check_egress.py / fetch_specs.py",
+        "bs4": "fetch_specs.py（HTML解析）",
+        "lxml": "fetch_specs.py（HTMLパーサ）",
+        "pandas": "build_database.py（CSV/Excel生成）",
+        "openpyxl": "build_database.py（Excel整形）",
+    }
+    print("\n=== 必要パッケージ ===")
+    missing = 0
+    for mod, used_by in need.items():
+        try:
+            importlib.import_module(mod)
+        except ImportError:
+            print(f"  × MISSING      {mod:<28} {used_by}")
+            missing += 1
+        else:
+            print(f"  ✓ OK           {mod:<28} {used_by}")
+
+    if missing:
+        print(f"\n{missing} 件のパッケージが未導入です。")
+        print("pip install pandas openpyxl requests beautifulsoup4 lxml")
+        print("これが 403 で失敗する場合、環境設定の Network access で")
+        print("「Also include default list of common package managers」に")
+        print("チェックが入っていません。ドメイン追加だけでは解決しません。")
+    return missing
+
+
 def main() -> int:
     ok = blocked = 0
     for group, hosts in DOMAINS.items():
@@ -92,11 +129,20 @@ def main() -> int:
 
     total = ok + blocked
     print(f"\n到達可能: {ok}/{total} / 不可: {blocked}/{total}")
+
+    missing = check_packages()
+
+    print()
     if blocked:
-        print("\n未解放のドメインがあります。README の許可リストを環境設定に追加してください。")
+        print("未解放のドメインがあります。README の許可リストを環境設定に追加してください。")
         print("robots.txt で Disallow のサイトは自動取得の対象外とし、代替情報源を使います。")
+    if missing:
+        print("必要パッケージが未導入です。上記の対処を行ってください。")
+    if blocked or missing:
+        print("\n開始条件を満たしていないため、全件取得フェーズには進みません。")
         return 1
-    print("\n全ドメイン到達可能。全件取得フェーズに進めます。")
+
+    print("全ドメイン到達可能・必要パッケージ導入済み。全件取得フェーズに進めます。")
     return 0
 
 

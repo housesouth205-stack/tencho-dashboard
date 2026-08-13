@@ -8,7 +8,58 @@
 
 ## ⚠ 最重要: この環境の制約
 
-本セッションの実行環境では、**外部Webページの直接取得が組織のegressプロキシによって全面的にブロック**されている。
+### 環境「設定出率」での再確認結果（2026-08-13）
+
+許可ドメインを設定した環境で `check_egress.py` を再実行した。**15/20 が到達可能に改善**したが、
+**全件取得フェーズの開始条件（全ドメイン ✓）は未達**。加えて**パッケージレジストリが遮断**されており、
+取得・ビルド用スクリプトが動作しない。
+
+#### ブロッカー1: 未解放ドメイン 4件（egressプロキシが CONNECT を 502 で拒否）
+
+| ドメイン | 用途 | 代替 |
+|---|---|---|
+| `pachi7.jp` | パチ7（解析サイト・第2優先） | `pachiseven.jp` が到達可能。ただし同一運営か要確認 |
+| `www.olympia-tokyo.co.jp` | オリンピア 公式（第1優先） | なし |
+| `www.bisty.co.jp` | ビスティ 公式（第1優先） | なし |
+| `www.pioneer-net.jp` | パイオニア 公式（第1優先） | なし |
+
+#### ブロッカー2: パッケージレジストリ全遮断 → スクリプトが実行不能
+
+```
+pypi.org                403    files.pythonhosted.org  403
+registry.npmjs.org      403    archive.ubuntu.com      403（apt も同様に失敗）
+```
+
+環境設定ダイアログの **「Also include default list of common package managers」が
+未チェック**と思われる。この状態では以下が**1行も実行できない**。
+
+| 必要なパッケージ | 使うスクリプト | 現状 |
+|---|---|---|
+| `beautifulsoup4` / `lxml` | `fetch_specs.py`（HTML解析・設定1〜6抽出） | 未導入・導入不可 |
+| `pandas` / `openpyxl` | `build_database.py`（CSV/Excel生成・品質チェック） | 未導入・導入不可 |
+| `requests` | `check_egress.py` / `fetch_specs.py` | ✓ 導入済（唯一動くもの） |
+
+`pip install` も `apt-get install` も 403 で失敗する。**ドメインを追加してもこれが解決しない限り
+全件取得は実行できない。**
+
+#### 補足: 「×」だが egress の問題ではないもの（設定変更不要）
+
+- `www.daito.co.jp` — トンネルは通る。HTTPS が TLS 応答を返さない（`wrong version number`）**サイト側の仕様**。
+  HTTP では 302 で応答する。現行サイトの `www.daitogiken.com` は **HTTPS で到達可能**なのでそちらを使う。
+- `p-gabu.jp` — トンネルは通る。**サイト側が全リクエストに 403** を返す（WAF/bot 遮断）。
+  robots.txt も読めないため、**自動取得の対象外**とし代替情報源に切り替える。
+
+#### 到達可能を確認済みのドメイン（15件）
+
+`p-town.dmm.com` / `cs62.cs-plaza.com` / `pachiseven.jp` / `www.p-world.co.jp` / `slobase.jp` /
+`nana-press.com` / `chonborista.com` / `1geki.jp` / `hazuse.com` /
+`www.sammy.co.jp` / `www.kitadenshi.co.jp` / `www.yamasa.co.jp` / `www.daitogiken.com` /
+`www.sankyo-fever.co.jp` / `www.fujishoji.co.jp`
+（いずれも robots.txt でルート配下の取得が許可されていることを確認済み）
+
+### 前セッション（全ドメイン遮断）での状況
+
+前セッションの実行環境では、**外部Webページの直接取得が組織のegressプロキシによって全面的にブロック**されていた。
 
 ```
 $ curl https://p-town.dmm.com/robots.txt
@@ -19,13 +70,13 @@ WebFetch → {"error_type":"EGRESS_BLOCKED", "message":"Access to ... is blocked
 
 ブロックを確認したホスト: `p-town.dmm.com` / `cs62.cs-plaza.com`（パチマガスロマガ）/ `pachi7.jp` /
 `www.p-world.co.jp` / `slobase.jp` / `www.sammy.co.jp`（メーカー公式）/ `example.com`。
-**例外なく全ドメインが403**であり、特定サイトの利用規約による制限ではない。
+**例外なく全ドメインが403**であり、特定サイトの利用規約による制限ではなかった。
 
 結果として、仕様書が求める
 
 > 検索結果のスニペットだけで判断せず、可能な限り実際のページを開いて確認してください。
 
-が**実行できない**。本バッチのデータは全て検索結果本文から取得したものであり、
+が**実行できなかった**。本バッチのデータは全て検索結果本文から取得したものであり、
 一次ページの目視検証は未実施。全レコードの備考に「ページ未検証」と明記している。
 
 ### 影響
@@ -46,33 +97,37 @@ WebFetch → {"error_type":"EGRESS_BLOCKED", "message":"Access to ... is blocked
    スキーム・ポート・パスは付けない。`*.example.com` はサブドメイン全体にマッチする。
 5. **「Also include default list of common package managers」に必ずチェック。**
    外すと下記リスト以外が全て遮断され、`pip install` 等が動かなくなる。
+   **2026-08-13時点の環境「設定出率」ではここが未チェックの状態**で、`pypi.org` /
+   `files.pythonhosted.org` / `archive.ubuntu.com` がいずれも403。`pandas` `openpyxl`
+   `beautifulsoup4` `lxml` を導入できず、`fetch_specs.py` と `build_database.py` が実行不能。
+   ドメイン追加だけでは解決しないので、**このチェックを必ず入れ直すこと。**
 6. 保存後、**新しいセッションを開始する。実行中のセッションは環境設定を読み直さない。**
 
 ```text
 # 解析サイト（第2優先）
 p-town.dmm.com
 cs62.cs-plaza.com
-pachi7.jp
+pachi7.jp                 ← 2026-08-13時点で未解放。要追加
 pachiseven.jp
 www.p-world.co.jp
 slobase.jp
 nana-press.com
 chonborista.com
 1geki.jp
-p-gabu.jp
+p-gabu.jp                 ← 到達可。ただしサイト側が403を返すため取得対象外
 hazuse.com
 
 # メーカー公式（第1優先）
 www.sammy.co.jp
 www.kitadenshi.co.jp
 www.yamasa.co.jp
-www.daito.co.jp
+www.daito.co.jp           ← 到達可。HTTPSを喋らないため daitogiken.com を使う
 www.daitogiken.com
 www.sankyo-fever.co.jp
 www.fujishoji.co.jp
-www.olympia-tokyo.co.jp
-www.bisty.co.jp
-www.pioneer-net.jp
+www.olympia-tokyo.co.jp   ← 2026-08-13時点で未解放。要追加
+www.bisty.co.jp           ← 2026-08-13時点で未解放。要追加
+www.pioneer-net.jp        ← 2026-08-13時点で未解放。要追加
 ```
 
 GitHub通信とMCPコネクタ通信はこの許可リストとは別経路のため、影響を受けない。
