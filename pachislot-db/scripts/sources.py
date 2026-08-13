@@ -26,8 +26,11 @@ _PREFIX_RE = re.compile(r"(スマスロ|パチスロ|メダル機|新台)")
 _LEAD_SLOT_RE = re.compile(r"^スロット\s+")
 # 先頭に付く型式記号 L / S（「Ｌ転生王女…」「Ｌパチスロ 彼女、お借りします」）
 _TYPE_MARK_RE = re.compile(r"^[LS]\s*")
-# 記号・空白。長音符は残す（「ゴッドイーター」と「ゴッドイタ」を同一視しないため）
-_PUNCT_RE = re.compile(r"[\s\-‐‑–—~〜･・,，.。、'\"’”“！!？?/\\|:：;；#＃&＆+＋*＝=＿_\[\]【】「」]")
+# 記号・空白。長音符は残す（「ゴッドイーター」と「ゴッドイタ」を同一視しないため）。
+# ハイフンはサイトによって使う文字が違う（「琉神-30」と「琉神−30」は同じ機種）ので、
+# マイナス記号 U+2212 と全角ハイフンも同じものとして落とす。
+_PUNCT_RE = re.compile(
+    r"[\s\-‐‑–—−－~〜･・,，.。、'\"’”“！!？?/\\|:：;；#＃&＆+＋*＝=＿_\[\]【】「」]")
 
 
 def norm_name(s: str) -> str:
@@ -129,6 +132,9 @@ def dmm_machine_page(html: str) -> dict:
     maker = spec.get("メーカー名", "")
     maker = re.sub(r"[(（]メーカー公式サイト[)）].*$", "", maker).strip()
     maker = re.sub(r"の掲載機種一覧$", "", maker).strip()
+    # 公式サイトへのリンクが無い社では「EXCITE EXCITEの掲載機種一覧」の形になり、
+    # 末尾を削ると社名が2回残る。同じ語の繰り返しなら1つに畳む。
+    maker = re.sub(r"^(.+?)\s+\1$", r"\1", maker).strip()
 
     rng = parse_rate_range(spec.get("機械割", ""))
     d = _DMM_DATE_RE.search("導入開始日: " + spec.get("導入開始日", "").replace("（", " ("))
