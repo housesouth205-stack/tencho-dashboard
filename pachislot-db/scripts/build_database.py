@@ -352,7 +352,9 @@ def quality_checks(df: Table, raw: dict) -> tuple[list[str], set[str]]:
 
 # ---------------------------------------------------------------- シート生成
 
-RANK_COLUMNS = ["ランキング", "順位", "機種名", "メーカー", "値"]
+# 信頼度を並べておかないと、1情報源だけの値や不一致の値が
+# 上位に来たときに読み手が気づけない
+RANK_COLUMNS = ["ランキング", "順位", "機種名", "メーカー", "値", "信頼度", "出率条件"]
 
 
 def build_rankings(df: Table) -> Table:
@@ -378,6 +380,8 @@ def build_rankings(df: Table) -> Table:
                 "機種名": r["機種名"],
                 "メーカー": r["メーカー"],
                 "値": r[key],
+                "信頼度": r["信頼度"],
+                "出率条件": r["出率条件"],
             })
         out_rows.append(blank())
 

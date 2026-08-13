@@ -170,6 +170,10 @@ def extract_rates(html: str) -> dict[int, float]:
         # 設定1と設定6だけを載せる表も多いため2列から受け付ける。
         # 行ラベルの「機械割/出玉率」一致を必須にしているので、
         # 小役確率などの表を誤って拾うことはない。
+        # 1つの表に「機械割」と「完全手順時の機械割」のように条件違いのブロックが
+        # 続けて置かれていることがある。後から来たブロックで上書きすると、
+        # 素の機械割のつもりで攻略前提の数値を記録してしまうため、
+        # どちらの持ち方でも「最初に読めた値」を残す（setdefault）。
         header = grid[0]
         cols = {i: s for i, c in enumerate(header) if (s := _setting_index(c))}
         if len(cols) >= 2:
@@ -178,7 +182,7 @@ def extract_rates(html: str) -> dict[int, float]:
                     continue
                 for i, s in cols.items():
                     if i < len(row) and (v := _rate(row[i])) is not None:
-                        found[s] = v
+                        found.setdefault(s, v)
 
         # 縦持ち: 1列目が 設定1..6、ヘッダに「機械割/出玉率」の列がある。
         # 見出しが「設定」で本文が素の数字だけの表もあるため、その場合に限り
@@ -193,7 +197,7 @@ def extract_rates(html: str) -> dict[int, float]:
                         continue
                     s = _setting_index(row[0], bare=bare)
                     if s and rate_col < len(row) and (v := _rate(row[rate_col])) is not None:
-                        found[s] = v
+                        found.setdefault(s, v)
 
         if len(found) > len(best):
             best = found

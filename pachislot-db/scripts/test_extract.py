@@ -128,6 +128,28 @@ BARE_DIGITS_NOT_SETTING = """
 </table>
 """
 
+# 1つの表に「機械割」と条件違いの数値が続けて置かれている型。
+# 後ろのブロックで上書きすると、攻略前提の数値を素の機械割として記録してしまう
+SECOND_BLOCK_SAME_TABLE = """
+<table>
+  <tr><th>設定</th><th>機械割</th><th>完全手順※1</th></tr>
+  <tr><td>1</td><td>99.3%</td><td>102.1%</td></tr>
+  <tr><td>6</td><td>103.9%</td><td>106.7%</td></tr>
+  <tr><th>設定</th><th>超完全手順※2</th></tr>
+  <tr><td>1</td><td>104.1%</td></tr>
+  <tr><td>6</td><td>108.3%</td></tr>
+</table>
+"""
+
+# 横持ちでも同じこと。機械割の行が複数あるときは最初の行を採る
+SECOND_ROW_HORIZONTAL = """
+<table>
+  <tr><th>項目</th><th>設定1</th><th>設定6</th></tr>
+  <tr><td>機械割</td><td>97.0%</td><td>110.0%</td></tr>
+  <tr><td>機械割（完全攻略時）</td><td>101.5%</td><td>114.2%</td></tr>
+</table>
+"""
+
 # 設定1と設定6しか載せない表（実サイトに多い）。2列でも拾えること
 TWO_SETTINGS_ONLY = """
 <table>
@@ -174,6 +196,12 @@ def main() -> int:
               {1: 96.9, 2: 97.8, 3: 99.1, 4: 103.4, 5: 107.6, 6: 115.2}),
         check("設定1と設定6だけの表", TWO_SETTINGS_ONLY, {1: 96.9, 6: 115.2}),
         check("見出し『設定』＋素の数字", BARE_DIGITS, {1: 98.2, 6: 106.2}),
+        check("同じ表の条件違いブロックで上書きしない", SECOND_BLOCK_SAME_TABLE,
+              {1: 99.3, 6: 103.9}),
+        # 条件は文書全体から拾うため、攻略前提の行があるページでは条件語も検出される。
+        # 値そのものは素の機械割のままであることを確認する。
+        check("機械割の行が複数あれば最初の行を採る", SECOND_ROW_HORIZONTAL,
+              {1: 97.0, 6: 110.0}, "完全攻略時"),
         check("素の数字でも範囲表記は拾わない", BARE_DIGITS_RANGE, {}),
         check("『設定』見出しでなければ数字を設定と解釈しない", BARE_DIGITS_NOT_SETTING, {}),
         check("script/style の中身を本文にしない", SCRIPT_NOISE, {1: 97.0}),
