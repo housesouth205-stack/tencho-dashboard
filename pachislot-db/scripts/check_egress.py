@@ -78,22 +78,21 @@ def probe(host: str) -> tuple[str, str]:
 
 
 def check_packages() -> int:
-    """取得・ビルドに必要なパッケージが揃っているかを確認する。
+    """取得・ビルドに必要なモジュールが揃っているかを確認する。
 
-    ドメインが全て開いても、パッケージレジストリが遮断されていると
-    fetch_specs.py / build_database.py は起動すらできない。
-    全件取得フェーズのもう一つの開始条件として明示的に確認する。
+    この環境ではパッケージレジストリ（pypi.org / archive.ubuntu.com）が egress で
+    遮断されており pip も apt も使えない。そのため pandas / openpyxl /
+    beautifulsoup4 / lxml への依存は標準ライブラリ実装に置き換えてある。
+    外部依存は requests ひとつだけで、それも導入済み。
     """
     import importlib
 
     need = {
-        "requests": "check_egress.py / fetch_specs.py",
-        "bs4": "fetch_specs.py（HTML解析）",
-        "lxml": "fetch_specs.py（HTMLパーサ）",
-        "pandas": "build_database.py（CSV/Excel生成）",
-        "openpyxl": "build_database.py（Excel整形）",
+        "requests": "fetch_specs.py（HTTP取得）※唯一の外部依存",
+        "minihtml": "fetch_specs.py（HTML解析・bs4/lxmlの代替。標準ライブラリのみ）",
+        "minixlsx": "build_database.py（xlsx生成・openpyxlの代替。標準ライブラリのみ）",
     }
-    print("\n=== 必要パッケージ ===")
+    print("\n=== 必要モジュール ===")
     missing = 0
     for mod, used_by in need.items():
         try:
@@ -105,11 +104,9 @@ def check_packages() -> int:
             print(f"  ✓ OK           {mod:<28} {used_by}")
 
     if missing:
-        print(f"\n{missing} 件のパッケージが未導入です。")
-        print("pip install pandas openpyxl requests beautifulsoup4 lxml")
-        print("これが 403 で失敗する場合、環境設定の Network access で")
-        print("「Also include default list of common package managers」に")
-        print("チェックが入っていません。ドメイン追加だけでは解決しません。")
+        print(f"\n{missing} 件のモジュールが読み込めません。")
+        print("minihtml / minixlsx は scripts/ 配下にあり pip 導入は不要です。")
+        print("requests が無い場合のみ環境側の対応が要ります。")
     return missing
 
 

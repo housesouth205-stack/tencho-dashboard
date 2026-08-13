@@ -58,6 +58,6 @@
   www.slopachi-quest.com: 1
 最も多く使用した情報源: www.p-world.co.jp
 --- 信頼度分布 ---
-  要確認: 5
-  低: 4
   中: 1
+  低: 4
+  要確認: 5

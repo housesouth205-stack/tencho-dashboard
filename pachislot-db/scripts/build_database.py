@@ -11,10 +11,15 @@ data/machines.json を唯一の入力とし、以下を生成する。
 
 方針：値の補完・推測は一切行わない。欠損は空欄のまま出力し、
 異常値は自動修正せず「要確認」として列挙する。
+
+依存パッケージは無い。この環境ではパッケージレジストリが egress で遮断されており
+pandas も openpyxl も導入できないため、表の保持は下の Table クラス、
+xlsx 生成は minixlsx（いずれも標準ライブラリのみ）で行う。
 """
 
 from __future__ import annotations
 
+import csv
 import json
 import re
 import sys
@@ -22,9 +27,8 @@ from collections import Counter
 from pathlib import Path
 from urllib.parse import urlparse
 
-import pandas as pd
-from openpyxl.styles import Alignment, Font, PatternFill
-from openpyxl.utils import get_column_letter
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import minixlsx  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "machines.json"
@@ -54,6 +58,52 @@ COLUMNS = [
     "備考",
     "別表記",
 ]
+
+
+# ---------------------------------------------------------------- 表の保持
+
+
+class Table:
+    """列順を保った表。pandas.DataFrame のうち本スクリプトが使う分だけを持つ。"""
+
+    def __init__(self, rows, columns=None):
+        self.rows: list[dict] = [dict(r) for r in rows]
+        if columns is None:
+            seen: dict[str, None] = {}
+            for r in self.rows:
+                for k in r:
+                    seen.setdefault(k, None)
+            columns = list(seen)
+        self.columns: list[str] = list(columns)
+        for r in self.rows:  # 欠けている列は空欄で揃える（0で埋めない）
+            for c in self.columns:
+                r.setdefault(c, "")
+
+    @property
+    def empty(self) -> bool:
+        return not self.rows
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+    def __iter__(self):
+        return iter(self.rows)
+
+    def col(self, name: str) -> list:
+        return [r[name] for r in self.rows]
+
+    def sort_by(self, key: str, reverse: bool = False) -> "Table":
+        return Table(sorted(self.rows, key=lambda r: r[key], reverse=reverse), self.columns)
+
+    def matrix(self) -> list[list]:
+        return [[r[c] for c in self.columns] for r in self.rows]
+
+    def to_csv(self, path: Path) -> None:
+        with open(path, "w", encoding="utf-8-sig", newline="") as f:
+            w = csv.writer(f, lineterminator="\n")
+            w.writerow(self.columns)
+            w.writerows(self.matrix())
+
 
 # ---------------------------------------------------------------- 正規化辞書
 
@@ -157,7 +207,7 @@ def num_or_blank(v):
         return ""
 
 
-def build_master(raw: dict, issues: list[str]) -> pd.DataFrame:
+def build_master(raw: dict, issues: list[str]) -> Table:
     acquired_at = raw["_meta"]["取得日"]
     rows = []
     for m in raw["machines"]:
@@ -187,14 +237,13 @@ def build_master(raw: dict, issues: list[str]) -> pd.DataFrame:
             row[c] = num_or_blank(m.get(c))
         rows.append(row)
 
-    df = pd.DataFrame(rows, columns=COLUMNS)
-    return df
+    return Table(rows, columns=COLUMNS)
 
 
 # ---------------------------------------------------------------- 品質チェック
 
 
-def quality_checks(df: pd.DataFrame, raw: dict) -> tuple[list[str], set[str]]:
+def quality_checks(df: Table, raw: dict) -> tuple[list[str], set[str]]:
     """品質チェックを実行。(問題行リスト, 要確認に回す機種名の集合) を返す。"""
     issues: list[str] = []
     flagged: set[str] = set()
@@ -204,12 +253,14 @@ def quality_checks(df: pd.DataFrame, raw: dict) -> tuple[list[str], set[str]]:
         flagged.add(name)
 
     # 1. 機種名の重複（正規表記・別表記の両方で判定）
-    dup = df["機種名"][df["機種名"].duplicated()].tolist()
-    for d in dup:
-        flag(d, "機種名が2行以上存在する（重複排除もれ）")
+    seen_names: set[str] = set()
+    for n in df.col("機種名"):
+        if n in seen_names:
+            flag(n, "機種名が2行以上存在する（重複排除もれ）")
+        seen_names.add(n)
 
     alias_map: dict[str, str] = {}
-    for _, r in df.iterrows():
+    for r in df:
         keys = [r["機種名"]] + [a for a in str(r["別表記"]).split(" / ") if a]
         for k in keys:
             norm = re.sub(r"[\sＬL　]|スマスロ|パチスロ", "", k)
@@ -219,7 +270,7 @@ def quality_checks(df: pd.DataFrame, raw: dict) -> tuple[list[str], set[str]]:
                 flag(r["機種名"], f"別表記『{k}』が既存機種『{alias_map[norm]}』と衝突（同一機種の可能性）")
             alias_map.setdefault(norm, r["機種名"])
 
-    for _, r in df.iterrows():
+    for r in df:
         name = r["機種名"]
         vals = {c: r[c] for c in SETTING_COLS}
         filled = {c: v for c, v in vals.items() if v != ""}
@@ -283,46 +334,56 @@ def quality_checks(df: pd.DataFrame, raw: dict) -> tuple[list[str], set[str]]:
 
 # ---------------------------------------------------------------- シート生成
 
+RANK_COLUMNS = ["ランキング", "順位", "機種名", "メーカー", "値"]
 
-def build_rankings(df: pd.DataFrame) -> pd.DataFrame:
+
+def build_rankings(df: Table) -> Table:
     """出率ランキングシート。値が無い機種はランキングから除外（推測補完しない）。"""
-    blocks = []
+    out_rows: list[dict] = []
 
-    def add(title: str, series_col: str, frame: pd.DataFrame, value_name: str):
-        sub = frame[frame[series_col] != ""].copy()
-        if sub.empty:
-            blocks.append(pd.DataFrame({"ランキング": [title], "順位": ["該当データなし"],
-                                        "機種名": [""], "メーカー": [""], value_name: [""]}))
+    def blank() -> dict:
+        return {c: "" for c in RANK_COLUMNS}
+
+    def add(title: str, key: str, rows: list[dict]):
+        sub = [r for r in rows if r.get(key, "") != ""]
+        if not sub:
+            row = blank()
+            row["ランキング"] = title
+            row["順位"] = "該当データなし"
+            out_rows.append(row)
             return
-        sub = sub.sort_values(series_col, ascending=False)
-        sub.insert(0, "順位", range(1, len(sub) + 1))
-        out = sub[["順位", "機種名", "メーカー", series_col]].rename(columns={series_col: value_name})
-        out.insert(0, "ランキング", "")
-        out.loc[out.index[0], "ランキング"] = title
-        blocks.append(out)
-        blocks.append(pd.DataFrame({"ランキング": [""], "順位": [""], "機種名": [""],
-                                    "メーカー": [""], value_name: [""]}))
+        sub.sort(key=lambda r: r[key], reverse=True)
+        for rank, r in enumerate(sub, start=1):
+            out_rows.append({
+                "ランキング": title if rank == 1 else "",
+                "順位": rank,
+                "機種名": r["機種名"],
+                "メーカー": r["メーカー"],
+                "値": r[key],
+            })
+        out_rows.append(blank())
 
-    frames = []
     for setting in ("設定1出率", "設定4出率", "設定5出率", "設定6出率"):
-        tmp = df.copy()
-        add(f"{setting}ランキング", setting, tmp, "値(%)")
-        frames.append(None)
+        add(f"{setting}ランキング", setting, list(df.rows))
 
     # 設定1→設定6の出率差
-    diff = df.copy()
-    diff["設定1-6差"] = [
-        (r["設定6出率"] - r["設定1出率"]) if (r["設定1出率"] != "" and r["設定6出率"] != "") else ""
-        for _, r in diff.iterrows()
-    ]
-    add("設定1→設定6 出率差ランキング", "設定1-6差", diff, "値(%)")
-    add("コイン単価ランキング", "コイン単価", df.copy(), "値(%)")
+    diff_rows = []
+    for r in df:
+        d = dict(r)
+        s1, s6 = r["設定1出率"], r["設定6出率"]
+        d["設定1-6差"] = round(s6 - s1, 2) if (s1 != "" and s6 != "") else ""
+        diff_rows.append(d)
+    add("設定1→設定6 出率差ランキング", "設定1-6差", diff_rows)
+    add("コイン単価ランキング", "コイン単価", list(df.rows))
 
-    result = pd.concat(blocks, ignore_index=True)
-    return result.rename(columns={"値(%)": "値"})
+    return Table(out_rows, columns=RANK_COLUMNS)
 
 
-def build_needs_review(df: pd.DataFrame, issues: list[str], flagged: set[str]) -> pd.DataFrame:
+REVIEW_COLUMNS = ["機種名", "メーカー", "信頼度", "要確認項目数", "要確認内容",
+                  "出率出典URL", "データ取得日"]
+
+
+def build_needs_review(df: Table, issues: list[str], flagged: set[str]) -> Table:
     by_machine: dict[str, list[str]] = {}
     for msg in issues:
         m = re.match(r"\[(.+?)\]\s*(.*)", msg)
@@ -331,7 +392,7 @@ def build_needs_review(df: pd.DataFrame, issues: list[str], flagged: set[str]) -
         by_machine.setdefault(m.group(1), []).append(m.group(2))
 
     rows = []
-    for _, r in df.iterrows():
+    for r in df:
         name = r["機種名"]
         if name not in by_machine:
             continue
@@ -344,13 +405,17 @@ def build_needs_review(df: pd.DataFrame, issues: list[str], flagged: set[str]) -
             "出率出典URL": r["出率出典URL"],
             "データ取得日": r["データ取得日"],
         })
-    out = pd.DataFrame(rows)
+    out = Table(rows, columns=REVIEW_COLUMNS)
     if not out.empty:
-        out = out.sort_values("要確認項目数", ascending=False).reset_index(drop=True)
+        out = out.sort_by("要確認項目数", reverse=True)
     return out
 
 
-def build_unacquired(raw: dict) -> pd.DataFrame:
+UNACQUIRED_COLUMNS = ["機種名", "メーカー", "取得できなかった理由", "試した情報源",
+                      "URL", "再調査が必要か"]
+
+
+def build_unacquired(raw: dict) -> Table:
     rows = []
     for m in raw["machines"]:
         if not m.get("未取得理由"):
@@ -363,64 +428,45 @@ def build_unacquired(raw: dict) -> pd.DataFrame:
             "URL": join_urls(m.get("メーカー出典URL")),
             "再調査が必要か": m.get("再調査要否", "要"),
         })
-    return pd.DataFrame(rows)
+    return Table(rows, columns=UNACQUIRED_COLUMNS)
 
 
 # ---------------------------------------------------------------- Excel 出力
 
 
-HEADER_FILL = PatternFill("solid", fgColor="1F3864")
-HEADER_FONT = Font(color="FFFFFF", bold=True)
+def write_excel(path: Path, master: Table, rankings: Table, review: Table, unacquired: Table):
+    def sheet(name: str, t: Table):
+        if t.empty:
+            return (name, ["機種名"], [["該当なし"]])
+        return (name, t.columns, t.matrix())
 
-
-def style_sheet(ws, df: pd.DataFrame):
-    if df.empty:
-        return
-    for cell in ws[1]:
-        cell.fill = HEADER_FILL
-        cell.font = HEADER_FONT
-        cell.alignment = Alignment(vertical="center", wrap_text=True)
-    ws.freeze_panes = "A2"
-    ws.auto_filter.ref = ws.dimensions
-    for i, col in enumerate(df.columns, start=1):
-        longest = max([len(str(col))] + [len(str(v)) for v in df[col].head(200)])
-        ws.column_dimensions[get_column_letter(i)].width = min(max(longest + 2, 10), 60)
-
-
-def write_excel(path: Path, master, rankings, review, unacquired):
-    with pd.ExcelWriter(path, engine="openpyxl") as xw:
-        master.to_excel(xw, sheet_name="機種マスター", index=False)
-        rankings.to_excel(xw, sheet_name="出率ランキング", index=False)
-        (review if not review.empty else pd.DataFrame({"機種名": ["該当なし"]})).to_excel(
-            xw, sheet_name="要確認", index=False)
-        (unacquired if not unacquired.empty else pd.DataFrame({"機種名": ["該当なし"]})).to_excel(
-            xw, sheet_name="未取得機種", index=False)
-
-        style_sheet(xw.sheets["機種マスター"], master)
-        style_sheet(xw.sheets["出率ランキング"], rankings)
-        style_sheet(xw.sheets["要確認"], review)
-        style_sheet(xw.sheets["未取得機種"], unacquired)
+    minixlsx.write_workbook(path, [
+        sheet("機種マスター", master),
+        sheet("出率ランキング", rankings),
+        sheet("要確認", review),
+        sheet("未取得機種", unacquired),
+    ])
 
 
 # ---------------------------------------------------------------- レポート
 
 
-def summary(df: pd.DataFrame, review: pd.DataFrame, unacquired: pd.DataFrame) -> list[str]:
+def summary(df: Table, review: Table, unacquired: Table) -> list[str]:
     total = len(df)
-    complete = sum(1 for _, r in df.iterrows() if all(r[c] != "" for c in SETTING_COLS))
-    partial = sum(1 for _, r in df.iterrows()
+    complete = sum(1 for r in df if all(r[c] != "" for c in SETTING_COLS))
+    partial = sum(1 for r in df
                   if any(r[c] != "" for c in SETTING_COLS) and any(r[c] == "" for c in SETTING_COLS))
-    none_got = sum(1 for _, r in df.iterrows() if all(r[c] == "" for c in SETTING_COLS))
-    coin_got = sum(1 for _, r in df.iterrows() if r["コイン単価"] != "")
+    none_got = sum(1 for r in df if all(r[c] == "" for c in SETTING_COLS))
+    coin_got = sum(1 for r in df if r["コイン単価"] != "")
 
-    domains = Counter()
-    for _, r in df.iterrows():
+    domains: Counter = Counter()
+    for r in df:
         for col in ("出率出典URL", "コイン単価出典URL", "メーカー出典URL"):
             for u in str(r[col]).split(" | "):
                 if u:
                     domains[urlparse(u).netloc] += 1
 
-    cross = sum(1 for _, r in df.iterrows()
+    cross = sum(1 for r in df
                 if len([u for u in str(r["出率出典URL"]).split(" | ") if u]) >= 2)
 
     lines = [
@@ -442,7 +488,8 @@ def summary(df: pd.DataFrame, review: pd.DataFrame, unacquired: pd.DataFrame) ->
 
     lines.append("")
     lines.append("--- 信頼度分布 ---")
-    for k, c in df["信頼度"].value_counts().items():
+    conf = Counter(df.col("信頼度"))
+    for k, c in sorted(conf.items(), key=lambda kv: (CONFIDENCE_ORDER.get(kv[0], 9), kv[0])):
         lines.append(f"  {k}: {c}")
     return [line for line in lines if line != ""] + [""]
 
@@ -459,9 +506,9 @@ def main() -> int:
     review = build_needs_review(master, issues, flagged)
     unacquired = build_unacquired(raw)
 
-    master.to_csv(OUT / "slot_machine_database.csv", index=False, encoding="utf-8-sig")
-    review.to_csv(OUT / "needs_review.csv", index=False, encoding="utf-8-sig")
-    unacquired.to_csv(OUT / "unacquired_machines.csv", index=False, encoding="utf-8-sig")
+    master.to_csv(OUT / "slot_machine_database.csv")
+    review.to_csv(OUT / "needs_review.csv")
+    unacquired.to_csv(OUT / "unacquired_machines.csv")
     write_excel(OUT / "slot_machine_database.xlsx", master, rankings, review, unacquired)
 
     report = []

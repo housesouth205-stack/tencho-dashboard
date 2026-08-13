@@ -68,6 +68,57 @@ NOISE = """
 </table>
 """
 
+# 実サイトに多い閉じタグ欠落。</td> も </tr> も無い
+UNCLOSED = """
+<table>
+  <tr><th>設定<th>機械割
+  <tr><td>設定1<td>97.8%
+  <tr><td>設定6<td>112.4%
+</table>
+"""
+
+# thead/tbody で囲まれ、セル内に装飾タグが入る実サイト型
+NESTED_MARKUP = """
+<table class="spec">
+  <thead><tr><th>設定</th><th>出玉率</th></tr></thead>
+  <tbody>
+    <tr><td><span class="s">設定&#49;</span></td><td><strong>98.<em>2</em></strong>%</td></tr>
+    <tr><td>設定6</td><td>110.9&nbsp;%</td></tr>
+  </tbody>
+</table>
+<div>数値は独自調査値です。</div>
+"""
+
+# スペック表の外側にレイアウト用テーブルがある（入れ子）。内側の表を選ぶこと
+NESTED_TABLE = """
+<table><tr><td>
+  <table>
+    <tr><th>項目</th><th>設定1</th><th>設定2</th><th>設定3</th>
+        <th>設定4</th><th>設定5</th><th>設定6</th></tr>
+    <tr><td>機械割</td><td>96.9%</td><td>97.8%</td><td>99.1%</td>
+        <td>103.4%</td><td>107.6%</td><td>115.2%</td></tr>
+  </table>
+</td></tr></table>
+"""
+
+# 設定1と設定6しか載せない表（実サイトに多い）。2列でも拾えること
+TWO_SETTINGS_ONLY = """
+<table>
+  <tr><th>項目</th><th>設定1</th><th>設定6</th></tr>
+  <tr><td>出玉率</td><td>96.9%</td><td>115.2%</td></tr>
+</table>
+"""
+
+# script/style の中身を本文として拾わないこと
+SCRIPT_NOISE = """
+<script>var 機械割 = "設定1: 999.9%";</script>
+<style>.x{content:"完全攻略時"}</style>
+<table>
+  <tr><th>設定</th><th>機械割</th></tr>
+  <tr><td>設定1</td><td>97.0%</td></tr>
+</table>
+"""
+
 
 def check(name: str, html: str, expect: dict[int, float], expect_cond: str = "") -> bool:
     got = extract_rates(html)
@@ -89,6 +140,13 @@ def main() -> int:
         check("範囲表記のみ → 1件も拾わない", RANGE_ONLY, {}),
         check("全角設定＋約付き＋完全攻略時", ZENKAKU, {1: 97.2, 6: 106.5}, "完全攻略時"),
         check("小役確率の表を誤検出しない", NOISE, {}),
+        check("閉じタグ欠落のHTML", UNCLOSED, {1: 97.8, 6: 112.4}),
+        check("thead/tbody＋セル内装飾タグ＋実体参照", NESTED_MARKUP,
+              {1: 98.2, 6: 110.9}, "独自調査値"),
+        check("レイアウト用テーブルの入れ子", NESTED_TABLE,
+              {1: 96.9, 2: 97.8, 3: 99.1, 4: 103.4, 5: 107.6, 6: 115.2}),
+        check("設定1と設定6だけの表", TWO_SETTINGS_ONLY, {1: 96.9, 6: 115.2}),
+        check("script/style の中身を本文にしない", SCRIPT_NOISE, {1: 97.0}),
     ]
     passed = sum(results)
     print(f"\n{passed}/{len(results)} passed")

@@ -30,7 +30,8 @@ from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
 import requests
-from bs4 import BeautifulSoup
+
+import minihtml
 
 ROOT = Path(__file__).resolve().parent.parent
 CACHE = ROOT / "cache"
@@ -129,15 +130,6 @@ def fetch(url: str, pol: Politeness, force: bool = False) -> str | None:
     return r.text
 
 
-def _cells(table) -> list[list[str]]:
-    grid = []
-    for tr in table.find_all("tr"):
-        row = [c.get_text(" ", strip=True) for c in tr.find_all(["th", "td"])]
-        if row:
-            grid.append(row)
-    return grid
-
-
 def _setting_index(text: str) -> int | None:
     m = SETTING_RE.search(text.translate(ZEN2HAN))
     return int(m.group(1)) if m else None
@@ -156,19 +148,18 @@ def _rate(text: str) -> float | None:
 
 def extract_rates(html: str) -> dict[int, float]:
     """HTML内の表から {設定番号: 出率} を抽出。縦持ち・横持ちの両方に対応。"""
-    soup = BeautifulSoup(html, "lxml")
     best: dict[int, float] = {}
 
-    for table in soup.find_all("table"):
-        grid = _cells(table)
-        if not grid:
-            continue
+    for grid in minihtml.tables(html):
         found: dict[int, float] = {}
 
         # 横持ち: ヘッダ行が 設定1..6、どこかの行が「機械割/出玉率」
+        # 設定1と設定6だけを載せる表も多いため2列から受け付ける。
+        # 行ラベルの「機械割/出玉率」一致を必須にしているので、
+        # 小役確率などの表を誤って拾うことはない。
         header = grid[0]
         cols = {i: s for i, c in enumerate(header) if (s := _setting_index(c))}
-        if len(cols) >= 3:
+        if len(cols) >= 2:
             for row in grid[1:]:
                 if not row or not RATE_LABEL_RE.search(row[0]):
                     continue
@@ -195,7 +186,7 @@ def extract_rates(html: str) -> dict[int, float]:
 
 def extract_condition(html: str) -> str:
     """出率条件（メーカー発表値／完全攻略時 等）の表記を探す。"""
-    text = BeautifulSoup(html, "lxml").get_text(" ", strip=True)
+    text = minihtml.text(html)
     for kw in ("メーカー発表値", "メーカー公表値", "完全攻略時", "フル攻略時",
                "独自調査値", "シミュレーション値", "自社調査"):
         if kw in text:
