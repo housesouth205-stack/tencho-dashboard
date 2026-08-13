@@ -1,2 +1,3 @@
+# 取得したHTMLの生キャッシュ。容量が大きく、各サイトの著作物そのものなので追跡しない。
+# 消えても scripts/collect.py の再実行で作り直せる。
 cache/
-candidates/
