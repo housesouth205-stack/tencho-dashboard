@@ -119,10 +119,15 @@ def merge_one(rec: dict, today: str) -> dict:
 
     # ---------------- 現行判定（設置店舗数を根拠にする）
     shops = pw.get("設置店舗数")
-    if shops and shops > 0:
+    kubun = pw.get("店舗数区分", "")
+    survey = f" 調査日{pw['設置調査日']}" if pw.get("設置調査日") else ""
+    if kubun == "設置店" and shops:
         genko = "現行"
-        notes.append(f"設置店舗数 {shops:,}店舗（P-WORLD調べ"
-                     + (f" 調査日{pw['設置調査日']}" if pw.get("設置調査日") else "") + "）")
+        notes.append(f"設置店舗数 {shops:,}店舗（P-WORLD調べ{survey}）")
+    elif kubun == "導入予定":
+        # 導入予定はまだ設置されていない。現行と断定できないので要確認に倒す
+        genko = "現行判定要確認"
+        notes.append(f"導入予定 {shops:,}店舗（P-WORLD調べ{survey}）。未設置のため現行と断定できない")
     else:
         genko = "現行判定要確認"
         notes.append("設置店舗数の記載を確認できず、現行稼働かを判断できない")

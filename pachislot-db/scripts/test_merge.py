@@ -33,7 +33,7 @@ PW_BASE = {
     "url": "https://www.p-world.co.jp/machine/database/1",
     "規則区分": "スマスロ", "機種タイプ": "AT", "メーカー": "サミー",
     "型式名": "Lテスト機A", "検定番号": "6S0001", "設置店舗数": 1200,
-    "設置調査日": "2026-08-01", "タイプ原文": "スマスロ、6.5号機、AT",
+    "店舗数区分": "設置店", "設置調査日": "2026-08-01", "タイプ原文": "スマスロ、6.5号機、AT",
 }
 
 
@@ -84,9 +84,16 @@ def main() -> int:
     # 5. 設置店舗数があれば現行、無ければ現行判定要確認
     results.append(check("設置店舗数から現行と判定", m2["現行判定"] == "現行", m2["現行判定"]))
     m4 = merge_one(rec(**{"スロベース": SLOBASE_FULL,
-                          "P-WORLD": dict(PW_BASE, 設置店舗数=None)}), TODAY)
+                          "P-WORLD": dict(PW_BASE, 設置店舗数=None, 店舗数区分="")}), TODAY)
     results.append(check("設置店舗数不明なら現行判定要確認",
                          m4["現行判定"] == "現行判定要確認", m4["現行判定"]))
+
+    # 導入予定はまだ設置されていないので現行と断定しない
+    m4b = merge_one(rec(**{"スロベース": SLOBASE_FULL,
+                           "P-WORLD": dict(PW_BASE, 設置店舗数=1, 店舗数区分="導入予定")}), TODAY)
+    results.append(check("導入予定なら現行と断定しない",
+                         m4b["現行判定"] == "現行判定要確認" and "導入予定" in m4b["備考"],
+                         m4b["現行判定"]))
 
     # 6. 出率が1件も取れなければ未取得として理由を残す
     m5 = merge_one(rec(**{"P-WORLD": PW_BASE}), TODAY)

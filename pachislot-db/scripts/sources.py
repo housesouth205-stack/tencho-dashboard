@@ -119,8 +119,10 @@ def dmm_machine_page(html: str) -> dict:
             if len(row) >= 2 and row[0]:
                 spec.setdefault(_clean(row[0]), _clean(row[1]))
 
+    # _clean が NFKC 正規化するので括弧は半角で来る。
+    # 「北電子(メーカー公式サイト) 北電子の掲載機種一覧」から社名だけを残す。
     maker = spec.get("メーカー名", "")
-    maker = re.sub(r"（メーカー公式サイト）.*$", "", maker).strip()
+    maker = re.sub(r"[(（]メーカー公式サイト[)）].*$", "", maker).strip()
     maker = re.sub(r"の掲載機種一覧$", "", maker).strip()
 
     rng = parse_rate_range(spec.get("機械割", ""))
@@ -187,8 +189,9 @@ def pworld_list_page(html: str) -> list[dict]:
 
 
 _PW_FIELD_RE = re.compile(r"^(メーカー|タイプ|検定番号|型式名|導入開始)\s*[：:]\s*(.*)$")
-# 「【設置店4,853店舗】…」。現行稼働の有無を推測でなく出典付きで判定するために使う
-_PW_SHOPS_RE = re.compile(r"【設置店\s*([\d,]+)\s*店舗】")
+# 「【設置店4,853店舗】」＝設置済み、「【導入予定1店舗】」＝これから導入。
+# 現行稼働の有無を推測でなく出典付きで判定するために、どちらの表記かも持つ。
+_PW_SHOPS_RE = re.compile(r"【(設置店|導入予定)\s*([\d,]+)\s*店舗】")
 _PW_SURVEY_RE = re.compile(r"調査日[：:]\s*(\d{4})/(\d{1,2})/(\d{1,2})")
 
 
@@ -199,16 +202,25 @@ def pworld_machine_page(html: str) -> dict:
     規則区分と機種タイプの一次情報になる。ここから読めない項目は空のままにする。
     """
     fields: dict[str, str] = {}
+
+    def put(key: str, value: str) -> None:
+        # ラベルと値が別セルに分かれている表では、ラベルだけのセルも
+        # 「タイプ ：」の形で正規表現に一致してしまう。空値で埋めてしまうと
+        # 後から来る本当の値を setdefault が受け付けなくなるので、値が空なら捨てる。
+        value = _clean(value)
+        if value:
+            fields.setdefault(key, value)
+
     for grid in minihtml.tables(html):
         for row in grid:
             for cell in row:
                 m = _PW_FIELD_RE.match(_clean(cell))
                 if m:
-                    fields.setdefault(m.group(1), _clean(m.group(2)))
+                    put(m.group(1), m.group(2))
             if len(row) >= 2:
                 key = _clean(row[0]).rstrip("：:").strip()
                 if key in ("メーカー", "タイプ", "検定番号", "型式名", "導入開始"):
-                    fields.setdefault(key, _clean(row[1]))
+                    put(key, row[1])
 
     tags = [t.strip() for t in re.split(r"[、,／/]", fields.get("タイプ", "")) if t.strip()]
     kikaku = next((t for t in tags if re.match(r"^(スマスロ|[456](?:\.\d)?号機)$", t)), "")
@@ -232,8 +244,9 @@ def pworld_machine_page(html: str) -> dict:
         "型式名": fields.get("型式名", ""),
         "導入開始日": (f"{d.group(1)}-{int(d.group(2)):02d}-{int(d.group(3)):02d}" if d else ""),
         "タグ": tags,
-        # 掲載されている設置店舗数。現行稼働の判断材料として、数値と調査日をそのまま持つ
-        "設置店舗数": int(shops.group(1).replace(",", "")) if shops else None,
+        # 掲載されている店舗数。現行稼働の判断材料として、数値・区分・調査日をそのまま持つ
+        "設置店舗数": int(shops.group(2).replace(",", "")) if shops else None,
+        "店舗数区分": shops.group(1) if shops else "",
         "設置調査日": (f"{survey.group(1)}-{int(survey.group(2)):02d}-{int(survey.group(3)):02d}"
                        if survey else ""),
     }
