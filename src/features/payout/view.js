@@ -6,14 +6,18 @@ import { num } from "../../util/format.js";
 import { TYPES, TYPE_KEYS, payoutFromDmm, round1, fmt1 } from "../simulator/economics.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { dmmSearch, dmmFetch, rankCandidates, searchKeyword } from "./dmm.js";
+import { dbCandidates, dbMeta } from "./localdb.js";
 import { buildMinSetting, MIN_CHOICES } from "../simulator/minSetting.js";
 
 const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|アイムジャグ|ジャグ/;
 const guessType = (m) => (AT_HINT.test(String(m).normalize("NFKC")) ? "Aタイプ" : "AT機");
 const AUTO_SCORE = 0.55; // 一括取得で自動確定する名前類似度の下限
 
-const SRC_LABEL = { manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定", default: "未登録" };
-const SITE_LABEL = { "1geki": "一撃", dmm: "DMM" };
+const SRC_LABEL = {
+  manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定",
+  "db-per6": "機種DB", "db-range": "機種DB推定", default: "未登録",
+};
+const SITE_LABEL = { "1geki": "一撃", dmm: "DMM", db: "機種DB" };
 
 let filterText = "", onlyUnreg = false;
 
@@ -59,6 +63,8 @@ export async function mount(host) {
   bar.appendChild(chip("未登録のみ", () => onlyUnreg, () => { onlyUnreg = !onlyUnreg; draw(); }));
   bar.appendChild(el("button", { class: "btn sm", text: "機種名からタイプ自動推定", onclick: () => { rows.forEach((r) => { r.type = guessType(r.model); if (!r.registered) r.payout = [...TYPES[r.type]]; }); draw(); } }));
   bar.appendChild(el("button", { class: "btn sm ghost", text: "未登録にタイプ既定を適用", onclick: () => { rows.forEach((r) => { if (!r.registered) r.payout = [...TYPES[r.type]]; }); draw(); } }));
+  const dbBulkBtn = el("button", { class: "btn sm", style: "border-color:var(--ok);color:var(--ok)", text: "📚 機種DBから一括適用", onclick: bulkFromDb });
+  bar.appendChild(dbBulkBtn);
   const dmmBulkBtn = el("button", { class: "btn sm", style: "border-color:var(--blue);color:var(--blue)", text: "🌐 Webから一括取得", onclick: bulkFetch });
   bar.appendChild(dmmBulkBtn);
   bar.appendChild(el("div", { class: "grow" }));
@@ -68,8 +74,9 @@ export async function mount(host) {
 
   const info = el("div", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px", html:
     "出玉率(機械割)を機種×設定で登録すると、シミュレーターが自動で使います。<br>" +
-    "🌐 <b>Web取得</b>: <a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>、最近のスマスロ中心)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジ(設定1・6)からタイプ標準カーブで補間(<b>Web推定</b>)。行の🌐で個別、上の一括で自動照合(名前一致が曖昧な機種は候補から選択)。<br>" +
-    "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。Web実測で取れた機種は自動で空欄になります。" });
+    "📚 <b>機種DB</b>(同梱・通信不要): スマスロ／6号機の出玉率を出典URL・信頼度つきで収録。設定別の表から取れた機種は<b>機種DB</b>、機械割のレンジしか無い機種はタイプ標準カーブで補間して<b>機種DB推定</b>。<b>まずこれを試すのが速い</b>。状態列にカーソルを乗せると信頼度と出典が出ます。<br>" +
+    "🌐 <b>Web取得</b>: 機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジから補間(<b>Web推定</b>)。<br>" +
+    "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" });
   host.appendChild(info);
 
   const tableHost = el("div", { style: "overflow:auto;max-height:66vh" });
@@ -78,15 +85,33 @@ export async function mount(host) {
   function updateReg() { const reg = rows.filter((r) => r.registered).length; regSpan.textContent = `登録 ${reg}/${rows.length} 機種`; }
 
   function applyResult(r, res) { // res = {id, source, range, per6}
+    // 機種DBはタイプも出典付きで持っているので、先にタイプを合わせてから出玉率を作る。
+    // レンジからの補間はタイプ標準カーブを使うため、順番を逆にすると違うカーブで補間される。
+    if (res.source === "db" && res.type && TYPES[res.type]) r.type = res.type;
     const pay = payoutFromDmm(res, r.type);
     if (!pay) return false;
     r.payout = pay; r.registered = true;
-    r.source = (res.per6 && res.per6.filter((v) => v != null).length >= 3) ? "dmm-per6" : "dmm-range";
-    if (res.id) { r.dmmId = { id: res.id, source: res.source || "dmm" }; dmmMap[r.model] = r.dmmId; }
+    const per6 = !!(res.per6 && res.per6.filter((v) => v != null).length >= 3);
+    r.source = res.source === "db" ? (per6 ? "db-per6" : "db-range") : (per6 ? "dmm-per6" : "dmm-range");
+    r.note = res.source === "db"
+      ? `機種DB（信頼度 ${res.confidence || "—"}／条件 ${res.condition || "—"}）\n出典: ${(res.urls || []).join("\n")}`
+      : null;
+    r.sourceUrl = res.source === "db" ? (res.urls || [])[0] || null : null;
+    if (res.source !== "db" && res.id) { r.dmmId = { id: res.id, source: res.source || "dmm" }; dmmMap[r.model] = r.dmmId; }
     return true;
   }
 
   const savedFetch = (r) => { const m = r.dmmId; if (!m) return null; const { id, source } = typeof m === "object" ? m : { id: m, source: "dmm" }; return dmmFetch(id, source); };
+
+  async function fetchOneFromDb(r) {
+    try {
+      const list = await dbCandidates(r.model);
+      if (!list.length) { toast(`「${r.model}」は機種DBに見つかりませんでした`, "warn"); return; }
+      const res = (list.length === 1 && list[0].score >= 1) ? list[0] : await pickCandidate(r.model, list);
+      if (!res) return; // キャンセル
+      if (applyResult(r, res)) { updateReg(); draw(); toast(`「${r.model}」を機種DBから反映（信頼度 ${res.confidence || "—"}）`, "ok"); }
+    } catch (e) { errorToast(e); }
+  }
 
   async function fetchOne(r) {
     try {
@@ -100,6 +125,35 @@ export async function mount(host) {
       }
       if (applyResult(r, res)) { updateReg(); draw(); toast(`「${r.model}」を${SRC_LABEL[r.source]}で反映`, "ok"); }
     } catch (e) { errorToast(e); }
+  }
+
+  // 同梱の機種データベースから一括で埋める。通信不要なので先に試す想定。
+  // 名前が曖昧な機種は Web取得と同じ候補選択モーダルに回す。
+  async function bulkFromDb() {
+    const targets = rows.filter((r) => !onlyUnreg || !r.registered);
+    let meta;
+    try { meta = await dbMeta(); } catch (e) { errorToast(e); return; }
+    if (!confirm(`${targets.length}機種を機種DB（${meta.機種数}機種／取得日 ${meta.取得日}）から埋めます。続けますか？`)) return;
+    dbBulkBtn.disabled = true;
+    let ok = 0, miss = 0; const ask = [];
+    try {
+      for (const r of targets) {
+        dbBulkBtn.textContent = `照合中… ${ok + ask.length + miss + 1}/${targets.length}`;
+        const list = await dbCandidates(r.model).catch(() => []);
+        if (!list.length) { miss++; continue; }
+        // 自動で入れるのは正規化後の完全一致が1件のときだけ。
+        // 名前が似ているだけの候補を自動採用すると、別機種の出玉率が入って
+        // 粗利計算までまとめて狂うので、必ず人の確認を挟む。
+        if (list.length === 1 && list[0].score >= 1) { if (applyResult(r, list[0])) ok++; }
+        else ask.push({ r, ranked: list });
+      }
+      updateReg(); draw();
+      toast(`機種DBから ${ok}件を反映 / 要確認 ${ask.length}件 / 該当なし ${miss}件`, "ok");
+      for (const { r, ranked } of ask) {
+        const res = await pickCandidate(r.model, ranked);
+        if (res && applyResult(r, res)) { updateReg(); draw(); }
+      }
+    } finally { dbBulkBtn.disabled = false; dbBulkBtn.textContent = "📚 機種DBから一括適用"; }
   }
 
   async function bulkFetch() {
@@ -172,8 +226,11 @@ export async function mount(host) {
         })));
       }
       const sc = r.registered ? (r.source === "manual" ? "var(--ok)" : "var(--blue)") : "var(--warn)";
-      cells.push(el("td", { style: `color:${sc}`, text: r.registered ? SRC_LABEL[r.source] : "未登録" }));
-      cells.push(el("td", {}, el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) })));
+      cells.push(el("td", { style: `color:${sc}`, title: r.note || null, text: r.registered ? SRC_LABEL[r.source] : "未登録" }));
+      cells.push(el("td", { class: "row", style: "gap:4px" }, [
+        el("button", { class: "btn sm ghost", title: "機種DBから適用", text: "📚", onclick: () => fetchOneFromDb(r) }),
+        el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) }),
+      ]));
       tb.appendChild(el("tr", {}, cells));
     }
     t.appendChild(tb);
@@ -186,7 +243,15 @@ export async function mount(host) {
     try {
       setSaveState("saving");
       const specsOut = [], types = {}, mins = { ...minSaved };
-      for (const r of rows) { types[r.model] = r.type; mins[r.model] = r.min; const src = String(r.source).startsWith("dmm") ? "web" : "manual"; for (let s = 0; s < 6; s++) specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src }); }
+      for (const r of rows) {
+        types[r.model] = r.type; mins[r.model] = r.min;
+        const s0 = String(r.source);
+        // 由来を残す。機種DB由来は出典URLも一緒に保存しておくと、後から根拠を辿れる。
+        const src = s0.startsWith("db") ? "db" : s0.startsWith("dmm") ? "web" : "manual";
+        for (let s = 0; s < 6; s++) {
+          specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src, source_url: src === "db" ? r.sourceUrl || null : null });
+        }
+      }
       for (let i = 0; i < specsOut.length; i += 200) await repo.upsert("model_spec", specsOut.slice(i, i + 200), { onConflict: ["model_name", "setting"] });
       await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_types", value: types }, { onConflict: ["store_id", "key"] });
       await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_min", value: mins }, { onConflict: ["store_id", "key"] });
@@ -204,7 +269,10 @@ function pickCandidate(model, ranked) {
     const rows = ranked.slice(0, 6).map((c) => {
       const site = SITE_LABEL[c.source] || "DMM";
       const known = (c.per6 || []).filter((v) => v != null);
-      const info = known.length >= 3 ? `${site}・設定別 ${known[0]}〜${known[known.length - 1]}%` : (c.range ? `${site}・レンジ ${c.range[0]}〜${c.range[1]}%` : `${site}・データ無`);
+      // 機種DBは信頼度を持っているので、候補選択の時点で見えるようにする
+      const conf = c.source === "db" && c.confidence ? `・信頼度${c.confidence}` : "";
+      const info = (known.length >= 3 ? `${site}・設定別 ${known[0]}〜${known[known.length - 1]}%`
+        : (c.range ? `${site}・レンジ ${c.range[0]}〜${c.range[1]}%` : `${site}・データ無`)) + conf;
       return el("button", { class: "btn", style: "display:flex;justify-content:space-between;gap:12px;width:100%;text-align:left", onclick: () => close(c) },
         [el("span", { text: c.name }), el("span", { class: "hint", text: `${info} ・一致${Math.round(c.score * 100)}%` })]);
     });
