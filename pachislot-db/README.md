@@ -34,15 +34,59 @@ WebFetch → {"error_type":"EGRESS_BLOCKED", "message":"Access to ... is blocked
 - 仕様書の「範囲しか分からない場合、設定2〜5を推測して埋めない」に従い、**設定2〜5は空欄のまま**。
 - 10機種中、設定1〜6を完全取得できたのは**1機種のみ**。
 
-### 解消方法
+### 解消方法：cloud environment の許可ドメイン追加
 
-以下のドメインをegress許可リストに追加すれば、全件取得に進める。
+1. [claude.ai/code](https://claude.ai/code) で、**メッセージ入力欄の上の行**にあるクラウドアイコン
+   （現在の環境名が表示されている）をクリックして環境セレクタを開く。
+   専用の設定ページも直接URLも存在しない。
+2. 対象環境にマウスを乗せて右側の**歯車アイコン**を選ぶ（新規なら **Add cloud environment**）。
+3. ダイアログの **Network access** を **Custom** にする
+   （既定は **Trusted** = パッケージレジストリ・GitHub等の既定リストのみ）。
+4. **Allowed domains** に1行1ドメインで下記を貼る。書式は**ホスト名のみ**で、
+   スキーム・ポート・パスは付けない。`*.example.com` はサブドメイン全体にマッチする。
+5. **「Also include default list of common package managers」に必ずチェック。**
+   外すと下記リスト以外が全て遮断され、`pip install` 等が動かなくなる。
+6. 保存後、**新しいセッションを開始する。実行中のセッションは環境設定を読み直さない。**
+
+```text
+# 解析サイト（第2優先）
+p-town.dmm.com
+cs62.cs-plaza.com
+pachi7.jp
+pachiseven.jp
+www.p-world.co.jp
+slobase.jp
+nana-press.com
+chonborista.com
+1geki.jp
+p-gabu.jp
+hazuse.com
+
+# メーカー公式（第1優先）
+www.sammy.co.jp
+www.kitadenshi.co.jp
+www.yamasa.co.jp
+www.daito.co.jp
+www.daitogiken.com
+www.sankyo-fever.co.jp
+www.fujishoji.co.jp
+www.olympia-tokyo.co.jp
+www.bisty.co.jp
+www.pioneer-net.jp
+```
+
+GitHub通信とMCPコネクタ通信はこの許可リストとは別経路のため、影響を受けない。
+参考: [Configure cloud environments](https://code.claude.com/docs/en/cloud-environments)
+
+### 新セッションでの再開方法
+
+作業は全て `claude/pachislot-database-build-fi5eo5` ブランチにpush済み。
+新しいセッションで以下を指示すれば続きから再開できる。
 
 ```
-p-town.dmm.com, cs62.cs-plaza.com, pachi7.jp, www.p-world.co.jp,
-slobase.jp, nana-press.com, chonborista.com, 1geki.jp,
-www.sammy.co.jp, www.kitadenshi.co.jp, www.yamasa.co.jp, www.daito.co.jp,
-www.sankyo-fever.co.jp, www.fujishoji.co.jp, www.olympia-tokyo.co.jp
+ブランチ claude/pachislot-database-build-fi5eo5 の pachislot-db/README.md を読んで、
+パチスロ機種データベースの全件取得フェーズを実行してください。
+まず python3 pachislot-db/scripts/check_egress.py で開通を確認してから進めてください。
 ```
 
 ---
