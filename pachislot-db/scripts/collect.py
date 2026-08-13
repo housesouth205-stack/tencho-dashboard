@@ -37,9 +37,10 @@ SLOBASE_MACHINE_RE = re.compile(r"https://slobase\.jp/machines/[^/<]+$")
 
 NANA_SITEMAP = "https://nana-press.com/kaiseki/sitemap-pachislot.xml"
 NANA_SUB_RE = re.compile(r"https://nana-press\.com/kaiseki/machine/(\d+)/(\d+)/$")
-# スペック情報ページは機種配下でいちばん若い子ページに置かれている。
-# ただし例外がありうるので、若い順に何件か開いてタイトルで確認する。
-NANA_TRIES = 3
+# 設定別機械割のページは機種配下でいちばん若い子ページに置かれていることが多い。
+# ただし世代によって見出しも並びも違うので、若い順に何件か開いて
+# 「見出しが機械割系」かつ「設定が2つ以上読める」ページを採る。
+NANA_TRIES = 4
 
 
 def collect_nanapress(pol: Politeness) -> dict[str, dict]:
@@ -70,12 +71,15 @@ def collect_nanapress(pol: Politeness) -> dict[str, dict]:
             info = sources.nanapress_spec_page(html)
             if not info["スペックページ"]:
                 continue
+            rates = extract_rates(html)
+            if len(rates) < 2:
+                continue  # 見出しは機械割系でも表が載っていないページがある
             key = sources.norm_name(info["機種名"])
             if key:
                 index[key] = {
                     "機種名": info["機種名"],
                     "url": url,
-                    "設定別出率": {str(k): v for k, v in sorted(extract_rates(html).items())},
+                    "設定別出率": {str(k): v for k, v in sorted(rates.items())},
                     "出率条件": extract_condition(html),
                 }
             break
