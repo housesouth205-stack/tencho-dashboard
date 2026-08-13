@@ -45,7 +45,9 @@ SETTING_RE = re.compile(r"設定\s*([1-6１-６])")
 RATE_LABEL_RE = re.compile(r"(機械割|出玉率|payout)")
 # 「97.0%」「97.0」「約97.0%」を拾う。範囲表記「97.0〜113.0」は個別設定値ではないので除外する
 RATE_VALUE_RE = re.compile(r"(?<![\d.])(\d{2,3}\.\d|\d{2,3})\s*%?")
-RANGE_RE = re.compile(r"\d{2,3}(?:\.\d)?\s*[〜～~-]\s*\d{2,3}(?:\.\d)?")
+# 「97.7〜114.9%」だけでなく「98.2% 〜100.3%」のように
+# 前側の数値にも % が付く書き方があるので、区切りの前の % を許容する
+RANGE_RE = re.compile(r"\d{2,3}(?:\.\d)?\s*%?\s*[〜～~ー−\-]\s*\d{2,3}(?:\.\d)?")
 
 ZEN2HAN = str.maketrans("１２３４５６", "123456")
 
@@ -130,9 +132,20 @@ def fetch(url: str, pol: Politeness, force: bool = False) -> str | None:
     return r.text
 
 
-def _setting_index(text: str) -> int | None:
-    m = SETTING_RE.search(text.translate(ZEN2HAN))
-    return int(m.group(1)) if m else None
+def _setting_index(text: str, bare: bool = False) -> int | None:
+    """セルから設定番号を読む。
+
+    bare=True のときは「1」「６」のような素の数字も設定番号として認める。
+    見出しが「設定」で、各行には数字だけを置くサイトがあるため。
+    行が本当に設定行かどうかは呼び出し側が見出しで確認すること。
+    """
+    t = text.translate(ZEN2HAN).strip()
+    m = SETTING_RE.search(t)
+    if m:
+        return int(m.group(1))
+    if bare and len(t) == 1 and t in "123456":
+        return int(t)
+    return None
 
 
 def _rate(text: str) -> float | None:
@@ -167,14 +180,18 @@ def extract_rates(html: str) -> dict[int, float]:
                     if i < len(row) and (v := _rate(row[i])) is not None:
                         found[s] = v
 
-        # 縦持ち: 1列目が 設定1..6、ヘッダに「機械割/出玉率」の列がある
+        # 縦持ち: 1列目が 設定1..6、ヘッダに「機械割/出玉率」の列がある。
+        # 見出しが「設定」で本文が素の数字だけの表もあるため、その場合に限り
+        # 数字1文字を設定番号として認める（見出しの確認を条件にして誤検出を防ぐ）。
         if not found:
             rate_col = next((i for i, c in enumerate(header) if RATE_LABEL_RE.search(c)), None)
+            bare = bool(header) and SETTING_RE.search(header[0].translate(ZEN2HAN)) is None \
+                and "設定" in header[0]
             if rate_col is not None:
                 for row in grid[1:]:
                     if not row:
                         continue
-                    s = _setting_index(row[0])
+                    s = _setting_index(row[0], bare=bare)
                     if s and rate_col < len(row) and (v := _rate(row[rate_col])) is not None:
                         found[s] = v
 

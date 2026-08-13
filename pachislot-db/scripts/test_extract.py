@@ -101,6 +101,33 @@ NESTED_TABLE = """
 </td></tr></table>
 """
 
+# 見出しが「設定」で、本文は素の数字だけの表
+BARE_DIGITS = """
+<table>
+  <tr><th>設定</th><th>BIG</th><th>出玉率 (機械割)</th></tr>
+  <tr><td>1</td><td>1/295.2</td><td>98.2%</td></tr>
+  <tr><td>6</td><td>1/277.7</td><td>106.2%</td></tr>
+</table>
+"""
+
+# 素の数字の表でも、値が範囲なら拾わない（設定ごとの機械割に幅を持たせるサイト）
+BARE_DIGITS_RANGE = """
+<table>
+  <tr><th>設定</th><th>出玉率 (機械割)</th></tr>
+  <tr><td>1</td><td>98.2% 〜100.3%</td></tr>
+  <tr><td>6</td><td>106.2% 〜108.7%</td></tr>
+</table>
+"""
+
+# 「設定」を含まない見出しの表では、素の数字を設定番号と解釈しないこと
+BARE_DIGITS_NOT_SETTING = """
+<table>
+  <tr><th>段階</th><th>機械割</th></tr>
+  <tr><td>1</td><td>98.2%</td></tr>
+  <tr><td>6</td><td>106.2%</td></tr>
+</table>
+"""
+
 # 設定1と設定6しか載せない表（実サイトに多い）。2列でも拾えること
 TWO_SETTINGS_ONLY = """
 <table>
@@ -146,6 +173,9 @@ def main() -> int:
         check("レイアウト用テーブルの入れ子", NESTED_TABLE,
               {1: 96.9, 2: 97.8, 3: 99.1, 4: 103.4, 5: 107.6, 6: 115.2}),
         check("設定1と設定6だけの表", TWO_SETTINGS_ONLY, {1: 96.9, 6: 115.2}),
+        check("見出し『設定』＋素の数字", BARE_DIGITS, {1: 98.2, 6: 106.2}),
+        check("素の数字でも範囲表記は拾わない", BARE_DIGITS_RANGE, {}),
+        check("『設定』見出しでなければ数字を設定と解釈しない", BARE_DIGITS_NOT_SETTING, {}),
         check("script/style の中身を本文にしない", SCRIPT_NOISE, {1: 97.0}),
     ]
     passed = sum(results)
