@@ -53,9 +53,11 @@ def _clean(s: str) -> str:
 
 # ---------------------------------------------------------------- 出率レンジ
 
-# 「97.8% 〜 114.1%」「98.2%〜106.2% (設定1〜設定6)」
+# 「97.8% 〜 114.1%」「98.2%〜106.2% (設定1〜設定6)」「97.5%〜113.0 (設定1〜設定6)」。
+# 片側にしか % が付かない書き方があるので、両側とも省略可にしたうえで
+# 「% がどこかに1つはある」ことを parse 側で確かめる。
 _RANGE_RE = re.compile(
-    r"(\d{2,3}(?:\.\d+)?)\s*%?\s*[〜～~ー−\-]\s*(\d{2,3}(?:\.\d+)?)\s*%"
+    r"(\d{2,3}(?:\.\d+)?)\s*%?\s*[〜～~ー−\-]\s*(\d{2,3}(?:\.\d+)?)\s*%?"
 )
 
 
@@ -65,9 +67,12 @@ def parse_rate_range(text: str) -> tuple[float, float] | None:
     範囲は設定1〜設定6の幅として各サイトが掲載しているもの。
     README のルール2に従い、ここから埋めてよいのは設定1と設定6だけで、
     設定2〜5を内挿してはいけない（呼び出し側の責任）。
+
+    「1/192.2〜1/148.9」のような確率表記を出率と取り違えないよう、
+    % が含まれること・80〜130%に収まること・下限≦上限を条件にする。
     """
     m = _RANGE_RE.search(text or "")
-    if not m:
+    if not m or "%" not in m.group(0):
         return None
     lo, hi = float(m.group(1)), float(m.group(2))
     if not (80.0 <= lo <= 130.0 and 80.0 <= hi <= 130.0) or hi < lo:
@@ -281,21 +286,47 @@ def pachi7_list_page(html: str) -> list[dict]:
 
 
 def pachi7_machine_page(html: str) -> dict:
-    """パチ7の機種ページ。スペック表の出玉率は設定1〜6の範囲で載る。"""
+    """パチ7の機種ページ。スペック表の出玉率は設定1〜6の範囲で載る。
+
+    見出しは「出玉率」だけでなく「出玉率 (完全攻略時)」の形を取ることが多く、
+    完全一致で引くとほとんど取り逃がす。前方一致で拾い、括弧の中身は
+    そのまま出率条件として持つ（条件表記を書いている数少ない情報源のため）。
+    """
     spec: dict[str, str] = {}
     for grid in minihtml.tables(html):
         for row in grid:
             if len(row) >= 2 and row[0]:
                 spec.setdefault(_clean(row[0]), _clean(row[1]))
 
-    rng = parse_rate_range(spec.get("出玉率", "") or spec.get("機械割", ""))
+    # 見出しの形が一定しない。「出玉率」「出玉率 (完全攻略時)」「完全攻略時の 出玉率」
+    # 「出玉率 (機械割)」など前後に語が付くので、前方一致ではなく包含で候補を集め、
+    # 値が出率の範囲として読めたものを採る。
+    rate_key, raw, rng = "", "", None
+    for k in spec:
+        if not re.search(r"出玉率|機械割", k):
+            continue
+        parsed = parse_rate_range(spec[k])
+        if parsed:
+            rate_key, raw, rng = k, spec[k], parsed
+            break
+
+    # 見出しから「出玉率」「機械割」を除いた残りが条件表記になる
+    cond = re.sub(r"出玉率|機械割", "", rate_key)
+    cond = _clean(re.sub(r"[（()）※・]", " ", cond)).strip("の 　")
+    if cond in ("", "の"):
+        cond = ""
+
     d = re.search(r"(\d{4})年(\d{1,2})月(\d{1,2})日", spec.get("導入日", ""))
+    base_key = next((k for k in spec if k.startswith("ベース")), "")
     return {
         "型式名": spec.get("型式名", ""),
         "メーカー": spec.get("メーカー名", ""),
         "機械割下限": rng[0] if rng else None,
         "機械割上限": rng[1] if rng else None,
-        "機械割原文": spec.get("出玉率", "") or spec.get("機械割", ""),
+        "機械割原文": raw,
+        "機械割見出し": rate_key,
+        "出率条件": cond,
+        "ベース": spec.get(base_key, ""),
         "導入開始日": (f"{d.group(1)}-{int(d.group(2)):02d}-{int(d.group(3)):02d}" if d else ""),
     }
 

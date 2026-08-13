@@ -23,6 +23,7 @@ candidates/collected.json（情報源ごとの生データ）を突き合わせ�
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections import Counter
 from datetime import date
@@ -36,7 +37,11 @@ ROOT = Path(__file__).resolve().parent.parent
 COLLECTED = ROOT / "candidates" / "collected.json"
 OUT = ROOT / "data" / "machines.json"
 
-IN_SCOPE = {"スマスロ", "6.5号機", "6号機"}
+# 対象は「スマスロ・6.5号機・6号機」。
+# 6号機の規則は改正のたびに 6.1〜6.6号機 と枝番で呼ばれるが、いずれも6号機の系列で、
+# P-WORLD もその粒度で表記する。6.5号機だけを特別扱いして他の枝番を落とすと
+# 6.1号機52機種・6.2号機35機種などが理由なく抜けるため、6系はまとめて対象にする。
+IN_SCOPE_RE = re.compile(r"^(スマスロ|6(?:\.\d)?号機)$")
 SETTINGS = [1, 2, 3, 4, 5, 6]
 # 出率の一致判定の許容差。サイトごとの丸め（97.85→97.8/97.9）を吸収する幅にとどめる
 TOLERANCE = 0.1
@@ -192,7 +197,10 @@ def merge_one(rec: dict, today: str) -> dict:
         "型式名": katashiki,
         "コイン単価": coin if coin is not None else "",
         "コイン単価条件": coin_cond,
-        "出率条件": slo.get("出率条件") or nana.get("出率条件") or "不明（条件表記未確認）",
+        # 条件表記を載せている情報源は少ない。パチ7は見出しに
+        # 「出玉率 (完全攻略時)」の形で条件を書いているので、そこも拾う。
+        "出率条件": (slo.get("出率条件") or nana.get("出率条件")
+                     or p7.get("出率条件") or "不明（条件表記未確認）"),
         "出率出典URL": rate_urls,
         "コイン単価出典URL": coin_urls,
         "メーカー出典URL": maker_urls,
@@ -224,7 +232,7 @@ def main() -> int:
     for rec in data["machines"]:
         m = merge_one(rec, today)
         k = m["規則区分"]
-        if k and k not in IN_SCOPE:
+        if k and not IN_SCOPE_RE.match(k):
             skipped.append((m["機種名"], k))
             continue
         if not k:
