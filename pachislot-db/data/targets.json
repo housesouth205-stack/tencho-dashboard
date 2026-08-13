@@ -4,7 +4,8 @@
     "候補抽出条件": "DMMぱちタウンの一覧で導入開始日 >= 2018-02-01",
     "DMM候補数": 659,
     "P-WORLD照合済": 621,
-    "P-WORLD未照合": 38
+    "P-WORLD未照合": 38,
+    "パチ7照合済": 596
   },
   "targets": [
     {
@@ -148,11 +149,13 @@
       "スマスロ表示": false,
       "pw_id": "10530",
       "pw_url": "https://www.p-world.co.jp/machine/database/10530",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "7425",
+      "p7_url": "https://pachiseven.jp/machines/7425"
     },
     {
       "機種名": "スロット ワールドダイスター",
-      "名寄せキー": "スロットワールドダイスター",
+      "名寄せキー": "ワールドダイスター",
       "dmm_id": "5055",
       "dmm_url": "https://p-town.dmm.com/machines/5055",
       "導入開始日": "2026-08-03",
@@ -161,7 +164,9 @@
       "スマスロ表示": false,
       "pw_id": "10517",
       "pw_url": "https://www.p-world.co.jp/machine/database/10517",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "7428",
+      "p7_url": "https://pachiseven.jp/machines/7428"
     },
     {
       "機種名": "スマスロ ストリートファイター6",
@@ -174,7 +179,9 @@
       "スマスロ表示": false,
       "pw_id": "10531",
       "pw_url": "https://www.p-world.co.jp/machine/database/10531",
-      "pwメーカー": "レオスター"
+      "pwメーカー": "レオスター",
+      "p7_id": "7434",
+      "p7_url": "https://pachiseven.jp/machines/7434"
     },
     {
       "機種名": "スマスロ とんでもスキルで異世界放浪メシ",
@@ -187,7 +194,9 @@
       "スマスロ表示": false,
       "pw_id": "10493",
       "pw_url": "https://www.p-world.co.jp/machine/database/10493",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7424",
+      "p7_url": "https://pachiseven.jp/machines/7424"
     },
     {
       "機種名": "スマスロ とある魔術の禁書目録2",
@@ -200,7 +209,9 @@
       "スマスロ表示": false,
       "pw_id": "10516",
       "pw_url": "https://www.p-world.co.jp/machine/database/10516",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "7427",
+      "p7_url": "https://pachiseven.jp/machines/7427"
     },
     {
       "機種名": "L邪神ちゃんドロップキック",
@@ -213,7 +224,9 @@
       "スマスロ表示": false,
       "pw_id": "10498",
       "pw_url": "https://www.p-world.co.jp/machine/database/10498",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "7418",
+      "p7_url": "https://pachiseven.jp/machines/7418"
     },
     {
       "機種名": "Lすーぱぁびん娘",
@@ -226,7 +239,9 @@
       "スマスロ表示": false,
       "pw_id": "10496",
       "pw_url": "https://www.p-world.co.jp/machine/database/10496",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "7417",
+      "p7_url": "https://pachiseven.jp/machines/7417"
     },
     {
       "機種名": "LBトリプルクラウンX-300",
@@ -252,7 +267,9 @@
       "スマスロ表示": false,
       "pw_id": "10471",
       "pw_url": "https://www.p-world.co.jp/machine/database/10471",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7412",
+      "p7_url": "https://pachiseven.jp/machines/7412"
     },
     {
       "機種名": "ローティス",
@@ -265,7 +282,9 @@
       "スマスロ表示": false,
       "pw_id": "10491",
       "pw_url": "https://www.p-world.co.jp/machine/database/10491",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "7414",
+      "p7_url": "https://pachiseven.jp/machines/7414"
     },
     {
       "機種名": "ヤバチバ",
@@ -278,7 +297,9 @@
       "スマスロ表示": false,
       "pw_id": "10508",
       "pw_url": "https://www.p-world.co.jp/machine/database/10508",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "7423",
+      "p7_url": "https://pachiseven.jp/machines/7423"
     },
     {
       "機種名": "スマスロケロット5BT",
@@ -291,7 +312,9 @@
       "スマスロ表示": false,
       "pw_id": "10479",
       "pw_url": "https://www.p-world.co.jp/machine/database/10479",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "7415",
+      "p7_url": "https://pachiseven.jp/machines/7415"
     },
     {
       "機種名": "L南国育ち SPECIAL",
@@ -304,7 +327,9 @@
       "スマスロ表示": false,
       "pw_id": "10488",
       "pw_url": "https://www.p-world.co.jp/machine/database/10488",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "7416",
+      "p7_url": "https://pachiseven.jp/machines/7416"
     },
     {
       "機種名": "Lパチスロ からくりサーカス2",
@@ -317,7 +342,9 @@
       "スマスロ表示": false,
       "pw_id": "10485",
       "pw_url": "https://www.p-world.co.jp/machine/database/10485",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "7411",
+      "p7_url": "https://pachiseven.jp/machines/7411"
     },
     {
       "機種名": "L ULTRAMAN 最終決戦",
@@ -330,7 +357,9 @@
       "スマスロ表示": false,
       "pw_id": "10514",
       "pw_url": "https://www.p-world.co.jp/machine/database/10514",
-      "pwメーカー": "オッケー."
+      "pwメーカー": "オッケー.",
+      "p7_id": "7426",
+      "p7_url": "https://pachiseven.jp/machines/7426"
     },
     {
       "機種名": "スマート沖スロ ダークハイビ",
@@ -343,11 +372,13 @@
       "スマスロ表示": false,
       "pw_id": "10465",
       "pw_url": "https://www.p-world.co.jp/machine/database/10465",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7403",
+      "p7_url": "https://pachiseven.jp/machines/7403"
     },
     {
       "機種名": "スロット ソードアート・オンラインII",
-      "名寄せキー": "スロットソードアートオンラインii",
+      "名寄せキー": "ソードアートオンラインii",
       "dmm_id": "5025",
       "dmm_url": "https://p-town.dmm.com/machines/5025",
       "導入開始日": "2026-06-08",
@@ -356,7 +387,9 @@
       "スマスロ表示": false,
       "pw_id": "10483",
       "pw_url": "https://www.p-world.co.jp/machine/database/10483",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "7389",
+      "p7_url": "https://pachiseven.jp/machines/7389"
     },
     {
       "機種名": "スマスロ BIRDIE WING -Golf Girls' Story-",
@@ -369,7 +402,9 @@
       "スマスロ表示": false,
       "pw_id": "10458",
       "pw_url": "https://www.p-world.co.jp/machine/database/10458",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "7390",
+      "p7_url": "https://pachiseven.jp/machines/7390"
     },
     {
       "機種名": "L戦国乙女5 業火を穿つ宿焔の双刃",
@@ -382,7 +417,9 @@
       "スマスロ表示": false,
       "pw_id": "10473",
       "pw_url": "https://www.p-world.co.jp/machine/database/10473",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "7396",
+      "p7_url": "https://pachiseven.jp/machines/7396"
     },
     {
       "機種名": "LB スロット GALFY",
@@ -395,7 +432,9 @@
       "スマスロ表示": false,
       "pw_id": "10474",
       "pw_url": "https://www.p-world.co.jp/machine/database/10474",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "7388",
+      "p7_url": "https://pachiseven.jp/machines/7388"
     },
     {
       "機種名": "スマスロスーパーリオエース2",
@@ -408,7 +447,9 @@
       "スマスロ表示": false,
       "pw_id": "10449",
       "pw_url": "https://www.p-world.co.jp/machine/database/10449",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "7381",
+      "p7_url": "https://pachiseven.jp/machines/7381"
     },
     {
       "機種名": "スマスロ ビッグドリーム THE GOLDEN PUSHER",
@@ -421,7 +462,9 @@
       "スマスロ表示": false,
       "pw_id": "10446",
       "pw_url": "https://www.p-world.co.jp/machine/database/10446",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7357",
+      "p7_url": "https://pachiseven.jp/machines/7357"
     },
     {
       "機種名": "スマスロ バイオハザードRE:3",
@@ -434,7 +477,9 @@
       "スマスロ表示": false,
       "pw_id": "10440",
       "pw_url": "https://www.p-world.co.jp/machine/database/10440",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "7352",
+      "p7_url": "https://pachiseven.jp/machines/7352"
     },
     {
       "機種名": "Lタクトオーパス デスティニー",
@@ -447,7 +492,9 @@
       "スマスロ表示": false,
       "pw_id": "10460",
       "pw_url": "https://www.p-world.co.jp/machine/database/10460",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "7383",
+      "p7_url": "https://pachiseven.jp/machines/7383"
     },
     {
       "機種名": "スマスロ ミリオンゴッド-神々の軌跡-",
@@ -460,7 +507,9 @@
       "スマスロ表示": false,
       "pw_id": "10424",
       "pw_url": "https://www.p-world.co.jp/machine/database/10424",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "7345",
+      "p7_url": "https://pachiseven.jp/machines/7345"
     },
     {
       "機種名": "アニマルスロット ドッチ",
@@ -473,7 +522,9 @@
       "スマスロ表示": false,
       "pw_id": "10427",
       "pw_url": "https://www.p-world.co.jp/machine/database/10427",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "7350",
+      "p7_url": "https://pachiseven.jp/machines/7350"
     },
     {
       "機種名": "Lパチスロ 機動戦士ガンダムユニコーン 覚醒DRIVE",
@@ -486,7 +537,9 @@
       "スマスロ表示": false,
       "pw_id": "10468",
       "pw_url": "https://www.p-world.co.jp/machine/database/10468",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "7375",
+      "p7_url": "https://pachiseven.jp/machines/7375"
     },
     {
       "機種名": "真打 吉宗",
@@ -499,7 +552,9 @@
       "スマスロ表示": false,
       "pw_id": "10448",
       "pw_url": "https://www.p-world.co.jp/machine/database/10448",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "7361",
+      "p7_url": "https://pachiseven.jp/machines/7361"
     },
     {
       "機種名": "スマスロヨルムンガンド",
@@ -512,7 +567,9 @@
       "スマスロ表示": false,
       "pw_id": "10430",
       "pw_url": "https://www.p-world.co.jp/machine/database/10430",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "7348",
+      "p7_url": "https://pachiseven.jp/machines/7348"
     },
     {
       "機種名": "L虚構推理",
@@ -525,7 +582,9 @@
       "スマスロ表示": false,
       "pw_id": "10436",
       "pw_url": "https://www.p-world.co.jp/machine/database/10436",
-      "pwメーカー": "D-light"
+      "pwメーカー": "D-light",
+      "p7_id": "7349",
+      "p7_url": "https://pachiseven.jp/machines/7349"
     },
     {
       "機種名": "Lアクダマドライブ",
@@ -538,7 +597,9 @@
       "スマスロ表示": false,
       "pw_id": "10418",
       "pw_url": "https://www.p-world.co.jp/machine/database/10418",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "7332",
+      "p7_url": "https://pachiseven.jp/machines/7332"
     },
     {
       "機種名": "LBトリプルクラウンセブン",
@@ -551,7 +612,9 @@
       "スマスロ表示": false,
       "pw_id": "10455",
       "pw_url": "https://www.p-world.co.jp/machine/database/10455",
-      "pwメーカー": "岡崎産業"
+      "pwメーカー": "岡崎産業",
+      "p7_id": "7365",
+      "p7_url": "https://pachiseven.jp/machines/7365"
     },
     {
       "機種名": "A-SLOT+ 異世界かるてっと BT",
@@ -564,7 +627,9 @@
       "スマスロ表示": false,
       "pw_id": "10425",
       "pw_url": "https://www.p-world.co.jp/machine/database/10425",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7351",
+      "p7_url": "https://pachiseven.jp/machines/7351"
     },
     {
       "機種名": "スマスロ 甲鉄城のカバネリ 海門(うなと)決戦",
@@ -577,7 +642,9 @@
       "スマスロ表示": false,
       "pw_id": "10399",
       "pw_url": "https://www.p-world.co.jp/machine/database/10399",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7326",
+      "p7_url": "https://pachiseven.jp/machines/7326"
     },
     {
       "機種名": "スマスロ サンダーV",
@@ -590,7 +657,9 @@
       "スマスロ表示": false,
       "pw_id": "10405",
       "pw_url": "https://www.p-world.co.jp/machine/database/10405",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "7325",
+      "p7_url": "https://pachiseven.jp/machines/7325"
     },
     {
       "機種名": "スマスロ 攻殻機動隊",
@@ -603,7 +672,9 @@
       "スマスロ表示": false,
       "pw_id": "10392",
       "pw_url": "https://www.p-world.co.jp/machine/database/10392",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7323",
+      "p7_url": "https://pachiseven.jp/machines/7323"
     },
     {
       "機種名": "スマスロ ハナビ",
@@ -616,7 +687,9 @@
       "スマスロ表示": false,
       "pw_id": "10391",
       "pw_url": "https://www.p-world.co.jp/machine/database/10391",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "7313",
+      "p7_url": "https://pachiseven.jp/machines/7313"
     },
     {
       "機種名": "スマスロ ゴブリンスレイヤーII",
@@ -629,7 +702,9 @@
       "スマスロ表示": false,
       "pw_id": "10414",
       "pw_url": "https://www.p-world.co.jp/machine/database/10414",
-      "pwメーカー": "JFJ"
+      "pwメーカー": "JFJ",
+      "p7_id": "7321",
+      "p7_url": "https://pachiseven.jp/machines/7321"
     },
     {
       "機種名": "L範馬刃牙",
@@ -642,7 +717,9 @@
       "スマスロ表示": false,
       "pw_id": "10401",
       "pw_url": "https://www.p-world.co.jp/machine/database/10401",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "7322",
+      "p7_url": "https://pachiseven.jp/machines/7322"
     },
     {
       "機種名": "Lパチスロうみねこのなく頃に2",
@@ -655,7 +732,9 @@
       "スマスロ表示": false,
       "pw_id": "10387",
       "pw_url": "https://www.p-world.co.jp/machine/database/10387",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "7324",
+      "p7_url": "https://pachiseven.jp/machines/7324"
     },
     {
       "機種名": "Lパチスロ 炎炎ノ消防隊2",
@@ -668,7 +747,9 @@
       "スマスロ表示": false,
       "pw_id": "10415",
       "pw_url": "https://www.p-world.co.jp/machine/database/10415",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "7314",
+      "p7_url": "https://pachiseven.jp/machines/7314"
     },
     {
       "機種名": "ニューキングハナハナV-30",
@@ -681,7 +762,9 @@
       "スマスロ表示": false,
       "pw_id": "10375",
       "pw_url": "https://www.p-world.co.jp/machine/database/10375",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7287",
+      "p7_url": "https://pachiseven.jp/machines/7287"
     },
     {
       "機種名": "スマート沖スロ ニューキングハナハナV",
@@ -694,7 +777,9 @@
       "スマスロ表示": false,
       "pw_id": "10374",
       "pw_url": "https://www.p-world.co.jp/machine/database/10374",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7288",
+      "p7_url": "https://pachiseven.jp/machines/7288"
     },
     {
       "機種名": "スマスロ鉄拳6",
@@ -707,7 +792,9 @@
       "スマスロ表示": false,
       "pw_id": "10379",
       "pw_url": "https://www.p-world.co.jp/machine/database/10379",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "7289",
+      "p7_url": "https://pachiseven.jp/machines/7289"
     },
     {
       "機種名": "スマスロ 北斗の拳 転生の章2",
@@ -720,7 +807,9 @@
       "スマスロ表示": false,
       "pw_id": "10370",
       "pw_url": "https://www.p-world.co.jp/machine/database/10370",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7282",
+      "p7_url": "https://pachiseven.jp/machines/7282"
     },
     {
       "機種名": "スマスロ 秘宝伝",
@@ -733,7 +822,9 @@
       "スマスロ表示": false,
       "pw_id": "10390",
       "pw_url": "https://www.p-world.co.jp/machine/database/10390",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "7306",
+      "p7_url": "https://pachiseven.jp/machines/7306"
     },
     {
       "機種名": "スマスロ 沖ドキ!DUOアンコール",
@@ -746,7 +837,9 @@
       "スマスロ表示": false,
       "pw_id": "10368",
       "pw_url": "https://www.p-world.co.jp/machine/database/10368",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "7280",
+      "p7_url": "https://pachiseven.jp/machines/7280"
     },
     {
       "機種名": "L無職転生~異世界行ったら本気だす~",
@@ -759,7 +852,9 @@
       "スマスロ表示": false,
       "pw_id": "10395",
       "pw_url": "https://www.p-world.co.jp/machine/database/10395",
-      "pwメーカー": "ニューギン"
+      "pwメーカー": "ニューギン",
+      "p7_id": "7304",
+      "p7_url": "https://pachiseven.jp/machines/7304"
     },
     {
       "機種名": "銀河英雄伝説 Die Neue These",
@@ -772,7 +867,9 @@
       "スマスロ表示": false,
       "pw_id": "10355",
       "pw_url": "https://www.p-world.co.jp/machine/database/10355",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7271",
+      "p7_url": "https://pachiseven.jp/machines/7271"
     },
     {
       "機種名": "プリズムナナ",
@@ -785,7 +882,9 @@
       "スマスロ表示": false,
       "pw_id": "10372",
       "pw_url": "https://www.p-world.co.jp/machine/database/10372",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "7283",
+      "p7_url": "https://pachiseven.jp/machines/7283"
     },
     {
       "機種名": "スマスロ 化物語",
@@ -798,7 +897,9 @@
       "スマスロ表示": false,
       "pw_id": "10358",
       "pw_url": "https://www.p-world.co.jp/machine/database/10358",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7270",
+      "p7_url": "https://pachiseven.jp/machines/7270"
     },
     {
       "機種名": "バーニングエクスプレス",
@@ -811,7 +912,9 @@
       "スマスロ表示": false,
       "pw_id": "10351",
       "pw_url": "https://www.p-world.co.jp/machine/database/10351",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "7263",
+      "p7_url": "https://pachiseven.jp/machines/7263"
     },
     {
       "機種名": "スマスロネオプラネット",
@@ -824,7 +927,9 @@
       "スマスロ表示": false,
       "pw_id": "10340",
       "pw_url": "https://www.p-world.co.jp/machine/database/10340",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "7250",
+      "p7_url": "https://pachiseven.jp/machines/7250"
     },
     {
       "機種名": "スマスロ とある科学の超電磁砲2",
@@ -837,7 +942,9 @@
       "スマスロ表示": false,
       "pw_id": "10354",
       "pw_url": "https://www.p-world.co.jp/machine/database/10354",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "7269",
+      "p7_url": "https://pachiseven.jp/machines/7269"
     },
     {
       "機種名": "Lパチスロ 革命機ヴァルヴレイヴ2",
@@ -850,7 +957,9 @@
       "スマスロ表示": false,
       "pw_id": "10352",
       "pw_url": "https://www.p-world.co.jp/machine/database/10352",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "7259",
+      "p7_url": "https://pachiseven.jp/machines/7259"
     },
     {
       "機種名": "L 絶対衝激IV",
@@ -863,7 +972,9 @@
       "スマスロ表示": false,
       "pw_id": "10376",
       "pw_url": "https://www.p-world.co.jp/machine/database/10376",
-      "pwメーカー": "アイドル"
+      "pwメーカー": "アイドル",
+      "p7_id": "7284",
+      "p7_url": "https://pachiseven.jp/machines/7284"
     },
     {
       "機種名": "SHAKE BONUS TRIGGER",
@@ -876,7 +987,9 @@
       "スマスロ表示": false,
       "pw_id": "10361",
       "pw_url": "https://www.p-world.co.jp/machine/database/10361",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "7266",
+      "p7_url": "https://pachiseven.jp/machines/7266"
     },
     {
       "機種名": "L 荒野のコトブキ飛行隊",
@@ -889,7 +1002,9 @@
       "スマスロ表示": false,
       "pw_id": "10360",
       "pw_url": "https://www.p-world.co.jp/machine/database/10360",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "7268",
+      "p7_url": "https://pachiseven.jp/machines/7268"
     },
     {
       "機種名": "スマスロ 新鬼武者3",
@@ -902,7 +1017,9 @@
       "スマスロ表示": false,
       "pw_id": "10349",
       "pw_url": "https://www.p-world.co.jp/machine/database/10349",
-      "pwメーカー": "レオスター"
+      "pwメーカー": "レオスター",
+      "p7_id": "7253",
+      "p7_url": "https://pachiseven.jp/machines/7253"
     },
     {
       "機種名": "スマスロ バベル",
@@ -915,7 +1032,9 @@
       "スマスロ表示": false,
       "pw_id": "10315",
       "pw_url": "https://www.p-world.co.jp/machine/database/10315",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "7228",
+      "p7_url": "https://pachiseven.jp/machines/7228"
     },
     {
       "機種名": "L主役は銭形5",
@@ -928,7 +1047,9 @@
       "スマスロ表示": false,
       "pw_id": "10339",
       "pw_url": "https://www.p-world.co.jp/machine/database/10339",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "7251",
+      "p7_url": "https://pachiseven.jp/machines/7251"
     },
     {
       "機種名": "マジカルハロウィン ボーナストリガー",
@@ -941,7 +1062,9 @@
       "スマスロ表示": false,
       "pw_id": "10318",
       "pw_url": "https://www.p-world.co.jp/machine/database/10318",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7229",
+      "p7_url": "https://pachiseven.jp/machines/7229"
     },
     {
       "機種名": "スマスロ 東京リベンジャーズ",
@@ -954,7 +1077,9 @@
       "スマスロ表示": false,
       "pw_id": "10313",
       "pw_url": "https://www.p-world.co.jp/machine/database/10313",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7225",
+      "p7_url": "https://pachiseven.jp/machines/7225"
     },
     {
       "機種名": "スマスロ ドルアーガの塔",
@@ -967,7 +1092,9 @@
       "スマスロ表示": false,
       "pw_id": "10307",
       "pw_url": "https://www.p-world.co.jp/machine/database/10307",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "7221",
+      "p7_url": "https://pachiseven.jp/machines/7221"
     },
     {
       "機種名": "クレアの秘宝伝 〜はじまりの扉と太陽の石〜 ボーナストリガーver.",
@@ -980,7 +1107,9 @@
       "スマスロ表示": false,
       "pw_id": "10325",
       "pw_url": "https://www.p-world.co.jp/machine/database/10325",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "7238",
+      "p7_url": "https://pachiseven.jp/machines/7238"
     },
     {
       "機種名": "SLOTドルアーガの塔",
@@ -993,7 +1122,9 @@
       "スマスロ表示": false,
       "pw_id": "10306",
       "pw_url": "https://www.p-world.co.jp/machine/database/10306",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "7220",
+      "p7_url": "https://pachiseven.jp/machines/7220"
     },
     {
       "機種名": "ネオアイムジャグラーEX",
@@ -1006,7 +1137,9 @@
       "スマスロ表示": false,
       "pw_id": "10269",
       "pw_url": "https://www.p-world.co.jp/machine/database/10269",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "7179",
+      "p7_url": "https://pachiseven.jp/machines/7179"
     },
     {
       "機種名": "マタドールIII",
@@ -1016,7 +1149,9 @@
       "導入開始日": "2025-08-04",
       "一覧機械割下限": 97.4,
       "一覧機械割上限": 110.0,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "7195",
+      "p7_url": "https://pachiseven.jp/machines/7195"
     },
     {
       "機種名": "パチスロ 転生したら剣でした",
@@ -1029,7 +1164,9 @@
       "スマスロ表示": false,
       "pw_id": "10308",
       "pw_url": "https://www.p-world.co.jp/machine/database/10308",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7205",
+      "p7_url": "https://pachiseven.jp/machines/7205"
     },
     {
       "機種名": "パチスロ なめ猫~液晶ないけどなめんじゃねぇ~",
@@ -1042,7 +1179,9 @@
       "スマスロ表示": false,
       "pw_id": "10283",
       "pw_url": "https://www.p-world.co.jp/machine/database/10283",
-      "pwメーカー": "ボーダー"
+      "pwメーカー": "ボーダー",
+      "p7_id": "7197",
+      "p7_url": "https://pachiseven.jp/machines/7197"
     },
     {
       "機種名": "L咲-Saki- 頂上決戦",
@@ -1055,7 +1194,9 @@
       "スマスロ表示": false,
       "pw_id": "10297",
       "pw_url": "https://www.p-world.co.jp/machine/database/10297",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "7213",
+      "p7_url": "https://pachiseven.jp/machines/7213"
     },
     {
       "機種名": "L ダーリン・イン・ザ・フランキス",
@@ -1068,7 +1209,9 @@
       "スマスロ表示": false,
       "pw_id": "10319",
       "pw_url": "https://www.p-world.co.jp/machine/database/10319",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "7230",
+      "p7_url": "https://pachiseven.jp/machines/7230"
     },
     {
       "機種名": "L アズールレーン THE ANIMATION",
@@ -1081,7 +1224,9 @@
       "スマスロ表示": false,
       "pw_id": "10312",
       "pw_url": "https://www.p-world.co.jp/machine/database/10312",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "7223",
+      "p7_url": "https://pachiseven.jp/machines/7223"
     },
     {
       "機種名": "ハイビリターン-30",
@@ -1094,7 +1239,9 @@
       "スマスロ表示": false,
       "pw_id": "10265",
       "pw_url": "https://www.p-world.co.jp/machine/database/10265",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7177",
+      "p7_url": "https://pachiseven.jp/machines/7177"
     },
     {
       "機種名": "アレックス ブライト",
@@ -1107,7 +1254,9 @@
       "スマスロ表示": false,
       "pw_id": "10266",
       "pw_url": "https://www.p-world.co.jp/machine/database/10266",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "7180",
+      "p7_url": "https://pachiseven.jp/machines/7180"
     },
     {
       "機種名": "わたしの幸せな結婚",
@@ -1120,7 +1269,9 @@
       "スマスロ表示": false,
       "pw_id": "10270",
       "pw_url": "https://www.p-world.co.jp/machine/database/10270",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7178",
+      "p7_url": "https://pachiseven.jp/machines/7178"
     },
     {
       "機種名": "LBパチスロ ヱヴァンゲリヲン ~約束の扉~",
@@ -1133,7 +1284,9 @@
       "スマスロ表示": false,
       "pw_id": "10301",
       "pw_url": "https://www.p-world.co.jp/machine/database/10301",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "7210",
+      "p7_url": "https://pachiseven.jp/machines/7210"
     },
     {
       "機種名": "LBトリプルクラウン",
@@ -1146,7 +1299,9 @@
       "スマスロ表示": false,
       "pw_id": "10299",
       "pw_url": "https://www.p-world.co.jp/machine/database/10299",
-      "pwメーカー": "岡崎産業"
+      "pwメーカー": "岡崎産業",
+      "p7_id": "7209",
+      "p7_url": "https://pachiseven.jp/machines/7209"
     },
     {
       "機種名": "L 絶対衝激~PLATONIC HEART~",
@@ -1159,7 +1314,9 @@
       "スマスロ表示": false,
       "pw_id": "10290",
       "pw_url": "https://www.p-world.co.jp/machine/database/10290",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "7201",
+      "p7_url": "https://pachiseven.jp/machines/7201"
     },
     {
       "機種名": "翔べ!ハーレムエース",
@@ -1172,7 +1329,9 @@
       "スマスロ表示": false,
       "pw_id": "10250",
       "pw_url": "https://www.p-world.co.jp/machine/database/10250",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "7167",
+      "p7_url": "https://pachiseven.jp/machines/7167"
     },
     {
       "機種名": "スマスロ デビル メイ クライ5 スタイリッシュトライブ",
@@ -1185,7 +1344,9 @@
       "スマスロ表示": false,
       "pw_id": "10277",
       "pw_url": "https://www.p-world.co.jp/machine/database/10277",
-      "pwメーカー": "アデリオン"
+      "pwメーカー": "アデリオン",
+      "p7_id": "7186",
+      "p7_url": "https://pachiseven.jp/machines/7186"
     },
     {
       "機種名": "スマスロ ギルティクラウン2",
@@ -1198,7 +1359,9 @@
       "スマスロ表示": false,
       "pw_id": "10251",
       "pw_url": "https://www.p-world.co.jp/machine/database/10251",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "7168",
+      "p7_url": "https://pachiseven.jp/machines/7168"
     },
     {
       "機種名": "いざ!番長",
@@ -1211,7 +1374,9 @@
       "スマスロ表示": false,
       "pw_id": "10275",
       "pw_url": "https://www.p-world.co.jp/machine/database/10275",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "7183",
+      "p7_url": "https://pachiseven.jp/machines/7183"
     },
     {
       "機種名": "LBプレミアムうまい棒",
@@ -1224,7 +1389,9 @@
       "スマスロ表示": false,
       "pw_id": "10261",
       "pw_url": "https://www.p-world.co.jp/machine/database/10261",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "7170",
+      "p7_url": "https://pachiseven.jp/machines/7170"
     },
     {
       "機種名": "LBパチスロ1000ちゃんA",
@@ -1237,7 +1404,9 @@
       "スマスロ表示": false,
       "pw_id": "10247",
       "pw_url": "https://www.p-world.co.jp/machine/database/10247",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "7166",
+      "p7_url": "https://pachiseven.jp/machines/7166"
     },
     {
       "機種名": "LBジャックポット",
@@ -1250,7 +1419,9 @@
       "スマスロ表示": false,
       "pw_id": "10258",
       "pw_url": "https://www.p-world.co.jp/machine/database/10258",
-      "pwメーカー": "ヤーマ"
+      "pwメーカー": "ヤーマ",
+      "p7_id": "7172",
+      "p7_url": "https://pachiseven.jp/machines/7172"
     },
     {
       "機種名": "L ULTRAMAN",
@@ -1263,7 +1434,9 @@
       "スマスロ表示": false,
       "pw_id": "10271",
       "pw_url": "https://www.p-world.co.jp/machine/database/10271",
-      "pwメーカー": "オッケー."
+      "pwメーカー": "オッケー.",
+      "p7_id": "7184",
+      "p7_url": "https://pachiseven.jp/machines/7184"
     },
     {
       "機種名": "花笠",
@@ -1276,7 +1449,9 @@
       "スマスロ表示": false,
       "pw_id": "10267",
       "pw_url": "https://www.p-world.co.jp/machine/database/10267",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "7176",
+      "p7_url": "https://pachiseven.jp/machines/7176"
     },
     {
       "機種名": "L ToLOVEるダークネス TRANCE ver.8.7",
@@ -1289,7 +1464,9 @@
       "スマスロ表示": false,
       "pw_id": "10259",
       "pw_url": "https://www.p-world.co.jp/machine/database/10259",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "7169",
+      "p7_url": "https://pachiseven.jp/machines/7169"
     },
     {
       "機種名": "スマスロ 緑ドン VIVA!情熱南米編 REVIVAL",
@@ -1302,7 +1479,9 @@
       "スマスロ表示": false,
       "pw_id": "10224",
       "pw_url": "https://www.p-world.co.jp/machine/database/10224",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "7138",
+      "p7_url": "https://pachiseven.jp/machines/7138"
     },
     {
       "機種名": "スマスロ ようこそ実力至上主義の教室へ",
@@ -1315,7 +1494,9 @@
       "スマスロ表示": false,
       "pw_id": "10232",
       "pw_url": "https://www.p-world.co.jp/machine/database/10232",
-      "pwメーカー": "DAXEL"
+      "pwメーカー": "DAXEL",
+      "p7_id": "7151",
+      "p7_url": "https://pachiseven.jp/machines/7151"
     },
     {
       "機種名": "Lパチスロ 機動戦士ガンダムSEED",
@@ -1328,7 +1509,9 @@
       "スマスロ表示": false,
       "pw_id": "10255",
       "pw_url": "https://www.p-world.co.jp/machine/database/10255",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "7163",
+      "p7_url": "https://pachiseven.jp/machines/7163"
     },
     {
       "機種名": "吉宗",
@@ -1341,7 +1524,9 @@
       "スマスロ表示": false,
       "pw_id": "10242",
       "pw_url": "https://www.p-world.co.jp/machine/database/10242",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "7155",
+      "p7_url": "https://pachiseven.jp/machines/7155"
     },
     {
       "機種名": "スマスロ アイドルマスター ミリオンライブ! ネクストプロローグ",
@@ -1354,7 +1539,9 @@
       "スマスロ表示": false,
       "pw_id": "10216",
       "pw_url": "https://www.p-world.co.jp/machine/database/10216",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "7132",
+      "p7_url": "https://pachiseven.jp/machines/7132"
     },
     {
       "機種名": "L麻雀物語",
@@ -1367,7 +1554,9 @@
       "スマスロ表示": false,
       "pw_id": "10234",
       "pw_url": "https://www.p-world.co.jp/machine/database/10234",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "7152",
+      "p7_url": "https://pachiseven.jp/machines/7152"
     },
     {
       "機種名": "スマート沖スロ アメイジングライブ",
@@ -1380,7 +1569,9 @@
       "スマスロ表示": false,
       "pw_id": "10215",
       "pw_url": "https://www.p-world.co.jp/machine/database/10215",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7120",
+      "p7_url": "https://pachiseven.jp/machines/7120"
     },
     {
       "機種名": "スマスロ マギアレコード 魔法少女まどか☆マギカ外伝",
@@ -1393,7 +1584,9 @@
       "スマスロ表示": false,
       "pw_id": "10211",
       "pw_url": "https://www.p-world.co.jp/machine/database/10211",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "7114",
+      "p7_url": "https://pachiseven.jp/machines/7114"
     },
     {
       "機種名": "Lゴジラ",
@@ -1406,7 +1599,9 @@
       "スマスロ表示": false,
       "pw_id": "10239",
       "pw_url": "https://www.p-world.co.jp/machine/database/10239",
-      "pwメーカー": "ニューギン"
+      "pwメーカー": "ニューギン",
+      "p7_id": "7131",
+      "p7_url": "https://pachiseven.jp/machines/7131"
     },
     {
       "機種名": "Lうしおととら 白面決戦",
@@ -1429,7 +1624,9 @@
       "スマスロ表示": false,
       "pw_id": "10198",
       "pw_url": "https://www.p-world.co.jp/machine/database/10198",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7104",
+      "p7_url": "https://pachiseven.jp/machines/7104"
     },
     {
       "機種名": "スマスロ バイオハザード5",
@@ -1442,7 +1639,9 @@
       "スマスロ表示": false,
       "pw_id": "10217",
       "pw_url": "https://www.p-world.co.jp/machine/database/10217",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "7121",
+      "p7_url": "https://pachiseven.jp/machines/7121"
     },
     {
       "機種名": "てぃだどんどん",
@@ -1455,7 +1654,9 @@
       "スマスロ表示": false,
       "pw_id": "10226",
       "pw_url": "https://www.p-world.co.jp/machine/database/10226",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "7130",
+      "p7_url": "https://pachiseven.jp/machines/7130"
     },
     {
       "機種名": "Sister Quest",
@@ -1468,7 +1669,9 @@
       "スマスロ表示": false,
       "pw_id": "10209",
       "pw_url": "https://www.p-world.co.jp/machine/database/10209",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "7117",
+      "p7_url": "https://pachiseven.jp/machines/7117"
     },
     {
       "機種名": "L 少女☆歌劇 レヴュースタァライト -The SLOT-",
@@ -1481,7 +1684,9 @@
       "スマスロ表示": false,
       "pw_id": "10169",
       "pw_url": "https://www.p-world.co.jp/machine/database/10169",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "7105",
+      "p7_url": "https://pachiseven.jp/machines/7105"
     },
     {
       "機種名": "L 仮面ライダー電王",
@@ -1494,7 +1699,9 @@
       "スマスロ表示": false,
       "pw_id": "10220",
       "pw_url": "https://www.p-world.co.jp/machine/database/10220",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "7129",
+      "p7_url": "https://pachiseven.jp/machines/7129"
     },
     {
       "機種名": "スマスロスーパーブラックジャック",
@@ -1507,7 +1714,9 @@
       "スマスロ表示": false,
       "pw_id": "10174",
       "pw_url": "https://www.p-world.co.jp/machine/database/10174",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "7097",
+      "p7_url": "https://pachiseven.jp/machines/7097"
     },
     {
       "機種名": "スマスロ シャーマンキング",
@@ -1520,7 +1729,9 @@
       "スマスロ表示": false,
       "pw_id": "10188",
       "pw_url": "https://www.p-world.co.jp/machine/database/10188",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "7096",
+      "p7_url": "https://pachiseven.jp/machines/7096"
     },
     {
       "機種名": "Lパチスロ ありふれた職業で世界最強",
@@ -1533,7 +1744,9 @@
       "スマスロ表示": false,
       "pw_id": "10176",
       "pw_url": "https://www.p-world.co.jp/machine/database/10176",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "7098",
+      "p7_url": "https://pachiseven.jp/machines/7098"
     },
     {
       "機種名": "L 東京喰種",
@@ -1546,7 +1759,9 @@
       "スマスロ表示": false,
       "pw_id": "10207",
       "pw_url": "https://www.p-world.co.jp/machine/database/10207",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "7113",
+      "p7_url": "https://pachiseven.jp/machines/7113"
     },
     {
       "機種名": "七つの魔剣が支配する",
@@ -1559,7 +1774,9 @@
       "スマスロ表示": false,
       "pw_id": "10177",
       "pw_url": "https://www.p-world.co.jp/machine/database/10177",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7085",
+      "p7_url": "https://pachiseven.jp/machines/7085"
     },
     {
       "機種名": "スマート沖スロ スターハナハナ",
@@ -1572,7 +1789,9 @@
       "スマスロ表示": false,
       "pw_id": "10162",
       "pw_url": "https://www.p-world.co.jp/machine/database/10162",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7083",
+      "p7_url": "https://pachiseven.jp/machines/7083"
     },
     {
       "機種名": "L島娘",
@@ -1585,7 +1804,9 @@
       "スマスロ表示": false,
       "pw_id": "10190",
       "pw_url": "https://www.p-world.co.jp/machine/database/10190",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "7095",
+      "p7_url": "https://pachiseven.jp/machines/7095"
     },
     {
       "機種名": "L パチスロ シン・エヴァンゲリオン",
@@ -1598,7 +1819,9 @@
       "スマスロ表示": false,
       "pw_id": "10196",
       "pw_url": "https://www.p-world.co.jp/machine/database/10196",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "7099",
+      "p7_url": "https://pachiseven.jp/machines/7099"
     },
     {
       "機種名": "L にゃんこ大戦争 超神速",
@@ -1611,7 +1834,9 @@
       "スマスロ表示": false,
       "pw_id": "10186",
       "pw_url": "https://www.p-world.co.jp/machine/database/10186",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "7094",
+      "p7_url": "https://pachiseven.jp/machines/7094"
     },
     {
       "機種名": "A-SLOT+ ディスクアップ ULTRAREMIX",
@@ -1624,7 +1849,9 @@
       "スマスロ表示": false,
       "pw_id": "10164",
       "pw_url": "https://www.p-world.co.jp/machine/database/10164",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7084",
+      "p7_url": "https://pachiseven.jp/machines/7084"
     },
     {
       "機種名": "チバリヨ2プラス",
@@ -1637,7 +1864,9 @@
       "スマスロ表示": false,
       "pw_id": "10180",
       "pw_url": "https://www.p-world.co.jp/machine/database/10180",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "7082",
+      "p7_url": "https://pachiseven.jp/machines/7082"
     },
     {
       "機種名": "スターハナハナ-30",
@@ -1650,7 +1879,9 @@
       "スマスロ表示": false,
       "pw_id": "10143",
       "pw_url": "https://www.p-world.co.jp/machine/database/10143",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7052",
+      "p7_url": "https://pachiseven.jp/machines/7052"
     },
     {
       "機種名": "L サラリーマン金太郎",
@@ -1663,7 +1894,9 @@
       "スマスロ表示": false,
       "pw_id": "10187",
       "pw_url": "https://www.p-world.co.jp/machine/database/10187",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "7089",
+      "p7_url": "https://pachiseven.jp/machines/7089"
     },
     {
       "機種名": "スマスロ 一方通行 とある魔術の禁書目録",
@@ -1676,7 +1909,9 @@
       "スマスロ表示": false,
       "pw_id": "10147",
       "pw_url": "https://www.p-world.co.jp/machine/database/10147",
-      "pwメーカー": "オレンジ"
+      "pwメーカー": "オレンジ",
+      "p7_id": "7056",
+      "p7_url": "https://pachiseven.jp/machines/7056"
     },
     {
       "機種名": "Lパチスロ ダンベル何キロ持てる?",
@@ -1689,7 +1924,9 @@
       "スマスロ表示": false,
       "pw_id": "10141",
       "pw_url": "https://www.p-world.co.jp/machine/database/10141",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "7044",
+      "p7_url": "https://pachiseven.jp/machines/7044"
     },
     {
       "機種名": "Lスーパービンゴネオ",
@@ -1702,7 +1939,9 @@
       "スマスロ表示": false,
       "pw_id": "10142",
       "pw_url": "https://www.p-world.co.jp/machine/database/10142",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "7050",
+      "p7_url": "https://pachiseven.jp/machines/7050"
     },
     {
       "機種名": "桃太郎電鉄 ~パチスロも定番!~",
@@ -1715,7 +1954,9 @@
       "スマスロ表示": false,
       "pw_id": "10128",
       "pw_url": "https://www.p-world.co.jp/machine/database/10128",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7038",
+      "p7_url": "https://pachiseven.jp/machines/7038"
     },
     {
       "機種名": "スマスロ 聖戦士ダンバイン",
@@ -1728,7 +1969,9 @@
       "スマスロ表示": false,
       "pw_id": "10146",
       "pw_url": "https://www.p-world.co.jp/machine/database/10146",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7055",
+      "p7_url": "https://pachiseven.jp/machines/7055"
     },
     {
       "機種名": "ウルトラミラクルジャグラー",
@@ -1741,7 +1984,9 @@
       "スマスロ表示": false,
       "pw_id": "10145",
       "pw_url": "https://www.p-world.co.jp/machine/database/10145",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "7054",
+      "p7_url": "https://pachiseven.jp/machines/7054"
     },
     {
       "機種名": "L 犬夜叉2",
@@ -1754,7 +1999,9 @@
       "スマスロ表示": false,
       "pw_id": "10160",
       "pw_url": "https://www.p-world.co.jp/machine/database/10160",
-      "pwメーカー": "エフ"
+      "pwメーカー": "エフ",
+      "p7_id": "7065",
+      "p7_url": "https://pachiseven.jp/machines/7065"
     },
     {
       "機種名": "スマート沖スロ 超華祭",
@@ -1767,7 +2014,9 @@
       "スマスロ表示": false,
       "pw_id": "10102",
       "pw_url": "https://www.p-world.co.jp/machine/database/10102",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "7014",
+      "p7_url": "https://pachiseven.jp/machines/7014"
     },
     {
       "機種名": "スマスロ モンスターハンターライズ",
@@ -1780,7 +2029,9 @@
       "スマスロ表示": false,
       "pw_id": "10138",
       "pw_url": "https://www.p-world.co.jp/machine/database/10138",
-      "pwメーカー": "アデリオン"
+      "pwメーカー": "アデリオン",
+      "p7_id": "7048",
+      "p7_url": "https://pachiseven.jp/machines/7048"
     },
     {
       "機種名": "Lダブルアタック2 withOZS-1000&RAPHAEL",
@@ -1793,7 +2044,9 @@
       "スマスロ表示": false,
       "pw_id": "10109",
       "pw_url": "https://www.p-world.co.jp/machine/database/10109",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "7019",
+      "p7_url": "https://pachiseven.jp/machines/7019"
     },
     {
       "機種名": "L新・必殺仕置人 回胴 CRASH SPEC",
@@ -1806,7 +2059,9 @@
       "スマスロ表示": false,
       "pw_id": "10113",
       "pw_url": "https://www.p-world.co.jp/machine/database/10113",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "7021",
+      "p7_url": "https://pachiseven.jp/machines/7021"
     },
     {
       "機種名": "Lバンドリ!",
@@ -1819,11 +2074,13 @@
       "スマスロ表示": false,
       "pw_id": "10106",
       "pw_url": "https://www.p-world.co.jp/machine/database/10106",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "7017",
+      "p7_url": "https://pachiseven.jp/machines/7017"
     },
     {
       "機種名": "スロット Re:ゼロから始める異世界生活 season2",
-      "名寄せキー": "スロットreゼロから始める異世界生活season2",
+      "名寄せキー": "reゼロから始める異世界生活season2",
       "dmm_id": "4658",
       "dmm_url": "https://p-town.dmm.com/machines/4658",
       "導入開始日": "2024-10-21",
@@ -1832,7 +2089,9 @@
       "スマスロ表示": false,
       "pw_id": "10121",
       "pw_url": "https://www.p-world.co.jp/machine/database/10121",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "7027",
+      "p7_url": "https://pachiseven.jp/machines/7027"
     },
     {
       "機種名": "今日から俺は!! パチスロ編",
@@ -1845,7 +2104,9 @@
       "スマスロ表示": false,
       "pw_id": "10094",
       "pw_url": "https://www.p-world.co.jp/machine/database/10094",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "7003",
+      "p7_url": "https://pachiseven.jp/machines/7003"
     },
     {
       "機種名": "トリプルクラウンフォーユー",
@@ -1858,7 +2119,9 @@
       "スマスロ表示": false,
       "pw_id": "10129",
       "pw_url": "https://www.p-world.co.jp/machine/database/10129",
-      "pwメーカー": "清龍ゲームジャパン"
+      "pwメーカー": "清龍ゲームジャパン",
+      "p7_id": "7043",
+      "p7_url": "https://pachiseven.jp/machines/7043"
     },
     {
       "機種名": "スマスロ頭文字D 2nd",
@@ -1871,7 +2134,9 @@
       "スマスロ表示": false,
       "pw_id": "10097",
       "pw_url": "https://www.p-world.co.jp/machine/database/10097",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "7007",
+      "p7_url": "https://pachiseven.jp/machines/7007"
     },
     {
       "機種名": "スマスロ 鬼武者3",
@@ -1884,7 +2149,9 @@
       "スマスロ表示": false,
       "pw_id": "10104",
       "pw_url": "https://www.p-world.co.jp/machine/database/10104",
-      "pwメーカー": "アデリオン"
+      "pwメーカー": "アデリオン",
+      "p7_id": "7015",
+      "p7_url": "https://pachiseven.jp/machines/7015"
     },
     {
       "機種名": "L 真・一騎当千",
@@ -1897,7 +2164,9 @@
       "スマスロ表示": false,
       "pw_id": "10116",
       "pw_url": "https://www.p-world.co.jp/machine/database/10116",
-      "pwメーカー": "Daiichi"
+      "pwメーカー": "Daiichi",
+      "p7_id": "7023",
+      "p7_url": "https://pachiseven.jp/machines/7023"
     },
     {
       "機種名": "パチスロハイパーラッシュ",
@@ -1910,7 +2179,9 @@
       "スマスロ表示": false,
       "pw_id": "10107",
       "pw_url": "https://www.p-world.co.jp/machine/database/10107",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "7012",
+      "p7_url": "https://pachiseven.jp/machines/7012"
     },
     {
       "機種名": "パチスロL黄門ちゃま天",
@@ -1936,7 +2207,9 @@
       "スマスロ表示": false,
       "pw_id": "10091",
       "pw_url": "https://www.p-world.co.jp/machine/database/10091",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6995",
+      "p7_url": "https://pachiseven.jp/machines/6995"
     },
     {
       "機種名": "Lパチスロ閃乱カグラ2 SHINOVI MASTER",
@@ -1949,7 +2222,9 @@
       "スマスロ表示": false,
       "pw_id": "10079",
       "pw_url": "https://www.p-world.co.jp/machine/database/10079",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6989",
+      "p7_url": "https://pachiseven.jp/machines/6989"
     },
     {
       "機種名": "A-SLOT+ この素晴らしい世界に祝福を!",
@@ -1962,7 +2237,9 @@
       "スマスロ表示": false,
       "pw_id": "10081",
       "pw_url": "https://www.p-world.co.jp/machine/database/10081",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6990",
+      "p7_url": "https://pachiseven.jp/machines/6990"
     },
     {
       "機種名": "スマスロ トロピカーナ",
@@ -1975,7 +2252,9 @@
       "スマスロ表示": false,
       "pw_id": "10064",
       "pw_url": "https://www.p-world.co.jp/machine/database/10064",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6975",
+      "p7_url": "https://pachiseven.jp/machines/6975"
     },
     {
       "機種名": "スマスロ ゲゲゲの鬼太郎 覚醒",
@@ -1988,7 +2267,9 @@
       "スマスロ表示": false,
       "pw_id": "10071",
       "pw_url": "https://www.p-world.co.jp/machine/database/10071",
-      "pwメーカー": "JFJ"
+      "pwメーカー": "JFJ",
+      "p7_id": "6982",
+      "p7_url": "https://pachiseven.jp/machines/6982"
     },
     {
       "機種名": "Lワンパンマン",
@@ -2001,7 +2282,9 @@
       "スマスロ表示": false,
       "pw_id": "10090",
       "pw_url": "https://www.p-world.co.jp/machine/database/10090",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "6994",
+      "p7_url": "https://pachiseven.jp/machines/6994"
     },
     {
       "機種名": "L D4DJ Pachi-Slot Mix",
@@ -2014,7 +2297,9 @@
       "スマスロ表示": false,
       "pw_id": "10070",
       "pw_url": "https://www.p-world.co.jp/machine/database/10070",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6981",
+      "p7_url": "https://pachiseven.jp/machines/6981"
     },
     {
       "機種名": "賞金首Angel",
@@ -2027,7 +2312,9 @@
       "スマスロ表示": false,
       "pw_id": "10043",
       "pw_url": "https://www.p-world.co.jp/machine/database/10043",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6961",
+      "p7_url": "https://pachiseven.jp/machines/6961"
     },
     {
       "機種名": "ミスタージャグラー",
@@ -2040,11 +2327,13 @@
       "スマスロ表示": false,
       "pw_id": "10056",
       "pw_url": "https://www.p-world.co.jp/machine/database/10056",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6968",
+      "p7_url": "https://pachiseven.jp/machines/6968"
     },
     {
       "機種名": "スロット ゾンビランドサガ",
-      "名寄せキー": "スロットゾンビランドサガ",
+      "名寄せキー": "ゾンビランドサガ",
       "dmm_id": "4603",
       "dmm_url": "https://p-town.dmm.com/machines/4603",
       "導入開始日": "2024-07-22",
@@ -2053,7 +2342,9 @@
       "スマスロ表示": false,
       "pw_id": "10072",
       "pw_url": "https://www.p-world.co.jp/machine/database/10072",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6983",
+      "p7_url": "https://pachiseven.jp/machines/6983"
     },
     {
       "機種名": "スマスロ ゴッドイーター リザレクション",
@@ -2066,7 +2357,9 @@
       "スマスロ表示": false,
       "pw_id": "10086",
       "pw_url": "https://www.p-world.co.jp/machine/database/10086",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6985",
+      "p7_url": "https://pachiseven.jp/machines/6985"
     },
     {
       "機種名": "バハマ",
@@ -2089,7 +2382,9 @@
       "スマスロ表示": false,
       "pw_id": "10044",
       "pw_url": "https://www.p-world.co.jp/machine/database/10044",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6960",
+      "p7_url": "https://pachiseven.jp/machines/6960"
     },
     {
       "機種名": "S ご〜やちゃんぷる〜 30φ",
@@ -2102,7 +2397,9 @@
       "スマスロ表示": false,
       "pw_id": "10078",
       "pw_url": "https://www.p-world.co.jp/machine/database/10078",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6986",
+      "p7_url": "https://pachiseven.jp/machines/6986"
     },
     {
       "機種名": "S ご〜やちゃんぷる〜 25φ",
@@ -2115,7 +2412,9 @@
       "スマスロ表示": false,
       "pw_id": "10077",
       "pw_url": "https://www.p-world.co.jp/machine/database/10077",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6998",
+      "p7_url": "https://pachiseven.jp/machines/6998"
     },
     {
       "機種名": "Lパチスロ戦姫絶唱シンフォギア 正義の歌",
@@ -2128,7 +2427,9 @@
       "スマスロ表示": false,
       "pw_id": "10050",
       "pw_url": "https://www.p-world.co.jp/machine/database/10050",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6963",
+      "p7_url": "https://pachiseven.jp/machines/6963"
     },
     {
       "機種名": "L アカメが斬る! 2",
@@ -2141,7 +2442,9 @@
       "スマスロ表示": false,
       "pw_id": "10067",
       "pw_url": "https://www.p-world.co.jp/machine/database/10067",
-      "pwメーカー": "新日テクノロジー"
+      "pwメーカー": "新日テクノロジー",
+      "p7_id": "6976",
+      "p7_url": "https://pachiseven.jp/machines/6976"
     },
     {
       "機種名": "沖ドキ!BLACK",
@@ -2154,7 +2457,9 @@
       "スマスロ表示": false,
       "pw_id": "10051",
       "pw_url": "https://www.p-world.co.jp/machine/database/10051",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6962",
+      "p7_url": "https://pachiseven.jp/machines/6962"
     },
     {
       "機種名": "琉金30",
@@ -2177,7 +2482,9 @@
       "スマスロ表示": false,
       "pw_id": "10036",
       "pw_url": "https://www.p-world.co.jp/machine/database/10036",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6959",
+      "p7_url": "https://pachiseven.jp/machines/6959"
     },
     {
       "機種名": "スマスロ ストリートファイターV 挑戦者の道",
@@ -2190,7 +2497,9 @@
       "スマスロ表示": false,
       "pw_id": "10052",
       "pw_url": "https://www.p-world.co.jp/machine/database/10052",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6957",
+      "p7_url": "https://pachiseven.jp/machines/6957"
     },
     {
       "機種名": "アオハル♪操 A-LIVE",
@@ -2203,7 +2512,9 @@
       "スマスロ表示": false,
       "pw_id": "10049",
       "pw_url": "https://www.p-world.co.jp/machine/database/10049",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6954",
+      "p7_url": "https://pachiseven.jp/machines/6954"
     },
     {
       "機種名": "L聖闘士星矢 海皇覚醒 CUSTOM EDITION",
@@ -2216,7 +2527,9 @@
       "スマスロ表示": false,
       "pw_id": "10039",
       "pw_url": "https://www.p-world.co.jp/machine/database/10039",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "6958",
+      "p7_url": "https://pachiseven.jp/machines/6958"
     },
     {
       "機種名": "L ToLOVEるダークネス",
@@ -2229,7 +2542,9 @@
       "スマスロ表示": false,
       "pw_id": "10038",
       "pw_url": "https://www.p-world.co.jp/machine/database/10038",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "6956",
+      "p7_url": "https://pachiseven.jp/machines/6956"
     },
     {
       "機種名": "沖シーサー-30",
@@ -2242,7 +2557,9 @@
       "スマスロ表示": false,
       "pw_id": "10025",
       "pw_url": "https://www.p-world.co.jp/machine/database/10025",
-      "pwメーカー": "ヤーマ"
+      "pwメーカー": "ヤーマ",
+      "p7_id": "6944",
+      "p7_url": "https://pachiseven.jp/machines/6944"
     },
     {
       "機種名": "ニューパルサーSP4 with 太鼓の達人",
@@ -2255,7 +2572,9 @@
       "スマスロ表示": false,
       "pw_id": "10019",
       "pw_url": "https://www.p-world.co.jp/machine/database/10019",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6925",
+      "p7_url": "https://pachiseven.jp/machines/6925"
     },
     {
       "機種名": "スマスロ交響詩篇エウレカセブン4 HI-EVOLUTION",
@@ -2268,7 +2587,9 @@
       "スマスロ表示": false,
       "pw_id": "10011",
       "pw_url": "https://www.p-world.co.jp/machine/database/10011",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6934",
+      "p7_url": "https://pachiseven.jp/machines/6934"
     },
     {
       "機種名": "Lパチスロ炎炎ノ消防隊",
@@ -2281,7 +2602,9 @@
       "スマスロ表示": false,
       "pw_id": "10042",
       "pw_url": "https://www.p-world.co.jp/machine/database/10042",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6927",
+      "p7_url": "https://pachiseven.jp/machines/6927"
     },
     {
       "機種名": "Lウルトラマンティガ",
@@ -2294,7 +2617,9 @@
       "スマスロ表示": false,
       "pw_id": "10041",
       "pw_url": "https://www.p-world.co.jp/machine/database/10041",
-      "pwメーカー": "オッケー."
+      "pwメーカー": "オッケー.",
+      "p7_id": "6945",
+      "p7_url": "https://pachiseven.jp/machines/6945"
     },
     {
       "機種名": "押忍!番長4",
@@ -2307,7 +2632,9 @@
       "スマスロ表示": false,
       "pw_id": "10023",
       "pw_url": "https://www.p-world.co.jp/machine/database/10023",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6926",
+      "p7_url": "https://pachiseven.jp/machines/6926"
     },
     {
       "機種名": "パチスロ ダンジョンに出会いを求めるのは間違っているだろうか2",
@@ -2320,7 +2647,9 @@
       "スマスロ表示": false,
       "pw_id": "10033",
       "pw_url": "https://www.p-world.co.jp/machine/database/10033",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6904",
+      "p7_url": "https://pachiseven.jp/machines/6904"
     },
     {
       "機種名": "パチスロ金のかぼちゃ",
@@ -2333,7 +2662,9 @@
       "スマスロ表示": false,
       "pw_id": "10004",
       "pw_url": "https://www.p-world.co.jp/machine/database/10004",
-      "pwメーカー": "バルテック"
+      "pwメーカー": "バルテック",
+      "p7_id": "6923",
+      "p7_url": "https://pachiseven.jp/machines/6923"
     },
     {
       "機種名": "スマスロ ストライク・ザ・ブラッド",
@@ -2346,7 +2677,9 @@
       "スマスロ表示": false,
       "pw_id": "10017",
       "pw_url": "https://www.p-world.co.jp/machine/database/10017",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6921",
+      "p7_url": "https://pachiseven.jp/machines/6921"
     },
     {
       "機種名": "スマスロ ゴールデンカムイ",
@@ -2359,7 +2692,9 @@
       "スマスロ表示": false,
       "pw_id": "9987",
       "pw_url": "https://www.p-world.co.jp/machine/database/9987",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6895",
+      "p7_url": "https://pachiseven.jp/machines/6895"
     },
     {
       "機種名": "ジャグラーガールズSS",
@@ -2372,7 +2707,9 @@
       "スマスロ表示": false,
       "pw_id": "10009",
       "pw_url": "https://www.p-world.co.jp/machine/database/10009",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6903",
+      "p7_url": "https://pachiseven.jp/machines/6903"
     },
     {
       "機種名": "Lパチスロうる星やつら",
@@ -2385,7 +2722,9 @@
       "スマスロ表示": false,
       "pw_id": "10007",
       "pw_url": "https://www.p-world.co.jp/machine/database/10007",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "6922",
+      "p7_url": "https://pachiseven.jp/machines/6922"
     },
     {
       "機種名": "忍魂参 ~奥義皆伝ノ章~",
@@ -2398,7 +2737,9 @@
       "スマスロ表示": false,
       "pw_id": "10008",
       "pw_url": "https://www.p-world.co.jp/machine/database/10008",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6896",
+      "p7_url": "https://pachiseven.jp/machines/6896"
     },
     {
       "機種名": "ドラゴンハナハナ~閃光~",
@@ -2411,7 +2752,9 @@
       "スマスロ表示": false,
       "pw_id": "9980",
       "pw_url": "https://www.p-world.co.jp/machine/database/9980",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6899",
+      "p7_url": "https://pachiseven.jp/machines/6899"
     },
     {
       "機種名": "スマート沖スロ ドラゴンハナハナ~閃光~",
@@ -2424,7 +2767,9 @@
       "スマスロ表示": false,
       "pw_id": "9998",
       "pw_url": "https://www.p-world.co.jp/machine/database/9998",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6920",
+      "p7_url": "https://pachiseven.jp/machines/6920"
     },
     {
       "機種名": "SLOT忍者じゃじゃ丸くん",
@@ -2437,7 +2782,9 @@
       "スマスロ表示": false,
       "pw_id": "9991",
       "pw_url": "https://www.p-world.co.jp/machine/database/9991",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6907",
+      "p7_url": "https://pachiseven.jp/machines/6907"
     },
     {
       "機種名": "パチスロ ブラックミクちゃん",
@@ -2463,7 +2810,9 @@
       "スマスロ表示": false,
       "pw_id": "9985",
       "pw_url": "https://www.p-world.co.jp/machine/database/9985",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6893",
+      "p7_url": "https://pachiseven.jp/machines/6893"
     },
     {
       "機種名": "キングクリエーター30",
@@ -2476,7 +2825,9 @@
       "スマスロ表示": false,
       "pw_id": "9995",
       "pw_url": "https://www.p-world.co.jp/machine/database/9995",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6892",
+      "p7_url": "https://pachiseven.jp/machines/6892"
     },
     {
       "機種名": "L南国育ち",
@@ -2489,7 +2840,9 @@
       "スマスロ表示": false,
       "pw_id": "9983",
       "pw_url": "https://www.p-world.co.jp/machine/database/9983",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "6894",
+      "p7_url": "https://pachiseven.jp/machines/6894"
     },
     {
       "機種名": "ワードオブライツII",
@@ -2502,11 +2855,13 @@
       "スマスロ表示": false,
       "pw_id": "9967",
       "pw_url": "https://www.p-world.co.jp/machine/database/9967",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6888",
+      "p7_url": "https://pachiseven.jp/machines/6888"
     },
     {
       "機種名": "スロット 冴えない彼女の育てかた",
-      "名寄せキー": "スロット冴えない彼女の育てかた",
+      "名寄せキー": "冴えない彼女の育てかた",
       "dmm_id": "4510",
       "dmm_url": "https://p-town.dmm.com/machines/4510",
       "導入開始日": "2024-02-05",
@@ -2515,7 +2870,9 @@
       "スマスロ表示": false,
       "pw_id": "9978",
       "pw_url": "https://www.p-world.co.jp/machine/database/9978",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "6868",
+      "p7_url": "https://pachiseven.jp/machines/6868"
     },
     {
       "機種名": "スマスロ コードギアス反逆のルルーシュ/復活のルルーシュ",
@@ -2528,7 +2885,9 @@
       "スマスロ表示": false,
       "pw_id": "9952",
       "pw_url": "https://www.p-world.co.jp/machine/database/9952",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6863",
+      "p7_url": "https://pachiseven.jp/machines/6863"
     },
     {
       "機種名": "Sky Love",
@@ -2541,7 +2900,9 @@
       "スマスロ表示": false,
       "pw_id": "9963",
       "pw_url": "https://www.p-world.co.jp/machine/database/9963",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "6887",
+      "p7_url": "https://pachiseven.jp/machines/6887"
     },
     {
       "機種名": "Lパチスロガールズ&パンツァー 最終章",
@@ -2554,7 +2915,9 @@
       "スマスロ表示": false,
       "pw_id": "9959",
       "pw_url": "https://www.p-world.co.jp/machine/database/9959",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "6866",
+      "p7_url": "https://pachiseven.jp/machines/6866"
     },
     {
       "機種名": "Lストライクウィッチーズ2",
@@ -2567,7 +2930,9 @@
       "スマスロ表示": false,
       "pw_id": "9961",
       "pw_url": "https://www.p-world.co.jp/machine/database/9961",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "6889",
+      "p7_url": "https://pachiseven.jp/machines/6889"
     },
     {
       "機種名": "L ゴジラ対エヴァンゲリオン",
@@ -2580,7 +2945,9 @@
       "スマスロ表示": false,
       "pw_id": "9990",
       "pw_url": "https://www.p-world.co.jp/machine/database/9990",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "6890",
+      "p7_url": "https://pachiseven.jp/machines/6890"
     },
     {
       "機種名": "GI優駿倶楽部黄金",
@@ -2593,7 +2960,9 @@
       "スマスロ表示": false,
       "pw_id": "9964",
       "pw_url": "https://www.p-world.co.jp/machine/database/9964",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6867",
+      "p7_url": "https://pachiseven.jp/machines/6867"
     },
     {
       "機種名": "吉宗RISING",
@@ -2606,7 +2975,9 @@
       "スマスロ表示": false,
       "pw_id": "9958",
       "pw_url": "https://www.p-world.co.jp/machine/database/9958",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "6857",
+      "p7_url": "https://pachiseven.jp/machines/6857"
     },
     {
       "機種名": "パチスロ武装神姫",
@@ -2619,7 +2990,9 @@
       "スマスロ表示": false,
       "pw_id": "9922",
       "pw_url": "https://www.p-world.co.jp/machine/database/9922",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6838",
+      "p7_url": "https://pachiseven.jp/machines/6838"
     },
     {
       "機種名": "スマスロ バイオハザードヴィレッジ",
@@ -2645,7 +3018,9 @@
       "スマスロ表示": false,
       "pw_id": "9935",
       "pw_url": "https://www.p-world.co.jp/machine/database/9935",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6850",
+      "p7_url": "https://pachiseven.jp/machines/6850"
     },
     {
       "機種名": "L 仮面ライダー 7RIDERS",
@@ -2658,7 +3033,9 @@
       "スマスロ表示": false,
       "pw_id": "9962",
       "pw_url": "https://www.p-world.co.jp/machine/database/9962",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6840",
+      "p7_url": "https://pachiseven.jp/machines/6840"
     },
     {
       "機種名": "パチスロファイヤードリフト",
@@ -2671,7 +3048,9 @@
       "スマスロ表示": false,
       "pw_id": "9919",
       "pw_url": "https://www.p-world.co.jp/machine/database/9919",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6837",
+      "p7_url": "https://pachiseven.jp/machines/6837"
     },
     {
       "機種名": "ドラゴンハナハナ~閃光~ 30",
@@ -2684,7 +3063,9 @@
       "スマスロ表示": false,
       "pw_id": "9924",
       "pw_url": "https://www.p-world.co.jp/machine/database/9924",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6846",
+      "p7_url": "https://pachiseven.jp/machines/6846"
     },
     {
       "機種名": "スマスロバジリスク~甲賀忍法帖~絆2 天膳 BLACK EDITION",
@@ -2697,7 +3078,9 @@
       "スマスロ表示": false,
       "pw_id": "9944",
       "pw_url": "https://www.p-world.co.jp/machine/database/9944",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6849",
+      "p7_url": "https://pachiseven.jp/machines/6849"
     },
     {
       "機種名": "ミクちゃんとイドムンのミラクルチャレンジ2",
@@ -2710,7 +3093,9 @@
       "スマスロ表示": false,
       "pw_id": "9946",
       "pw_url": "https://www.p-world.co.jp/machine/database/9946",
-      "pwメーカー": "DAXEL"
+      "pwメーカー": "DAXEL",
+      "p7_id": "6878",
+      "p7_url": "https://pachiseven.jp/machines/6878"
     },
     {
       "機種名": "マジカルハロウィン8",
@@ -2723,7 +3108,9 @@
       "スマスロ表示": false,
       "pw_id": "9921",
       "pw_url": "https://www.p-world.co.jp/machine/database/9921",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6816",
+      "p7_url": "https://pachiseven.jp/machines/6816"
     },
     {
       "機種名": "パチスロ琉神−30 スイカバージョン",
@@ -2746,7 +3133,9 @@
       "スマスロ表示": false,
       "pw_id": "9950",
       "pw_url": "https://www.p-world.co.jp/machine/database/9950",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6876",
+      "p7_url": "https://pachiseven.jp/machines/6876"
     },
     {
       "機種名": "スマスロモンキーターンV",
@@ -2759,7 +3148,9 @@
       "スマスロ表示": false,
       "pw_id": "9923",
       "pw_url": "https://www.p-world.co.jp/machine/database/9923",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6815",
+      "p7_url": "https://pachiseven.jp/machines/6815"
     },
     {
       "機種名": "クランキークレスト",
@@ -2772,7 +3163,9 @@
       "スマスロ表示": false,
       "pw_id": "9920",
       "pw_url": "https://www.p-world.co.jp/machine/database/9920",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6845",
+      "p7_url": "https://pachiseven.jp/machines/6845"
     },
     {
       "機種名": "L花の慶次〜佐渡攻めの章〜",
@@ -2785,7 +3178,9 @@
       "スマスロ表示": false,
       "pw_id": "9929",
       "pw_url": "https://www.p-world.co.jp/machine/database/9929",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "6820",
+      "p7_url": "https://pachiseven.jp/machines/6820"
     },
     {
       "機種名": "Lラブ嬢3〜Wご指名はいかがですか?〜",
@@ -2798,7 +3193,9 @@
       "スマスロ表示": false,
       "pw_id": "9928",
       "pw_url": "https://www.p-world.co.jp/machine/database/9928",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "6842",
+      "p7_url": "https://pachiseven.jp/machines/6842"
     },
     {
       "機種名": "推しスロ アイドルVer.",
@@ -2824,7 +3221,9 @@
       "スマスロ表示": false,
       "pw_id": "9908",
       "pw_url": "https://www.p-world.co.jp/machine/database/9908",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6836",
+      "p7_url": "https://pachiseven.jp/machines/6836"
     },
     {
       "機種名": "パチスロ交響詩篇エウレカセブン HI-EVOLUTION ZERO TYPE-ART",
@@ -2837,7 +3236,9 @@
       "スマスロ表示": false,
       "pw_id": "9897",
       "pw_url": "https://www.p-world.co.jp/machine/database/9897",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6799",
+      "p7_url": "https://pachiseven.jp/machines/6799"
     },
     {
       "機種名": "デジスロ JAC INバージョン",
@@ -2850,7 +3251,9 @@
       "スマスロ表示": false,
       "pw_id": "9905",
       "pw_url": "https://www.p-world.co.jp/machine/database/9905",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6835",
+      "p7_url": "https://pachiseven.jp/machines/6835"
     },
     {
       "機種名": "スマスロ劇場版 魔法少女まどか☆マギカ[前編]始まりの物語/[後編]永遠の物語f-フォルテ-",
@@ -2863,7 +3266,9 @@
       "スマスロ表示": false,
       "pw_id": "9896",
       "pw_url": "https://www.p-world.co.jp/machine/database/9896",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "6808",
+      "p7_url": "https://pachiseven.jp/machines/6808"
     },
     {
       "機種名": "スマスロとある魔術の禁書目録",
@@ -2876,7 +3281,9 @@
       "スマスロ表示": false,
       "pw_id": "9913",
       "pw_url": "https://www.p-world.co.jp/machine/database/9913",
-      "pwメーカー": "JFJ"
+      "pwメーカー": "JFJ",
+      "p7_id": "6793",
+      "p7_url": "https://pachiseven.jp/machines/6793"
     },
     {
       "機種名": "Sちゅらちゅら",
@@ -2902,7 +3309,9 @@
       "スマスロ表示": false,
       "pw_id": "9900",
       "pw_url": "https://www.p-world.co.jp/machine/database/9900",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "6813",
+      "p7_url": "https://pachiseven.jp/machines/6813"
     },
     {
       "機種名": "L ひぐらしのなく頃に 業",
@@ -2915,7 +3324,9 @@
       "スマスロ表示": false,
       "pw_id": "9927",
       "pw_url": "https://www.p-world.co.jp/machine/database/9927",
-      "pwメーカー": "D-light"
+      "pwメーカー": "D-light",
+      "p7_id": "6817",
+      "p7_url": "https://pachiseven.jp/machines/6817"
     },
     {
       "機種名": "燃えチバ-30",
@@ -2928,7 +3339,9 @@
       "スマスロ表示": false,
       "pw_id": "9877",
       "pw_url": "https://www.p-world.co.jp/machine/database/9877",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6789",
+      "p7_url": "https://pachiseven.jp/machines/6789"
     },
     {
       "機種名": "スーハナライジング-30",
@@ -2941,7 +3354,9 @@
       "スマスロ表示": false,
       "pw_id": "9882",
       "pw_url": "https://www.p-world.co.jp/machine/database/9882",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6795",
+      "p7_url": "https://pachiseven.jp/machines/6795"
     },
     {
       "機種名": "スマスロ転生したらスライムだった件",
@@ -2954,7 +3369,9 @@
       "スマスロ表示": false,
       "pw_id": "9879",
       "pw_url": "https://www.p-world.co.jp/machine/database/9879",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6786",
+      "p7_url": "https://pachiseven.jp/machines/6786"
     },
     {
       "機種名": "L エヴァンゲリオン ~未来への創造~",
@@ -2967,7 +3384,9 @@
       "スマスロ表示": false,
       "pw_id": "9910",
       "pw_url": "https://www.p-world.co.jp/machine/database/9910",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "6806",
+      "p7_url": "https://pachiseven.jp/machines/6806"
     },
     {
       "機種名": "麻雀格闘倶楽部 覚醒",
@@ -2980,7 +3399,9 @@
       "スマスロ表示": false,
       "pw_id": "9876",
       "pw_url": "https://www.p-world.co.jp/machine/database/9876",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6787",
+      "p7_url": "https://pachiseven.jp/machines/6787"
     },
     {
       "機種名": "戦国コレクション5超極楽LOOP",
@@ -2993,7 +3414,9 @@
       "スマスロ表示": false,
       "pw_id": "9885",
       "pw_url": "https://www.p-world.co.jp/machine/database/9885",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6807",
+      "p7_url": "https://pachiseven.jp/machines/6807"
     },
     {
       "機種名": "回胴式遊技機 グランベルム",
@@ -3006,7 +3429,9 @@
       "スマスロ表示": false,
       "pw_id": "9881",
       "pw_url": "https://www.p-world.co.jp/machine/database/9881",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6791",
+      "p7_url": "https://pachiseven.jp/machines/6791"
     },
     {
       "機種名": "ファミスタ回胴版!!",
@@ -3019,7 +3444,9 @@
       "スマスロ表示": false,
       "pw_id": "9866",
       "pw_url": "https://www.p-world.co.jp/machine/database/9866",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "6780",
+      "p7_url": "https://pachiseven.jp/machines/6780"
     },
     {
       "機種名": "パチスロ傷物語 始マリノ刻",
@@ -3032,7 +3459,9 @@
       "スマスロ表示": false,
       "pw_id": "9864",
       "pw_url": "https://www.p-world.co.jp/machine/database/9864",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6774",
+      "p7_url": "https://pachiseven.jp/machines/6774"
     },
     {
       "機種名": "L戦国乙女4 戦乱に閃く炯眼の軍師",
@@ -3045,7 +3474,9 @@
       "スマスロ表示": false,
       "pw_id": "9868",
       "pw_url": "https://www.p-world.co.jp/machine/database/9868",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "6781",
+      "p7_url": "https://pachiseven.jp/machines/6781"
     },
     {
       "機種名": "L009 RE:CYBORG",
@@ -3055,7 +3486,9 @@
       "導入開始日": "2023-09-04",
       "一覧機械割下限": 97.6,
       "一覧機械割上限": 114.9,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "6790",
+      "p7_url": "https://pachiseven.jp/machines/6790"
     },
     {
       "機種名": "防空少女ラブキューレ2〜極限の共鳴〜",
@@ -3068,7 +3501,9 @@
       "スマスロ表示": false,
       "pw_id": "9856",
       "pw_url": "https://www.p-world.co.jp/machine/database/9856",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6767",
+      "p7_url": "https://pachiseven.jp/machines/6767"
     },
     {
       "機種名": "スーパービンゴネオクラシック-30",
@@ -3081,7 +3516,9 @@
       "スマスロ表示": false,
       "pw_id": "9861",
       "pw_url": "https://www.p-world.co.jp/machine/database/9861",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6771",
+      "p7_url": "https://pachiseven.jp/machines/6771"
     },
     {
       "機種名": "スーパービンゴネオクラシック",
@@ -3094,7 +3531,9 @@
       "スマスロ表示": false,
       "pw_id": "9860",
       "pw_url": "https://www.p-world.co.jp/machine/database/9860",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6770",
+      "p7_url": "https://pachiseven.jp/machines/6770"
     },
     {
       "機種名": "スマスロキン肉マン~7人の悪魔超人編~",
@@ -3107,7 +3546,9 @@
       "スマスロ表示": false,
       "pw_id": "9849",
       "pw_url": "https://www.p-world.co.jp/machine/database/9849",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6761",
+      "p7_url": "https://pachiseven.jp/machines/6761"
     },
     {
       "機種名": "スマスロ 戦国BASARA GIGA",
@@ -3120,7 +3561,9 @@
       "スマスロ表示": false,
       "pw_id": "9839",
       "pw_url": "https://www.p-world.co.jp/machine/database/9839",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6747",
+      "p7_url": "https://pachiseven.jp/machines/6747"
     },
     {
       "機種名": "ぱちスロ 乃木坂46",
@@ -3146,7 +3589,9 @@
       "スマスロ表示": false,
       "pw_id": "9841",
       "pw_url": "https://www.p-world.co.jp/machine/database/9841",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6749",
+      "p7_url": "https://pachiseven.jp/machines/6749"
     },
     {
       "機種名": "パチスロ 戦国†恋姫",
@@ -3159,7 +3604,9 @@
       "スマスロ表示": false,
       "pw_id": "9854",
       "pw_url": "https://www.p-world.co.jp/machine/database/9854",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "6766",
+      "p7_url": "https://pachiseven.jp/machines/6766"
     },
     {
       "機種名": "S 織田信奈の野望 全国版",
@@ -3172,7 +3619,9 @@
       "スマスロ表示": false,
       "pw_id": "9871",
       "pw_url": "https://www.p-world.co.jp/machine/database/9871",
-      "pwメーカー": "新日テクノロジー"
+      "pwメーカー": "新日テクノロジー",
+      "p7_id": "6773",
+      "p7_url": "https://pachiseven.jp/machines/6773"
     },
     {
       "機種名": "パチスロナイツ",
@@ -3185,7 +3634,9 @@
       "スマスロ表示": false,
       "pw_id": "9873",
       "pw_url": "https://www.p-world.co.jp/machine/database/9873",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6777",
+      "p7_url": "https://pachiseven.jp/machines/6777"
     },
     {
       "機種名": "パチスロ 蛇喰夢子という女",
@@ -3198,7 +3649,9 @@
       "スマスロ表示": false,
       "pw_id": "9844",
       "pw_url": "https://www.p-world.co.jp/machine/database/9844",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6755",
+      "p7_url": "https://pachiseven.jp/machines/6755"
     },
     {
       "機種名": "パチスロ からくりサーカス",
@@ -3211,7 +3664,9 @@
       "スマスロ表示": false,
       "pw_id": "9843",
       "pw_url": "https://www.p-world.co.jp/machine/database/9843",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6744",
+      "p7_url": "https://pachiseven.jp/machines/6744"
     },
     {
       "機種名": "ゴーゴージャグラー3",
@@ -3224,7 +3679,9 @@
       "スマスロ表示": false,
       "pw_id": "9848",
       "pw_url": "https://www.p-world.co.jp/machine/database/9848",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6760",
+      "p7_url": "https://pachiseven.jp/machines/6760"
     },
     {
       "機種名": "SOZ1-AA-30",
@@ -3237,7 +3694,9 @@
       "スマスロ表示": false,
       "pw_id": "9857",
       "pw_url": "https://www.p-world.co.jp/machine/database/9857",
-      "pwメーカー": "オズ"
+      "pwメーカー": "オズ",
+      "p7_id": "6758",
+      "p7_url": "https://pachiseven.jp/machines/6758"
     },
     {
       "機種名": "真天下布武",
@@ -3250,7 +3709,9 @@
       "スマスロ表示": false,
       "pw_id": "9803",
       "pw_url": "https://www.p-world.co.jp/machine/database/9803",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6710",
+      "p7_url": "https://pachiseven.jp/machines/6710"
     },
     {
       "機種名": "パチスロコードギアス反逆のルルーシュ3 C.C.&Kallen ver.",
@@ -3263,7 +3724,9 @@
       "スマスロ表示": false,
       "pw_id": "9816",
       "pw_url": "https://www.p-world.co.jp/machine/database/9816",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6725",
+      "p7_url": "https://pachiseven.jp/machines/6725"
     },
     {
       "機種名": "ウルトラちゃぶ台返し",
@@ -3276,7 +3739,9 @@
       "スマスロ表示": false,
       "pw_id": "9818",
       "pw_url": "https://www.p-world.co.jp/machine/database/9818",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6727",
+      "p7_url": "https://pachiseven.jp/machines/6727"
     },
     {
       "機種名": "ぱちスロ にゃんこ大戦争 BIGBANG",
@@ -3289,7 +3754,9 @@
       "スマスロ表示": false,
       "pw_id": "9845",
       "pw_url": "https://www.p-world.co.jp/machine/database/9845",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6753",
+      "p7_url": "https://pachiseven.jp/machines/6753"
     },
     {
       "機種名": "SLOTメイドインアビス",
@@ -3302,7 +3769,9 @@
       "スマスロ表示": false,
       "pw_id": "9829",
       "pw_url": "https://www.p-world.co.jp/machine/database/9829",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6736",
+      "p7_url": "https://pachiseven.jp/machines/6736"
     },
     {
       "機種名": "L ベルセルク無双",
@@ -3315,7 +3784,9 @@
       "スマスロ表示": false,
       "pw_id": "9837",
       "pw_url": "https://www.p-world.co.jp/machine/database/9837",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "6746",
+      "p7_url": "https://pachiseven.jp/machines/6746"
     },
     {
       "機種名": "課長 熊田工作",
@@ -3328,7 +3799,9 @@
       "スマスロ表示": false,
       "pw_id": "9805",
       "pw_url": "https://www.p-world.co.jp/machine/database/9805",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6717",
+      "p7_url": "https://pachiseven.jp/machines/6717"
     },
     {
       "機種名": "ジャベリン",
@@ -3341,11 +3814,13 @@
       "スマスロ表示": false,
       "pw_id": "9820",
       "pw_url": "https://www.p-world.co.jp/machine/database/9820",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "6729",
+      "p7_url": "https://pachiseven.jp/machines/6729"
     },
     {
       "機種名": "スロット ソードアート・オンライン",
-      "名寄せキー": "スロットソードアートオンライン",
+      "名寄せキー": "ソードアートオンライン",
       "dmm_id": "4352",
       "dmm_url": "https://p-town.dmm.com/machines/4352",
       "導入開始日": "2023-05-15",
@@ -3354,7 +3829,9 @@
       "スマスロ表示": false,
       "pw_id": "9831",
       "pw_url": "https://www.p-world.co.jp/machine/database/9831",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6733",
+      "p7_url": "https://pachiseven.jp/machines/6733"
     },
     {
       "機種名": "マイフラワー2-30",
@@ -3367,7 +3844,9 @@
       "スマスロ表示": false,
       "pw_id": "9804",
       "pw_url": "https://www.p-world.co.jp/machine/database/9804",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6713",
+      "p7_url": "https://pachiseven.jp/machines/6713"
     },
     {
       "機種名": "パチスロ炎炎ノ消防隊",
@@ -3380,7 +3859,9 @@
       "スマスロ表示": false,
       "pw_id": "10042",
       "pw_url": "https://www.p-world.co.jp/machine/database/10042",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6927",
+      "p7_url": "https://pachiseven.jp/machines/6927"
     },
     {
       "機種名": "L主役は銭形4",
@@ -3393,7 +3874,9 @@
       "スマスロ表示": false,
       "pw_id": "9809",
       "pw_url": "https://www.p-world.co.jp/machine/database/9809",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6719",
+      "p7_url": "https://pachiseven.jp/machines/6719"
     },
     {
       "機種名": "アナザーゴッドハーデス-解き放たれし槍撃ver.-",
@@ -3406,7 +3889,9 @@
       "スマスロ表示": false,
       "pw_id": "9800",
       "pw_url": "https://www.p-world.co.jp/machine/database/9800",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6709",
+      "p7_url": "https://pachiseven.jp/machines/6709"
     },
     {
       "機種名": "Lゴブリンスレイヤー",
@@ -3419,7 +3904,9 @@
       "スマスロ表示": false,
       "pw_id": "9812",
       "pw_url": "https://www.p-world.co.jp/machine/database/9812",
-      "pwメーカー": "オレンジ"
+      "pwメーカー": "オレンジ",
+      "p7_id": "6722",
+      "p7_url": "https://pachiseven.jp/machines/6722"
     },
     {
       "機種名": "スマスロ北斗の拳",
@@ -3432,7 +3919,9 @@
       "スマスロ表示": false,
       "pw_id": "9786",
       "pw_url": "https://www.p-world.co.jp/machine/database/9786",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6692",
+      "p7_url": "https://pachiseven.jp/machines/6692"
     },
     {
       "機種名": "パチスロOVERLORD絶対支配者光臨II",
@@ -3445,7 +3934,9 @@
       "スマスロ表示": false,
       "pw_id": "9792",
       "pw_url": "https://www.p-world.co.jp/machine/database/9792",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6700",
+      "p7_url": "https://pachiseven.jp/machines/6700"
     },
     {
       "機種名": "スロドル",
@@ -3458,7 +3949,9 @@
       "スマスロ表示": false,
       "pw_id": "9785",
       "pw_url": "https://www.p-world.co.jp/machine/database/9785",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6694",
+      "p7_url": "https://pachiseven.jp/machines/6694"
     },
     {
       "機種名": "キングハナハナ-30",
@@ -3471,7 +3964,9 @@
       "スマスロ表示": false,
       "pw_id": "9783",
       "pw_url": "https://www.p-world.co.jp/machine/database/9783",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6693",
+      "p7_url": "https://pachiseven.jp/machines/6693"
     },
     {
       "機種名": "パチスロ機動戦士ガンダムユニコーン",
@@ -3484,7 +3979,9 @@
       "スマスロ表示": false,
       "pw_id": "9799",
       "pw_url": "https://www.p-world.co.jp/machine/database/9799",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "6707",
+      "p7_url": "https://pachiseven.jp/machines/6707"
     },
     {
       "機種名": "パチスロ盾の勇者の成り上がり",
@@ -3497,7 +3994,9 @@
       "スマスロ表示": false,
       "pw_id": "9771",
       "pw_url": "https://www.p-world.co.jp/machine/database/9771",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6680",
+      "p7_url": "https://pachiseven.jp/machines/6680"
     },
     {
       "機種名": "パチスロ 探偵オペラ ミルキィホームズR 大収穫祭!!!!",
@@ -3510,7 +4009,9 @@
       "スマスロ表示": false,
       "pw_id": "9778",
       "pw_url": "https://www.p-world.co.jp/machine/database/9778",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "6685",
+      "p7_url": "https://pachiseven.jp/machines/6685"
     },
     {
       "機種名": "パチスロ戦国無双3",
@@ -3523,7 +4024,9 @@
       "スマスロ表示": false,
       "pw_id": "9753",
       "pw_url": "https://www.p-world.co.jp/machine/database/9753",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6662",
+      "p7_url": "https://pachiseven.jp/machines/6662"
     },
     {
       "機種名": "パチスロ 緋弾のアリアII",
@@ -3536,7 +4039,9 @@
       "スマスロ表示": false,
       "pw_id": "9775",
       "pw_url": "https://www.p-world.co.jp/machine/database/9775",
-      "pwメーカー": "JFJ"
+      "pwメーカー": "JFJ",
+      "p7_id": "6683",
+      "p7_url": "https://pachiseven.jp/machines/6683"
     },
     {
       "機種名": "大花満",
@@ -3562,7 +4067,9 @@
       "スマスロ表示": false,
       "pw_id": "9732",
       "pw_url": "https://www.p-world.co.jp/machine/database/9732",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6639",
+      "p7_url": "https://pachiseven.jp/machines/6639"
     },
     {
       "機種名": "もっと!チバリヨ-25",
@@ -3575,7 +4082,9 @@
       "スマスロ表示": false,
       "pw_id": "9759",
       "pw_url": "https://www.p-world.co.jp/machine/database/9759",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6757",
+      "p7_url": "https://pachiseven.jp/machines/6757"
     },
     {
       "機種名": "SモモキュンソードDX",
@@ -3588,7 +4097,9 @@
       "スマスロ表示": false,
       "pw_id": "9755",
       "pw_url": "https://www.p-world.co.jp/machine/database/9755",
-      "pwメーカー": "西陣"
+      "pwメーカー": "西陣",
+      "p7_id": "6664",
+      "p7_url": "https://pachiseven.jp/machines/6664"
     },
     {
       "機種名": "沖ドキ!GOLD-30",
@@ -3614,7 +4125,9 @@
       "スマスロ表示": false,
       "pw_id": "9738",
       "pw_url": "https://www.p-world.co.jp/machine/database/9738",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "6764",
+      "p7_url": "https://pachiseven.jp/machines/6764"
     },
     {
       "機種名": "パチスロ 真俺の空",
@@ -3627,7 +4140,9 @@
       "スマスロ表示": false,
       "pw_id": "9749",
       "pw_url": "https://www.p-world.co.jp/machine/database/9749",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "6658",
+      "p7_url": "https://pachiseven.jp/machines/6658"
     },
     {
       "機種名": "もっと!チバリヨ-30",
@@ -3640,7 +4155,9 @@
       "スマスロ表示": false,
       "pw_id": "9728",
       "pw_url": "https://www.p-world.co.jp/machine/database/9728",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6638",
+      "p7_url": "https://pachiseven.jp/machines/6638"
     },
     {
       "機種名": "パチスロ這いよれ!ニャル子さん",
@@ -3653,7 +4170,9 @@
       "スマスロ表示": false,
       "pw_id": "9736",
       "pw_url": "https://www.p-world.co.jp/machine/database/9736",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "6649",
+      "p7_url": "https://pachiseven.jp/machines/6649"
     },
     {
       "機種名": "パチスロ幼女戦記",
@@ -3666,7 +4185,9 @@
       "スマスロ表示": false,
       "pw_id": "9719",
       "pw_url": "https://www.p-world.co.jp/machine/database/9719",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6631",
+      "p7_url": "https://pachiseven.jp/machines/6631"
     },
     {
       "機種名": "HEY!エリートサラリーマン鏡",
@@ -3679,7 +4200,9 @@
       "スマスロ表示": false,
       "pw_id": "9733",
       "pw_url": "https://www.p-world.co.jp/machine/database/9733",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "6643",
+      "p7_url": "https://pachiseven.jp/machines/6643"
     },
     {
       "機種名": "パチスロ 革命機ヴァルヴレイヴ",
@@ -3692,7 +4215,9 @@
       "スマスロ表示": false,
       "pw_id": "9725",
       "pw_url": "https://www.p-world.co.jp/machine/database/9725",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6630",
+      "p7_url": "https://pachiseven.jp/machines/6630"
     },
     {
       "機種名": "トリプルクラウンビンテージ",
@@ -3705,7 +4230,9 @@
       "スマスロ表示": false,
       "pw_id": "9756",
       "pw_url": "https://www.p-world.co.jp/machine/database/9756",
-      "pwメーカー": "清龍ゲームジャパン"
+      "pwメーカー": "清龍ゲームジャパン",
+      "p7_id": "6751",
+      "p7_url": "https://pachiseven.jp/machines/6751"
     },
     {
       "機種名": "スマスロリノヘブン",
@@ -3718,7 +4245,9 @@
       "スマスロ表示": false,
       "pw_id": "9721",
       "pw_url": "https://www.p-world.co.jp/machine/database/9721",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6633",
+      "p7_url": "https://pachiseven.jp/machines/6633"
     },
     {
       "機種名": "Lバキ 強くなりたくば喰らえ!!!",
@@ -3731,7 +4260,9 @@
       "スマスロ表示": false,
       "pw_id": "9720",
       "pw_url": "https://www.p-world.co.jp/machine/database/9720",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6632",
+      "p7_url": "https://pachiseven.jp/machines/6632"
     },
     {
       "機種名": "花火絶景",
@@ -3744,7 +4275,9 @@
       "スマスロ表示": false,
       "pw_id": "9710",
       "pw_url": "https://www.p-world.co.jp/machine/database/9710",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6622",
+      "p7_url": "https://pachiseven.jp/machines/6622"
     },
     {
       "機種名": "ラストユートピア",
@@ -3757,7 +4290,9 @@
       "スマスロ表示": false,
       "pw_id": "9712",
       "pw_url": "https://www.p-world.co.jp/machine/database/9712",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6624",
+      "p7_url": "https://pachiseven.jp/machines/6624"
     },
     {
       "機種名": "パチスロ鉄拳4アルティメットデビルVer.",
@@ -3770,7 +4305,9 @@
       "スマスロ表示": false,
       "pw_id": "9724",
       "pw_url": "https://www.p-world.co.jp/machine/database/9724",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6607",
+      "p7_url": "https://pachiseven.jp/machines/6607"
     },
     {
       "機種名": "SLOTとある科学の超電磁砲",
@@ -3783,7 +4320,9 @@
       "スマスロ表示": false,
       "pw_id": "9722",
       "pw_url": "https://www.p-world.co.jp/machine/database/9722",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "6635",
+      "p7_url": "https://pachiseven.jp/machines/6635"
     },
     {
       "機種名": "ハッピージャグラーVIII",
@@ -3796,7 +4335,9 @@
       "スマスロ表示": false,
       "pw_id": "9705",
       "pw_url": "https://www.p-world.co.jp/machine/database/9705",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6617",
+      "p7_url": "https://pachiseven.jp/machines/6617"
     },
     {
       "機種名": "パチスロ 魔法少女育成計画",
@@ -3809,7 +4350,9 @@
       "スマスロ表示": false,
       "pw_id": "9707",
       "pw_url": "https://www.p-world.co.jp/machine/database/9707",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "6623",
+      "p7_url": "https://pachiseven.jp/machines/6623"
     },
     {
       "機種名": "パチスロ ダンまち外伝 ソード・オラトリア",
@@ -3822,7 +4365,9 @@
       "スマスロ表示": false,
       "pw_id": "9704",
       "pw_url": "https://www.p-world.co.jp/machine/database/9704",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6619",
+      "p7_url": "https://pachiseven.jp/machines/6619"
     },
     {
       "機種名": "パチスロハードボイルド",
@@ -3835,7 +4380,9 @@
       "スマスロ表示": false,
       "pw_id": "9693",
       "pw_url": "https://www.p-world.co.jp/machine/database/9693",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6603",
+      "p7_url": "https://pachiseven.jp/machines/6603"
     },
     {
       "機種名": "パチスロRYUKYU BEAT-30",
@@ -3848,7 +4395,9 @@
       "スマスロ表示": false,
       "pw_id": "9645",
       "pw_url": "https://www.p-world.co.jp/machine/database/9645",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6560",
+      "p7_url": "https://pachiseven.jp/machines/6560"
     },
     {
       "機種名": "パチスロ バイオハザード RE:2",
@@ -3861,7 +4410,9 @@
       "スマスロ表示": false,
       "pw_id": "9691",
       "pw_url": "https://www.p-world.co.jp/machine/database/9691",
-      "pwメーカー": "アデリオン"
+      "pwメーカー": "アデリオン",
+      "p7_id": "6600",
+      "p7_url": "https://pachiseven.jp/machines/6600"
     },
     {
       "機種名": "S笑ゥせぇるすまん4",
@@ -3874,7 +4425,9 @@
       "スマスロ表示": false,
       "pw_id": "9697",
       "pw_url": "https://www.p-world.co.jp/machine/database/9697",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "6604",
+      "p7_url": "https://pachiseven.jp/machines/6604"
     },
     {
       "機種名": "パチスロ BOØWY",
@@ -3884,7 +4437,9 @@
       "導入開始日": "2022-09-20",
       "一覧機械割下限": 97.0,
       "一覧機械割上限": 113.0,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "6586",
+      "p7_url": "https://pachiseven.jp/machines/6586"
     },
     {
       "機種名": "SBIG島唄30",
@@ -3897,7 +4452,9 @@
       "スマスロ表示": false,
       "pw_id": "9687",
       "pw_url": "https://www.p-world.co.jp/machine/database/9687",
-      "pwメーカー": "オリンピアエステート"
+      "pwメーカー": "オリンピアエステート",
+      "p7_id": "6602",
+      "p7_url": "https://pachiseven.jp/machines/6602"
     },
     {
       "機種名": "ヴィーナスゾーン",
@@ -3910,7 +4467,9 @@
       "スマスロ表示": false,
       "pw_id": "9676",
       "pw_url": "https://www.p-world.co.jp/machine/database/9676",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6598",
+      "p7_url": "https://pachiseven.jp/machines/6598"
     },
     {
       "機種名": "ボンバーガール",
@@ -3923,7 +4482,9 @@
       "スマスロ表示": false,
       "pw_id": "9669",
       "pw_url": "https://www.p-world.co.jp/machine/database/9669",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6581",
+      "p7_url": "https://pachiseven.jp/machines/6581"
     },
     {
       "機種名": "パチスロペルソナ5",
@@ -3936,7 +4497,9 @@
       "スマスロ表示": false,
       "pw_id": "9670",
       "pw_url": "https://www.p-world.co.jp/machine/database/9670",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6580",
+      "p7_url": "https://pachiseven.jp/machines/6580"
     },
     {
       "機種名": "スーパーリオエース",
@@ -3949,7 +4512,9 @@
       "スマスロ表示": false,
       "pw_id": "9680",
       "pw_url": "https://www.p-world.co.jp/machine/database/9680",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6591",
+      "p7_url": "https://pachiseven.jp/machines/6591"
     },
     {
       "機種名": "Sアバサー30",
@@ -3988,7 +4553,9 @@
       "スマスロ表示": false,
       "pw_id": "9690",
       "pw_url": "https://www.p-world.co.jp/machine/database/9690",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6599",
+      "p7_url": "https://pachiseven.jp/machines/6599"
     },
     {
       "機種名": "パチスロ閃乱カグラBURST UP",
@@ -4001,7 +4568,9 @@
       "スマスロ表示": false,
       "pw_id": "9681",
       "pw_url": "https://www.p-world.co.jp/machine/database/9681",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6584",
+      "p7_url": "https://pachiseven.jp/machines/6584"
     },
     {
       "機種名": "政宗 戦極",
@@ -4014,7 +4583,9 @@
       "スマスロ表示": false,
       "pw_id": "9671",
       "pw_url": "https://www.p-world.co.jp/machine/database/9671",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6579",
+      "p7_url": "https://pachiseven.jp/machines/6579"
     },
     {
       "機種名": "パチスロ 新鬼武者2",
@@ -4027,7 +4598,9 @@
       "スマスロ表示": false,
       "pw_id": "9658",
       "pw_url": "https://www.p-world.co.jp/machine/database/9658",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6571",
+      "p7_url": "https://pachiseven.jp/machines/6571"
     },
     {
       "機種名": "チバリヨ-25",
@@ -4053,7 +4626,9 @@
       "スマスロ表示": false,
       "pw_id": "9668",
       "pw_url": "https://www.p-world.co.jp/machine/database/9668",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "6578",
+      "p7_url": "https://pachiseven.jp/machines/6578"
     },
     {
       "機種名": "S黄門ちゃま喝2",
@@ -4066,7 +4641,9 @@
       "スマスロ表示": false,
       "pw_id": "9660",
       "pw_url": "https://www.p-world.co.jp/machine/database/9660",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6575",
+      "p7_url": "https://pachiseven.jp/machines/6575"
     },
     {
       "機種名": "パチスロ鉄拳5",
@@ -4079,7 +4656,9 @@
       "スマスロ表示": false,
       "pw_id": "9641",
       "pw_url": "https://www.p-world.co.jp/machine/database/9641",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6553",
+      "p7_url": "https://pachiseven.jp/machines/6553"
     },
     {
       "機種名": "パチスロ甲鉄城のカバネリ",
@@ -4092,7 +4671,9 @@
       "スマスロ表示": false,
       "pw_id": "9640",
       "pw_url": "https://www.p-world.co.jp/machine/database/9640",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6548",
+      "p7_url": "https://pachiseven.jp/machines/6548"
     },
     {
       "機種名": "パチスロ犬夜叉",
@@ -4105,7 +4686,9 @@
       "スマスロ表示": false,
       "pw_id": "9654",
       "pw_url": "https://www.p-world.co.jp/machine/database/9654",
-      "pwメーカー": "クロスアルファ"
+      "pwメーカー": "クロスアルファ",
+      "p7_id": "6566",
+      "p7_url": "https://pachiseven.jp/machines/6566"
     },
     {
       "機種名": "パチスロ アクエリオン ALL STARS",
@@ -4118,7 +4701,9 @@
       "スマスロ表示": false,
       "pw_id": "9643",
       "pw_url": "https://www.p-world.co.jp/machine/database/9643",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6546",
+      "p7_url": "https://pachiseven.jp/machines/6546"
     },
     {
       "機種名": "ニューゲッターマウス",
@@ -4131,7 +4716,9 @@
       "スマスロ表示": false,
       "pw_id": "9636",
       "pw_url": "https://www.p-world.co.jp/machine/database/9636",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6549",
+      "p7_url": "https://pachiseven.jp/machines/6549"
     },
     {
       "機種名": "スーパーハナハナ2-30",
@@ -4144,7 +4731,9 @@
       "スマスロ表示": false,
       "pw_id": "9617",
       "pw_url": "https://www.p-world.co.jp/machine/database/9617",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6540",
+      "p7_url": "https://pachiseven.jp/machines/6540"
     },
     {
       "機種名": "パチスロ ピンクパンサーSP",
@@ -4157,7 +4746,9 @@
       "スマスロ表示": false,
       "pw_id": "9632",
       "pw_url": "https://www.p-world.co.jp/machine/database/9632",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6541",
+      "p7_url": "https://pachiseven.jp/machines/6541"
     },
     {
       "機種名": "シリウス",
@@ -4170,7 +4761,9 @@
       "スマスロ表示": false,
       "pw_id": "9630",
       "pw_url": "https://www.p-world.co.jp/machine/database/9630",
-      "pwメーカー": "ヤーマ"
+      "pwメーカー": "ヤーマ",
+      "p7_id": "6542",
+      "p7_url": "https://pachiseven.jp/machines/6542"
     },
     {
       "機種名": "Sキャッツ・アイ",
@@ -4183,7 +4776,9 @@
       "スマスロ表示": false,
       "pw_id": "9628",
       "pw_url": "https://www.p-world.co.jp/machine/database/9628",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "6538",
+      "p7_url": "https://pachiseven.jp/machines/6538"
     },
     {
       "機種名": "パチスロ ゼーガペイン2",
@@ -4196,7 +4791,9 @@
       "スマスロ表示": false,
       "pw_id": "9599",
       "pw_url": "https://www.p-world.co.jp/machine/database/9599",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6532",
+      "p7_url": "https://pachiseven.jp/machines/6532"
     },
     {
       "機種名": "ぱちすろけものフレンズ",
@@ -4209,7 +4806,9 @@
       "スマスロ表示": false,
       "pw_id": "9615",
       "pw_url": "https://www.p-world.co.jp/machine/database/9615",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6537",
+      "p7_url": "https://pachiseven.jp/machines/6537"
     },
     {
       "機種名": "ハナハナホウオウ~天翔~(紫パネル)",
@@ -4235,7 +4834,9 @@
       "スマスロ表示": false,
       "pw_id": "9603",
       "pw_url": "https://www.p-world.co.jp/machine/database/9603",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "6536",
+      "p7_url": "https://pachiseven.jp/machines/6536"
     },
     {
       "機種名": "SLOT STEINS;GATE",
@@ -4248,7 +4849,9 @@
       "スマスロ表示": false,
       "pw_id": "9604",
       "pw_url": "https://www.p-world.co.jp/machine/database/9604",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "6533",
+      "p7_url": "https://pachiseven.jp/machines/6533"
     },
     {
       "機種名": "超ギラギラ爺サマー",
@@ -4261,7 +4864,9 @@
       "スマスロ表示": false,
       "pw_id": "9601",
       "pw_url": "https://www.p-world.co.jp/machine/database/9601",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "6518",
+      "p7_url": "https://pachiseven.jp/machines/6518"
     },
     {
       "機種名": "十字架5",
@@ -4274,7 +4879,9 @@
       "スマスロ表示": false,
       "pw_id": "9585",
       "pw_url": "https://www.p-world.co.jp/machine/database/9585",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6499",
+      "p7_url": "https://pachiseven.jp/machines/6499"
     },
     {
       "機種名": "パチスロ 月華 雅",
@@ -4287,7 +4894,9 @@
       "スマスロ表示": false,
       "pw_id": "9613",
       "pw_url": "https://www.p-world.co.jp/machine/database/9613",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6530",
+      "p7_url": "https://pachiseven.jp/machines/6530"
     },
     {
       "機種名": "S2027DB",
@@ -4300,7 +4909,9 @@
       "スマスロ表示": false,
       "pw_id": "9621",
       "pw_url": "https://www.p-world.co.jp/machine/database/9621",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "6531",
+      "p7_url": "https://pachiseven.jp/machines/6531"
     },
     {
       "機種名": "アカジンー30",
@@ -4323,7 +4934,9 @@
       "スマスロ表示": false,
       "pw_id": "9605",
       "pw_url": "https://www.p-world.co.jp/machine/database/9605",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6513",
+      "p7_url": "https://pachiseven.jp/machines/6513"
     },
     {
       "機種名": "パチスロこの素晴らしい世界に祝福を!",
@@ -4336,7 +4949,9 @@
       "スマスロ表示": false,
       "pw_id": "9594",
       "pw_url": "https://www.p-world.co.jp/machine/database/9594",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6500",
+      "p7_url": "https://pachiseven.jp/machines/6500"
     },
     {
       "機種名": "ぱちスロ ウルトラマンタロウ 暴君SPEC",
@@ -4349,7 +4964,9 @@
       "スマスロ表示": false,
       "pw_id": "9609",
       "pw_url": "https://www.p-world.co.jp/machine/database/9609",
-      "pwメーカー": "オッケー."
+      "pwメーカー": "オッケー.",
+      "p7_id": "6519",
+      "p7_url": "https://pachiseven.jp/machines/6519"
     },
     {
       "機種名": "SLOTえとたま",
@@ -4362,7 +4979,9 @@
       "スマスロ表示": false,
       "pw_id": "9584",
       "pw_url": "https://www.p-world.co.jp/machine/database/9584",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "6498",
+      "p7_url": "https://pachiseven.jp/machines/6498"
     },
     {
       "機種名": "沖縄フェスティバル-30",
@@ -4375,7 +4994,9 @@
       "スマスロ表示": false,
       "pw_id": "9581",
       "pw_url": "https://www.p-world.co.jp/machine/database/9581",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6493",
+      "p7_url": "https://pachiseven.jp/machines/6493"
     },
     {
       "機種名": "ナナイロサンゴ",
@@ -4388,7 +5009,9 @@
       "スマスロ表示": false,
       "pw_id": "9614",
       "pw_url": "https://www.p-world.co.jp/machine/database/9614",
-      "pwメーカー": "バルテック"
+      "pwメーカー": "バルテック",
+      "p7_id": "6515",
+      "p7_url": "https://pachiseven.jp/machines/6515"
     },
     {
       "機種名": "Sあかばなぁ",
@@ -4411,7 +5034,9 @@
       "スマスロ表示": false,
       "pw_id": "9571",
       "pw_url": "https://www.p-world.co.jp/machine/database/9571",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6488",
+      "p7_url": "https://pachiseven.jp/machines/6488"
     },
     {
       "機種名": "パチスロ デビル メイ クライ 5",
@@ -4424,7 +5049,9 @@
       "スマスロ表示": false,
       "pw_id": "9564",
       "pw_url": "https://www.p-world.co.jp/machine/database/9564",
-      "pwメーカー": "アデリオン"
+      "pwメーカー": "アデリオン",
+      "p7_id": "6481",
+      "p7_url": "https://pachiseven.jp/machines/6481"
     },
     {
       "機種名": "パチスロ TIGER & BUNNY SP",
@@ -4437,7 +5064,9 @@
       "スマスロ表示": false,
       "pw_id": "9573",
       "pw_url": "https://www.p-world.co.jp/machine/database/9573",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6489",
+      "p7_url": "https://pachiseven.jp/machines/6489"
     },
     {
       "機種名": "Sルパン三世",
@@ -4450,7 +5079,9 @@
       "スマスロ表示": false,
       "pw_id": "9557",
       "pw_url": "https://www.p-world.co.jp/machine/database/9557",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6473",
+      "p7_url": "https://pachiseven.jp/machines/6473"
     },
     {
       "機種名": "メルヘンクエスト",
@@ -4463,7 +5094,9 @@
       "スマスロ表示": false,
       "pw_id": "9589",
       "pw_url": "https://www.p-world.co.jp/machine/database/9589",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "6501",
+      "p7_url": "https://pachiseven.jp/machines/6501"
     },
     {
       "機種名": "パチスロ激壇蜜",
@@ -4486,7 +5119,9 @@
       "スマスロ表示": false,
       "pw_id": "9545",
       "pw_url": "https://www.p-world.co.jp/machine/database/9545",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "6458",
+      "p7_url": "https://pachiseven.jp/machines/6458"
     },
     {
       "機種名": "パチスロドリフターズ",
@@ -4499,7 +5134,9 @@
       "スマスロ表示": false,
       "pw_id": "9555",
       "pw_url": "https://www.p-world.co.jp/machine/database/9555",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6468",
+      "p7_url": "https://pachiseven.jp/machines/6468"
     },
     {
       "機種名": "押忍!番長ZERO",
@@ -4512,7 +5149,9 @@
       "スマスロ表示": false,
       "pw_id": "9539",
       "pw_url": "https://www.p-world.co.jp/machine/database/9539",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "6444",
+      "p7_url": "https://pachiseven.jp/machines/6444"
     },
     {
       "機種名": "HYPER A-30 BLUE FALCON",
@@ -4525,7 +5164,9 @@
       "スマスロ表示": false,
       "pw_id": "9560",
       "pw_url": "https://www.p-world.co.jp/machine/database/9560",
-      "pwメーカー": "DAXEL"
+      "pwメーカー": "DAXEL",
+      "p7_id": "6480",
+      "p7_url": "https://pachiseven.jp/machines/6480"
     },
     {
       "機種名": "来雷エイサーEX-30",
@@ -4538,7 +5179,9 @@
       "スマスロ表示": false,
       "pw_id": "9524",
       "pw_url": "https://www.p-world.co.jp/machine/database/9524",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6437",
+      "p7_url": "https://pachiseven.jp/machines/6437"
     },
     {
       "機種名": "新世紀エヴァンゲリオン 〜魂の共鳴〜",
@@ -4551,7 +5194,9 @@
       "スマスロ表示": false,
       "pw_id": "9542",
       "pw_url": "https://www.p-world.co.jp/machine/database/9542",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "6456",
+      "p7_url": "https://pachiseven.jp/machines/6456"
     },
     {
       "機種名": "パチスロ春一番",
@@ -4577,7 +5222,9 @@
       "スマスロ表示": false,
       "pw_id": "9521",
       "pw_url": "https://www.p-world.co.jp/machine/database/9521",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "6436",
+      "p7_url": "https://pachiseven.jp/machines/6436"
     },
     {
       "機種名": "パチスロディスクアップ2",
@@ -4590,7 +5237,9 @@
       "スマスロ表示": false,
       "pw_id": "9529",
       "pw_url": "https://www.p-world.co.jp/machine/database/9529",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6443",
+      "p7_url": "https://pachiseven.jp/machines/6443"
     },
     {
       "機種名": "パチスロアラジンAクラシック",
@@ -4603,7 +5252,9 @@
       "スマスロ表示": false,
       "pw_id": "9528",
       "pw_url": "https://www.p-world.co.jp/machine/database/9528",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6442",
+      "p7_url": "https://pachiseven.jp/machines/6442"
     },
     {
       "機種名": "ハナハナホウオウ~天翔~-30",
@@ -4642,7 +5293,9 @@
       "スマスロ表示": false,
       "pw_id": "9526",
       "pw_url": "https://www.p-world.co.jp/machine/database/9526",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6441",
+      "p7_url": "https://pachiseven.jp/machines/6441"
     },
     {
       "機種名": "ぱちスロ ギャグダー",
@@ -4655,7 +5308,9 @@
       "スマスロ表示": false,
       "pw_id": "9561",
       "pw_url": "https://www.p-world.co.jp/machine/database/9561",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6476",
+      "p7_url": "https://pachiseven.jp/machines/6476"
     },
     {
       "機種名": "S聖闘士星矢 冥王復活",
@@ -4668,7 +5323,9 @@
       "スマスロ表示": false,
       "pw_id": "9523",
       "pw_url": "https://www.p-world.co.jp/machine/database/9523",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "6434",
+      "p7_url": "https://pachiseven.jp/machines/6434"
     },
     {
       "機種名": "沖ワニマル-30",
@@ -4707,7 +5364,9 @@
       "スマスロ表示": false,
       "pw_id": "9496",
       "pw_url": "https://www.p-world.co.jp/machine/database/9496",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6427",
+      "p7_url": "https://pachiseven.jp/machines/6427"
     },
     {
       "機種名": "バーサスリヴァイズ",
@@ -4720,7 +5379,9 @@
       "スマスロ表示": false,
       "pw_id": "9519",
       "pw_url": "https://www.p-world.co.jp/machine/database/9519",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6430",
+      "p7_url": "https://pachiseven.jp/machines/6430"
     },
     {
       "機種名": "スーパーリノSP",
@@ -4733,7 +5394,9 @@
       "スマスロ表示": false,
       "pw_id": "9495",
       "pw_url": "https://www.p-world.co.jp/machine/database/9495",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6426",
+      "p7_url": "https://pachiseven.jp/machines/6426"
     },
     {
       "機種名": "秘宝伝 解き放たれた女神",
@@ -4746,7 +5409,9 @@
       "スマスロ表示": false,
       "pw_id": "9525",
       "pw_url": "https://www.p-world.co.jp/machine/database/9525",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "6440",
+      "p7_url": "https://pachiseven.jp/machines/6440"
     },
     {
       "機種名": "沖ドキ!DUO-30",
@@ -4772,7 +5437,9 @@
       "スマスロ表示": false,
       "pw_id": "9520",
       "pw_url": "https://www.p-world.co.jp/machine/database/9520",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6425",
+      "p7_url": "https://pachiseven.jp/machines/6425"
     },
     {
       "機種名": "パチスロ リング 運命の秒刻",
@@ -4785,7 +5452,9 @@
       "スマスロ表示": false,
       "pw_id": "9515",
       "pw_url": "https://www.p-world.co.jp/machine/database/9515",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "6432",
+      "p7_url": "https://pachiseven.jp/machines/6432"
     },
     {
       "機種名": "シンデレラブレイド4",
@@ -4798,7 +5467,9 @@
       "スマスロ表示": false,
       "pw_id": "9513",
       "pw_url": "https://www.p-world.co.jp/machine/database/9513",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6429",
+      "p7_url": "https://pachiseven.jp/machines/6429"
     },
     {
       "機種名": "パチスロうまい棒",
@@ -4811,7 +5482,9 @@
       "スマスロ表示": false,
       "pw_id": "9522",
       "pw_url": "https://www.p-world.co.jp/machine/database/9522",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "6435",
+      "p7_url": "https://pachiseven.jp/machines/6435"
     },
     {
       "機種名": "デジタルトラッド",
@@ -4834,7 +5507,9 @@
       "スマスロ表示": false,
       "pw_id": "9531",
       "pw_url": "https://www.p-world.co.jp/machine/database/9531",
-      "pwメーカー": "DAXEL"
+      "pwメーカー": "DAXEL",
+      "p7_id": "6454",
+      "p7_url": "https://pachiseven.jp/machines/6454"
     },
     {
       "機種名": "泡盛",
@@ -4847,7 +5522,9 @@
       "スマスロ表示": false,
       "pw_id": "9511",
       "pw_url": "https://www.p-world.co.jp/machine/database/9511",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6420",
+      "p7_url": "https://pachiseven.jp/machines/6420"
     },
     {
       "機種名": "主役は銭形3",
@@ -4860,7 +5537,9 @@
       "スマスロ表示": false,
       "pw_id": "9497",
       "pw_url": "https://www.p-world.co.jp/machine/database/9497",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "6423",
+      "p7_url": "https://pachiseven.jp/machines/6423"
     },
     {
       "機種名": "マイジャグラーV",
@@ -4873,7 +5552,9 @@
       "スマスロ表示": false,
       "pw_id": "9514",
       "pw_url": "https://www.p-world.co.jp/machine/database/9514",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6421",
+      "p7_url": "https://pachiseven.jp/machines/6421"
     },
     {
       "機種名": "パチスロ モンスター ハンター:ワールドTM 黄金狩猟",
@@ -4886,7 +5567,9 @@
       "スマスロ表示": false,
       "pw_id": "9516",
       "pw_url": "https://www.p-world.co.jp/machine/database/9516",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6417",
+      "p7_url": "https://pachiseven.jp/machines/6417"
     },
     {
       "機種名": "トリプルクラウンZERO V",
@@ -4909,7 +5592,9 @@
       "スマスロ表示": false,
       "pw_id": "9494",
       "pw_url": "https://www.p-world.co.jp/machine/database/9494",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6422",
+      "p7_url": "https://pachiseven.jp/machines/6422"
     },
     {
       "機種名": "S牙狼―黄金騎士―",
@@ -4932,7 +5617,9 @@
       "スマスロ表示": false,
       "pw_id": "9503",
       "pw_url": "https://www.p-world.co.jp/machine/database/9503",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "6419",
+      "p7_url": "https://pachiseven.jp/machines/6419"
     },
     {
       "機種名": "パチスロ戦国乙女 暁の関ヶ原-DARKNESS-",
@@ -4945,7 +5632,9 @@
       "スマスロ表示": false,
       "pw_id": "9479",
       "pw_url": "https://www.p-world.co.jp/machine/database/9479",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6400",
+      "p7_url": "https://pachiseven.jp/machines/6400"
     },
     {
       "機種名": "パチスロANEMONE 交響詩篇エウレカセブン HIーEVOLUTION",
@@ -4968,7 +5657,9 @@
       "スマスロ表示": false,
       "pw_id": "9465",
       "pw_url": "https://www.p-world.co.jp/machine/database/9465",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6413",
+      "p7_url": "https://pachiseven.jp/machines/6413"
     },
     {
       "機種名": "CCエンジェル",
@@ -4981,7 +5672,9 @@
       "スマスロ表示": false,
       "pw_id": "9484",
       "pw_url": "https://www.p-world.co.jp/machine/database/9484",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "6418",
+      "p7_url": "https://pachiseven.jp/machines/6418"
     },
     {
       "機種名": "ファンキージャグラー2",
@@ -4994,7 +5687,9 @@
       "スマスロ表示": false,
       "pw_id": "9446",
       "pw_url": "https://www.p-world.co.jp/machine/database/9446",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6338",
+      "p7_url": "https://pachiseven.jp/machines/6338"
     },
     {
       "機種名": "パチスロツインエンジェルPARTY",
@@ -5007,7 +5702,9 @@
       "スマスロ表示": false,
       "pw_id": "9443",
       "pw_url": "https://www.p-world.co.jp/machine/database/9443",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6396",
+      "p7_url": "https://pachiseven.jp/machines/6396"
     },
     {
       "機種名": "パチスロかまいたちの夜",
@@ -5020,7 +5717,9 @@
       "スマスロ表示": false,
       "pw_id": "9458",
       "pw_url": "https://www.p-world.co.jp/machine/database/9458",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6369",
+      "p7_url": "https://pachiseven.jp/machines/6369"
     },
     {
       "機種名": "ニューパルサーDX3",
@@ -5033,7 +5732,9 @@
       "スマスロ表示": false,
       "pw_id": "9439",
       "pw_url": "https://www.p-world.co.jp/machine/database/9439",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6394",
+      "p7_url": "https://pachiseven.jp/machines/6394"
     },
     {
       "機種名": "SLOTタブー・タトゥー",
@@ -5046,7 +5747,9 @@
       "スマスロ表示": false,
       "pw_id": "9462",
       "pw_url": "https://www.p-world.co.jp/machine/database/9462",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6395",
+      "p7_url": "https://pachiseven.jp/machines/6395"
     },
     {
       "機種名": "マジカルハロウィン〜Trick or Treat!〜",
@@ -5059,7 +5762,9 @@
       "スマスロ表示": false,
       "pw_id": "9438",
       "pw_url": "https://www.p-world.co.jp/machine/database/9438",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6337",
+      "p7_url": "https://pachiseven.jp/machines/6337"
     },
     {
       "機種名": "HIT128",
@@ -5072,7 +5777,9 @@
       "スマスロ表示": false,
       "pw_id": "9444",
       "pw_url": "https://www.p-world.co.jp/machine/database/9444",
-      "pwメーカー": "岡崎産業"
+      "pwメーカー": "岡崎産業",
+      "p7_id": "6380",
+      "p7_url": "https://pachiseven.jp/machines/6380"
     },
     {
       "機種名": "パチスロ麻雀物語4",
@@ -5085,7 +5792,9 @@
       "スマスロ表示": false,
       "pw_id": "9428",
       "pw_url": "https://www.p-world.co.jp/machine/database/9428",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6339",
+      "p7_url": "https://pachiseven.jp/machines/6339"
     },
     {
       "機種名": "パチスロ楽園追放",
@@ -5098,7 +5807,9 @@
       "スマスロ表示": false,
       "pw_id": "9433",
       "pw_url": "https://www.p-world.co.jp/machine/database/9433",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6379",
+      "p7_url": "https://pachiseven.jp/machines/6379"
     },
     {
       "機種名": "パチスロ ロリクラ☆ほーるど!",
@@ -5111,7 +5822,9 @@
       "スマスロ表示": false,
       "pw_id": "9442",
       "pw_url": "https://www.p-world.co.jp/machine/database/9442",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6377",
+      "p7_url": "https://pachiseven.jp/machines/6377"
     },
     {
       "機種名": "パチスロ うしおととら 雷槍一閃",
@@ -5124,7 +5837,9 @@
       "スマスロ表示": false,
       "pw_id": "9429",
       "pw_url": "https://www.p-world.co.jp/machine/database/9429",
-      "pwメーカー": "Daiichi"
+      "pwメーカー": "Daiichi",
+      "p7_id": "6348",
+      "p7_url": "https://pachiseven.jp/machines/6348"
     },
     {
       "機種名": "パチスロコードギアス 反逆のルルーシュ3",
@@ -5137,7 +5852,9 @@
       "スマスロ表示": false,
       "pw_id": "9409",
       "pw_url": "https://www.p-world.co.jp/machine/database/9409",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6324",
+      "p7_url": "https://pachiseven.jp/machines/6324"
     },
     {
       "機種名": "もっと!クレアの秘宝伝 女神の歌声と太陽の子供達",
@@ -5150,7 +5867,9 @@
       "スマスロ表示": false,
       "pw_id": "9426",
       "pw_url": "https://www.p-world.co.jp/machine/database/9426",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "6323",
+      "p7_url": "https://pachiseven.jp/machines/6323"
     },
     {
       "機種名": "SLOT劇場版 魔法少女まどか☆マギカ[前編]始まりの物語/[後編]永遠の物語",
@@ -5163,7 +5882,9 @@
       "スマスロ表示": false,
       "pw_id": "9413",
       "pw_url": "https://www.p-world.co.jp/machine/database/9413",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6327",
+      "p7_url": "https://pachiseven.jp/machines/6327"
     },
     {
       "機種名": "GI優駿倶楽部3",
@@ -5176,7 +5897,9 @@
       "スマスロ表示": false,
       "pw_id": "9405",
       "pw_url": "https://www.p-world.co.jp/machine/database/9405",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6318",
+      "p7_url": "https://pachiseven.jp/machines/6318"
     },
     {
       "機種名": "パチスロ東京レイヴンズ",
@@ -5189,7 +5912,9 @@
       "スマスロ表示": false,
       "pw_id": "9414",
       "pw_url": "https://www.p-world.co.jp/machine/database/9414",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6321",
+      "p7_url": "https://pachiseven.jp/machines/6321"
     },
     {
       "機種名": "新ハナビ",
@@ -5202,7 +5927,9 @@
       "スマスロ表示": false,
       "pw_id": "9401",
       "pw_url": "https://www.p-world.co.jp/machine/database/9401",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6305",
+      "p7_url": "https://pachiseven.jp/machines/6305"
     },
     {
       "機種名": "パチスロ零",
@@ -5215,7 +5942,9 @@
       "スマスロ表示": false,
       "pw_id": "9406",
       "pw_url": "https://www.p-world.co.jp/machine/database/9406",
-      "pwメーカー": "山佐ネクスト"
+      "pwメーカー": "山佐ネクスト",
+      "p7_id": "6307",
+      "p7_url": "https://pachiseven.jp/machines/6307"
     },
     {
       "機種名": "ノーゲーム・ノーライフ THE SLOT",
@@ -5228,7 +5957,9 @@
       "スマスロ表示": false,
       "pw_id": "9381",
       "pw_url": "https://www.p-world.co.jp/machine/database/9381",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "6317",
+      "p7_url": "https://pachiseven.jp/machines/6317"
     },
     {
       "機種名": "パチスロ鉄拳4デビルVer.",
@@ -5241,7 +5972,9 @@
       "スマスロ表示": false,
       "pw_id": "9379",
       "pw_url": "https://www.p-world.co.jp/machine/database/9379",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6308",
+      "p7_url": "https://pachiseven.jp/machines/6308"
     },
     {
       "機種名": "パチスロガールズ&パンツァー 劇場版",
@@ -5254,7 +5987,9 @@
       "スマスロ表示": false,
       "pw_id": "9388",
       "pw_url": "https://www.p-world.co.jp/machine/database/9388",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "6312",
+      "p7_url": "https://pachiseven.jp/machines/6312"
     },
     {
       "機種名": "パチスロガメラ",
@@ -5267,7 +6002,9 @@
       "スマスロ表示": false,
       "pw_id": "9372",
       "pw_url": "https://www.p-world.co.jp/machine/database/9372",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6309",
+      "p7_url": "https://pachiseven.jp/machines/6309"
     },
     {
       "機種名": "パチスロ 百花繚乱 サムライガールズ",
@@ -5280,7 +6017,9 @@
       "スマスロ表示": false,
       "pw_id": "9376",
       "pw_url": "https://www.p-world.co.jp/machine/database/9376",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6316",
+      "p7_url": "https://pachiseven.jp/machines/6316"
     },
     {
       "機種名": "鬼浜爆走紅蓮隊 狂闘旅情編",
@@ -5293,7 +6032,9 @@
       "スマスロ表示": false,
       "pw_id": "9364",
       "pw_url": "https://www.p-world.co.jp/machine/database/9364",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6298",
+      "p7_url": "https://pachiseven.jp/machines/6298"
     },
     {
       "機種名": "チバリヨ-30",
@@ -5319,7 +6060,9 @@
       "スマスロ表示": false,
       "pw_id": "9349",
       "pw_url": "https://www.p-world.co.jp/machine/database/9349",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6283",
+      "p7_url": "https://pachiseven.jp/machines/6283"
     },
     {
       "機種名": "パチスロ Wake Up, Girls!Seven Memories",
@@ -5332,7 +6075,9 @@
       "スマスロ表示": false,
       "pw_id": "9352",
       "pw_url": "https://www.p-world.co.jp/machine/database/9352",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "6284",
+      "p7_url": "https://pachiseven.jp/machines/6284"
     },
     {
       "機種名": "SLOTアルドノア・ゼロ",
@@ -5345,7 +6090,9 @@
       "スマスロ表示": false,
       "pw_id": "9362",
       "pw_url": "https://www.p-world.co.jp/machine/database/9362",
-      "pwメーカー": "エレコ"
+      "pwメーカー": "エレコ",
+      "p7_id": "6296",
+      "p7_url": "https://pachiseven.jp/machines/6296"
     },
     {
       "機種名": "ハイパーアピエルZ",
@@ -5368,7 +6115,9 @@
       "スマスロ表示": false,
       "pw_id": "9347",
       "pw_url": "https://www.p-world.co.jp/machine/database/9347",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6257",
+      "p7_url": "https://pachiseven.jp/machines/6257"
     },
     {
       "機種名": "パチスロ マクロスデルタ",
@@ -5381,7 +6130,9 @@
       "スマスロ表示": false,
       "pw_id": "9369",
       "pw_url": "https://www.p-world.co.jp/machine/database/9369",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "6256",
+      "p7_url": "https://pachiseven.jp/machines/6256"
     },
     {
       "機種名": "デジスロ",
@@ -5394,7 +6145,9 @@
       "スマスロ表示": false,
       "pw_id": "9346",
       "pw_url": "https://www.p-world.co.jp/machine/database/9346",
-      "pwメーカー": "ヤーマ"
+      "pwメーカー": "ヤーマ",
+      "p7_id": "6255",
+      "p7_url": "https://pachiseven.jp/machines/6255"
     },
     {
       "機種名": "スーパーハナハナ-30",
@@ -5433,7 +6186,9 @@
       "スマスロ表示": false,
       "pw_id": "9382",
       "pw_url": "https://www.p-world.co.jp/machine/database/9382",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "6286",
+      "p7_url": "https://pachiseven.jp/machines/6286"
     },
     {
       "機種名": "パチスロ1000ちゃん ごらくver.",
@@ -5443,7 +6198,9 @@
       "導入開始日": "2021-04-05",
       "一覧機械割下限": 99.5,
       "一覧機械割上限": 107.5,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "6273",
+      "p7_url": "https://pachiseven.jp/machines/6273"
     },
     {
       "機種名": "ニューパルサーSPIII",
@@ -5456,7 +6213,9 @@
       "スマスロ表示": false,
       "pw_id": "9331",
       "pw_url": "https://www.p-world.co.jp/machine/database/9331",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6264",
+      "p7_url": "https://pachiseven.jp/machines/6264"
     },
     {
       "機種名": "絶対衝激III",
@@ -5469,7 +6228,9 @@
       "スマスロ表示": false,
       "pw_id": "9332",
       "pw_url": "https://www.p-world.co.jp/machine/database/9332",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "6248",
+      "p7_url": "https://pachiseven.jp/machines/6248"
     },
     {
       "機種名": "ミスタートリプルクラウン",
@@ -5495,7 +6256,9 @@
       "スマスロ表示": false,
       "pw_id": "9320",
       "pw_url": "https://www.p-world.co.jp/machine/database/9320",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6242",
+      "p7_url": "https://pachiseven.jp/machines/6242"
     },
     {
       "機種名": "パチスロ青の祓魔師",
@@ -5508,7 +6271,9 @@
       "スマスロ表示": false,
       "pw_id": "9318",
       "pw_url": "https://www.p-world.co.jp/machine/database/9318",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6234",
+      "p7_url": "https://pachiseven.jp/machines/6234"
     },
     {
       "機種名": "パチスロ北斗の拳 宿命",
@@ -5521,7 +6286,9 @@
       "スマスロ表示": false,
       "pw_id": "9300",
       "pw_url": "https://www.p-world.co.jp/machine/database/9300",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6210",
+      "p7_url": "https://pachiseven.jp/machines/6210"
     },
     {
       "機種名": "パチスロラブ嬢IIプラス",
@@ -5544,7 +6311,9 @@
       "スマスロ表示": false,
       "pw_id": "9325",
       "pw_url": "https://www.p-world.co.jp/machine/database/9325",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "6241",
+      "p7_url": "https://pachiseven.jp/machines/6241"
     },
     {
       "機種名": "政宗3",
@@ -5557,7 +6326,9 @@
       "スマスロ表示": false,
       "pw_id": "9316",
       "pw_url": "https://www.p-world.co.jp/machine/database/9316",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6230",
+      "p7_url": "https://pachiseven.jp/machines/6230"
     },
     {
       "機種名": "パチスロKING黄門ちゃま",
@@ -5570,7 +6341,9 @@
       "スマスロ表示": false,
       "pw_id": "9293",
       "pw_url": "https://www.p-world.co.jp/machine/database/9293",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "6206",
+      "p7_url": "https://pachiseven.jp/machines/6206"
     },
     {
       "機種名": "パチスロ フレームアームズ・ガール",
@@ -5583,7 +6356,9 @@
       "スマスロ表示": false,
       "pw_id": "9290",
       "pw_url": "https://www.p-world.co.jp/machine/database/9290",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6197",
+      "p7_url": "https://pachiseven.jp/machines/6197"
     },
     {
       "機種名": "パチスロ バイオハザード7 レジデント イービル",
@@ -5596,7 +6371,9 @@
       "スマスロ表示": false,
       "pw_id": "9303",
       "pw_url": "https://www.p-world.co.jp/machine/database/9303",
-      "pwメーカー": "アデリオン"
+      "pwメーカー": "アデリオン",
+      "p7_id": "6216",
+      "p7_url": "https://pachiseven.jp/machines/6216"
     },
     {
       "機種名": "パチスロ ゴッドイーター ジ・アニメーション",
@@ -5609,7 +6386,9 @@
       "スマスロ表示": false,
       "pw_id": "9289",
       "pw_url": "https://www.p-world.co.jp/machine/database/9289",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6201",
+      "p7_url": "https://pachiseven.jp/machines/6201"
     },
     {
       "機種名": "麻雀格闘倶楽部 真",
@@ -5622,7 +6401,9 @@
       "スマスロ表示": false,
       "pw_id": "9281",
       "pw_url": "https://www.p-world.co.jp/machine/database/9281",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6186",
+      "p7_url": "https://pachiseven.jp/machines/6186"
     },
     {
       "機種名": "戦国乙女3~天剣を継ぐもの~",
@@ -5635,7 +6416,9 @@
       "スマスロ表示": false,
       "pw_id": "9277",
       "pw_url": "https://www.p-world.co.jp/machine/database/9277",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "6207",
+      "p7_url": "https://pachiseven.jp/machines/6207"
     },
     {
       "機種名": "南国育ち30",
@@ -5648,7 +6431,9 @@
       "スマスロ表示": false,
       "pw_id": "9259",
       "pw_url": "https://www.p-world.co.jp/machine/database/9259",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "6184",
+      "p7_url": "https://pachiseven.jp/machines/6184"
     },
     {
       "機種名": "パチスロ頭文字D",
@@ -5661,7 +6446,9 @@
       "スマスロ表示": false,
       "pw_id": "9271",
       "pw_url": "https://www.p-world.co.jp/machine/database/9271",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6176",
+      "p7_url": "https://pachiseven.jp/machines/6176"
     },
     {
       "機種名": "パチスロ花の慶次~武威",
@@ -5674,7 +6461,9 @@
       "スマスロ表示": false,
       "pw_id": "9284",
       "pw_url": "https://www.p-world.co.jp/machine/database/9284",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "6191",
+      "p7_url": "https://pachiseven.jp/machines/6191"
     },
     {
       "機種名": "ニューハナハナゴールド-30",
@@ -5687,7 +6476,9 @@
       "スマスロ表示": false,
       "pw_id": "9267",
       "pw_url": "https://www.p-world.co.jp/machine/database/9267",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6220",
+      "p7_url": "https://pachiseven.jp/machines/6220"
     },
     {
       "機種名": "S Lucky海物語",
@@ -5700,7 +6491,9 @@
       "スマスロ表示": false,
       "pw_id": "9276",
       "pw_url": "https://www.p-world.co.jp/machine/database/9276",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "6183",
+      "p7_url": "https://pachiseven.jp/machines/6183"
     },
     {
       "機種名": "パチスロひぐらしのなく頃に祭2",
@@ -5713,7 +6506,9 @@
       "スマスロ表示": false,
       "pw_id": "9266",
       "pw_url": "https://www.p-world.co.jp/machine/database/9266",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "6167",
+      "p7_url": "https://pachiseven.jp/machines/6167"
     },
     {
       "機種名": "パチスロ 哲也 ー天運地力ー",
@@ -5749,7 +6544,9 @@
       "スマスロ表示": false,
       "pw_id": "9255",
       "pw_url": "https://www.p-world.co.jp/machine/database/9255",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "6159",
+      "p7_url": "https://pachiseven.jp/machines/6159"
     },
     {
       "機種名": "華祭",
@@ -5762,7 +6559,9 @@
       "スマスロ表示": false,
       "pw_id": "9254",
       "pw_url": "https://www.p-world.co.jp/machine/database/9254",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "6164",
+      "p7_url": "https://pachiseven.jp/machines/6164"
     },
     {
       "機種名": "パチスロ学園黙示録ハイスクール・オブ・ザ・デッド ゴールド",
@@ -5775,7 +6574,9 @@
       "スマスロ表示": false,
       "pw_id": "9251",
       "pw_url": "https://www.p-world.co.jp/machine/database/9251",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "6161",
+      "p7_url": "https://pachiseven.jp/machines/6161"
     },
     {
       "機種名": "パチスロ七つの大罪",
@@ -5788,7 +6589,9 @@
       "スマスロ表示": false,
       "pw_id": "9241",
       "pw_url": "https://www.p-world.co.jp/machine/database/9241",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6145",
+      "p7_url": "https://pachiseven.jp/machines/6145"
     },
     {
       "機種名": "アカメが斬る!",
@@ -5801,7 +6604,9 @@
       "スマスロ表示": false,
       "pw_id": "9258",
       "pw_url": "https://www.p-world.co.jp/machine/database/9258",
-      "pwメーカー": "七匠"
+      "pwメーカー": "七匠",
+      "p7_id": "6160",
+      "p7_url": "https://pachiseven.jp/machines/6160"
     },
     {
       "機種名": "~ガールズケイリン~GIフェアリーグランプリ",
@@ -5814,7 +6619,9 @@
       "スマスロ表示": false,
       "pw_id": "9246",
       "pw_url": "https://www.p-world.co.jp/machine/database/9246",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6151",
+      "p7_url": "https://pachiseven.jp/machines/6151"
     },
     {
       "機種名": "回胴黙示録カイジ~沼~",
@@ -5827,7 +6634,9 @@
       "スマスロ表示": false,
       "pw_id": "9158",
       "pw_url": "https://www.p-world.co.jp/machine/database/9158",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6010",
+      "p7_url": "https://pachiseven.jp/machines/6010"
     },
     {
       "機種名": "吉宗3",
@@ -5840,7 +6649,9 @@
       "スマスロ表示": false,
       "pw_id": "9244",
       "pw_url": "https://www.p-world.co.jp/machine/database/9244",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "6129",
+      "p7_url": "https://pachiseven.jp/machines/6129"
     },
     {
       "機種名": "S笑ゥせぇるすまん絶笑",
@@ -5853,7 +6664,9 @@
       "スマスロ表示": false,
       "pw_id": "9230",
       "pw_url": "https://www.p-world.co.jp/machine/database/9230",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "6133",
+      "p7_url": "https://pachiseven.jp/machines/6133"
     },
     {
       "機種名": "対魔導学園35試験小隊",
@@ -5866,7 +6679,9 @@
       "スマスロ表示": false,
       "pw_id": "9222",
       "pw_url": "https://www.p-world.co.jp/machine/database/9222",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "6132",
+      "p7_url": "https://pachiseven.jp/machines/6132"
     },
     {
       "機種名": "PACHISLOT リングにかけろ1 ワールドチャンピオンカーニバル編",
@@ -5879,7 +6694,9 @@
       "スマスロ表示": false,
       "pw_id": "9226",
       "pw_url": "https://www.p-world.co.jp/machine/database/9226",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "6128",
+      "p7_url": "https://pachiseven.jp/machines/6128"
     },
     {
       "機種名": "アナターのオット!?はーです",
@@ -5892,7 +6709,9 @@
       "スマスロ表示": false,
       "pw_id": "9219",
       "pw_url": "https://www.p-world.co.jp/machine/database/9219",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "6124",
+      "p7_url": "https://pachiseven.jp/machines/6124"
     },
     {
       "機種名": "戦国コレクション4",
@@ -5905,7 +6724,9 @@
       "スマスロ表示": false,
       "pw_id": "9204",
       "pw_url": "https://www.p-world.co.jp/machine/database/9204",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "6075",
+      "p7_url": "https://pachiseven.jp/machines/6075"
     },
     {
       "機種名": "ハイパーブラックジャック",
@@ -5918,7 +6739,9 @@
       "スマスロ表示": false,
       "pw_id": "9212",
       "pw_url": "https://www.p-world.co.jp/machine/database/9212",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "6117",
+      "p7_url": "https://pachiseven.jp/machines/6117"
     },
     {
       "機種名": "シャア専用パチスロ 逆襲の赤い彗星",
@@ -5931,7 +6754,9 @@
       "スマスロ表示": false,
       "pw_id": "9202",
       "pw_url": "https://www.p-world.co.jp/machine/database/9202",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "6082",
+      "p7_url": "https://pachiseven.jp/machines/6082"
     },
     {
       "機種名": "パチスロ真・北斗無双",
@@ -5944,7 +6769,9 @@
       "スマスロ表示": false,
       "pw_id": "10044",
       "pw_url": "https://www.p-world.co.jp/machine/database/10044",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6960",
+      "p7_url": "https://pachiseven.jp/machines/6960"
     },
     {
       "機種名": "ワンバーS-30",
@@ -5957,7 +6784,9 @@
       "スマスロ表示": false,
       "pw_id": "9192",
       "pw_url": "https://www.p-world.co.jp/machine/database/9192",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "6041",
+      "p7_url": "https://pachiseven.jp/machines/6041"
     },
     {
       "機種名": "パチスロ壇蜜",
@@ -5967,7 +6796,9 @@
       "導入開始日": "2020-07-06",
       "一覧機械割下限": 101.84,
       "一覧機械割上限": 107.68,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "6084",
+      "p7_url": "https://pachiseven.jp/machines/6084"
     },
     {
       "機種名": "BLACK LAGOON4",
@@ -5980,7 +6811,9 @@
       "スマスロ表示": false,
       "pw_id": "9189",
       "pw_url": "https://www.p-world.co.jp/machine/database/9189",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "6050",
+      "p7_url": "https://pachiseven.jp/machines/6050"
     },
     {
       "機種名": "沖ドキ!2-30",
@@ -5993,7 +6826,9 @@
       "スマスロ表示": false,
       "pw_id": "9154",
       "pw_url": "https://www.p-world.co.jp/machine/database/9154",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5996",
+      "p7_url": "https://pachiseven.jp/machines/5996"
     },
     {
       "機種名": "ビッグシオ-30",
@@ -6006,7 +6841,9 @@
       "スマスロ表示": false,
       "pw_id": "9151",
       "pw_url": "https://www.p-world.co.jp/machine/database/9151",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5984",
+      "p7_url": "https://pachiseven.jp/machines/5984"
     },
     {
       "機種名": "ハイドラ-30",
@@ -6019,7 +6856,9 @@
       "スマスロ表示": false,
       "pw_id": "9186",
       "pw_url": "https://www.p-world.co.jp/machine/database/9186",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "6042",
+      "p7_url": "https://pachiseven.jp/machines/6042"
     },
     {
       "機種名": "OZ1-30",
@@ -6042,7 +6881,9 @@
       "スマスロ表示": false,
       "pw_id": "9163",
       "pw_url": "https://www.p-world.co.jp/machine/database/9163",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "6004",
+      "p7_url": "https://pachiseven.jp/machines/6004"
     },
     {
       "機種名": "Sヤッターマン絶対正義",
@@ -6055,7 +6896,9 @@
       "スマスロ表示": false,
       "pw_id": "9174",
       "pw_url": "https://www.p-world.co.jp/machine/database/9174",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "6034",
+      "p7_url": "https://pachiseven.jp/machines/6034"
     },
     {
       "機種名": "Sパチスロダイナマイトキング極",
@@ -6068,7 +6911,9 @@
       "スマスロ表示": false,
       "pw_id": "9170",
       "pw_url": "https://www.p-world.co.jp/machine/database/9170",
-      "pwメーカー": "D-light"
+      "pwメーカー": "D-light",
+      "p7_id": "5934",
+      "p7_url": "https://pachiseven.jp/machines/5934"
     },
     {
       "機種名": "押忍!サラリーマン番長2",
@@ -6081,7 +6926,9 @@
       "スマスロ表示": false,
       "pw_id": "9181",
       "pw_url": "https://www.p-world.co.jp/machine/database/9181",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "6022",
+      "p7_url": "https://pachiseven.jp/machines/6022"
     },
     {
       "機種名": "サンダーVライトニング",
@@ -6094,7 +6941,9 @@
       "スマスロ表示": false,
       "pw_id": "9155",
       "pw_url": "https://www.p-world.co.jp/machine/database/9155",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5997",
+      "p7_url": "https://pachiseven.jp/machines/5997"
     },
     {
       "機種名": "パチスロ咲 -Saki-",
@@ -6107,7 +6956,9 @@
       "スマスロ表示": false,
       "pw_id": "9152",
       "pw_url": "https://www.p-world.co.jp/machine/database/9152",
-      "pwメーカー": "サンスリー"
+      "pwメーカー": "サンスリー",
+      "p7_id": "5994",
+      "p7_url": "https://pachiseven.jp/machines/5994"
     },
     {
       "機種名": "スナイパイ71",
@@ -6120,7 +6971,9 @@
       "スマスロ表示": false,
       "pw_id": "9142",
       "pw_url": "https://www.p-world.co.jp/machine/database/9142",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "5987",
+      "p7_url": "https://pachiseven.jp/machines/5987"
     },
     {
       "機種名": "パチスロ 新鬼武者~DAWN OF DREAMS~",
@@ -6133,7 +6986,9 @@
       "スマスロ表示": false,
       "pw_id": "9132",
       "pw_url": "https://www.p-world.co.jp/machine/database/9132",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "5948",
+      "p7_url": "https://pachiseven.jp/machines/5948"
     },
     {
       "機種名": "パチスロ〈物語〉シリーズ セカンドシーズン",
@@ -6146,7 +7001,9 @@
       "スマスロ表示": false,
       "pw_id": "9147",
       "pw_url": "https://www.p-world.co.jp/machine/database/9147",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "6001",
+      "p7_url": "https://pachiseven.jp/machines/6001"
     },
     {
       "機種名": "スペリオーレ",
@@ -6159,7 +7016,9 @@
       "スマスロ表示": false,
       "pw_id": "9160",
       "pw_url": "https://www.p-world.co.jp/machine/database/9160",
-      "pwメーカー": "バルテック"
+      "pwメーカー": "バルテック",
+      "p7_id": "5991",
+      "p7_url": "https://pachiseven.jp/machines/5991"
     },
     {
       "機種名": "みうのおしゃべりパチスロ",
@@ -6172,7 +7031,9 @@
       "スマスロ表示": false,
       "pw_id": "9144",
       "pw_url": "https://www.p-world.co.jp/machine/database/9144",
-      "pwメーカー": "岡崎産業"
+      "pwメーカー": "岡崎産業",
+      "p7_id": "5970",
+      "p7_url": "https://pachiseven.jp/machines/5970"
     },
     {
       "機種名": "パチスロ ハナペカ",
@@ -6185,7 +7046,9 @@
       "スマスロ表示": false,
       "pw_id": "9125",
       "pw_url": "https://www.p-world.co.jp/machine/database/9125",
-      "pwメーカー": "ニューギン"
+      "pwメーカー": "ニューギン",
+      "p7_id": "5959",
+      "p7_url": "https://pachiseven.jp/machines/5959"
     },
     {
       "機種名": "パチスロ ケロット4",
@@ -6198,7 +7061,9 @@
       "スマスロ表示": false,
       "pw_id": "9123",
       "pw_url": "https://www.p-world.co.jp/machine/database/9123",
-      "pwメーカー": "セブンリーグ"
+      "pwメーカー": "セブンリーグ",
+      "p7_id": "5954",
+      "p7_url": "https://pachiseven.jp/machines/5954"
     },
     {
       "機種名": "キングオブジャック",
@@ -6211,7 +7076,9 @@
       "スマスロ表示": false,
       "pw_id": "9134",
       "pw_url": "https://www.p-world.co.jp/machine/database/9134",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "5964",
+      "p7_url": "https://pachiseven.jp/machines/5964"
     },
     {
       "機種名": "エヴァンゲリオン フェスティバル",
@@ -6224,7 +7091,9 @@
       "スマスロ表示": false,
       "pw_id": "9164",
       "pw_url": "https://www.p-world.co.jp/machine/database/9164",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5992",
+      "p7_url": "https://pachiseven.jp/machines/5992"
     },
     {
       "機種名": "いろはに愛姫",
@@ -6237,7 +7106,9 @@
       "スマスロ表示": false,
       "pw_id": "9156",
       "pw_url": "https://www.p-world.co.jp/machine/database/9156",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "5990",
+      "p7_url": "https://pachiseven.jp/machines/5990"
     },
     {
       "機種名": "パチスロ ファンタシースターオンライン2",
@@ -6250,7 +7121,9 @@
       "スマスロ表示": false,
       "pw_id": "9136",
       "pw_url": "https://www.p-world.co.jp/machine/database/9136",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5988",
+      "p7_url": "https://pachiseven.jp/machines/5988"
     },
     {
       "機種名": "スロまる",
@@ -6263,7 +7136,9 @@
       "スマスロ表示": false,
       "pw_id": "9130",
       "pw_url": "https://www.p-world.co.jp/machine/database/9130",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5981",
+      "p7_url": "https://pachiseven.jp/machines/5981"
     },
     {
       "機種名": "Diamond",
@@ -6276,7 +7151,9 @@
       "スマスロ表示": false,
       "pw_id": "9131",
       "pw_url": "https://www.p-world.co.jp/machine/database/9131",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5979",
+      "p7_url": "https://pachiseven.jp/machines/5979"
     },
     {
       "機種名": "SLOTバジリスク~甲賀忍法帖~絆2",
@@ -6289,7 +7166,9 @@
       "スマスロ表示": false,
       "pw_id": "9114",
       "pw_url": "https://www.p-world.co.jp/machine/database/9114",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "5961",
+      "p7_url": "https://pachiseven.jp/machines/5961"
     },
     {
       "機種名": "パチスロ 青鬼",
@@ -6302,7 +7181,9 @@
       "スマスロ表示": false,
       "pw_id": "9111",
       "pw_url": "https://www.p-world.co.jp/machine/database/9111",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5960",
+      "p7_url": "https://pachiseven.jp/machines/5960"
     },
     {
       "機種名": "パチスロ123",
@@ -6315,7 +7196,9 @@
       "スマスロ表示": false,
       "pw_id": "9129",
       "pw_url": "https://www.p-world.co.jp/machine/database/9129",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5982",
+      "p7_url": "https://pachiseven.jp/machines/5982"
     },
     {
       "機種名": "探偵オペラ ミルキィホームズ 1/2の奇跡",
@@ -6328,7 +7211,9 @@
       "スマスロ表示": false,
       "pw_id": "9107",
       "pw_url": "https://www.p-world.co.jp/machine/database/9107",
-      "pwメーカー": "カルミナ"
+      "pwメーカー": "カルミナ",
+      "p7_id": "5946",
+      "p7_url": "https://pachiseven.jp/machines/5946"
     },
     {
       "機種名": "パチスロ 花伝-30",
@@ -6338,7 +7223,9 @@
       "導入開始日": "2020-01-20",
       "一覧機械割下限": 97.4,
       "一覧機械割上限": 110.1,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5957",
+      "p7_url": "https://pachiseven.jp/machines/5957"
     },
     {
       "機種名": "パチスロ 花伝",
@@ -6348,7 +7235,9 @@
       "導入開始日": "2020-01-20",
       "一覧機械割下限": 97.4,
       "一覧機械割上限": 110.1,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5921",
+      "p7_url": "https://pachiseven.jp/machines/5921"
     },
     {
       "機種名": "スカイガールズ~ゼロノツバサ~",
@@ -6361,7 +7250,9 @@
       "スマスロ表示": false,
       "pw_id": "9093",
       "pw_url": "https://www.p-world.co.jp/machine/database/9093",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5939",
+      "p7_url": "https://pachiseven.jp/machines/5939"
     },
     {
       "機種名": "ハイパーアピエル",
@@ -6387,7 +7278,9 @@
       "スマスロ表示": false,
       "pw_id": "9081",
       "pw_url": "https://www.p-world.co.jp/machine/database/9081",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "5887",
+      "p7_url": "https://pachiseven.jp/machines/5887"
     },
     {
       "機種名": "Sリング 恐襲ノ連鎖",
@@ -6400,7 +7293,9 @@
       "スマスロ表示": false,
       "pw_id": "9091",
       "pw_url": "https://www.p-world.co.jp/machine/database/9091",
-      "pwメーカー": "JFJ"
+      "pwメーカー": "JFJ",
+      "p7_id": "5935",
+      "p7_url": "https://pachiseven.jp/machines/5935"
     },
     {
       "機種名": "パチスロたまピー",
@@ -6413,7 +7308,9 @@
       "スマスロ表示": false,
       "pw_id": "9103",
       "pw_url": "https://www.p-world.co.jp/machine/database/9103",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5955",
+      "p7_url": "https://pachiseven.jp/machines/5955"
     },
     {
       "機種名": "ナナイロサンゴver2.0",
@@ -6436,7 +7333,9 @@
       "スマスロ表示": false,
       "pw_id": "9084",
       "pw_url": "https://www.p-world.co.jp/machine/database/9084",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5928",
+      "p7_url": "https://pachiseven.jp/machines/5928"
     },
     {
       "機種名": "S沖っ娘",
@@ -6449,7 +7348,9 @@
       "スマスロ表示": false,
       "pw_id": "9068",
       "pw_url": "https://www.p-world.co.jp/machine/database/9068",
-      "pwメーカー": "サンセイR&D"
+      "pwメーカー": "サンセイR&D",
+      "p7_id": "5902",
+      "p7_url": "https://pachiseven.jp/machines/5902"
     },
     {
       "機種名": "マジカルハロウィン7",
@@ -6462,7 +7363,9 @@
       "スマスロ表示": false,
       "pw_id": "9061",
       "pw_url": "https://www.p-world.co.jp/machine/database/9061",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5882",
+      "p7_url": "https://pachiseven.jp/machines/5882"
     },
     {
       "機種名": "パチスロ ルパン三世~イタリアの夢~",
@@ -6475,7 +7378,9 @@
       "スマスロ表示": false,
       "pw_id": "9057",
       "pw_url": "https://www.p-world.co.jp/machine/database/9057",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "5901",
+      "p7_url": "https://pachiseven.jp/machines/5901"
     },
     {
       "機種名": "パチスロ トータル・イクリプス2",
@@ -6488,7 +7393,9 @@
       "スマスロ表示": false,
       "pw_id": "9063",
       "pw_url": "https://www.p-world.co.jp/machine/database/9063",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "5897",
+      "p7_url": "https://pachiseven.jp/machines/5897"
     },
     {
       "機種名": "S喰霊-零- 運命乱~うんめいのみだれ~",
@@ -6501,7 +7408,9 @@
       "スマスロ表示": false,
       "pw_id": "9066",
       "pw_url": "https://www.p-world.co.jp/machine/database/9066",
-      "pwメーカー": "JFJ"
+      "pwメーカー": "JFJ",
+      "p7_id": "5868",
+      "p7_url": "https://pachiseven.jp/machines/5868"
     },
     {
       "機種名": "パチスロ北斗の拳 天昇",
@@ -6514,7 +7423,9 @@
       "スマスロ表示": false,
       "pw_id": "9040",
       "pw_url": "https://www.p-world.co.jp/machine/database/9040",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5879",
+      "p7_url": "https://pachiseven.jp/machines/5879"
     },
     {
       "機種名": "パチスロ 蒼穹のファフナーEXODUS",
@@ -6527,7 +7438,9 @@
       "スマスロ表示": false,
       "pw_id": "9035",
       "pw_url": "https://www.p-world.co.jp/machine/database/9035",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "5788",
+      "p7_url": "https://pachiseven.jp/machines/5788"
     },
     {
       "機種名": "パチスロ サラリーマン金太郎~MAX~",
@@ -6540,7 +7453,9 @@
       "スマスロ表示": false,
       "pw_id": "9055",
       "pw_url": "https://www.p-world.co.jp/machine/database/9055",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "5752",
+      "p7_url": "https://pachiseven.jp/machines/5752"
     },
     {
       "機種名": "闘魂継承 アントニオ猪木という名のパチスロ機",
@@ -6553,7 +7468,9 @@
       "スマスロ表示": false,
       "pw_id": "9032",
       "pw_url": "https://www.p-world.co.jp/machine/database/9032",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5851",
+      "p7_url": "https://pachiseven.jp/machines/5851"
     },
     {
       "機種名": "PYRAMID EYE",
@@ -6566,7 +7483,9 @@
       "スマスロ表示": false,
       "pw_id": "9053",
       "pw_url": "https://www.p-world.co.jp/machine/database/9053",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "5876",
+      "p7_url": "https://pachiseven.jp/machines/5876"
     },
     {
       "機種名": "S呪怨 再誕AT",
@@ -6579,7 +7498,9 @@
       "スマスロ表示": false,
       "pw_id": "9029",
       "pw_url": "https://www.p-world.co.jp/machine/database/9029",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "5873",
+      "p7_url": "https://pachiseven.jp/machines/5873"
     },
     {
       "機種名": "パチスロ 南国娘2-30",
@@ -6592,7 +7513,9 @@
       "スマスロ表示": false,
       "pw_id": "9013",
       "pw_url": "https://www.p-world.co.jp/machine/database/9013",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "5854",
+      "p7_url": "https://pachiseven.jp/machines/5854"
     },
     {
       "機種名": "パチスロ 南国娘2",
@@ -6605,7 +7528,9 @@
       "スマスロ表示": false,
       "pw_id": "9012",
       "pw_url": "https://www.p-world.co.jp/machine/database/9012",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "5853",
+      "p7_url": "https://pachiseven.jp/machines/5853"
     },
     {
       "機種名": "ドラゴンホイール",
@@ -6618,7 +7543,9 @@
       "スマスロ表示": false,
       "pw_id": "9011",
       "pw_url": "https://www.p-world.co.jp/machine/database/9011",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5847",
+      "p7_url": "https://pachiseven.jp/machines/5847"
     },
     {
       "機種名": "タマどき!",
@@ -6631,7 +7558,9 @@
       "スマスロ表示": false,
       "pw_id": "8987",
       "pw_url": "https://www.p-world.co.jp/machine/database/8987",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5830",
+      "p7_url": "https://pachiseven.jp/machines/5830"
     },
     {
       "機種名": "カードバトルパチスロ ガンダム クロスオーバー",
@@ -6644,7 +7573,9 @@
       "スマスロ表示": false,
       "pw_id": "9031",
       "pw_url": "https://www.p-world.co.jp/machine/database/9031",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5872",
+      "p7_url": "https://pachiseven.jp/machines/5872"
     },
     {
       "機種名": "パチスロラブ嬢II",
@@ -6667,7 +7598,9 @@
       "スマスロ表示": false,
       "pw_id": "8975",
       "pw_url": "https://www.p-world.co.jp/machine/database/8975",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "5820",
+      "p7_url": "https://pachiseven.jp/machines/5820"
     },
     {
       "機種名": "キングリノ",
@@ -6690,7 +7623,9 @@
       "スマスロ表示": false,
       "pw_id": "8996",
       "pw_url": "https://www.p-world.co.jp/machine/database/8996",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5834",
+      "p7_url": "https://pachiseven.jp/machines/5834"
     },
     {
       "機種名": "SLOT劇場版魔法少女まどか☆マギカ[新編]叛逆の物語",
@@ -6703,7 +7638,9 @@
       "スマスロ表示": false,
       "pw_id": "8984",
       "pw_url": "https://www.p-world.co.jp/machine/database/8984",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "5804",
+      "p7_url": "https://pachiseven.jp/machines/5804"
     },
     {
       "機種名": "花娘",
@@ -6716,7 +7653,9 @@
       "スマスロ表示": false,
       "pw_id": "8989",
       "pw_url": "https://www.p-world.co.jp/machine/database/8989",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5832",
+      "p7_url": "https://pachiseven.jp/machines/5832"
     },
     {
       "機種名": "どき!すろ",
@@ -6729,7 +7668,9 @@
       "スマスロ表示": false,
       "pw_id": "8986",
       "pw_url": "https://www.p-world.co.jp/machine/database/8986",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5829",
+      "p7_url": "https://pachiseven.jp/machines/5829"
     },
     {
       "機種名": "OVER-SLOT「アインズ・ウール・ゴウン 絶対支配者光臨」",
@@ -6762,7 +7703,9 @@
       "スマスロ表示": false,
       "pw_id": "8981",
       "pw_url": "https://www.p-world.co.jp/machine/database/8981",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5823",
+      "p7_url": "https://pachiseven.jp/machines/5823"
     },
     {
       "機種名": "パチスロあの日見た花の名前を僕達はまだ知らない。",
@@ -6775,7 +7718,9 @@
       "スマスロ表示": false,
       "pw_id": "8970",
       "pw_url": "https://www.p-world.co.jp/machine/database/8970",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5811",
+      "p7_url": "https://pachiseven.jp/machines/5811"
     },
     {
       "機種名": "パチスロ 天元突破グレンラガン",
@@ -6788,7 +7733,9 @@
       "スマスロ表示": false,
       "pw_id": "8964",
       "pw_url": "https://www.p-world.co.jp/machine/database/8964",
-      "pwメーカー": "七匠"
+      "pwメーカー": "七匠",
+      "p7_id": "5782",
+      "p7_url": "https://pachiseven.jp/machines/5782"
     },
     {
       "機種名": "バンバンクロス",
@@ -6801,7 +7748,9 @@
       "スマスロ表示": false,
       "pw_id": "9003",
       "pw_url": "https://www.p-world.co.jp/machine/database/9003",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "5825",
+      "p7_url": "https://pachiseven.jp/machines/5825"
     },
     {
       "機種名": "ハイハイシオサイ",
@@ -6814,7 +7763,9 @@
       "スマスロ表示": false,
       "pw_id": "8968",
       "pw_url": "https://www.p-world.co.jp/machine/database/8968",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5791",
+      "p7_url": "https://pachiseven.jp/machines/5791"
     },
     {
       "機種名": "BELLE CITY",
@@ -6827,7 +7778,9 @@
       "スマスロ表示": false,
       "pw_id": "8988",
       "pw_url": "https://www.p-world.co.jp/machine/database/8988",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5831",
+      "p7_url": "https://pachiseven.jp/machines/5831"
     },
     {
       "機種名": "パチスロ鉄拳4",
@@ -6840,7 +7793,9 @@
       "スマスロ表示": false,
       "pw_id": "8946",
       "pw_url": "https://www.p-world.co.jp/machine/database/8946",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5781",
+      "p7_url": "https://pachiseven.jp/machines/5781"
     },
     {
       "機種名": "パチスロ ガールズ&パンツァーG~これが私の戦車道です!~",
@@ -6853,7 +7808,9 @@
       "スマスロ表示": false,
       "pw_id": "8957",
       "pw_url": "https://www.p-world.co.jp/machine/database/8957",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5763",
+      "p7_url": "https://pachiseven.jp/machines/5763"
     },
     {
       "機種名": "SLOT WONDER AGENTS",
@@ -6879,7 +7836,9 @@
       "スマスロ表示": false,
       "pw_id": "8925",
       "pw_url": "https://www.p-world.co.jp/machine/database/8925",
-      "pwメーカー": "ボーダー"
+      "pwメーカー": "ボーダー",
+      "p7_id": "5734",
+      "p7_url": "https://pachiseven.jp/machines/5734"
     },
     {
       "機種名": "スーパードラゴン",
@@ -6892,7 +7851,9 @@
       "スマスロ表示": false,
       "pw_id": "8941",
       "pw_url": "https://www.p-world.co.jp/machine/database/8941",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "5767",
+      "p7_url": "https://pachiseven.jp/machines/5767"
     },
     {
       "機種名": "超AT 美ら沖",
@@ -6905,7 +7866,9 @@
       "スマスロ表示": false,
       "pw_id": "8942",
       "pw_url": "https://www.p-world.co.jp/machine/database/8942",
-      "pwメーカー": "七匠"
+      "pwメーカー": "七匠",
+      "p7_id": "5768",
+      "p7_url": "https://pachiseven.jp/machines/5768"
     },
     {
       "機種名": "実況BINGO倶楽部",
@@ -6918,7 +7881,9 @@
       "スマスロ表示": false,
       "pw_id": "8922",
       "pw_url": "https://www.p-world.co.jp/machine/database/8922",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5735",
+      "p7_url": "https://pachiseven.jp/machines/5735"
     },
     {
       "機種名": "天晴!モグモグ風林火山 全国制覇版",
@@ -6931,7 +7896,9 @@
       "スマスロ表示": false,
       "pw_id": "8919",
       "pw_url": "https://www.p-world.co.jp/machine/database/8919",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "5728",
+      "p7_url": "https://pachiseven.jp/machines/5728"
     },
     {
       "機種名": "ハナビ通",
@@ -6944,7 +7911,9 @@
       "スマスロ表示": false,
       "pw_id": "8924",
       "pw_url": "https://www.p-world.co.jp/machine/database/8924",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5730",
+      "p7_url": "https://pachiseven.jp/machines/5730"
     },
     {
       "機種名": "ぱちスロ冬のソナタ",
@@ -6957,7 +7926,9 @@
       "スマスロ表示": false,
       "pw_id": "8937",
       "pw_url": "https://www.p-world.co.jp/machine/database/8937",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "5748",
+      "p7_url": "https://pachiseven.jp/machines/5748"
     },
     {
       "機種名": "パチスロ ボンバーパワフルIII",
@@ -6970,7 +7941,9 @@
       "スマスロ表示": false,
       "pw_id": "8918",
       "pw_url": "https://www.p-world.co.jp/machine/database/8918",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "5727",
+      "p7_url": "https://pachiseven.jp/machines/5727"
     },
     {
       "機種名": "ジャングルマスターコングダム",
@@ -6983,7 +7956,9 @@
       "スマスロ表示": false,
       "pw_id": "8901",
       "pw_url": "https://www.p-world.co.jp/machine/database/8901",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5715",
+      "p7_url": "https://pachiseven.jp/machines/5715"
     },
     {
       "機種名": "プレミアムハナハナ-30",
@@ -6996,7 +7971,9 @@
       "スマスロ表示": false,
       "pw_id": "8896",
       "pw_url": "https://www.p-world.co.jp/machine/database/8896",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5698",
+      "p7_url": "https://pachiseven.jp/machines/5698"
     },
     {
       "機種名": "パチスロ黄門ちゃまV 女神盛-MEGAMORI-",
@@ -7009,7 +7986,9 @@
       "スマスロ表示": false,
       "pw_id": "8890",
       "pw_url": "https://www.p-world.co.jp/machine/database/8890",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5703",
+      "p7_url": "https://pachiseven.jp/machines/5703"
     },
     {
       "機種名": "SLOTギャラガ",
@@ -7022,7 +8001,9 @@
       "スマスロ表示": false,
       "pw_id": "8909",
       "pw_url": "https://www.p-world.co.jp/machine/database/8909",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "5713",
+      "p7_url": "https://pachiseven.jp/machines/5713"
     },
     {
       "機種名": "ワンダフルジャック",
@@ -7035,7 +8016,9 @@
       "スマスロ表示": false,
       "pw_id": "8903",
       "pw_url": "https://www.p-world.co.jp/machine/database/8903",
-      "pwメーカー": "岡崎産業"
+      "pwメーカー": "岡崎産業",
+      "p7_id": "5716",
+      "p7_url": "https://pachiseven.jp/machines/5716"
     },
     {
       "機種名": "マイフラワー30",
@@ -7048,7 +8031,9 @@
       "スマスロ表示": false,
       "pw_id": "8875",
       "pw_url": "https://www.p-world.co.jp/machine/database/8875",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "5710",
+      "p7_url": "https://pachiseven.jp/machines/5710"
     },
     {
       "機種名": "ゴーゴージャグラー2",
@@ -7061,7 +8046,9 @@
       "スマスロ表示": false,
       "pw_id": "8874",
       "pw_url": "https://www.p-world.co.jp/machine/database/8874",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "5711",
+      "p7_url": "https://pachiseven.jp/machines/5711"
     },
     {
       "機種名": "新世紀エヴァンゲリオン 暴走400",
@@ -7074,7 +8061,9 @@
       "スマスロ表示": false,
       "pw_id": "8921",
       "pw_url": "https://www.p-world.co.jp/machine/database/8921",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5732",
+      "p7_url": "https://pachiseven.jp/machines/5732"
     },
     {
       "機種名": "戦国パチスロ義風堂々!!~兼続と慶次~",
@@ -7087,7 +8076,9 @@
       "スマスロ表示": false,
       "pw_id": "8881",
       "pw_url": "https://www.p-world.co.jp/machine/database/8881",
-      "pwメーカー": "エキサイト"
+      "pwメーカー": "エキサイト",
+      "p7_id": "5688",
+      "p7_url": "https://pachiseven.jp/machines/5688"
     },
     {
       "機種名": "パチスロ猛獣王 王者の咆哮",
@@ -7100,7 +8091,9 @@
       "スマスロ表示": false,
       "pw_id": "8848",
       "pw_url": "https://www.p-world.co.jp/machine/database/8848",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5659",
+      "p7_url": "https://pachiseven.jp/machines/5659"
     },
     {
       "機種名": "ドンちゃん2",
@@ -7113,7 +8106,9 @@
       "スマスロ表示": false,
       "pw_id": "8882",
       "pw_url": "https://www.p-world.co.jp/machine/database/8882",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5689",
+      "p7_url": "https://pachiseven.jp/machines/5689"
     },
     {
       "機種名": "CTザクザク七福神",
@@ -7126,7 +8121,9 @@
       "スマスロ表示": false,
       "pw_id": "8857",
       "pw_url": "https://www.p-world.co.jp/machine/database/8857",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5664",
+      "p7_url": "https://pachiseven.jp/machines/5664"
     },
     {
       "機種名": "パチスロおそ松さん~驚~",
@@ -7139,7 +8136,9 @@
       "スマスロ表示": false,
       "pw_id": "8885",
       "pw_url": "https://www.p-world.co.jp/machine/database/8885",
-      "pwメーカー": "D-light"
+      "pwメーカー": "D-light",
+      "p7_id": "5694",
+      "p7_url": "https://pachiseven.jp/machines/5694"
     },
     {
       "機種名": "Re:ゼロから始める異世界生活",
@@ -7152,7 +8151,9 @@
       "スマスロ表示": false,
       "pw_id": "8867",
       "pw_url": "https://www.p-world.co.jp/machine/database/8867",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "5673",
+      "p7_url": "https://pachiseven.jp/machines/5673"
     },
     {
       "機種名": "アナザーハナビ弥生ちゃん",
@@ -7165,7 +8166,9 @@
       "スマスロ表示": false,
       "pw_id": "8853",
       "pw_url": "https://www.p-world.co.jp/machine/database/8853",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "5658",
+      "p7_url": "https://pachiseven.jp/machines/5658"
     },
     {
       "機種名": "パチスロ ヱヴァンゲリヲン AT777",
@@ -7178,7 +8181,9 @@
       "スマスロ表示": false,
       "pw_id": "8864",
       "pw_url": "https://www.p-world.co.jp/machine/database/8864",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5665",
+      "p7_url": "https://pachiseven.jp/machines/5665"
     },
     {
       "機種名": "GI優駿倶楽部2",
@@ -7191,7 +8196,9 @@
       "スマスロ表示": false,
       "pw_id": "8838",
       "pw_url": "https://www.p-world.co.jp/machine/database/8838",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5647",
+      "p7_url": "https://pachiseven.jp/machines/5647"
     },
     {
       "機種名": "ミリオンルーレット",
@@ -7204,7 +8211,9 @@
       "スマスロ表示": false,
       "pw_id": "8822",
       "pw_url": "https://www.p-world.co.jp/machine/database/8822",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5629",
+      "p7_url": "https://pachiseven.jp/machines/5629"
     },
     {
       "機種名": "ニューパルサーDX ~チェリーバージョン~",
@@ -7217,7 +8226,9 @@
       "スマスロ表示": false,
       "pw_id": "8839",
       "pw_url": "https://www.p-world.co.jp/machine/database/8839",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5636",
+      "p7_url": "https://pachiseven.jp/machines/5636"
     },
     {
       "機種名": "戦国BASARA HEROES PARTY",
@@ -7230,7 +8241,9 @@
       "スマスロ表示": false,
       "pw_id": "8828",
       "pw_url": "https://www.p-world.co.jp/machine/database/8828",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "5624",
+      "p7_url": "https://pachiseven.jp/machines/5624"
     },
     {
       "機種名": "島漢-30",
@@ -7243,7 +8256,9 @@
       "スマスロ表示": false,
       "pw_id": "8812",
       "pw_url": "https://www.p-world.co.jp/machine/database/8812",
-      "pwメーカー": "アムテックス"
+      "pwメーカー": "アムテックス",
+      "p7_id": "5620",
+      "p7_url": "https://pachiseven.jp/machines/5620"
     },
     {
       "機種名": "島漢",
@@ -7256,7 +8271,9 @@
       "スマスロ表示": false,
       "pw_id": "8811",
       "pw_url": "https://www.p-world.co.jp/machine/database/8811",
-      "pwメーカー": "平和"
+      "pwメーカー": "平和",
+      "p7_id": "5619",
+      "p7_url": "https://pachiseven.jp/machines/5619"
     },
     {
       "機種名": "パチスロ フィーバークィーンII",
@@ -7269,7 +8286,9 @@
       "スマスロ表示": false,
       "pw_id": "8808",
       "pw_url": "https://www.p-world.co.jp/machine/database/8808",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5610",
+      "p7_url": "https://pachiseven.jp/machines/5610"
     },
     {
       "機種名": "ぱちスロ ゲッターロボ",
@@ -7282,7 +8301,9 @@
       "スマスロ表示": false,
       "pw_id": "8772",
       "pw_url": "https://www.p-world.co.jp/machine/database/8772",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "5591",
+      "p7_url": "https://pachiseven.jp/machines/5591"
     },
     {
       "機種名": "ぱちスロ AKB48 エンジェル",
@@ -7295,7 +8316,9 @@
       "スマスロ表示": false,
       "pw_id": "8829",
       "pw_url": "https://www.p-world.co.jp/machine/database/8829",
-      "pwメーカー": "京楽"
+      "pwメーカー": "京楽",
+      "p7_id": "5635",
+      "p7_url": "https://pachiseven.jp/machines/5635"
     },
     {
       "機種名": "戦国パチスロ花の慶次 ~天を穿つ戦槍~剛弓ver.",
@@ -7308,7 +8331,9 @@
       "スマスロ表示": false,
       "pw_id": "8816",
       "pw_url": "https://www.p-world.co.jp/machine/database/8816",
-      "pwメーカー": "ニューギン"
+      "pwメーカー": "ニューギン",
+      "p7_id": "5623",
+      "p7_url": "https://pachiseven.jp/machines/5623"
     },
     {
       "機種名": "パチスロ蒼天の拳 朋友",
@@ -7321,7 +8346,9 @@
       "スマスロ表示": false,
       "pw_id": "8820",
       "pw_url": "https://www.p-world.co.jp/machine/database/8820",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5626",
+      "p7_url": "https://pachiseven.jp/machines/5626"
     },
     {
       "機種名": "パチスロ 聖闘士星矢 海皇覚醒Special",
@@ -7334,7 +8361,9 @@
       "スマスロ表示": false,
       "pw_id": "8817",
       "pw_url": "https://www.p-world.co.jp/machine/database/8817",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "5621",
+      "p7_url": "https://pachiseven.jp/machines/5621"
     },
     {
       "機種名": "パチスロ ミクちゃん",
@@ -7347,7 +8376,9 @@
       "スマスロ表示": false,
       "pw_id": "8844",
       "pw_url": "https://www.p-world.co.jp/machine/database/8844",
-      "pwメーカー": "JPS"
+      "pwメーカー": "JPS",
+      "p7_id": "5643",
+      "p7_url": "https://pachiseven.jp/machines/5643"
     },
     {
       "機種名": "回胴黙示録カイジ4",
@@ -7360,7 +8391,9 @@
       "スマスロ表示": false,
       "pw_id": "8793",
       "pw_url": "https://www.p-world.co.jp/machine/database/8793",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5599",
+      "p7_url": "https://pachiseven.jp/machines/5599"
     },
     {
       "機種名": "パチスロ ロード オブ ヴァーミリオン Re:",
@@ -7373,7 +8406,9 @@
       "スマスロ表示": false,
       "pw_id": "8813",
       "pw_url": "https://www.p-world.co.jp/machine/database/8813",
-      "pwメーカー": "七匠"
+      "pwメーカー": "七匠",
+      "p7_id": "5630",
+      "p7_url": "https://pachiseven.jp/machines/5630"
     },
     {
       "機種名": "アナザーゴッドハーデス-冥王召喚-",
@@ -7386,7 +8421,9 @@
       "スマスロ表示": false,
       "pw_id": "8827",
       "pw_url": "https://www.p-world.co.jp/machine/database/8827",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "5634",
+      "p7_url": "https://pachiseven.jp/machines/5634"
     },
     {
       "機種名": "パチスロ巨人の星~情熱編~",
@@ -7399,7 +8436,9 @@
       "スマスロ表示": false,
       "pw_id": "8792",
       "pw_url": "https://www.p-world.co.jp/machine/database/8792",
-      "pwメーカー": "サンセイR&D"
+      "pwメーカー": "サンセイR&D",
+      "p7_id": "5596",
+      "p7_url": "https://pachiseven.jp/machines/5596"
     },
     {
       "機種名": "パチスロ マッハGoGoGo",
@@ -7412,7 +8451,9 @@
       "スマスロ表示": false,
       "pw_id": "8786",
       "pw_url": "https://www.p-world.co.jp/machine/database/8786",
-      "pwメーカー": "七匠"
+      "pwメーカー": "七匠",
+      "p7_id": "5612",
+      "p7_url": "https://pachiseven.jp/machines/5612"
     },
     {
       "機種名": "ドリームクルーン711",
@@ -7425,7 +8466,9 @@
       "スマスロ表示": false,
       "pw_id": "8797",
       "pw_url": "https://www.p-world.co.jp/machine/database/8797",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "5602",
+      "p7_url": "https://pachiseven.jp/machines/5602"
     },
     {
       "機種名": "スーパーリノXX",
@@ -7438,7 +8481,9 @@
       "スマスロ表示": false,
       "pw_id": "8800",
       "pw_url": "https://www.p-world.co.jp/machine/database/8800",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5606",
+      "p7_url": "https://pachiseven.jp/machines/5606"
     },
     {
       "機種名": "戦コレ![泰平女君]徳川家康",
@@ -7451,7 +8496,9 @@
       "スマスロ表示": false,
       "pw_id": "8781",
       "pw_url": "https://www.p-world.co.jp/machine/database/8781",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5587",
+      "p7_url": "https://pachiseven.jp/machines/5587"
     },
     {
       "機種名": "パチスロ ダンジョンに出会いを求めるのは間違っているだろうか",
@@ -7464,7 +8511,9 @@
       "スマスロ表示": false,
       "pw_id": "8768",
       "pw_url": "https://www.p-world.co.jp/machine/database/8768",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "5590",
+      "p7_url": "https://pachiseven.jp/machines/5590"
     },
     {
       "機種名": "バイオハザード イントゥザパニック",
@@ -7474,7 +8523,9 @@
       "導入開始日": "2018-11-19",
       "一覧機械割下限": 98.3,
       "一覧機械割上限": 115.3,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5582",
+      "p7_url": "https://pachiseven.jp/machines/5582"
     },
     {
       "機種名": "戦国乙女Type A+",
@@ -7487,7 +8538,9 @@
       "スマスロ表示": false,
       "pw_id": "8769",
       "pw_url": "https://www.p-world.co.jp/machine/database/8769",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5572",
+      "p7_url": "https://pachiseven.jp/machines/5572"
     },
     {
       "機種名": "パチスロチェインクロニクル",
@@ -7500,7 +8553,9 @@
       "スマスロ表示": false,
       "pw_id": "8763",
       "pw_url": "https://www.p-world.co.jp/machine/database/8763",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5568",
+      "p7_url": "https://pachiseven.jp/machines/5568"
     },
     {
       "機種名": "パチスロらんま1/2",
@@ -7510,7 +8565,9 @@
       "導入開始日": "2018-11-05",
       "一覧機械割下限": 97.3,
       "一覧機械割上限": 106.3,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5570",
+      "p7_url": "https://pachiseven.jp/machines/5570"
     },
     {
       "機種名": "スーパープラネットSP",
@@ -7523,7 +8580,9 @@
       "スマスロ表示": false,
       "pw_id": "8748",
       "pw_url": "https://www.p-world.co.jp/machine/database/8748",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5556",
+      "p7_url": "https://pachiseven.jp/machines/5556"
     },
     {
       "機種名": "デュエルドラゴンプラス",
@@ -7536,7 +8595,9 @@
       "スマスロ表示": false,
       "pw_id": "8778",
       "pw_url": "https://www.p-world.co.jp/machine/database/8778",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "5581",
+      "p7_url": "https://pachiseven.jp/machines/5581"
     },
     {
       "機種名": "パチスロ 大海物語4withすーぱーそに子",
@@ -7549,7 +8610,9 @@
       "スマスロ表示": false,
       "pw_id": "8738",
       "pw_url": "https://www.p-world.co.jp/machine/database/8738",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "5541",
+      "p7_url": "https://pachiseven.jp/machines/5541"
     },
     {
       "機種名": "ツインドラゴンハナハナ-30",
@@ -7562,7 +8625,9 @@
       "スマスロ表示": false,
       "pw_id": "8758",
       "pw_url": "https://www.p-world.co.jp/machine/database/8758",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5564",
+      "p7_url": "https://pachiseven.jp/machines/5564"
     },
     {
       "機種名": "A-SLOTツインエンジェルBREAK",
@@ -7575,7 +8640,9 @@
       "スマスロ表示": false,
       "pw_id": "8734",
       "pw_url": "https://www.p-world.co.jp/machine/database/8734",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5537",
+      "p7_url": "https://pachiseven.jp/machines/5537"
     },
     {
       "機種名": "HEY!鏡",
@@ -7588,7 +8655,9 @@
       "スマスロ表示": false,
       "pw_id": "8721",
       "pw_url": "https://www.p-world.co.jp/machine/database/8721",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "5554",
+      "p7_url": "https://pachiseven.jp/machines/5554"
     },
     {
       "機種名": "南国育ち TYPE-A-30",
@@ -7611,7 +8680,9 @@
       "スマスロ表示": false,
       "pw_id": "8725",
       "pw_url": "https://www.p-world.co.jp/machine/database/8725",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "5534",
+      "p7_url": "https://pachiseven.jp/machines/5534"
     },
     {
       "機種名": "パチスロ南国育ち~蝶々ver~−30",
@@ -7644,7 +8715,9 @@
       "スマスロ表示": false,
       "pw_id": "8692",
       "pw_url": "https://www.p-world.co.jp/machine/database/8692",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "5539",
+      "p7_url": "https://pachiseven.jp/machines/5539"
     },
     {
       "機種名": "パチスロ ベン・トー 〜狼たちの夜〜",
@@ -7657,7 +8730,9 @@
       "スマスロ表示": false,
       "pw_id": "8709",
       "pw_url": "https://www.p-world.co.jp/machine/database/8709",
-      "pwメーカー": "バルテック"
+      "pwメーカー": "バルテック",
+      "p7_id": "5511",
+      "p7_url": "https://pachiseven.jp/machines/5511"
     },
     {
       "機種名": "アレックス",
@@ -7670,7 +8745,9 @@
       "スマスロ表示": false,
       "pw_id": "8741",
       "pw_url": "https://www.p-world.co.jp/machine/database/8741",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5540",
+      "p7_url": "https://pachiseven.jp/machines/5540"
     },
     {
       "機種名": "パチスロ ハクション大魔王",
@@ -7680,7 +8757,9 @@
       "導入開始日": "2018-09-03",
       "一覧機械割下限": 98.5,
       "一覧機械割上限": 107.2,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5538",
+      "p7_url": "https://pachiseven.jp/machines/5538"
     },
     {
       "機種名": "スーパービンゴリバース",
@@ -7693,7 +8772,9 @@
       "スマスロ表示": false,
       "pw_id": "8711",
       "pw_url": "https://www.p-world.co.jp/machine/database/8711",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "5513",
+      "p7_url": "https://pachiseven.jp/machines/5513"
     },
     {
       "機種名": "マシマシ-30",
@@ -7706,7 +8787,9 @@
       "スマスロ表示": false,
       "pw_id": "8688",
       "pw_url": "https://www.p-world.co.jp/machine/database/8688",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5505",
+      "p7_url": "https://pachiseven.jp/machines/5505"
     },
     {
       "機種名": "マシマシ",
@@ -7719,7 +8802,9 @@
       "スマスロ表示": false,
       "pw_id": "8687",
       "pw_url": "https://www.p-world.co.jp/machine/database/8687",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5504",
+      "p7_url": "https://pachiseven.jp/machines/5504"
     },
     {
       "機種名": "SLOTファミリースタジアム",
@@ -7732,7 +8817,9 @@
       "スマスロ表示": false,
       "pw_id": "8735",
       "pw_url": "https://www.p-world.co.jp/machine/database/8735",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "5528",
+      "p7_url": "https://pachiseven.jp/machines/5528"
     },
     {
       "機種名": "ルーレットクイーン-女神の羅針盤-",
@@ -7745,7 +8832,9 @@
       "スマスロ表示": false,
       "pw_id": "8684",
       "pw_url": "https://www.p-world.co.jp/machine/database/8684",
-      "pwメーカー": "コナミアミューズメント"
+      "pwメーカー": "コナミアミューズメント",
+      "p7_id": "5488",
+      "p7_url": "https://pachiseven.jp/machines/5488"
     },
     {
       "機種名": "パチスロ蒼き鋼のアルペジオ -アルス・ノヴァ- Mental Model ver.",
@@ -7758,7 +8847,9 @@
       "スマスロ表示": false,
       "pw_id": "8672",
       "pw_url": "https://www.p-world.co.jp/machine/database/8672",
-      "pwメーカー": "タイヨーエレック"
+      "pwメーカー": "タイヨーエレック",
+      "p7_id": "5475",
+      "p7_url": "https://pachiseven.jp/machines/5475"
     },
     {
       "機種名": "トリプルクラウンX‐30",
@@ -7784,7 +8875,9 @@
       "スマスロ表示": false,
       "pw_id": "8697",
       "pw_url": "https://www.p-world.co.jp/machine/database/8697",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "5502",
+      "p7_url": "https://pachiseven.jp/machines/5502"
     },
     {
       "機種名": "パチスロ ルパン三世 世界解剖",
@@ -7797,7 +8890,9 @@
       "スマスロ表示": false,
       "pw_id": "8695",
       "pw_url": "https://www.p-world.co.jp/machine/database/8695",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5512",
+      "p7_url": "https://pachiseven.jp/machines/5512"
     },
     {
       "機種名": "パチスロ ウィザード・バリスターズ~弁魔士セシル",
@@ -7810,7 +8905,9 @@
       "スマスロ表示": false,
       "pw_id": "8664",
       "pw_url": "https://www.p-world.co.jp/machine/database/8664",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "5460",
+      "p7_url": "https://pachiseven.jp/machines/5460"
     },
     {
       "機種名": "ハイカ101",
@@ -7823,7 +8920,9 @@
       "スマスロ表示": false,
       "pw_id": "8723",
       "pw_url": "https://www.p-world.co.jp/machine/database/8723",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5520",
+      "p7_url": "https://pachiseven.jp/machines/5520"
     },
     {
       "機種名": "クロノス~刻の支配者~",
@@ -7836,7 +8935,9 @@
       "スマスロ表示": false,
       "pw_id": "8678",
       "pw_url": "https://www.p-world.co.jp/machine/database/8678",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "5484",
+      "p7_url": "https://pachiseven.jp/machines/5484"
     },
     {
       "機種名": "クレアの秘宝伝 女神の夢と魔法の遺跡",
@@ -7849,7 +8950,9 @@
       "スマスロ表示": false,
       "pw_id": "8702",
       "pw_url": "https://www.p-world.co.jp/machine/database/8702",
-      "pwメーカー": "パオン・ディーピー"
+      "pwメーカー": "パオン・ディーピー",
+      "p7_id": "5506",
+      "p7_url": "https://pachiseven.jp/machines/5506"
     },
     {
       "機種名": "TOWSER",
@@ -7859,7 +8962,9 @@
       "導入開始日": "2018-08-06",
       "一覧機械割下限": 96.04,
       "一覧機械割上限": 108.77,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5489",
+      "p7_url": "https://pachiseven.jp/machines/5489"
     },
     {
       "機種名": "マイジャグラーIV",
@@ -7872,7 +8977,9 @@
       "スマスロ表示": false,
       "pw_id": "8673",
       "pw_url": "https://www.p-world.co.jp/machine/database/8673",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "5465",
+      "p7_url": "https://pachiseven.jp/machines/5465"
     },
     {
       "機種名": "ストリートファイターV パチスロエディション",
@@ -7885,7 +8992,9 @@
       "スマスロ表示": false,
       "pw_id": "8699",
       "pw_url": "https://www.p-world.co.jp/machine/database/8699",
-      "pwメーカー": "エンターライズ"
+      "pwメーカー": "エンターライズ",
+      "p7_id": "5500",
+      "p7_url": "https://pachiseven.jp/machines/5500"
     },
     {
       "機種名": "SLOTハイスクール・フリート",
@@ -7898,7 +9007,9 @@
       "スマスロ表示": false,
       "pw_id": "8671",
       "pw_url": "https://www.p-world.co.jp/machine/database/8671",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "5473",
+      "p7_url": "https://pachiseven.jp/machines/5473"
     },
     {
       "機種名": "雷雷弁慶",
@@ -7911,7 +9022,9 @@
       "スマスロ表示": false,
       "pw_id": "8694",
       "pw_url": "https://www.p-world.co.jp/machine/database/8694",
-      "pwメーカー": "ボーダー"
+      "pwメーカー": "ボーダー",
+      "p7_id": "5499",
+      "p7_url": "https://pachiseven.jp/machines/5499"
     },
     {
       "機種名": "パチスロ トータル・イクリプスLv.MAX-RT",
@@ -7924,7 +9037,9 @@
       "スマスロ表示": false,
       "pw_id": "8656",
       "pw_url": "https://www.p-world.co.jp/machine/database/8656",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5456",
+      "p7_url": "https://pachiseven.jp/machines/5456"
     },
     {
       "機種名": "あっぱれ!プレゴ",
@@ -7947,7 +9062,9 @@
       "スマスロ表示": false,
       "pw_id": "8665",
       "pw_url": "https://www.p-world.co.jp/machine/database/8665",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5463",
+      "p7_url": "https://pachiseven.jp/machines/5463"
     },
     {
       "機種名": "パチスロダンガンロンパ",
@@ -7960,7 +9077,9 @@
       "スマスロ表示": false,
       "pw_id": "8663",
       "pw_url": "https://www.p-world.co.jp/machine/database/8663",
-      "pwメーカー": "ニューギン"
+      "pwメーカー": "ニューギン",
+      "p7_id": "5476",
+      "p7_url": "https://pachiseven.jp/machines/5476"
     },
     {
       "機種名": "パチスロ 美ラメキ!",
@@ -7973,7 +9092,9 @@
       "スマスロ表示": false,
       "pw_id": "8667",
       "pw_url": "https://www.p-world.co.jp/machine/database/8667",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "5464",
+      "p7_url": "https://pachiseven.jp/machines/5464"
     },
     {
       "機種名": "エルインカ〜黄金文明〜",
@@ -7986,7 +9107,9 @@
       "スマスロ表示": false,
       "pw_id": "8670",
       "pw_url": "https://www.p-world.co.jp/machine/database/8670",
-      "pwメーカー": "KPE"
+      "pwメーカー": "KPE",
+      "p7_id": "5462",
+      "p7_url": "https://pachiseven.jp/machines/5462"
     },
     {
       "機種名": "グレート69~TOMOLER~",
@@ -7999,7 +9122,9 @@
       "スマスロ表示": false,
       "pw_id": "8689",
       "pw_url": "https://www.p-world.co.jp/machine/database/8689",
-      "pwメーカー": "バルテック"
+      "pwメーカー": "バルテック",
+      "p7_id": "5496",
+      "p7_url": "https://pachiseven.jp/machines/5496"
     },
     {
       "機種名": "沖ドキ!バケーション-30",
@@ -8012,7 +9137,9 @@
       "スマスロ表示": false,
       "pw_id": "8680",
       "pw_url": "https://www.p-world.co.jp/machine/database/8680",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5480",
+      "p7_url": "https://pachiseven.jp/machines/5480"
     },
     {
       "機種名": "沖ドキ!バケーション",
@@ -8025,7 +9152,9 @@
       "スマスロ表示": false,
       "pw_id": "8679",
       "pw_url": "https://www.p-world.co.jp/machine/database/8679",
-      "pwメーカー": "アクロス"
+      "pwメーカー": "アクロス",
+      "p7_id": "5478",
+      "p7_url": "https://pachiseven.jp/machines/5478"
     },
     {
       "機種名": "大神~回胴編~",
@@ -8048,7 +9177,9 @@
       "スマスロ表示": false,
       "pw_id": "8636",
       "pw_url": "https://www.p-world.co.jp/machine/database/8636",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "5435",
+      "p7_url": "https://pachiseven.jp/machines/5435"
     },
     {
       "機種名": "モナスロ",
@@ -8058,7 +9189,9 @@
       "導入開始日": "2018-06-18",
       "一覧機械割下限": 96.04,
       "一覧機械割上限": 108.77,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5491",
+      "p7_url": "https://pachiseven.jp/machines/5491"
     },
     {
       "機種名": "パチスロディスクアップ",
@@ -8071,7 +9204,9 @@
       "スマスロ表示": false,
       "pw_id": "8649",
       "pw_url": "https://www.p-world.co.jp/machine/database/8649",
-      "pwメーカー": "銀座"
+      "pwメーカー": "銀座",
+      "p7_id": "5448",
+      "p7_url": "https://pachiseven.jp/machines/5448"
     },
     {
       "機種名": "パチスロ 黄門ちゃまV",
@@ -8084,7 +9219,9 @@
       "スマスロ表示": false,
       "pw_id": "8640",
       "pw_url": "https://www.p-world.co.jp/machine/database/8640",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5444",
+      "p7_url": "https://pachiseven.jp/machines/5444"
     },
     {
       "機種名": "パチスロ 貞子vs伽椰子",
@@ -8097,7 +9234,9 @@
       "スマスロ表示": false,
       "pw_id": "8651",
       "pw_url": "https://www.p-world.co.jp/machine/database/8651",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "5450",
+      "p7_url": "https://pachiseven.jp/machines/5450"
     },
     {
       "機種名": "パチスロ 天元突破グレンラガン極",
@@ -8110,7 +9249,9 @@
       "スマスロ表示": false,
       "pw_id": "8657",
       "pw_url": "https://www.p-world.co.jp/machine/database/8657",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "5453",
+      "p7_url": "https://pachiseven.jp/machines/5453"
     },
     {
       "機種名": "ちゃぶ台返し",
@@ -8123,7 +9264,9 @@
       "スマスロ表示": false,
       "pw_id": "8638",
       "pw_url": "https://www.p-world.co.jp/machine/database/8638",
-      "pwメーカー": "ベルコ"
+      "pwメーカー": "ベルコ",
+      "p7_id": "5439",
+      "p7_url": "https://pachiseven.jp/machines/5439"
     },
     {
       "機種名": "シークレットハイビスカス",
@@ -8136,7 +9279,9 @@
       "スマスロ表示": false,
       "pw_id": "8647",
       "pw_url": "https://www.p-world.co.jp/machine/database/8647",
-      "pwメーカー": "パイオニア"
+      "pwメーカー": "パイオニア",
+      "p7_id": "5445",
+      "p7_url": "https://pachiseven.jp/machines/5445"
     },
     {
       "機種名": "ゆるせぽね",
@@ -8149,7 +9294,9 @@
       "スマスロ表示": false,
       "pw_id": "8655",
       "pw_url": "https://www.p-world.co.jp/machine/database/8655",
-      "pwメーカー": "ミズホ"
+      "pwメーカー": "ミズホ",
+      "p7_id": "5457",
+      "p7_url": "https://pachiseven.jp/machines/5457"
     },
     {
       "機種名": "秘宝伝 Rev.",
@@ -8162,7 +9309,9 @@
       "スマスロ表示": false,
       "pw_id": "8641",
       "pw_url": "https://www.p-world.co.jp/machine/database/8641",
-      "pwメーカー": "サボハニ"
+      "pwメーカー": "サボハニ",
+      "p7_id": "5436",
+      "p7_url": "https://pachiseven.jp/machines/5436"
     },
     {
       "機種名": "マジカルハロウィン6",
@@ -8175,7 +9324,9 @@
       "スマスロ表示": false,
       "pw_id": "8619",
       "pw_url": "https://www.p-world.co.jp/machine/database/8619",
-      "pwメーカー": "KPE"
+      "pwメーカー": "KPE",
+      "p7_id": "5418",
+      "p7_url": "https://pachiseven.jp/machines/5418"
     },
     {
       "機種名": "パチスロ北斗の拳 修羅の国篇 羅刹ver.",
@@ -8188,7 +9339,9 @@
       "スマスロ表示": false,
       "pw_id": "8623",
       "pw_url": "https://www.p-world.co.jp/machine/database/8623",
-      "pwメーカー": "サミー"
+      "pwメーカー": "サミー",
+      "p7_id": "5424",
+      "p7_url": "https://pachiseven.jp/machines/5424"
     },
     {
       "機種名": "パチスロ 大海物語4",
@@ -8201,7 +9354,9 @@
       "スマスロ表示": false,
       "pw_id": "8622",
       "pw_url": "https://www.p-world.co.jp/machine/database/8622",
-      "pwメーカー": "三洋物産"
+      "pwメーカー": "三洋物産",
+      "p7_id": "5432",
+      "p7_url": "https://pachiseven.jp/machines/5432"
     },
     {
       "機種名": "パチスロ FAIRY TAIL",
@@ -8214,7 +9369,9 @@
       "スマスロ表示": false,
       "pw_id": "8634",
       "pw_url": "https://www.p-world.co.jp/machine/database/8634",
-      "pwメーカー": "藤商事"
+      "pwメーカー": "藤商事",
+      "p7_id": "5431",
+      "p7_url": "https://pachiseven.jp/machines/5431"
     },
     {
       "機種名": "SLOTパックマン",
@@ -8227,7 +9384,9 @@
       "スマスロ表示": false,
       "pw_id": "8635",
       "pw_url": "https://www.p-world.co.jp/machine/database/8635",
-      "pwメーカー": "メーシー"
+      "pwメーカー": "メーシー",
+      "p7_id": "5434",
+      "p7_url": "https://pachiseven.jp/machines/5434"
     },
     {
       "機種名": "不二子 TYPE A+",
@@ -8240,7 +9399,9 @@
       "スマスロ表示": false,
       "pw_id": "8589",
       "pw_url": "https://www.p-world.co.jp/machine/database/8589",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5406",
+      "p7_url": "https://pachiseven.jp/machines/5406"
     },
     {
       "機種名": "パチスロ これはゾンビですか?",
@@ -8253,7 +9414,9 @@
       "スマスロ表示": false,
       "pw_id": "8597",
       "pw_url": "https://www.p-world.co.jp/machine/database/8597",
-      "pwメーカー": "北電子"
+      "pwメーカー": "北電子",
+      "p7_id": "5398",
+      "p7_url": "https://pachiseven.jp/machines/5398"
     },
     {
       "機種名": "押忍!番長A",
@@ -8266,7 +9429,9 @@
       "スマスロ表示": false,
       "pw_id": "8595",
       "pw_url": "https://www.p-world.co.jp/machine/database/8595",
-      "pwメーカー": "大都技研"
+      "pwメーカー": "大都技研",
+      "p7_id": "5417",
+      "p7_url": "https://pachiseven.jp/machines/5417"
     },
     {
       "機種名": "パチスロガールズガンズグルービー",
@@ -8292,7 +9457,9 @@
       "スマスロ表示": false,
       "pw_id": "8584",
       "pw_url": "https://www.p-world.co.jp/machine/database/8584",
-      "pwメーカー": "SANKYO"
+      "pwメーカー": "SANKYO",
+      "p7_id": "5377",
+      "p7_url": "https://pachiseven.jp/machines/5377"
     },
     {
       "機種名": "ドリームクルーン500",
@@ -8305,7 +9472,9 @@
       "スマスロ表示": false,
       "pw_id": "8594",
       "pw_url": "https://www.p-world.co.jp/machine/database/8594",
-      "pwメーカー": "オーイズミ"
+      "pwメーカー": "オーイズミ",
+      "p7_id": "5390",
+      "p7_url": "https://pachiseven.jp/machines/5390"
     },
     {
       "機種名": "カンフーレディ・テトラ",
@@ -8318,7 +9487,9 @@
       "スマスロ表示": false,
       "pw_id": "8605",
       "pw_url": "https://www.p-world.co.jp/machine/database/8605",
-      "pwメーカー": "山佐"
+      "pwメーカー": "山佐",
+      "p7_id": "5400",
+      "p7_url": "https://pachiseven.jp/machines/5400"
     },
     {
       "機種名": "ビッグアップ",
@@ -8331,7 +9502,9 @@
       "スマスロ表示": false,
       "pw_id": "8591",
       "pw_url": "https://www.p-world.co.jp/machine/database/8591",
-      "pwメーカー": "ヤーマ"
+      "pwメーカー": "ヤーマ",
+      "p7_id": "5385",
+      "p7_url": "https://pachiseven.jp/machines/5385"
     },
     {
       "機種名": "パチスロ 超 GANTZ",
@@ -8344,7 +9517,9 @@
       "スマスロ表示": false,
       "pw_id": "8596",
       "pw_url": "https://www.p-world.co.jp/machine/database/8596",
-      "pwメーカー": "スパイキー"
+      "pwメーカー": "スパイキー",
+      "p7_id": "5405",
+      "p7_url": "https://pachiseven.jp/machines/5405"
     },
     {
       "機種名": "ニューシオサイ-30",
@@ -8354,7 +9529,9 @@
       "導入開始日": "2018-03-05",
       "一覧機械割下限": 97.6,
       "一覧機械割上限": 109.7,
-      "スマスロ表示": false
+      "スマスロ表示": false,
+      "p7_id": "5383",
+      "p7_url": "https://pachiseven.jp/machines/5383"
     },
     {
       "機種名": "鬼若弁慶",
@@ -8367,7 +9544,9 @@
       "スマスロ表示": false,
       "pw_id": "8535",
       "pw_url": "https://www.p-world.co.jp/machine/database/8535",
-      "pwメーカー": "ボーダー"
+      "pwメーカー": "ボーダー",
+      "p7_id": "5330",
+      "p7_url": "https://pachiseven.jp/machines/5330"
     },
     {
       "機種名": "パチスロ GATE",
@@ -8380,7 +9559,9 @@
       "スマスロ表示": false,
       "pw_id": "8561",
       "pw_url": "https://www.p-world.co.jp/machine/database/8561",
-      "pwメーカー": "ネット"
+      "pwメーカー": "ネット",
+      "p7_id": "5351",
+      "p7_url": "https://pachiseven.jp/machines/5351"
     },
     {
       "機種名": "コンチネンタルゼロ",
@@ -8393,7 +9574,9 @@
       "スマスロ表示": false,
       "pw_id": "8580",
       "pw_url": "https://www.p-world.co.jp/machine/database/8580",
-      "pwメーカー": "ユニバーサルブロス"
+      "pwメーカー": "ユニバーサルブロス",
+      "p7_id": "5381",
+      "p7_url": "https://pachiseven.jp/machines/5381"
     },
     {
       "機種名": "ナナイロサンゴ(2019年)",
@@ -8406,7 +9589,9 @@
       "スマスロ表示": false,
       "pw_id": "9614",
       "pw_url": "https://www.p-world.co.jp/machine/database/9614",
-      "pwメーカー": "バルテック"
+      "pwメーカー": "バルテック",
+      "p7_id": "6515",
+      "p7_url": "https://pachiseven.jp/machines/6515"
     },
     {
       "機種名": "トリプルクラウンZEROII SECOND EDITION",
@@ -8419,7 +9604,9 @@
       "スマスロ表示": false,
       "pw_id": "8565",
       "pw_url": "https://www.p-world.co.jp/machine/database/8565",
-      "pwメーカー": "清龍ゲームジャパン"
+      "pwメーカー": "清龍ゲームジャパン",
+      "p7_id": "5360",
+      "p7_url": "https://pachiseven.jp/machines/5360"
     },
     {
       "機種名": "新世紀エヴァンゲリオン~まごころを、君に~2",
@@ -8432,7 +9619,9 @@
       "スマスロ表示": false,
       "pw_id": "8574",
       "pw_url": "https://www.p-world.co.jp/machine/database/8574",
-      "pwメーカー": "ビスティ"
+      "pwメーカー": "ビスティ",
+      "p7_id": "5386",
+      "p7_url": "https://pachiseven.jp/machines/5386"
     },
     {
       "機種名": "乙女マスターズ〜空を翔る白き軌跡〜",
@@ -8445,7 +9634,9 @@
       "スマスロ表示": false,
       "pw_id": "8558",
       "pw_url": "https://www.p-world.co.jp/machine/database/8558",
-      "pwメーカー": "オリンピア"
+      "pwメーカー": "オリンピア",
+      "p7_id": "5361",
+      "p7_url": "https://pachiseven.jp/machines/5361"
     },
     {
       "機種名": "パチスロ戦場のヴァルキュリア",
@@ -8458,7 +9649,9 @@
       "スマスロ表示": false,
       "pw_id": "8575",
       "pw_url": "https://www.p-world.co.jp/machine/database/8575",
-      "pwメーカー": "タイヨーエレック"
+      "pwメーカー": "タイヨーエレック",
+      "p7_id": "5372",
+      "p7_url": "https://pachiseven.jp/machines/5372"
     }
   ]
 }

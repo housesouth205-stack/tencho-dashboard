@@ -55,6 +55,7 @@ def merge_one(rec: dict, today: str) -> dict:
     dmm = srcs.get("DMMぱちタウン", {})
     pw = srcs.get("P-WORLD", {})
     slo = srcs.get("スロベース", {})
+    nana = srcs.get("ななプレス", {})
     p7 = srcs.get("パチ7", {})
 
     notes: list[str] = []
@@ -65,15 +66,24 @@ def merge_one(rec: dict, today: str) -> dict:
     # 設定ごとの表を持つスロベースを主、範囲表記しか無いDMM・パチ7を従として扱う。
     # 主が無ければ従の値をそのまま入れる。どちらの場合も採用元を備考に残す。
     by_source = [(n, _rates(s), s.get("url", ""))
-                 for n, s in (("スロベース", slo), ("DMMぱちタウン", dmm), ("パチ7", p7))
+                 for n, s in (("スロベース", slo), ("ななプレス", nana),
+                              ("DMMぱちタウン", dmm), ("パチ7", p7))
                  if s.get("url") and _rates(s)]
 
     rates: dict[int, float] = {}
     primary = ""
+    filled_from: dict[int, str] = {}
     for sname, srates, url in by_source:
         rate_urls.append(url)
-        if not rates:
-            rates, primary = dict(srates), sname
+        if not primary:
+            primary = sname
+        # 先に読んだ情報源の値は上書きしない。空いている設定だけを別の情報源で補う。
+        # 補った設定は採用元を控えて備考に残す（どのセルがどこ由来か辿れるように）。
+        for s, v in srates.items():
+            if s not in rates:
+                rates[s] = v
+                filled_from[s] = sname
+    supplemented = sorted(s for s, n in filled_from.items() if n != primary)
 
     conflicts: list[str] = []
     agreed: list[int] = []
@@ -140,9 +150,23 @@ def merge_one(rec: dict, today: str) -> dict:
     else:
         conf = "要確認"
 
+    if supplemented:
+        notes.append("設定" + "・".join(str(s) for s in supplemented)
+                     + "は" + "／".join(sorted({filled_from[s] for s in supplemented}))
+                     + "から補完（採用元が異なるため出典URLを併記）")
+
+    # ---------------- コイン単価
+    coin = slo.get("コイン単価")
+    coin_cond, coin_urls = "", []
+    if coin is not None:
+        coin_cond = slo.get("コイン単価条件", "") or "条件表記なし"
+        coin_urls = [slo["url"]]
+        notes.append(f"コイン単価はスロベース掲載値『{slo.get('コイン単価原文', '')}』"
+                     + (f"／回転数50枚 {slo['回転数50枚']}" if slo.get("回転数50枚") else ""))
+
     # ---------------- 別表記
     aliases = []
-    for s in (dmm, pw, slo, p7):
+    for s in (dmm, pw, slo, nana, p7):
         n = s.get("機種名")
         if n and n != name and n not in aliases:
             aliases.append(n)
@@ -154,17 +178,18 @@ def merge_one(rec: dict, today: str) -> dict:
     out = {
         "機種名": name,
         "メーカー": maker,
-        "機種タイプ": machine_type,
-        "メディア区分": "スマスロ" if kikaku == "スマスロ" else ("メダル機" if kikaku else ""),
-        "ATタイプ": "",
+        "機種タイプ": machine_type or slo.get("機種タイプ", ""),
+        "メディア区分": ("スマスロ" if kikaku == "スマスロ"
+                        else ("メダル機" if kikaku else slo.get("メディア区分", ""))),
+        "ATタイプ": slo.get("ATタイプ", ""),
         "ボーナスタイプ": "",
         "規則区分": kikaku,
         "型式名": katashiki,
-        "コイン単価": "",
-        "コイン単価条件": "",
-        "出率条件": slo.get("出率条件") or "不明（条件表記未確認）",
+        "コイン単価": coin if coin is not None else "",
+        "コイン単価条件": coin_cond,
+        "出率条件": slo.get("出率条件") or nana.get("出率条件") or "不明（条件表記未確認）",
         "出率出典URL": rate_urls,
-        "コイン単価出典URL": [],
+        "コイン単価出典URL": coin_urls,
         "メーカー出典URL": maker_urls,
         "現行判定": genko,
         "信頼度": conf,
@@ -176,7 +201,8 @@ def merge_one(rec: dict, today: str) -> dict:
         out[f"設定{s}出率"] = rates.get(s, "")
 
     if not rates:
-        tried = [k for k in ("スロベース", "DMMぱちタウン", "パチ7", "P-WORLD") if k in srcs]
+        tried = [k for k in ("スロベース", "ななプレス", "DMMぱちタウン", "パチ7", "P-WORLD")
+                 if k in srcs]
         out["未取得理由"] = "設定別出率・機械割のいずれも掲載を確認できなかった"
         out["試した情報源"] = tried
         out["再調査要否"] = "要"

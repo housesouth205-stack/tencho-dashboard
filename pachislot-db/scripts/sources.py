@@ -14,12 +14,16 @@ import unicodedata
 
 import minihtml
 
+_TITLE_RE = re.compile(r"<title>(.*?)</title>", re.S)
+
 # ---------------------------------------------------------------- 名寄せ
 
 # 括弧内の略称・別名（例:「(スマスロ 転天 てんてん)」）
 _PAREN_RE = re.compile(r"[（(][^（()）]*[)）]")
 # 媒体・区分の接頭辞。機種名の一部ではないので照合前に落とす
 _PREFIX_RE = re.compile(r"(スマスロ|パチスロ|メダル機|新台)")
+# 先頭にだけ付く「スロット ○○」。名前の途中の「スロット」は残す
+_LEAD_SLOT_RE = re.compile(r"^スロット\s+")
 # 先頭に付く型式記号 L / S（「Ｌ転生王女…」「Ｌパチスロ 彼女、お借りします」）
 _TYPE_MARK_RE = re.compile(r"^[LS]\s*")
 # 記号・空白。長音符は残す（「ゴッドイーター」と「ゴッドイタ」を同一視しないため）
@@ -34,6 +38,7 @@ def norm_name(s: str) -> str:
     """
     s = unicodedata.normalize("NFKC", s or "")
     s = _PAREN_RE.sub("", s)
+    s = _LEAD_SLOT_RE.sub("", s)
     s = _PREFIX_RE.sub("", s)
     s = _TYPE_MARK_RE.sub("", s)
     s = _PUNCT_RE.sub("", s)
@@ -250,8 +255,11 @@ def pachi7_list_page(html: str) -> list[dict]:
         text = _clean(_TAG_RE.sub(" ", body))
         if not text:
             continue
-        name, _, maker = text.partition("メーカー名：")
+        # _clean が NFKC 正規化するので「メーカー名：」の全角コロンは半角になる。
+        # どちらで来ても切れるよう、コロンは分割後に落とす。
+        name, _, maker = text.partition("メーカー名")
         name = name.strip()
+        maker = maker.lstrip(":： ").strip()
         if not name:
             continue
         seen.add(mid)
@@ -279,15 +287,86 @@ def pachi7_machine_page(html: str) -> dict:
     }
 
 
+# ---------------------------------------------------------------- ななプレス
+
+_NANA_NAME_RE = re.compile(r"【(.+?)】")
+
+
+def nanapress_spec_page(html: str) -> dict:
+    """ななプレスのスペック情報ページ。
+
+    タイトルが「【機種名】スペック情報（機械割や各種確率まとめ）」の形なので、
+    そのページかどうかをタイトルで確認してから機種名を取る。
+    設定別の機械割は「設定／機械割」の2列表（設定欄は素の数字）で載る。
+    """
+    t = _TITLE_RE.search(html)
+    title = _clean(t.group(1)) if t else ""
+    m = _NANA_NAME_RE.search(title)
+    return {
+        "機種名": _clean(m.group(1)) if m else "",
+        "スペックページ": "スペック情報" in title,
+        "title": title,
+    }
+
+
 # ---------------------------------------------------------------- スロベース
 
-_SLOBASE_TITLE_RE = re.compile(r"<title>(.*?)</title>", re.S)
+
+_COIN_RE = re.compile(r"(?:約)?\s*(\d+(?:\.\d+)?)\s*円")
+_COIN_COND_RE = re.compile(r"[（(]([^)）]*)[)）]")
+
+
+def parse_coin(text: str) -> tuple[float | None, str]:
+    """「約3.7円(設定1)」から (単価, 条件) を取り出す。
+
+    条件の記載が無ければ条件は空にする。単価だけ拾って条件を作文しない。
+    """
+    m = _COIN_RE.search(text or "")
+    if not m:
+        return None, ""
+    v = float(m.group(1))
+    if not (0.5 <= v <= 10.0):  # 想定レンジ外は誤検出とみなして採らない
+        return None, ""
+    c = _COIN_COND_RE.search(text or "")
+    return v, _clean(c.group(1)) if c else ""
 
 
 def slobase_machine_page(html: str) -> dict:
-    """スロベースの機種ページ。設定1〜6の機械割を表で持っている。"""
-    t = _SLOBASE_TITLE_RE.search(html)
+    """スロベースの機種ページ。
+
+    設定1〜6の機械割の表に加えて、項目／内容の2列表に
+    メーカー・仕様・AT純増・コイン単価などが載っている。
+    """
+    t = _TITLE_RE.search(html)
     title = _clean(t.group(1)) if t else ""
     name = re.split(r"[|｜]", title)[0].strip()
     name = re.sub(r"(の)?(設定判別|解析|スペック|天井|closing).*$", "", name).strip()
-    return {"機種名": name}
+
+    spec: dict[str, str] = {}
+    for grid in minihtml.tables(html):
+        for row in grid:
+            if len(row) >= 2 and row[0]:
+                spec.setdefault(_clean(row[0]), _clean(row[1]))
+
+    coin, coin_cond = parse_coin(spec.get("コイン単価", ""))
+    shiyou = spec.get("仕様", "")
+    media = "スマスロ" if "スマスロ" in shiyou else ("メダル機" if shiyou else "")
+    mtype = ""
+    for tag, canon in (("AT機", "AT"), ("ART機", "ART"), ("ノーマル", "Aタイプ"),
+                       ("Aタイプ", "Aタイプ"), ("ボーナスタイプ", "BT")):
+        if tag in shiyou:
+            mtype = canon
+            break
+
+    return {
+        "機種名": spec.get("機種名", "") or name,
+        "メーカー": spec.get("メーカー", ""),
+        "仕様": shiyou,
+        "メディア区分": media,
+        "機種タイプ": mtype,
+        "ATタイプ": spec.get("AT純増", ""),
+        "コイン単価": coin,
+        "コイン単価条件": coin_cond,
+        "コイン単価原文": spec.get("コイン単価", ""),
+        "回転数50枚": spec.get("回転数/50枚", ""),
+    }
