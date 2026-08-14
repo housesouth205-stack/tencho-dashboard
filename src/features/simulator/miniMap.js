@@ -132,7 +132,10 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
         `border:1px solid ${p && p.heat ? "transparent" : "var(--line)"};` +
         "display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1",
     }, [
-      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${headInk}`, text: String(c.dai_no) }),
+      // 据え置き台は台番の前に鍵を出す。一括操作で飛ばされる台がどこか、
+      // 島図を見たまま分かるようにする（別の一覧を開かずに済ませたい）。
+      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${headInk}`,
+        text: (p && p.held ? "🔒" : "") + String(c.dai_no) }),
       p ? el("div", { style: `font-size:8px;font-weight:600;line-height:1.05;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};` +
         "overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;" +
         "max-width:100%;text-align:center", text: p.model }) : null,
