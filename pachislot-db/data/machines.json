@@ -1,6 +1,6 @@
 {
   "_meta": {
-    "取得日": "2026-08-13",
+    "取得日": "2026-08-14",
     "対象": "スマスロ／6.5号機／6号機（規則区分はP-WORLD掲載のタイプ欄による）",
     "候補抽出": {
       "説明": "全件取得フェーズの対象機種一覧。規則区分は未確定（P-WORLD機種ページで確定させる）",
@@ -40,6 +40,14 @@
         "https://www.p-world.co.jp/machine/database/10513",
         "https://p-town.dmm.com/machines/5054"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -70,6 +78,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10518",
         "https://p-town.dmm.com/machines/5057"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "中",
@@ -103,6 +119,13 @@
         "https://www.p-world.co.jp/machine/database/10521",
         "https://p-town.dmm.com/machines/5061"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -132,6 +155,7 @@
         "https://www.p-world.co.jp/machine/database/10550",
         "https://p-town.dmm.com/machines/5086"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -167,6 +191,7 @@
         "https://www.p-world.co.jp/machine/database/10523",
         "https://p-town.dmm.com/machines/5059"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -205,6 +230,14 @@
         "https://www.p-world.co.jp/machine/database/10501",
         "https://p-town.dmm.com/machines/5042"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [
@@ -242,6 +275,14 @@
         "https://www.p-world.co.jp/machine/database/10503",
         "https://p-town.dmm.com/machines/5033"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -274,6 +315,12 @@
         "https://www.p-world.co.jp/machine/database/10510",
         "https://p-town.dmm.com/machines/5049"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -305,6 +352,7 @@
         "https://www.p-world.co.jp/machine/database/10527",
         "https://p-town.dmm.com/machines/5064"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -336,6 +384,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10543",
         "https://p-town.dmm.com/machines/5065"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -374,6 +430,14 @@
         "https://www.p-world.co.jp/machine/database/10530",
         "https://p-town.dmm.com/machines/5028"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [
@@ -410,6 +474,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10517",
         "https://p-town.dmm.com/machines/5055"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -448,6 +520,14 @@
         "https://www.p-world.co.jp/machine/database/10531",
         "https://p-town.dmm.com/machines/5068"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -482,6 +562,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10493",
         "https://p-town.dmm.com/machines/5030"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -519,6 +607,14 @@
         "https://www.p-world.co.jp/machine/database/10516",
         "https://p-town.dmm.com/machines/5053"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -554,6 +650,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10498",
         "https://p-town.dmm.com/machines/5020"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -591,6 +695,13 @@
         "https://www.p-world.co.jp/machine/database/10496",
         "https://p-town.dmm.com/machines/5038"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -624,6 +735,7 @@
         "https://www.p-world.co.jp/machine/database/10542",
         "https://p-town.dmm.com/machines/5089"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -657,6 +769,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10471",
         "https://p-town.dmm.com/machines/5010"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -694,6 +814,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10491",
         "https://p-town.dmm.com/machines/5029"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -734,13 +861,14 @@
         "https://www.p-world.co.jp/machine/database/10508",
         "https://p-town.dmm.com/machines/5047"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
         "Lヤバチバ",
         "ヤバチバ(スマスロ)"
       ],
-      "備考": "設置店舗数 1,498店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・4・5・6の出率が4情報源で一致 ／ コイン単価はスロベース掲載値『約5.7円(全設定共通)』／回転数50枚 約31G ／ 検定番号 5S1800 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約1.8枚or約6.0枚/G、疑似ボーナス』",
+      "備考": "存在する設定の申告が割れている（スロベース=[1, 2, 3, 4, 5, 6] / ななプレス=[1, 2, 4, 5, 6]） ／ 設置店舗数 1,498店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・4・5・6の出率が4情報源で一致 ／ コイン単価はスロベース掲載値『約5.7円(全設定共通)』／回転数50枚 約31G ／ 検定番号 5S1800 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約1.8枚or約6.0枚/G、疑似ボーナス』",
       "設定1出率": 97.1,
       "設定2出率": 98.3,
       "設定3出率": "",
@@ -770,6 +898,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10479",
         "https://p-town.dmm.com/machines/5015"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -808,6 +944,13 @@
         "https://www.p-world.co.jp/machine/database/10488",
         "https://p-town.dmm.com/machines/5031"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -841,6 +984,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10485",
         "https://p-town.dmm.com/machines/5019"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -878,6 +1029,14 @@
         "https://www.p-world.co.jp/machine/database/10514",
         "https://p-town.dmm.com/machines/5048"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -914,6 +1073,13 @@
         "https://www.p-world.co.jp/machine/database/10465",
         "https://p-town.dmm.com/machines/5016"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -946,6 +1112,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10483",
         "https://p-town.dmm.com/machines/5025"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -981,6 +1155,14 @@
         "https://www.p-world.co.jp/machine/database/10458",
         "https://p-town.dmm.com/machines/4996"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -1014,6 +1196,14 @@
         "https://www.p-world.co.jp/machine/database/10473",
         "https://p-town.dmm.com/machines/5009"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -1046,6 +1236,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10474",
         "https://p-town.dmm.com/machines/4992"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -1082,6 +1278,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10449",
         "https://p-town.dmm.com/machines/4984"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1121,6 +1325,14 @@
         "https://www.p-world.co.jp/machine/database/10446",
         "https://p-town.dmm.com/machines/4981"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -1155,6 +1367,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10440",
         "https://p-town.dmm.com/machines/4974"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1191,6 +1411,14 @@
         "https://www.p-world.co.jp/machine/database/10460",
         "https://p-town.dmm.com/machines/5000"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -1225,6 +1453,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10424",
         "https://p-town.dmm.com/machines/4961"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1261,6 +1497,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10427",
         "https://p-town.dmm.com/machines/4964"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1299,6 +1543,14 @@
         "https://www.p-world.co.jp/machine/database/10468",
         "https://p-town.dmm.com/machines/5002"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -1334,6 +1586,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10448",
         "https://p-town.dmm.com/machines/4983"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1372,6 +1632,14 @@
         "https://www.p-world.co.jp/machine/database/10430",
         "https://p-town.dmm.com/machines/4970"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -1407,6 +1675,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10436",
         "https://p-town.dmm.com/machines/4973"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1446,6 +1722,14 @@
         "https://www.p-world.co.jp/machine/database/10418",
         "https://p-town.dmm.com/machines/4956"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -1483,6 +1767,12 @@
         "https://www.p-world.co.jp/machine/database/10455",
         "https://p-town.dmm.com/machines/4986"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -1514,6 +1804,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10425",
         "https://p-town.dmm.com/machines/4965"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -1547,6 +1843,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10399",
         "https://p-town.dmm.com/machines/4930"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1584,6 +1888,12 @@
         "https://www.p-world.co.jp/machine/database/10405",
         "https://p-town.dmm.com/machines/4943"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -1618,6 +1928,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10392",
         "https://p-town.dmm.com/machines/4931"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1655,6 +1973,12 @@
         "https://www.p-world.co.jp/machine/database/10391",
         "https://p-town.dmm.com/machines/4928"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -1688,6 +2012,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10414",
         "https://p-town.dmm.com/machines/4950"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1725,6 +2057,14 @@
         "https://www.p-world.co.jp/machine/database/10401",
         "https://p-town.dmm.com/machines/4941"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -1759,6 +2099,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10387",
         "https://p-town.dmm.com/machines/4925"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -1796,6 +2144,14 @@
         "https://www.p-world.co.jp/machine/database/10415",
         "https://p-town.dmm.com/machines/4926"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -1831,16 +2187,22 @@
         "https://www.p-world.co.jp/machine/database/10375",
         "https://p-town.dmm.com/machines/4912"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4
+      ],
       "現行判定": "現行",
-      "信頼度": "高",
+      "信頼度": "中",
       "別表記": [],
-      "備考": "設置店舗数 632店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・6の出率が3情報源で一致 ／ 設定6はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ 検定番号 530665 ／ P-WORLD掲載タイプ『6.5号機、ノーマル、30Φ、ボーナストリガー』 ／ コイン単価未確認",
+      "備考": "存在しない設定として空欄に戻した: 設定6=108.0%（DMMぱちタウンは掲載していたが、他情報源は[1, 2, 3, 4]のみ） ／ 設置店舗数 632店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1のみ複数情報源で一致 ／ 検定番号 530665 ／ P-WORLD掲載タイプ『6.5号機、ノーマル、30Φ、ボーナストリガー』 ／ コイン単価未確認",
       "設定1出率": 97.0,
       "設定2出率": 99.0,
       "設定3出率": 101.0,
       "設定4出率": 104.0,
       "設定5出率": "",
-      "設定6出率": 108.0
+      "設定6出率": ""
     },
     {
       "機種名": "スマート沖スロ ニューキングハナハナV",
@@ -1862,6 +2224,7 @@
         "https://www.p-world.co.jp/machine/database/10374",
         "https://p-town.dmm.com/machines/4911"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -1895,6 +2258,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10379",
         "https://p-town.dmm.com/machines/4913"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1930,6 +2301,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10370",
         "https://p-town.dmm.com/machines/4909"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -1967,6 +2346,14 @@
         "https://www.p-world.co.jp/machine/database/10390",
         "https://p-town.dmm.com/machines/4929"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2002,6 +2389,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10368",
         "https://p-town.dmm.com/machines/4906"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2040,6 +2434,14 @@
         "https://www.p-world.co.jp/machine/database/10395",
         "https://p-town.dmm.com/machines/4924"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2077,6 +2479,14 @@
         "https://www.p-world.co.jp/machine/database/10355",
         "https://p-town.dmm.com/machines/4895"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2111,6 +2521,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10372",
         "https://p-town.dmm.com/machines/4904"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2147,6 +2565,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10358",
         "https://p-town.dmm.com/machines/4898"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2187,6 +2613,13 @@
         "https://www.p-world.co.jp/machine/database/10351",
         "https://p-town.dmm.com/machines/4896"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -2223,13 +2656,20 @@
         "https://www.p-world.co.jp/machine/database/10340",
         "https://p-town.dmm.com/machines/4873"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
         "スマスロ ネオプラネット(型式名: LネオプラネットSLED)",
         "スマスロ ネオプラネット"
       ],
-      "備考": "設置店舗数 1,626店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・4・5・6の出率が4情報源で一致 ／ コイン単価はスロベース掲載値『約3.2円(設1)』 ／ 検定番号 5S0798 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約8.8枚/G、疑似ボーナス』",
+      "備考": "存在する設定は2情報源が一致した[1, 2, 4, 5, 6]を採用（異なる申告: スロベース=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 1,626店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・4・5・6の出率が4情報源で一致 ／ コイン単価はスロベース掲載値『約3.2円(設1)』 ／ 検定番号 5S0798 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約8.8枚/G、疑似ボーナス』",
       "設定1出率": 97.7,
       "設定2出率": 99.0,
       "設定3出率": "",
@@ -2261,6 +2701,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10354",
         "https://p-town.dmm.com/machines/4892"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2297,6 +2745,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10352",
         "https://p-town.dmm.com/machines/4885"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2335,6 +2790,14 @@
         "https://www.p-world.co.jp/machine/database/10376",
         "https://p-town.dmm.com/machines/4903"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2368,6 +2831,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10361",
         "https://p-town.dmm.com/machines/4893"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -2405,12 +2874,20 @@
         "https://www.p-world.co.jp/machine/database/10360",
         "https://p-town.dmm.com/machines/4891"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [
         "スマスロ荒野のコトブキ飛行隊"
       ],
-      "備考": "設置店舗数の記載を確認できず、現行稼働かを判断できない ／ 設定1・2・3・4・5・6の出率が4情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ コイン単価はスロベース掲載値『約3.2円』／回転数50枚 約35G ／ 検定番号 5S0846 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、CZ、天井、純増約約7.0枚/G、疑似ボーナス』",
+      "備考": "存在する設定は2情報源が一致した[1, 2, 3, 4, 5, 6]を採用（異なる申告: スロベース=[2, 3, 4, 5, 6]） ／ 設置店舗数の記載を確認できず、現行稼働かを判断できない ／ 設定1・2・3・4・5・6の出率が4情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ コイン単価はスロベース掲載値『約3.2円』／回転数50枚 約35G ／ 検定番号 5S0846 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、CZ、天井、純増約約7.0枚/G、疑似ボーナス』",
       "設定1出率": 97.4,
       "設定2出率": 97.4,
       "設定3出率": 98.8,
@@ -2442,6 +2919,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10349",
         "https://p-town.dmm.com/machines/4880"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2477,6 +2962,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10315",
         "https://p-town.dmm.com/machines/4853"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2514,13 +3007,20 @@
         "https://www.p-world.co.jp/machine/database/10339",
         "https://p-town.dmm.com/machines/4877"
       ],
+      "存在する設定": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
-      "信頼度": "高",
+      "信頼度": "中",
       "別表記": [
         "スマスロ 主役は銭形5"
       ],
-      "備考": "設置店舗数 2,717店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・3・4・5・6の出率が4情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ コイン単価はスロベース掲載値『約4.4円』／回転数50枚 約32.2G ／ 検定番号 5S0796 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、CZ、天井、疑似ボーナス』",
-      "設定1出率": 97.9,
+      "備考": "存在しない設定として空欄に戻した: 設定1=97.9%（DMMぱちタウンは掲載していたが、他情報源は[2, 3, 4, 5, 6]のみ） ／ 存在する設定は2情報源が一致した[2, 3, 4, 5, 6]を採用（異なる申告: パチ7=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 2,717店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定2・3・4・5・6のみ複数情報源で一致 ／ コイン単価はスロベース掲載値『約4.4円』／回転数50枚 約32.2G ／ 検定番号 5S0796 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、CZ、天井、疑似ボーナス』",
+      "設定1出率": "",
       "設定2出率": 97.9,
       "設定3出率": 99.0,
       "設定4出率": 103.2,
@@ -2549,6 +3049,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10318",
         "https://p-town.dmm.com/machines/4854"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2586,6 +3092,14 @@
         "https://www.p-world.co.jp/machine/database/10313",
         "https://p-town.dmm.com/machines/4849"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2619,6 +3133,12 @@
         "https://www.p-world.co.jp/machine/database/10307",
         "https://p-town.dmm.com/machines/4841"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -2651,6 +3171,14 @@
         "https://www.p-world.co.jp/machine/database/10325",
         "https://p-town.dmm.com/machines/4860"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -2681,6 +3209,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10306",
         "https://p-town.dmm.com/machines/4842"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -2715,6 +3249,14 @@
         "https://www.p-world.co.jp/machine/database/10269",
         "https://p-town.dmm.com/machines/4801"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -2746,6 +3288,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4824"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -2781,6 +3331,14 @@
         "https://www.p-world.co.jp/machine/database/10308",
         "https://p-town.dmm.com/machines/4843"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2815,6 +3373,13 @@
         "https://www.p-world.co.jp/machine/database/10283",
         "https://p-town.dmm.com/machines/4833"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -2847,6 +3412,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10297",
         "https://p-town.dmm.com/machines/4834"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -2882,6 +3455,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10319",
         "https://p-town.dmm.com/machines/4855"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -2919,6 +3500,14 @@
         "https://www.p-world.co.jp/machine/database/10312",
         "https://p-town.dmm.com/machines/4847"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -2951,6 +3540,13 @@
         "https://www.p-world.co.jp/machine/database/10265",
         "https://p-town.dmm.com/machines/4812"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -2982,6 +3578,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10266",
         "https://p-town.dmm.com/machines/4799"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -3017,6 +3619,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10270",
         "https://p-town.dmm.com/machines/4803"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3055,6 +3665,14 @@
         "https://www.p-world.co.jp/machine/database/10301",
         "https://p-town.dmm.com/machines/4830"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -3085,6 +3703,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10299",
         "https://p-town.dmm.com/machines/4831"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -3117,6 +3741,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10290",
         "https://p-town.dmm.com/machines/4821"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3152,6 +3784,12 @@
         "https://www.p-world.co.jp/machine/database/10250",
         "https://p-town.dmm.com/machines/4789"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -3183,6 +3821,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10277",
         "https://p-town.dmm.com/machines/4814"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3216,6 +3862,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10251",
         "https://p-town.dmm.com/machines/4790"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3252,6 +3906,14 @@
         "https://www.p-world.co.jp/machine/database/10275",
         "https://p-town.dmm.com/machines/4805"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -3286,6 +3948,7 @@
         "https://www.p-world.co.jp/machine/database/10261",
         "https://p-town.dmm.com/machines/4807"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -3318,6 +3981,12 @@
         "https://www.p-world.co.jp/machine/database/10247",
         "https://p-town.dmm.com/machines/4783"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -3349,6 +4018,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10258",
         "https://p-town.dmm.com/machines/4797"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3384,6 +4059,13 @@
         "https://www.p-world.co.jp/machine/database/10271",
         "https://p-town.dmm.com/machines/4813"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -3415,6 +4097,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10267",
         "https://p-town.dmm.com/machines/4800"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3450,10 +4139,11 @@
         "https://www.p-world.co.jp/machine/database/10259",
         "https://p-town.dmm.com/machines/4806"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "中",
       "別表記": [],
-      "備考": "設置店舗数 1,471店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定6のみ複数情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ コイン単価はスロベース掲載値『約4.4円』／回転数50枚 約30.0G ／ 検定番号 530010 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、CZ、天井、純増8.7枚/G、疑似ボーナス』",
+      "備考": "存在する設定の申告が割れている（スロベース=[2, 3, 4, 5, 6] / パチ7=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 1,471店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定6のみ複数情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ コイン単価はスロベース掲載値『約4.4円』／回転数50枚 約30.0G ／ 検定番号 530010 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、CZ、天井、純増8.7枚/G、疑似ボーナス』",
       "設定1出率": 98.0,
       "設定2出率": 98.0,
       "設定3出率": 99.0,
@@ -3484,6 +4174,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10224",
         "https://p-town.dmm.com/machines/4763"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3518,6 +4216,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10232",
         "https://p-town.dmm.com/machines/4770"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3554,6 +4260,14 @@
         "https://www.p-world.co.jp/machine/database/10255",
         "https://p-town.dmm.com/machines/4788"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -3588,6 +4302,14 @@
         "https://www.p-world.co.jp/machine/database/10242",
         "https://p-town.dmm.com/machines/4778"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -3621,6 +4343,14 @@
         "https://www.p-world.co.jp/machine/database/10216",
         "https://p-town.dmm.com/machines/4753"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -3652,6 +4382,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10234",
         "https://p-town.dmm.com/machines/4777"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3686,6 +4424,13 @@
         "https://www.p-world.co.jp/machine/database/10215",
         "https://p-town.dmm.com/machines/4751"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -3717,6 +4462,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10211",
         "https://p-town.dmm.com/machines/4745"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -3750,6 +4503,14 @@
         "https://www.p-world.co.jp/machine/database/10239",
         "https://p-town.dmm.com/machines/4752"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -3782,6 +4543,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4776"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -3819,6 +4588,14 @@
         "https://www.p-world.co.jp/machine/database/10198",
         "https://p-town.dmm.com/machines/4734"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -3855,6 +4632,14 @@
         "https://www.p-world.co.jp/machine/database/10217",
         "https://p-town.dmm.com/machines/4754"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -3888,11 +4673,18 @@
         "https://www.p-world.co.jp/machine/database/10226",
         "https://p-town.dmm.com/machines/4757"
       ],
+      "存在する設定": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
-      "備考": "設置店舗数 10店舗（P-WORLD調べ 調査日2026-02-04） ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ 検定番号 430624 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約6.0枚/G、疑似ボーナス』 ／ コイン単価未確認",
-      "設定1出率": 97.7,
+      "備考": "存在しない設定として空欄に戻した: 設定1=97.7%（DMMぱちタウンは掲載していたが、他情報源は[2, 3, 4, 5, 6]のみ） ／ 設置店舗数 10店舗（P-WORLD調べ 調査日2026-02-04） ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ 検定番号 430624 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約6.0枚/G、疑似ボーナス』 ／ コイン単価未確認",
+      "設定1出率": "",
       "設定2出率": "",
       "設定3出率": "",
       "設定4出率": "",
@@ -3918,6 +4710,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10209",
         "https://p-town.dmm.com/machines/4741"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -3950,6 +4750,7 @@
         "https://www.p-world.co.jp/machine/database/10169",
         "https://p-town.dmm.com/machines/4706"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -3980,6 +4781,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10220",
         "https://p-town.dmm.com/machines/4756"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -4015,6 +4823,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10174",
         "https://p-town.dmm.com/machines/4712"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4052,6 +4868,14 @@
         "https://www.p-world.co.jp/machine/database/10188",
         "https://p-town.dmm.com/machines/4719"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4087,6 +4911,14 @@
         "https://www.p-world.co.jp/machine/database/10176",
         "https://p-town.dmm.com/machines/4715"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4120,6 +4952,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10207",
         "https://p-town.dmm.com/machines/4742"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4156,6 +4996,14 @@
         "https://www.p-world.co.jp/machine/database/10177",
         "https://p-town.dmm.com/machines/4709"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4190,6 +5038,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10162",
         "https://p-town.dmm.com/machines/4701"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4226,13 +5082,20 @@
         "https://www.p-world.co.jp/machine/database/10190",
         "https://p-town.dmm.com/machines/4727"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
         "L島娘(型式名: L島娘L2)",
         "スマスロ島娘"
       ],
-      "備考": "設置店舗数 112店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・3・5・6の出率が3情報源で一致 ／ コイン単価はスロベース掲載値『約5.1円』 ／ 検定番号 430580 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約2.7枚or約5.0枚/G、疑似ボーナス』",
+      "備考": "存在する設定は2情報源が一致した[1, 2, 3, 5, 6]を採用（異なる申告: スロベース=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 112店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1・2・3・5・6の出率が3情報源で一致 ／ コイン単価はスロベース掲載値『約5.1円』 ／ 検定番号 430580 ／ P-WORLD掲載タイプ『スマスロ、6.5号機、AT、天井、純増約2.7枚or約5.0枚/G、疑似ボーナス』",
       "設定1出率": 97.9,
       "設定2出率": 99.0,
       "設定3出率": 102.9,
@@ -4262,6 +5125,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10196",
         "https://p-town.dmm.com/machines/4730"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4300,6 +5171,13 @@
         "https://www.p-world.co.jp/machine/database/10186",
         "https://p-town.dmm.com/machines/4724"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4336,6 +5214,12 @@
         "https://www.p-world.co.jp/machine/database/10164",
         "https://p-town.dmm.com/machines/4702"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4369,6 +5253,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10180",
         "https://p-town.dmm.com/machines/4717"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4405,6 +5296,14 @@
         "https://www.p-world.co.jp/machine/database/10143",
         "https://p-town.dmm.com/machines/4680"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -4437,6 +5336,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10187",
         "https://p-town.dmm.com/machines/4718"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -4472,6 +5379,14 @@
         "https://www.p-world.co.jp/machine/database/10147",
         "https://p-town.dmm.com/machines/4686"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -4503,6 +5418,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10141",
         "https://p-town.dmm.com/machines/4669"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4538,6 +5461,13 @@
         "https://www.p-world.co.jp/machine/database/10142",
         "https://p-town.dmm.com/machines/4675"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4571,6 +5501,14 @@
         "https://www.p-world.co.jp/machine/database/10128",
         "https://p-town.dmm.com/machines/4666"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -4602,6 +5540,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10146",
         "https://p-town.dmm.com/machines/4681"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4635,6 +5581,14 @@
         "https://www.p-world.co.jp/machine/database/10145",
         "https://p-town.dmm.com/machines/4683"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -4665,6 +5619,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10160",
         "https://p-town.dmm.com/machines/4690"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -4698,6 +5660,13 @@
         "https://www.p-world.co.jp/machine/database/10102",
         "https://p-town.dmm.com/machines/4639"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -4730,6 +5699,14 @@
         "https://www.p-world.co.jp/machine/database/10138",
         "https://p-town.dmm.com/machines/4676"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -4761,6 +5738,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10109",
         "https://p-town.dmm.com/machines/4643"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4796,6 +5781,14 @@
         "https://www.p-world.co.jp/machine/database/10113",
         "https://p-town.dmm.com/machines/4647"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -4830,12 +5823,13 @@
         "https://www.p-world.co.jp/machine/database/10106",
         "https://p-town.dmm.com/machines/4641"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "中",
       "別表記": [
         "スマスロ バンドリ!"
       ],
-      "備考": "設置店舗数 726店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定6のみ複数情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ 検定番号 430327 ／ P-WORLD掲載タイプ『特徴』 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
+      "備考": "存在する設定の申告が割れている（ななプレス=[1, 2, 3, 4, 5, 6] / パチ7=[2, 3, 4, 5, 6]） ／ 設置店舗数 726店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定6のみ複数情報源で一致 ／ 設定1はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ 検定番号 430327 ／ P-WORLD掲載タイプ『特徴』 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
       "設定1出率": 97.6,
       "設定2出率": 97.6,
       "設定3出率": 98.9,
@@ -4863,6 +5857,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10121",
         "https://p-town.dmm.com/machines/4658"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -4897,6 +5899,14 @@
         "https://www.p-world.co.jp/machine/database/10094",
         "https://p-town.dmm.com/machines/4631"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -4927,6 +5937,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10129",
         "https://p-town.dmm.com/machines/4668"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -4960,6 +5978,14 @@
         "https://www.p-world.co.jp/machine/database/10097",
         "https://p-town.dmm.com/machines/4635"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -4992,6 +6018,14 @@
         "https://www.p-world.co.jp/machine/database/10104",
         "https://p-town.dmm.com/machines/4640"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -5023,6 +6057,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10116",
         "https://p-town.dmm.com/machines/4650"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -5058,6 +6100,14 @@
         "https://www.p-world.co.jp/machine/database/10107",
         "https://p-town.dmm.com/machines/4617"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -5089,6 +6139,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10076",
         "https://p-town.dmm.com/machines/4609"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -5127,6 +6185,14 @@
         "https://www.p-world.co.jp/machine/database/10091",
         "https://p-town.dmm.com/machines/4618"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -5161,6 +6227,7 @@
         "https://www.p-world.co.jp/machine/database/10079",
         "https://p-town.dmm.com/machines/4610"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -5192,6 +6259,7 @@
         "https://www.p-world.co.jp/machine/database/10081",
         "https://p-town.dmm.com/machines/4611"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -5223,6 +6291,7 @@
         "https://www.p-world.co.jp/machine/database/10064",
         "https://p-town.dmm.com/machines/4595"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -5255,6 +6324,14 @@
         "https://www.p-world.co.jp/machine/database/10071",
         "https://p-town.dmm.com/machines/4606"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -5286,6 +6363,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10090",
         "https://p-town.dmm.com/machines/4623"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -5320,6 +6405,14 @@
         "https://www.p-world.co.jp/machine/database/10070",
         "https://p-town.dmm.com/machines/4604"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -5350,6 +6443,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10043",
         "https://p-town.dmm.com/machines/4575"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -5384,6 +6484,14 @@
         "https://www.p-world.co.jp/machine/database/10056",
         "https://p-town.dmm.com/machines/4588"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -5415,6 +6523,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10072",
         "https://p-town.dmm.com/machines/4603"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -5452,6 +6568,14 @@
         "https://www.p-world.co.jp/machine/database/10086",
         "https://p-town.dmm.com/machines/4602"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -5484,6 +6608,14 @@
         "https://www.p-world.co.jp/machine/database/10044",
         "https://p-town.dmm.com/machines/3685"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -5514,6 +6646,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4584"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -5545,6 +6678,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10044",
         "https://p-town.dmm.com/machines/4577"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -5579,6 +6720,13 @@
         "https://www.p-world.co.jp/machine/database/10078",
         "https://p-town.dmm.com/machines/4613"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -5609,6 +6757,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10077",
         "https://p-town.dmm.com/machines/4614"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -5641,6 +6796,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10050",
         "https://p-town.dmm.com/machines/4579"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -5677,6 +6839,14 @@
         "https://www.p-world.co.jp/machine/database/10067",
         "https://p-town.dmm.com/machines/4597"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [
@@ -5711,6 +6881,13 @@
         "https://www.p-world.co.jp/machine/database/10051",
         "https://p-town.dmm.com/machines/4582"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -5739,6 +6916,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4616"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -5776,6 +6954,14 @@
         "https://www.p-world.co.jp/machine/database/10036",
         "https://p-town.dmm.com/machines/4566"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -5810,6 +6996,14 @@
         "https://www.p-world.co.jp/machine/database/10052",
         "https://p-town.dmm.com/machines/4583"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -5841,6 +7035,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10049",
         "https://p-town.dmm.com/machines/4581"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -5876,6 +7078,14 @@
         "https://www.p-world.co.jp/machine/database/10039",
         "https://p-town.dmm.com/machines/4572"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -5906,6 +7116,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10038",
         "https://p-town.dmm.com/machines/4571"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -5939,6 +7157,14 @@
         "https://www.p-world.co.jp/machine/database/10025",
         "https://p-town.dmm.com/machines/4552"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -5971,6 +7197,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10042",
         "https://p-town.dmm.com/machines/4326"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -6007,6 +7240,14 @@
         "https://www.p-world.co.jp/machine/database/10019",
         "https://p-town.dmm.com/machines/4550"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6038,6 +7279,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10011",
         "https://p-town.dmm.com/machines/4539"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -6071,6 +7320,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10042",
         "https://p-town.dmm.com/machines/4555"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -6106,6 +7362,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10041",
         "https://p-town.dmm.com/machines/4565"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -6144,6 +7407,14 @@
         "https://www.p-world.co.jp/machine/database/10023",
         "https://p-town.dmm.com/machines/4553"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -6178,6 +7449,14 @@
         "https://www.p-world.co.jp/machine/database/10033",
         "https://p-town.dmm.com/machines/4556"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -6209,6 +7488,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/10004",
         "https://p-town.dmm.com/machines/4554"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -6242,6 +7528,14 @@
         "https://www.p-world.co.jp/machine/database/10017",
         "https://p-town.dmm.com/machines/4547"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6273,6 +7567,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9987",
         "https://p-town.dmm.com/machines/4516"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -6306,6 +7608,14 @@
         "https://www.p-world.co.jp/machine/database/10009",
         "https://p-town.dmm.com/machines/4540"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6338,6 +7648,13 @@
         "https://www.p-world.co.jp/machine/database/10007",
         "https://p-town.dmm.com/machines/4538"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6369,6 +7686,14 @@
         "https://www.p-world.co.jp/machine/database/10008",
         "https://p-town.dmm.com/machines/4535"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -6399,6 +7724,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9980",
         "https://p-town.dmm.com/machines/4515"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -6432,6 +7765,14 @@
         "https://www.p-world.co.jp/machine/database/9998",
         "https://p-town.dmm.com/machines/4536"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6464,6 +7805,13 @@
         "https://www.p-world.co.jp/machine/database/9991",
         "https://p-town.dmm.com/machines/4525"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6495,6 +7843,7 @@
         "https://www.p-world.co.jp/machine/database/10027",
         "https://p-town.dmm.com/machines/4560"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -6526,6 +7875,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9985",
         "https://p-town.dmm.com/machines/4511"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -6559,6 +7915,14 @@
         "https://www.p-world.co.jp/machine/database/9995",
         "https://p-town.dmm.com/machines/4527"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6590,6 +7954,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9983",
         "https://p-town.dmm.com/machines/4512"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -6625,6 +7996,12 @@
         "https://www.p-world.co.jp/machine/database/9967",
         "https://p-town.dmm.com/machines/4494"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -6657,6 +8034,14 @@
         "https://www.p-world.co.jp/machine/database/9978",
         "https://p-town.dmm.com/machines/4510"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6688,6 +8073,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9952",
         "https://p-town.dmm.com/machines/4477"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -6722,6 +8115,14 @@
         "https://www.p-world.co.jp/machine/database/9963",
         "https://p-town.dmm.com/machines/4479"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -6753,6 +8154,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9959",
         "https://p-town.dmm.com/machines/4488"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -6788,6 +8197,14 @@
         "https://www.p-world.co.jp/machine/database/9961",
         "https://p-town.dmm.com/machines/4490"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6818,6 +8235,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9990",
         "https://p-town.dmm.com/machines/4501"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -6851,6 +8275,14 @@
         "https://www.p-world.co.jp/machine/database/9964",
         "https://p-town.dmm.com/machines/4493"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6881,6 +8313,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9958",
         "https://p-town.dmm.com/machines/4478"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -6914,6 +8354,14 @@
         "https://www.p-world.co.jp/machine/database/9922",
         "https://p-town.dmm.com/machines/4440"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6946,6 +8394,14 @@
         "https://www.p-world.co.jp/machine/database/9932",
         "https://p-town.dmm.com/machines/4459"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -6977,6 +8433,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9935",
         "https://p-town.dmm.com/machines/4464"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7012,6 +8476,13 @@
         "https://www.p-world.co.jp/machine/database/9962",
         "https://p-town.dmm.com/machines/4487"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7043,6 +8514,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9919",
         "https://p-town.dmm.com/machines/4446"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7079,6 +8558,14 @@
         "https://www.p-world.co.jp/machine/database/9924",
         "https://p-town.dmm.com/machines/4453"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -7113,6 +8600,14 @@
         "https://www.p-world.co.jp/machine/database/9944",
         "https://p-town.dmm.com/machines/4466"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -7143,6 +8638,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9946",
         "https://p-town.dmm.com/machines/4471"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -7177,6 +8680,14 @@
         "https://www.p-world.co.jp/machine/database/9921",
         "https://p-town.dmm.com/machines/4423"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -7208,6 +8719,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9942",
         "https://p-town.dmm.com/machines/4468"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7243,6 +8761,14 @@
         "https://www.p-world.co.jp/machine/database/9950",
         "https://p-town.dmm.com/machines/4476"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7274,6 +8800,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9923",
         "https://p-town.dmm.com/machines/4450"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7307,6 +8840,12 @@
         "https://www.p-world.co.jp/machine/database/9920",
         "https://p-town.dmm.com/machines/4449"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7338,6 +8877,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9929",
         "https://p-town.dmm.com/machines/4456"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7373,6 +8920,14 @@
         "https://www.p-world.co.jp/machine/database/9928",
         "https://p-town.dmm.com/machines/4458"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -7406,6 +8961,7 @@
         "https://www.p-world.co.jp/machine/database/9917",
         "https://p-town.dmm.com/machines/4455"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -7438,6 +8994,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9908",
         "https://p-town.dmm.com/machines/4434"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7473,6 +9037,14 @@
         "https://www.p-world.co.jp/machine/database/9897",
         "https://p-town.dmm.com/machines/4419"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -7506,6 +9078,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9905",
         "https://p-town.dmm.com/machines/4433"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -7541,6 +9120,14 @@
         "https://www.p-world.co.jp/machine/database/9896",
         "https://p-town.dmm.com/machines/4420"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7574,6 +9161,14 @@
         "https://www.p-world.co.jp/machine/database/9913",
         "https://p-town.dmm.com/machines/4445"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -7605,6 +9200,7 @@
         "https://www.p-world.co.jp/machine/database/10296",
         "https://p-town.dmm.com/machines/4486"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -7643,6 +9239,13 @@
         "https://www.p-world.co.jp/machine/database/9900",
         "https://p-town.dmm.com/machines/4428"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [
@@ -7678,6 +9281,14 @@
         "https://www.p-world.co.jp/machine/database/9927",
         "https://p-town.dmm.com/machines/4447"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -7709,6 +9320,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9877",
         "https://p-town.dmm.com/machines/4403"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7742,6 +9360,13 @@
         "https://www.p-world.co.jp/machine/database/9882",
         "https://p-town.dmm.com/machines/4409"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7773,6 +9398,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9879",
         "https://p-town.dmm.com/machines/4405"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -7808,6 +9440,13 @@
         "https://www.p-world.co.jp/machine/database/9910",
         "https://p-town.dmm.com/machines/4414"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7840,6 +9479,14 @@
         "https://www.p-world.co.jp/machine/database/9876",
         "https://p-town.dmm.com/machines/4401"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7870,6 +9517,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9885",
         "https://p-town.dmm.com/machines/4410"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -7903,6 +9558,14 @@
         "https://www.p-world.co.jp/machine/database/9881",
         "https://p-town.dmm.com/machines/4406"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -7935,6 +9598,12 @@
         "https://www.p-world.co.jp/machine/database/9866",
         "https://p-town.dmm.com/machines/4393"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -7966,6 +9635,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9864",
         "https://p-town.dmm.com/machines/4390"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8001,6 +9678,14 @@
         "https://www.p-world.co.jp/machine/database/9868",
         "https://p-town.dmm.com/machines/4395"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8031,6 +9716,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4402"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -8066,6 +9759,14 @@
         "https://www.p-world.co.jp/machine/database/9856",
         "https://p-town.dmm.com/machines/4365"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -8099,6 +9800,13 @@
         "https://www.p-world.co.jp/machine/database/9861",
         "https://p-town.dmm.com/machines/4387"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -8131,6 +9839,13 @@
         "https://www.p-world.co.jp/machine/database/9860",
         "https://p-town.dmm.com/machines/4386"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8162,6 +9877,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9849",
         "https://p-town.dmm.com/machines/4378"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8197,6 +9919,14 @@
         "https://www.p-world.co.jp/machine/database/9839",
         "https://p-town.dmm.com/machines/4372"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8228,6 +9958,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9878",
         "https://p-town.dmm.com/machines/4404"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8261,6 +9998,14 @@
         "https://www.p-world.co.jp/machine/database/9841",
         "https://p-town.dmm.com/machines/4361"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8292,6 +10037,7 @@
         "https://www.p-world.co.jp/machine/database/9854",
         "https://p-town.dmm.com/machines/4366"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -8323,6 +10069,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9871",
         "https://p-town.dmm.com/machines/4391"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8358,6 +10111,14 @@
         "https://www.p-world.co.jp/machine/database/9873",
         "https://p-town.dmm.com/machines/4383"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -8392,6 +10153,14 @@
         "https://www.p-world.co.jp/machine/database/9844",
         "https://p-town.dmm.com/machines/4374"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -8424,6 +10193,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9843",
         "https://p-town.dmm.com/machines/4360"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8461,6 +10237,14 @@
         "https://www.p-world.co.jp/machine/database/9848",
         "https://p-town.dmm.com/machines/4375"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -8492,6 +10276,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9857",
         "https://p-town.dmm.com/machines/4382"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -8527,6 +10319,13 @@
         "https://www.p-world.co.jp/machine/database/9803",
         "https://p-town.dmm.com/machines/4328"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8558,6 +10357,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9816",
         "https://p-town.dmm.com/machines/4342"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -8593,6 +10400,13 @@
         "https://www.p-world.co.jp/machine/database/9818",
         "https://p-town.dmm.com/machines/4341"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8624,6 +10438,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9845",
         "https://p-town.dmm.com/machines/4369"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8657,6 +10478,14 @@
         "https://www.p-world.co.jp/machine/database/9829",
         "https://p-town.dmm.com/machines/4355"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8688,6 +10517,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9837",
         "https://p-town.dmm.com/machines/4367"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8721,6 +10557,13 @@
         "https://www.p-world.co.jp/machine/database/9805",
         "https://p-town.dmm.com/machines/4333"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8752,6 +10595,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9820",
         "https://p-town.dmm.com/machines/4347"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -8788,6 +10639,14 @@
         "https://www.p-world.co.jp/machine/database/9831",
         "https://p-town.dmm.com/machines/4352"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -8822,6 +10681,14 @@
         "https://www.p-world.co.jp/machine/database/9804",
         "https://p-town.dmm.com/machines/4329"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8853,6 +10720,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9809",
         "https://p-town.dmm.com/machines/4335"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8888,6 +10763,14 @@
         "https://www.p-world.co.jp/machine/database/9800",
         "https://p-town.dmm.com/machines/4327"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -8919,6 +10802,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9812",
         "https://p-town.dmm.com/machines/4340"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -8955,6 +10846,13 @@
         "https://www.p-world.co.jp/machine/database/9786",
         "https://p-town.dmm.com/machines/4301"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -8989,6 +10887,14 @@
         "https://www.p-world.co.jp/machine/database/9792",
         "https://p-town.dmm.com/machines/4304"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9020,6 +10926,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9785",
         "https://p-town.dmm.com/machines/4310"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9054,6 +10968,14 @@
         "https://www.p-world.co.jp/machine/database/9783",
         "https://p-town.dmm.com/machines/4311"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -9085,6 +11007,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9799",
         "https://p-town.dmm.com/machines/4321"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9119,6 +11048,14 @@
         "https://www.p-world.co.jp/machine/database/9771",
         "https://p-town.dmm.com/machines/4292"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9150,6 +11087,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9778",
         "https://p-town.dmm.com/machines/4296"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9184,13 +11129,20 @@
         "https://www.p-world.co.jp/machine/database/9753",
         "https://p-town.dmm.com/machines/4275"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
-      "備考": "設置店舗数 165店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 98.0% / ななプレス 98.2% / DMMぱちタウン 98.2% ／ 設定2: スロベース 99.5% / ななプレス 99.2% ／ 設定4: スロベース 105.5% / ななプレス 103.9% ／ 設定5: スロベース 108.5% / ななプレス 106.4% ／ 設定6: スロベース 111.0% / ななプレス 110.0% / DMMぱちタウン 110.0%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 2S0591 ／ P-WORLD掲載タイプ『6.5号機、AT、CZ、天井、純増約1.8枚or約4.0枚/G、疑似ボーナス』 ／ コイン単価未確認",
+      "備考": "存在しない設定として空欄に戻した: 設定3=102.0%（スロベースは掲載していたが、他情報源は[1, 2, 4, 5, 6]のみ） ／ 存在する設定は2情報源が一致した[1, 2, 4, 5, 6]を採用（異なる申告: スロベース=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 165店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 98.0% / ななプレス 98.2% / DMMぱちタウン 98.2% ／ 設定2: スロベース 99.5% / ななプレス 99.2% ／ 設定4: スロベース 105.5% / ななプレス 103.9% ／ 設定5: スロベース 108.5% / ななプレス 106.4% ／ 設定6: スロベース 111.0% / ななプレス 110.0% / DMMぱちタウン 110.0%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 2S0591 ／ P-WORLD掲載タイプ『6.5号機、AT、CZ、天井、純増約1.8枚or約4.0枚/G、疑似ボーナス』 ／ コイン単価未確認",
       "設定1出率": 98.0,
       "設定2出率": 99.5,
-      "設定3出率": 102.0,
+      "設定3出率": "",
       "設定4出率": 105.5,
       "設定5出率": 108.5,
       "設定6出率": 111.0
@@ -9215,6 +11167,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9775",
         "https://p-town.dmm.com/machines/4298"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9247,6 +11206,7 @@
         "https://www.p-world.co.jp/machine/database/9777",
         "https://p-town.dmm.com/machines/4299"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -9278,6 +11238,14 @@
         "https://www.p-world.co.jp/machine/database/9732",
         "https://p-town.dmm.com/machines/4253"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -9308,6 +11276,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9759",
         "https://p-town.dmm.com/machines/4283"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -9341,6 +11317,13 @@
         "https://www.p-world.co.jp/machine/database/9755",
         "https://p-town.dmm.com/machines/4272"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9372,6 +11355,7 @@
         "https://www.p-world.co.jp/machine/database/9750",
         "https://p-town.dmm.com/machines/4264"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -9404,10 +11388,11 @@
         "https://www.p-world.co.jp/machine/database/9738",
         "https://p-town.dmm.com/machines/4258"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
-      "備考": "設置店舗数 2,382店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 97.6% / DMMぱちタウン 97.2% ／ 設定6: スロベース 110.5% / DMMぱちタウン 108.1%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 2S0961 ／ P-WORLD掲載タイプ『6.5号機、AT、天井、純増約3.0枚/G、疑似ボーナス』 ／ コイン単価未確認",
+      "備考": "存在する設定の申告が割れている（スロベース=[1, 2, 3, 4, 5, 6] / パチ7=[1, 2, 3, 5, 6]） ／ 設置店舗数 2,382店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 97.6% / DMMぱちタウン 97.2% ／ 設定6: スロベース 110.5% / DMMぱちタウン 108.1%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 2S0961 ／ P-WORLD掲載タイプ『6.5号機、AT、天井、純増約3.0枚/G、疑似ボーナス』 ／ コイン単価未確認",
       "設定1出率": 97.6,
       "設定2出率": 98.8,
       "設定3出率": 100.5,
@@ -9435,6 +11420,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9749",
         "https://p-town.dmm.com/machines/4268"
+      ],
+      "存在する設定": [
+        1,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9470,6 +11462,14 @@
         "https://www.p-world.co.jp/machine/database/9728",
         "https://p-town.dmm.com/machines/4252"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9501,6 +11501,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9736",
         "https://p-town.dmm.com/machines/4259"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9536,6 +11544,13 @@
         "https://www.p-world.co.jp/machine/database/9719",
         "https://p-town.dmm.com/machines/4241"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9566,6 +11581,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9733",
         "https://p-town.dmm.com/machines/4254"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -9602,6 +11624,14 @@
         "https://www.p-world.co.jp/machine/database/9725",
         "https://p-town.dmm.com/machines/4244"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -9636,6 +11666,14 @@
         "https://www.p-world.co.jp/machine/database/9756",
         "https://p-town.dmm.com/machines/4279"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -9668,6 +11706,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9721",
         "https://p-town.dmm.com/machines/4246"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9704,6 +11749,14 @@
         "https://www.p-world.co.jp/machine/database/9720",
         "https://p-town.dmm.com/machines/4242"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9735,6 +11788,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9710",
         "https://p-town.dmm.com/machines/4236"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -9768,6 +11829,14 @@
         "https://www.p-world.co.jp/machine/database/9712",
         "https://p-town.dmm.com/machines/4237"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9800,6 +11869,13 @@
         "https://www.p-world.co.jp/machine/database/9724",
         "https://p-town.dmm.com/machines/4223"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9831,6 +11907,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9722",
         "https://p-town.dmm.com/machines/4247"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -9866,6 +11950,14 @@
         "https://www.p-world.co.jp/machine/database/9705",
         "https://p-town.dmm.com/machines/4230"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -9900,6 +11992,14 @@
         "https://www.p-world.co.jp/machine/database/9707",
         "https://p-town.dmm.com/machines/4225"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -9932,6 +12032,14 @@
         "https://www.p-world.co.jp/machine/database/9704",
         "https://p-town.dmm.com/machines/4229"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -9963,6 +12071,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9693",
         "https://p-town.dmm.com/machines/4212"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -9998,6 +12114,13 @@
         "https://www.p-world.co.jp/machine/database/9645",
         "https://p-town.dmm.com/machines/4171"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -10031,6 +12154,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9691",
         "https://p-town.dmm.com/machines/4217"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -10066,6 +12197,13 @@
         "https://www.p-world.co.jp/machine/database/9697",
         "https://p-town.dmm.com/machines/4222"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10096,6 +12234,13 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4196"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -10131,6 +12276,13 @@
         "https://www.p-world.co.jp/machine/database/9687",
         "https://p-town.dmm.com/machines/4209"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -10165,6 +12317,14 @@
         "https://www.p-world.co.jp/machine/database/9676",
         "https://p-town.dmm.com/machines/4203"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10196,6 +12356,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9669",
         "https://p-town.dmm.com/machines/4183"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10231,6 +12398,14 @@
         "https://www.p-world.co.jp/machine/database/9670",
         "https://p-town.dmm.com/machines/4193"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -10263,6 +12438,14 @@
         "https://www.p-world.co.jp/machine/database/9680",
         "https://p-town.dmm.com/machines/4205"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10294,6 +12477,7 @@
         "https://www.p-world.co.jp/machine/database/9683",
         "https://p-town.dmm.com/machines/4211"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -10325,6 +12509,7 @@
         "https://www.p-world.co.jp/machine/database/9682",
         "https://p-town.dmm.com/machines/4210"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -10357,6 +12542,14 @@
         "https://www.p-world.co.jp/machine/database/9690",
         "https://p-town.dmm.com/machines/4215"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10388,6 +12581,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9681",
         "https://p-town.dmm.com/machines/4202"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10423,6 +12624,13 @@
         "https://www.p-world.co.jp/machine/database/9671",
         "https://p-town.dmm.com/machines/4192"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10455,6 +12663,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9658",
         "https://p-town.dmm.com/machines/4178"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10489,6 +12705,7 @@
         "https://www.p-world.co.jp/machine/database/9677",
         "https://p-town.dmm.com/machines/4201"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -10520,6 +12737,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9668",
         "https://p-town.dmm.com/machines/4191"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10553,6 +12778,14 @@
         "https://www.p-world.co.jp/machine/database/9660",
         "https://p-town.dmm.com/machines/4188"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10584,6 +12817,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9641",
         "https://p-town.dmm.com/machines/4162"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10620,6 +12861,14 @@
         "https://www.p-world.co.jp/machine/database/9640",
         "https://p-town.dmm.com/machines/4160"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -10655,6 +12904,14 @@
         "https://www.p-world.co.jp/machine/database/9654",
         "https://p-town.dmm.com/machines/4173"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -10688,6 +12945,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9643",
         "https://p-town.dmm.com/machines/4156"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10723,6 +12987,12 @@
         "https://www.p-world.co.jp/machine/database/9636",
         "https://p-town.dmm.com/machines/4157"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -10755,6 +13025,13 @@
         "https://www.p-world.co.jp/machine/database/9617",
         "https://p-town.dmm.com/machines/4137"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10785,6 +13062,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9632",
         "https://p-town.dmm.com/machines/4150"
+      ],
+      "存在する設定": [
+        1,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -10818,6 +13101,13 @@
         "https://www.p-world.co.jp/machine/database/9630",
         "https://p-town.dmm.com/machines/4145"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10848,6 +13138,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9628",
         "https://p-town.dmm.com/machines/4140"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -10881,6 +13179,14 @@
         "https://www.p-world.co.jp/machine/database/9599",
         "https://p-town.dmm.com/machines/4116"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -10912,6 +13218,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9615",
         "https://p-town.dmm.com/machines/4134"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -10947,6 +13261,13 @@
         "https://www.p-world.co.jp/machine/database/9603",
         "https://p-town.dmm.com/machines/4131"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -10981,6 +13302,13 @@
         "https://www.p-world.co.jp/machine/database/9604",
         "https://p-town.dmm.com/machines/4122"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11012,6 +13340,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9601",
         "https://p-town.dmm.com/machines/4117"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11045,6 +13381,14 @@
         "https://www.p-world.co.jp/machine/database/9585",
         "https://p-town.dmm.com/machines/4100"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11077,6 +13421,14 @@
         "https://www.p-world.co.jp/machine/database/9613",
         "https://p-town.dmm.com/machines/4132"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11108,6 +13460,14 @@
         "https://www.p-world.co.jp/machine/database/9621",
         "https://p-town.dmm.com/machines/4146"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -11138,6 +13498,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4119"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -11169,6 +13530,7 @@
         "https://www.p-world.co.jp/machine/database/9605",
         "https://p-town.dmm.com/machines/4114"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -11200,6 +13562,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9594",
         "https://p-town.dmm.com/machines/4097"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11233,6 +13603,13 @@
         "https://www.p-world.co.jp/machine/database/9609",
         "https://p-town.dmm.com/machines/4128"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11264,6 +13641,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9584",
         "https://p-town.dmm.com/machines/4105"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11297,6 +13682,14 @@
         "https://www.p-world.co.jp/machine/database/9581",
         "https://p-town.dmm.com/machines/4093"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11327,6 +13720,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9614",
         "https://p-town.dmm.com/machines/3619"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -11362,6 +13762,13 @@
         "https://www.p-world.co.jp/machine/database/9614",
         "https://p-town.dmm.com/machines/4129"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -11392,6 +13799,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4127"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -11429,6 +13837,14 @@
         "https://www.p-world.co.jp/machine/database/9571",
         "https://p-town.dmm.com/machines/4085"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -11463,6 +13879,14 @@
         "https://www.p-world.co.jp/machine/database/9564",
         "https://p-town.dmm.com/machines/4089"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11494,6 +13918,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9573",
         "https://p-town.dmm.com/machines/4084"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11527,6 +13959,14 @@
         "https://www.p-world.co.jp/machine/database/9557",
         "https://p-town.dmm.com/machines/4074"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11558,6 +13998,7 @@
         "https://www.p-world.co.jp/machine/database/9589",
         "https://p-town.dmm.com/machines/4107"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -11588,6 +14029,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4073"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -11620,6 +14062,12 @@
         "https://www.p-world.co.jp/machine/database/9545",
         "https://p-town.dmm.com/machines/4058"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -11651,6 +14099,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9555",
         "https://p-town.dmm.com/machines/4070"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11687,6 +14143,14 @@
         "https://www.p-world.co.jp/machine/database/9539",
         "https://p-town.dmm.com/machines/4052"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11719,6 +14183,14 @@
         "https://www.p-world.co.jp/machine/database/9524",
         "https://p-town.dmm.com/machines/4041"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -11750,6 +14222,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9542",
         "https://p-town.dmm.com/machines/4060"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11785,6 +14264,14 @@
         "https://www.p-world.co.jp/machine/database/9530",
         "https://p-town.dmm.com/machines/4061"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -11818,6 +14305,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9521",
         "https://p-town.dmm.com/machines/4037"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11854,16 +14349,22 @@
         "https://www.p-world.co.jp/machine/database/9529",
         "https://p-town.dmm.com/machines/4043"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
         "パチスロ ディスクアップ2"
       ],
-      "備考": "設置店舗数 1,947店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 98.2% / ななプレス 98.4% / DMMぱちタウン 99.4% ／ 設定2: スロベース 99.5% / ななプレス 101.2% ／ 設定5: スロベース 107.0% / ななプレス 104.2% ／ 設定6: スロベース 110.5% / ななプレス 105.3% / DMMぱちタウン 108.6%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 0S0593 ／ P-WORLD掲載タイプ『6号機、AT』 ／ コイン単価未確認",
+      "備考": "存在しない設定として空欄に戻した: 設定3=101.2%・設定4=103.8%（スロベースは掲載していたが、他情報源は[1, 2, 5, 6]のみ） ／ 存在する設定は2情報源が一致した[1, 2, 5, 6]を採用（異なる申告: スロベース=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 1,947店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 98.2% / ななプレス 98.4% / DMMぱちタウン 99.4% ／ 設定2: スロベース 99.5% / ななプレス 101.2% ／ 設定5: スロベース 107.0% / ななプレス 104.2% ／ 設定6: スロベース 110.5% / ななプレス 105.3% / DMMぱちタウン 108.6%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 0S0593 ／ P-WORLD掲載タイプ『6号機、AT』 ／ コイン単価未確認",
       "設定1出率": 98.2,
       "設定2出率": 99.5,
-      "設定3出率": 101.2,
-      "設定4出率": 103.8,
+      "設定3出率": "",
+      "設定4出率": "",
       "設定5出率": 107.0,
       "設定6出率": 110.5
     },
@@ -11887,6 +14388,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9528",
         "https://p-town.dmm.com/machines/4044"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11921,6 +14430,7 @@
         "https://www.p-world.co.jp/machine/database/9502",
         "https://p-town.dmm.com/machines/4013"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -11952,6 +14462,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9501",
         "https://p-town.dmm.com/machines/4120"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -11987,6 +14505,14 @@
         "https://www.p-world.co.jp/machine/database/9501",
         "https://p-town.dmm.com/machines/4014"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12018,6 +14544,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9526",
         "https://p-town.dmm.com/machines/4034"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12051,6 +14585,13 @@
         "https://www.p-world.co.jp/machine/database/9561",
         "https://p-town.dmm.com/machines/4071"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12083,6 +14624,13 @@
         "https://www.p-world.co.jp/machine/database/9523",
         "https://p-town.dmm.com/machines/4035"
       ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12113,6 +14661,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9560",
         "https://p-town.dmm.com/machines/4080"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -12146,6 +14702,14 @@
         "https://www.p-world.co.jp/machine/database/9486",
         "https://p-town.dmm.com/machines/4015"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -12178,6 +14742,14 @@
         "https://www.p-world.co.jp/machine/database/9485",
         "https://p-town.dmm.com/machines/4016"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12209,6 +14781,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9496",
         "https://p-town.dmm.com/machines/4004"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12243,10 +14822,16 @@
         "https://www.p-world.co.jp/machine/database/9519",
         "https://p-town.dmm.com/machines/4033"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
-      "備考": "設置店舗数 2,792店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定6: スロベース 109.0% / ななプレス 105.8% / DMMぱちタウン 109.0%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 設定2・5はななプレスから補完（採用元が異なるため出典URLを併記） ／ 検定番号 1S1163 ／ P-WORLD掲載タイプ『6号機、RT』 ／ コイン単価未確認",
+      "備考": "存在する設定は2情報源が一致した[1, 2, 5, 6]を採用（異なる申告: スロベース=[1, 2, 3, 4, 5, 6]） ／ 設置店舗数 2,792店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定6: スロベース 109.0% / ななプレス 105.8% / DMMぱちタウン 109.0%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 設定2・5はななプレスから補完（採用元が異なるため出典URLを併記） ／ 検定番号 1S1163 ／ P-WORLD掲載タイプ『6号機、RT』 ／ コイン単価未確認",
       "設定1出率": 99.3,
       "設定2出率": 101.1,
       "設定3出率": "",
@@ -12274,6 +14859,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9495",
         "https://p-town.dmm.com/machines/4007"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12307,6 +14900,14 @@
         "https://www.p-world.co.jp/machine/database/9525",
         "https://p-town.dmm.com/machines/4040"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12338,6 +14939,7 @@
         "https://www.p-world.co.jp/machine/database/9518",
         "https://p-town.dmm.com/machines/4032"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -12369,6 +14971,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9520",
         "https://p-town.dmm.com/machines/4011"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12402,6 +15012,14 @@
         "https://www.p-world.co.jp/machine/database/9515",
         "https://p-town.dmm.com/machines/4039"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12433,6 +15051,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9513",
         "https://p-town.dmm.com/machines/4027"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12466,6 +15092,14 @@
         "https://www.p-world.co.jp/machine/database/9522",
         "https://p-town.dmm.com/machines/4038"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -12496,6 +15130,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4163"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -12532,6 +15167,7 @@
         "https://www.p-world.co.jp/machine/database/9531",
         "https://p-town.dmm.com/machines/4047"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -12561,6 +15197,7 @@
         "https://www.p-world.co.jp/machine/database/9511",
         "https://p-town.dmm.com/machines/4026"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -12600,6 +15237,13 @@
         "https://www.p-world.co.jp/machine/database/9497",
         "https://p-town.dmm.com/machines/4017"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12631,6 +15275,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9514",
         "https://p-town.dmm.com/machines/4029"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12664,6 +15316,14 @@
         "https://www.p-world.co.jp/machine/database/9516",
         "https://p-town.dmm.com/machines/4030"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -12696,6 +15356,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4083"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -12728,6 +15389,14 @@
         "https://www.p-world.co.jp/machine/database/9494",
         "https://p-town.dmm.com/machines/4006"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12758,6 +15427,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4020"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -12790,16 +15460,21 @@
         "https://www.p-world.co.jp/machine/database/9503",
         "https://p-town.dmm.com/machines/4012"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3
+      ],
       "現行判定": "現行",
       "信頼度": "中",
       "別表記": [],
-      "備考": "設置店舗数 93店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1のみ複数情報源で一致 ／ 設定6はDMMぱちタウンから補完（採用元が異なるため出典URLを併記） ／ 検定番号 1S0202 ／ P-WORLD掲載タイプ『6.1号機、RT』 ／ コイン単価未確認",
+      "備考": "存在しない設定として空欄に戻した: 設定6=105.4%（DMMぱちタウンは掲載していたが、他情報源は[1, 2, 3]のみ） ／ 設置店舗数 93店舗（P-WORLD調べ 調査日2026-02-04） ／ 設定1のみ複数情報源で一致 ／ 検定番号 1S0202 ／ P-WORLD掲載タイプ『6.1号機、RT』 ／ コイン単価未確認",
       "設定1出率": 98.0,
       "設定2出率": 99.8,
       "設定3出率": 101.7,
       "設定4出率": "",
       "設定5出率": "",
-      "設定6出率": 105.4
+      "設定6出率": ""
     },
     {
       "機種名": "パチスロ戦国乙女 暁の関ヶ原-DARKNESS-",
@@ -12821,6 +15496,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9479",
         "https://p-town.dmm.com/machines/3995"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12855,6 +15538,14 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3996"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -12886,6 +15577,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9465",
         "https://p-town.dmm.com/machines/3974"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -12919,6 +15618,12 @@
         "https://www.p-world.co.jp/machine/database/9484",
         "https://p-town.dmm.com/machines/3991"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -12951,6 +15656,14 @@
         "https://www.p-world.co.jp/machine/database/9446",
         "https://p-town.dmm.com/machines/3961"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -12982,6 +15695,7 @@
         "https://www.p-world.co.jp/machine/database/9443",
         "https://p-town.dmm.com/machines/3960"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13012,6 +15726,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9458",
         "https://p-town.dmm.com/machines/3968"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13044,6 +15764,13 @@
         "https://www.p-world.co.jp/machine/database/9439",
         "https://p-town.dmm.com/machines/3953"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13074,6 +15801,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9462",
         "https://p-town.dmm.com/machines/3976"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13106,6 +15841,7 @@
         "https://www.p-world.co.jp/machine/database/9438",
         "https://p-town.dmm.com/machines/3938"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13136,6 +15872,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9444",
         "https://p-town.dmm.com/machines/3962"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13168,6 +15910,14 @@
         "https://www.p-world.co.jp/machine/database/9428",
         "https://p-town.dmm.com/machines/3949"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13198,6 +15948,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9433",
         "https://p-town.dmm.com/machines/3948"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13230,6 +15988,12 @@
         "https://www.p-world.co.jp/machine/database/9442",
         "https://p-town.dmm.com/machines/3958"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13260,6 +16024,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9429",
         "https://p-town.dmm.com/machines/3967"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13292,6 +16063,7 @@
         "https://www.p-world.co.jp/machine/database/9409",
         "https://p-town.dmm.com/machines/3928"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13322,6 +16094,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9426",
         "https://p-town.dmm.com/machines/3940"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13354,6 +16134,14 @@
         "https://www.p-world.co.jp/machine/database/9413",
         "https://p-town.dmm.com/machines/3931"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13385,6 +16173,14 @@
         "https://www.p-world.co.jp/machine/database/9405",
         "https://p-town.dmm.com/machines/3917"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13415,6 +16211,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9414",
         "https://p-town.dmm.com/machines/3925"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13448,10 +16252,11 @@
         "https://www.p-world.co.jp/machine/database/9401",
         "https://p-town.dmm.com/machines/3911"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
-      "備考": "設置店舗数 3,645店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 97.5% / DMMぱちタウン 98.1% ／ 設定6: スロベース 108.0% / DMMぱちタウン 109.0%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 1S0226 ／ P-WORLD掲載タイプ『6.1号機、RT』 ／ コイン単価未確認",
+      "備考": "存在する設定の申告が割れている（スロベース=[1, 2, 3, 4, 5, 6] / パチ7=[1, 2, 5, 6]） ／ 設置店舗数 3,645店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 97.5% / DMMぱちタウン 98.1% ／ 設定6: スロベース 108.0% / DMMぱちタウン 109.0%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 1S0226 ／ P-WORLD掲載タイプ『6.1号機、RT』 ／ コイン単価未確認",
       "設定1出率": 97.5,
       "設定2出率": 98.5,
       "設定3出率": 100.5,
@@ -13479,6 +16284,7 @@
         "https://www.p-world.co.jp/machine/database/9406",
         "https://p-town.dmm.com/machines/3921"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13509,6 +16315,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9382",
         "https://p-town.dmm.com/machines/3892"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13541,6 +16354,14 @@
         "https://www.p-world.co.jp/machine/database/9381",
         "https://p-town.dmm.com/machines/3891"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13571,6 +16392,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9379",
         "https://p-town.dmm.com/machines/3888"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13603,6 +16432,14 @@
         "https://www.p-world.co.jp/machine/database/9388",
         "https://p-town.dmm.com/machines/3901"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13633,6 +16470,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9372",
         "https://p-town.dmm.com/machines/3886"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13665,6 +16510,14 @@
         "https://www.p-world.co.jp/machine/database/9376",
         "https://p-town.dmm.com/machines/3893"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13696,6 +16549,7 @@
         "https://www.p-world.co.jp/machine/database/9392",
         "https://p-town.dmm.com/machines/3902"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13726,6 +16580,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9364",
         "https://p-town.dmm.com/machines/3873"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13758,6 +16619,14 @@
         "https://www.p-world.co.jp/machine/database/9349",
         "https://p-town.dmm.com/machines/3867"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13788,6 +16657,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9352",
         "https://p-town.dmm.com/machines/3869"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -13820,6 +16697,14 @@
         "https://www.p-world.co.jp/machine/database/9362",
         "https://p-town.dmm.com/machines/3870"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -13850,6 +16735,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3910"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -13881,6 +16767,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9347",
         "https://p-town.dmm.com/machines/3863"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -13914,6 +16808,14 @@
         "https://www.p-world.co.jp/machine/database/9369",
         "https://p-town.dmm.com/machines/3862"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -13945,16 +16847,22 @@
         "https://www.p-world.co.jp/machine/database/9346",
         "https://p-town.dmm.com/machines/3856"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
-      "備考": "設置店舗数 9店舗（P-WORLD調べ 調査日2026-02-04） ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ 検定番号 0S1483 ／ P-WORLD掲載タイプ『6号機、ノーマル』 ／ コイン単価未確認",
+      "備考": "存在しない設定として空欄に戻した: 設定6=106.6%（DMMぱちタウンは掲載していたが、他情報源は[1, 2, 3, 4]のみ） ／ 設置店舗数 9店舗（P-WORLD調べ 調査日2026-02-04） ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ 検定番号 0S1483 ／ P-WORLD掲載タイプ『6号機、ノーマル』 ／ コイン単価未確認",
       "設定1出率": 97.5,
       "設定2出率": "",
       "設定3出率": "",
       "設定4出率": "",
       "設定5出率": "",
-      "設定6出率": 106.6
+      "設定6出率": ""
     },
     {
       "機種名": "スーパーハナハナ-30",
@@ -13976,6 +16884,7 @@
         "https://www.p-world.co.jp/machine/database/9340",
         "https://p-town.dmm.com/machines/3851"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -14008,6 +16917,14 @@
         "https://www.p-world.co.jp/machine/database/9339",
         "https://p-town.dmm.com/machines/3858"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14038,11 +16955,18 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3880"
       ],
+      "存在する設定": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
-      "備考": "設置店舗数の記載を確認できず、現行稼働かを判断できない ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
-      "設定1出率": 99.5,
+      "備考": "存在しない設定として空欄に戻した: 設定1=99.5%（DMMぱちタウンは掲載していたが、他情報源は[2, 3, 4, 5, 6]のみ） ／ 設置店舗数の記載を確認できず、現行稼働かを判断できない ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
+      "設定1出率": "",
       "設定2出率": "",
       "設定3出率": "",
       "設定4出率": "",
@@ -14069,6 +16993,13 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9331",
         "https://p-town.dmm.com/machines/3841"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14102,6 +17033,14 @@
         "https://www.p-world.co.jp/machine/database/9332",
         "https://p-town.dmm.com/machines/3843"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14134,6 +17073,14 @@
         "https://www.p-world.co.jp/machine/database/9320",
         "https://p-town.dmm.com/machines/3831"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14165,6 +17112,7 @@
         "https://www.p-world.co.jp/machine/database/9361",
         "https://p-town.dmm.com/machines/3914"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -14196,6 +17144,7 @@
         "https://www.p-world.co.jp/machine/database/9318",
         "https://p-town.dmm.com/machines/3832"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -14227,6 +17176,7 @@
         "https://www.p-world.co.jp/machine/database/9300",
         "https://p-town.dmm.com/machines/3809"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -14257,6 +17207,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3830"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -14288,6 +17239,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9325",
         "https://p-town.dmm.com/machines/3838"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14323,6 +17282,14 @@
         "https://www.p-world.co.jp/machine/database/9316",
         "https://p-town.dmm.com/machines/3828"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [
@@ -14356,6 +17323,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9293",
         "https://p-town.dmm.com/machines/3801"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14391,6 +17366,14 @@
         "https://www.p-world.co.jp/machine/database/9290",
         "https://p-town.dmm.com/machines/3799"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -14425,6 +17408,14 @@
         "https://www.p-world.co.jp/machine/database/9303",
         "https://p-town.dmm.com/machines/3815"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14456,6 +17447,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9289",
         "https://p-town.dmm.com/machines/3800"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14489,6 +17488,14 @@
         "https://www.p-world.co.jp/machine/database/9281",
         "https://p-town.dmm.com/machines/3792"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14519,6 +17526,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9277",
         "https://p-town.dmm.com/machines/3784"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -14551,6 +17566,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9259",
         "https://p-town.dmm.com/machines/3768"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14586,6 +17609,14 @@
         "https://www.p-world.co.jp/machine/database/9271",
         "https://p-town.dmm.com/machines/3779"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -14618,6 +17649,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9284",
         "https://p-town.dmm.com/machines/3798"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14653,6 +17692,7 @@
         "https://www.p-world.co.jp/machine/database/9276",
         "https://p-town.dmm.com/machines/3788"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -14686,6 +17726,14 @@
         "https://www.p-world.co.jp/machine/database/9267",
         "https://p-town.dmm.com/machines/3778"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -14717,6 +17765,7 @@
         "https://www.p-world.co.jp/machine/database/9266",
         "https://p-town.dmm.com/machines/3771"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -14748,6 +17797,14 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3787"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -14777,6 +17834,7 @@
         "https://www.p-world.co.jp/machine/database/9329",
         "https://p-town.dmm.com/machines/3837"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -14815,6 +17873,14 @@
         "https://www.p-world.co.jp/machine/database/9255",
         "https://p-town.dmm.com/machines/3766"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14846,6 +17912,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9258",
         "https://p-town.dmm.com/machines/3767"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14879,6 +17953,14 @@
         "https://www.p-world.co.jp/machine/database/9254",
         "https://p-town.dmm.com/machines/3763"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -14910,6 +17992,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9251",
         "https://p-town.dmm.com/machines/3761"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14943,6 +18033,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9241",
         "https://p-town.dmm.com/machines/3751"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -14978,6 +18076,14 @@
         "https://www.p-world.co.jp/machine/database/9246",
         "https://p-town.dmm.com/machines/3753"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15009,6 +18115,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9158",
         "https://p-town.dmm.com/machines/3662"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -15042,6 +18156,14 @@
         "https://www.p-world.co.jp/machine/database/9244",
         "https://p-town.dmm.com/machines/3750"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15073,6 +18195,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9230",
         "https://p-town.dmm.com/machines/3738"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -15106,6 +18236,14 @@
         "https://www.p-world.co.jp/machine/database/9222",
         "https://p-town.dmm.com/machines/3731"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15136,6 +18274,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9226",
         "https://p-town.dmm.com/machines/3734"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -15169,6 +18315,14 @@
         "https://www.p-world.co.jp/machine/database/9219",
         "https://p-town.dmm.com/machines/3719"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15200,6 +18354,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9204",
         "https://p-town.dmm.com/machines/3708"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -15233,6 +18395,14 @@
         "https://www.p-world.co.jp/machine/database/9212",
         "https://p-town.dmm.com/machines/3720"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15265,6 +18435,14 @@
         "https://www.p-world.co.jp/machine/database/9202",
         "https://p-town.dmm.com/machines/3704"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15295,6 +18473,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9189",
         "https://p-town.dmm.com/machines/3694"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -15328,6 +18514,14 @@
         "https://www.p-world.co.jp/machine/database/9192",
         "https://p-town.dmm.com/machines/3700"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15358,11 +18552,16 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3707"
       ],
+      "存在する設定": [
+        3,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
-      "備考": "設置店舗数の記載を確認できず、現行稼働かを判断できない ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
-      "設定1出率": 101.84,
+      "備考": "存在しない設定として空欄に戻した: 設定1=101.84%（DMMぱちタウンは掲載していたが、他情報源は[3, 5, 6]のみ） ／ 設置店舗数の記載を確認できず、現行稼働かを判断できない ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
+      "設定1出率": "",
       "設定2出率": "",
       "設定3出率": "",
       "設定4出率": "",
@@ -15389,6 +18588,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9154",
         "https://p-town.dmm.com/machines/3652"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -15422,6 +18629,14 @@
         "https://www.p-world.co.jp/machine/database/9151",
         "https://p-town.dmm.com/machines/3663"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15454,6 +18669,14 @@
         "https://www.p-world.co.jp/machine/database/9186",
         "https://p-town.dmm.com/machines/3701"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
       "別表記": [],
@@ -15482,6 +18705,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3725"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -15519,6 +18743,14 @@
         "https://www.p-world.co.jp/machine/database/9163",
         "https://p-town.dmm.com/machines/3668"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [
@@ -15553,6 +18785,14 @@
         "https://www.p-world.co.jp/machine/database/9170",
         "https://p-town.dmm.com/machines/3675"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15585,6 +18825,14 @@
         "https://www.p-world.co.jp/machine/database/9174",
         "https://p-town.dmm.com/machines/3674"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15615,6 +18863,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9181",
         "https://p-town.dmm.com/machines/3686"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -15648,6 +18904,12 @@
         "https://www.p-world.co.jp/machine/database/9155",
         "https://p-town.dmm.com/machines/3647"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -15679,6 +18941,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9152",
         "https://p-town.dmm.com/machines/3661"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -15714,6 +18984,14 @@
         "https://www.p-world.co.jp/machine/database/9142",
         "https://p-town.dmm.com/machines/3636"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -15745,6 +19023,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9132",
         "https://p-town.dmm.com/machines/3615"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "高",
@@ -15780,6 +19066,14 @@
         "https://www.p-world.co.jp/machine/database/9147",
         "https://p-town.dmm.com/machines/3657"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15811,6 +19105,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9160",
         "https://p-town.dmm.com/machines/3640"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "高",
@@ -15845,6 +19147,14 @@
         "https://www.p-world.co.jp/machine/database/9144",
         "https://p-town.dmm.com/machines/3648"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -15876,6 +19186,12 @@
         "https://www.p-world.co.jp/machine/database/9125",
         "https://p-town.dmm.com/machines/3625"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -15906,6 +19222,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9123",
         "https://p-town.dmm.com/machines/3629"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -15939,6 +19263,14 @@
         "https://www.p-world.co.jp/machine/database/9134",
         "https://p-town.dmm.com/machines/3635"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -15969,6 +19301,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9164",
         "https://p-town.dmm.com/machines/3642"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16001,6 +19341,7 @@
         "https://www.p-world.co.jp/machine/database/9156",
         "https://p-town.dmm.com/machines/3646"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16031,6 +19372,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9136",
         "https://p-town.dmm.com/machines/3637"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16063,6 +19412,7 @@
         "https://www.p-world.co.jp/machine/database/9130",
         "https://p-town.dmm.com/machines/3655"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -16094,6 +19444,7 @@
         "https://www.p-world.co.jp/machine/database/9131",
         "https://p-town.dmm.com/machines/3656"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -16124,6 +19475,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9114",
         "https://p-town.dmm.com/machines/3616"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16156,6 +19515,14 @@
         "https://www.p-world.co.jp/machine/database/9111",
         "https://p-town.dmm.com/machines/3618"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16187,6 +19554,7 @@
         "https://www.p-world.co.jp/machine/database/9129",
         "https://p-town.dmm.com/machines/3641"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -16218,6 +19586,14 @@
         "https://www.p-world.co.jp/machine/database/9107",
         "https://p-town.dmm.com/machines/3603"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16248,6 +19624,14 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3645"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -16277,6 +19661,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3595"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -16309,6 +19701,14 @@
         "https://www.p-world.co.jp/machine/database/9093",
         "https://p-town.dmm.com/machines/3590"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16339,6 +19739,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9081",
         "https://p-town.dmm.com/machines/3575"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16371,6 +19779,7 @@
         "https://www.p-world.co.jp/machine/database/9128",
         "https://p-town.dmm.com/machines/3654"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -16401,6 +19810,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9091",
         "https://p-town.dmm.com/machines/3592"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16433,6 +19850,7 @@
         "https://www.p-world.co.jp/machine/database/9103",
         "https://p-town.dmm.com/machines/3610"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -16461,6 +19879,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3620"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -16497,6 +19916,14 @@
         "https://www.p-world.co.jp/machine/database/9084",
         "https://p-town.dmm.com/machines/3591"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16527,6 +19954,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9068",
         "https://p-town.dmm.com/machines/3572"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -16559,6 +19994,14 @@
         "https://www.p-world.co.jp/machine/database/9061",
         "https://p-town.dmm.com/machines/3545"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16589,6 +20032,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9057",
         "https://p-town.dmm.com/machines/3560"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16621,6 +20072,14 @@
         "https://www.p-world.co.jp/machine/database/9063",
         "https://p-town.dmm.com/machines/3546"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16651,6 +20110,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9066",
         "https://p-town.dmm.com/machines/3561"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16684,6 +20151,14 @@
         "https://www.p-world.co.jp/machine/database/9040",
         "https://p-town.dmm.com/machines/3539"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "高",
       "別表記": [],
@@ -16714,6 +20189,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9055",
         "https://p-town.dmm.com/machines/3559"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16746,6 +20229,14 @@
         "https://www.p-world.co.jp/machine/database/9035",
         "https://p-town.dmm.com/machines/3531"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16776,6 +20267,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9032",
         "https://p-town.dmm.com/machines/3538"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16808,6 +20307,7 @@
         "https://www.p-world.co.jp/machine/database/9053",
         "https://p-town.dmm.com/machines/3549"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16838,6 +20338,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9029",
         "https://p-town.dmm.com/machines/3518"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16870,6 +20378,12 @@
         "https://www.p-world.co.jp/machine/database/9013",
         "https://p-town.dmm.com/machines/3523"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16900,6 +20414,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/9012",
         "https://p-town.dmm.com/machines/3522"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -16932,6 +20452,14 @@
         "https://www.p-world.co.jp/machine/database/9011",
         "https://p-town.dmm.com/machines/3515"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -16962,6 +20490,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8987",
         "https://p-town.dmm.com/machines/3491"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -16994,6 +20530,14 @@
         "https://www.p-world.co.jp/machine/database/9031",
         "https://p-town.dmm.com/machines/3533"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17024,6 +20568,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3504"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -17055,6 +20600,14 @@
         "https://www.p-world.co.jp/machine/database/8975",
         "https://p-town.dmm.com/machines/3480"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17083,6 +20636,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3724"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -17119,6 +20673,14 @@
         "https://www.p-world.co.jp/machine/database/8996",
         "https://p-town.dmm.com/machines/3501"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17149,6 +20711,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8984",
         "https://p-town.dmm.com/machines/3487"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17181,6 +20751,14 @@
         "https://www.p-world.co.jp/machine/database/8989",
         "https://p-town.dmm.com/machines/3490"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -17212,6 +20790,14 @@
         "https://www.p-world.co.jp/machine/database/8986",
         "https://p-town.dmm.com/machines/3492"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -17242,6 +20828,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3494"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -17270,6 +20857,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/4098"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -17306,6 +20894,14 @@
         "https://www.p-world.co.jp/machine/database/8981",
         "https://p-town.dmm.com/machines/3488"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17336,6 +20932,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8970",
         "https://p-town.dmm.com/machines/3471"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17368,6 +20972,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8964",
         "https://p-town.dmm.com/machines/3459"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "要確認",
@@ -17402,6 +21014,7 @@
         "https://www.p-world.co.jp/machine/database/9003",
         "https://p-town.dmm.com/machines/3502"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17433,6 +21046,7 @@
         "https://www.p-world.co.jp/machine/database/8968",
         "https://p-town.dmm.com/machines/3468"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17463,6 +21077,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8988",
         "https://p-town.dmm.com/machines/3493"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -17495,6 +21117,14 @@
         "https://www.p-world.co.jp/machine/database/8946",
         "https://p-town.dmm.com/machines/3458"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17525,6 +21155,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8957",
         "https://p-town.dmm.com/machines/3451"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17557,6 +21195,7 @@
         "https://www.p-world.co.jp/machine/database/8990",
         "https://p-town.dmm.com/machines/3489"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -17588,6 +21227,7 @@
         "https://www.p-world.co.jp/machine/database/8941",
         "https://p-town.dmm.com/machines/3442"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17618,6 +21258,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8942",
         "https://p-town.dmm.com/machines/3441"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17650,6 +21298,14 @@
         "https://www.p-world.co.jp/machine/database/8922",
         "https://p-town.dmm.com/machines/3426"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17680,6 +21336,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8919",
         "https://p-town.dmm.com/machines/3420"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17712,6 +21376,14 @@
         "https://www.p-world.co.jp/machine/database/8918",
         "https://p-town.dmm.com/machines/3416"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17742,6 +21414,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8890",
         "https://p-town.dmm.com/machines/3367"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17774,6 +21452,12 @@
         "https://www.p-world.co.jp/machine/database/8909",
         "https://p-town.dmm.com/machines/3406"
       ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17804,6 +21488,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8875",
         "https://p-town.dmm.com/machines/3377"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17836,6 +21528,14 @@
         "https://www.p-world.co.jp/machine/database/8848",
         "https://p-town.dmm.com/machines/3354"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17866,6 +21566,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8882",
         "https://p-town.dmm.com/machines/3376"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17898,6 +21604,7 @@
         "https://www.p-world.co.jp/machine/database/8857",
         "https://p-town.dmm.com/machines/3361"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -17928,6 +21635,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8885",
         "https://p-town.dmm.com/machines/3366"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -17961,6 +21676,14 @@
         "https://www.p-world.co.jp/machine/database/8867",
         "https://p-town.dmm.com/machines/3365"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
@@ -17991,6 +21714,12 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8853",
         "https://p-town.dmm.com/machines/3353"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -18023,6 +21752,14 @@
         "https://www.p-world.co.jp/machine/database/8864",
         "https://p-town.dmm.com/machines/3363"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -18053,6 +21790,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8838",
         "https://p-town.dmm.com/machines/3338"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -18085,6 +21830,7 @@
         "https://www.p-world.co.jp/machine/database/8812",
         "https://p-town.dmm.com/machines/3300"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18116,6 +21862,7 @@
         "https://www.p-world.co.jp/machine/database/8811",
         "https://p-town.dmm.com/machines/3299"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -18148,10 +21895,11 @@
         "https://www.p-world.co.jp/machine/database/8772",
         "https://p-town.dmm.com/machines/3270"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "要確認",
       "別表記": [],
-      "備考": "設置店舗数 5店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 97.5% / DMMぱちタウン 98.6% ／ 設定6: スロベース 110.0% / DMMぱちタウン 106.4%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 8S0314 ／ P-WORLD掲載タイプ『6号機、ノーマル』 ／ コイン単価未確認",
+      "備考": "存在する設定の申告が割れている（スロベース=[1, 2, 3, 4, 5, 6] / パチ7=[1, 2, 5, 6]） ／ 設置店舗数 5店舗（P-WORLD調べ 調査日2026-02-04） ／ 出率が情報源間で不一致: 設定1: スロベース 97.5% / DMMぱちタウン 98.6% ／ 設定6: スロベース 110.0% / DMMぱちタウン 106.4%。平均・選択は行わず全情報源の出典を保存。セルにはスロベースの値を採用（設定ごとの表を持つ情報源を優先。他の値は本欄に保持） ／ 検定番号 8S0314 ／ P-WORLD掲載タイプ『6号機、ノーマル』 ／ コイン単価未確認",
       "設定1出率": 97.5,
       "設定2出率": 98.7,
       "設定3出率": 100.8,
@@ -18179,6 +21927,7 @@
         "https://www.p-world.co.jp/machine/database/8820",
         "https://p-town.dmm.com/machines/3323"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -18209,6 +21958,14 @@
       "メーカー出典URL": [
         "https://www.p-world.co.jp/machine/database/8817",
         "https://p-town.dmm.com/machines/3313"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行",
       "信頼度": "低",
@@ -18241,6 +21998,7 @@
         "https://www.p-world.co.jp/machine/database/8844",
         "https://p-town.dmm.com/machines/3336"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18272,6 +22030,7 @@
         "https://www.p-world.co.jp/machine/database/8813",
         "https://p-town.dmm.com/machines/3324"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18303,6 +22062,7 @@
         "https://www.p-world.co.jp/machine/database/8800",
         "https://p-town.dmm.com/machines/3301"
       ],
+      "存在する設定": [],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -18334,16 +22094,23 @@
         "https://www.p-world.co.jp/machine/database/8781",
         "https://p-town.dmm.com/machines/3274"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
-      "備考": "設置店舗数 11店舗（P-WORLD調べ 調査日2026-02-04） ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ 検定番号 8S0549 ／ P-WORLD掲載タイプ『6号機、AT』 ／ コイン単価未確認",
+      "備考": "存在しない設定として空欄に戻した: 設定6=112.0%（DMMぱちタウンは掲載していたが、他情報源は[1, 2, 3, 4, 5]のみ） ／ 設置店舗数 11店舗（P-WORLD調べ 調査日2026-02-04） ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ 検定番号 8S0549 ／ P-WORLD掲載タイプ『6号機、AT』 ／ コイン単価未確認",
       "設定1出率": 97.5,
       "設定2出率": "",
       "設定3出率": "",
       "設定4出率": "",
       "設定5出率": "",
-      "設定6出率": 112.0
+      "設定6出率": ""
     },
     {
       "機種名": "バイオハザード イントゥザパニック",
@@ -18363,6 +22130,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3280"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -18395,6 +22170,14 @@
         "https://www.p-world.co.jp/machine/database/8763",
         "https://p-town.dmm.com/machines/3263"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -18425,6 +22208,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3262"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18456,6 +22240,14 @@
         "https://www.p-world.co.jp/machine/database/8721",
         "https://p-town.dmm.com/machines/3249"
       ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
       "現行判定": "現行",
       "信頼度": "低",
       "別表記": [],
@@ -18484,6 +22276,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3275"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "要確認",
       "別表記": [],
@@ -18519,6 +22312,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3218"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18549,11 +22343,16 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3225"
       ],
+      "存在する設定": [
+        2,
+        5,
+        6
+      ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
-      "備考": "設置店舗数の記載を確認できず、現行稼働かを判断できない ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
-      "設定1出率": 98.5,
+      "備考": "存在しない設定として空欄に戻した: 設定1=98.5%（DMMぱちタウンは掲載していたが、他情報源は[2, 5, 6]のみ） ／ 設置店舗数の記載を確認できず、現行稼働かを判断できない ／ DMMぱちタウンの範囲表記からの設定1・6のみ。設定2〜5は範囲表記のため取得できず空欄 ／ コイン単価未確認 ／ 規則区分をP-WORLDのタイプ欄で確認できず、対象範囲か判断できない",
+      "設定1出率": "",
       "設定2出率": "",
       "設定3出率": "",
       "設定4出率": "",
@@ -18578,6 +22377,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3187"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -18609,6 +22416,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3188"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18639,6 +22447,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3153"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],
@@ -18668,6 +22477,14 @@
       "コイン単価出典URL": [],
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3177"
+      ],
+      "存在する設定": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
       ],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
@@ -18699,6 +22516,7 @@
       "メーカー出典URL": [
         "https://p-town.dmm.com/machines/3076"
       ],
+      "存在する設定": [],
       "現行判定": "現行判定要確認",
       "信頼度": "低",
       "別表記": [],

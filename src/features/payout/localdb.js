@@ -58,6 +58,10 @@ function toEntry(m) {
     source: "db",
     per6: isRange ? null : rates.map((v) => (v == null ? null : v)),
     range: isRange ? [rates[0], rates[5]] : null,
+    // その機種に存在する設定。複数の情報源が一致したときだけ入る。
+    // レンジから補間したあと、ここに無い設定を空欄に戻すのに使う
+    // （設定1・2・5・6しか無い機種の設定3・4に数字を作らないため）。
+    lineup: m["存在する設定"] || [],
     confidence: m["信頼度"] || "",
     condition: m["出率条件"] || "",
     urls: m["出典"] || [],
