@@ -51,7 +51,11 @@ export function renderDailyDetail(host, { fy, month, sections, maps }) {
     const series = rows.map((r) => {
       const d = pick(r);
       const kind = dayKind(maps.cy, month, r.day);
-      return { day: r.day, date: r.date, kind, count: d.count, plan: d.plan, actual: d.actual };
+      // 平均アウトの分母。合計タブは数字の入っている区分ぶんだけを aggregate から受け取る。
+      // 区分タブはその区分の台数だが、計画も実績も無い日は分母に入れない。
+      const planCount = d.planCount != null ? d.planCount : (d.plan.outTotal ? d.count : 0);
+      const actualCount = d.actualCount != null ? d.actualCount : (d.actual ? d.count : 0);
+      return { day: r.day, date: r.date, kind, count: d.count, planCount, actualCount, plan: d.plan, actual: d.actual };
     });
     const hasAny = series.some((d) => d.actual);
     if (!hasAny) {
@@ -70,8 +74,10 @@ export function renderDailyDetail(host, { fy, month, sections, maps }) {
 
     body.appendChild(narrow() ? cards(series) : table(series));
     body.appendChild(el("p", { class: "hint", style: "margin:0",
-      text: "アウトは総アウト（台あたりアウト×台数）。達成率は粗利の実績÷計画。実績が未入力の日は空欄。"
-        + "計の行だけは、計画列は月ぶん全部・達成率と粗利差は実績のある日の計画と比べた値（残り日数ぶんの計画で未達に見えるのを避けるため）。" }));
+      text: "アウトは台あたりの平均（総アウト÷台数）。台数の増減で数字が動かないので日ごとに比べられる。"
+        + "達成率は粗利の実績÷計画。実績が未入力の日は空欄。"
+        + "計の行だけは、計画列は月ぶん全部・達成率と粗利差は実績のある日の計画と比べた値（残り日数ぶんの計画で未達に見えるのを避けるため）。"
+        + "アウトの計は足し上げではなく、日ごとの台数で重みづけした平均。" }));
   }
 
   function table(series) {
@@ -87,10 +93,10 @@ export function renderDailyDetail(host, { fy, month, sections, maps }) {
         el("th", { rowspan: 2, text: "達成率" }),
       ]),
       el("tr", {}, [
-        el("th", { style: gBg(GC.plan), text: "アウト" }),
+        el("th", { style: gBg(GC.plan), text: "アウト/台" }),
         el("th", { style: `${gBg(GC.plan)};color:${MC.sales}`, text: "売上" }),
         el("th", { style: `${gBg(GC.plan)};color:${MC.gross}`, text: "粗利" }),
-        el("th", { style: gBg(GC.actual), text: "アウト" }),
+        el("th", { style: gBg(GC.actual), text: "アウト/台" }),
         el("th", { style: `${gBg(GC.actual)};color:${MC.sales}`, text: "売上" }),
         el("th", { style: `${gBg(GC.actual)};color:${MC.gross}`, text: "粗利" }),
       ]),
@@ -100,28 +106,32 @@ export function renderDailyDetail(host, { fy, month, sections, maps }) {
     // 計画は月ぶん全部、実績は入力済みの日だけ。合計行でこの2つを割ると
     // 「20日ぶんの実績 ÷ 31日ぶんの計画」になって未達に見えるので、
     // 達成率と差額は実績のある日の計画（pe）と突き合わせる。
+    // アウトだけは平均で見せるので、計の行も足し上げではなく
+    // 総アウト ÷ 台数（日ごとの台数を足したもの）で出す。
     const sum = {
-      p: { outTotal: 0, sales: 0, gross: 0 },
+      p: { outTotal: 0, sales: 0, gross: 0 }, pCount: 0,
       pe: { gross: 0 },
-      a: { outTotal: 0, sales: 0, gross: 0 }, days: 0,
+      a: { outTotal: 0, sales: 0, gross: 0 }, aCount: 0, days: 0,
     };
     for (const d of series) {
       const a = d.actual;
       const ach = a && d.plan.gross ? a.gross / d.plan.gross : null;
       const diff = a ? a.gross - (d.plan.gross || 0) : null;
       sum.p.outTotal += d.plan.outTotal || 0; sum.p.sales += d.plan.sales || 0; sum.p.gross += d.plan.gross || 0;
+      sum.pCount += d.planCount;
       if (a) {
         sum.a.outTotal += a.outTotal; sum.a.sales += a.sales; sum.a.gross += a.gross; sum.days++;
+        sum.aCount += d.actualCount;
         sum.pe.gross += d.plan.gross || 0;
       }
       const jp = KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()];
       tb.appendChild(el("tr", { style: kindStyle(d.kind) }, [
         el("td", { class: "txt", text: String(d.day) }),
         el("td", { title: holidayName(maps.cy, month, d.day) || null, text: jp }),
-        el("td", { style: gBg(GC.plan), text: d.plan.outTotal ? num(Math.round(d.plan.outTotal)) : "—" }),
+        el("td", { style: gBg(GC.plan), text: d.plan.outAvg ? num(Math.round(d.plan.outAvg)) : "—" }),
         el("td", { style: gBg(GC.plan), text: d.plan.sales ? yen(d.plan.sales) : "—" }),
         el("td", { style: gBg(GC.plan), text: d.plan.gross ? yen(d.plan.gross) : "—" }),
-        el("td", { style: gBg(GC.actual), text: a ? num(Math.round(a.outTotal)) : "" }),
+        el("td", { style: gBg(GC.actual), text: a && a.outAvg ? num(Math.round(a.outAvg)) : "" }),
         el("td", { style: gBg(GC.actual), text: a ? yen(a.sales) : "" }),
         el("td", { style: gBg(GC.actual), text: a ? yen(a.gross) : "" }),
         el("td", { style: diff == null ? "" : `color:${diff >= 0 ? "#43b483" : "#e35d6a"};font-weight:600`,
@@ -131,13 +141,14 @@ export function renderDailyDetail(host, { fy, month, sections, maps }) {
     }
     const totAch = sum.pe.gross ? sum.a.gross / sum.pe.gross : null;
     const totDiff = sum.days ? sum.a.gross - sum.pe.gross : null;
+    const avg = (total, count) => (count ? num(Math.round(total / count)) : "—");
     tb.appendChild(el("tr", { style: "font-weight:700;border-top:2px solid var(--line)" }, [
       el("td", { class: "txt", text: "計" }),
       el("td", { class: "hint", text: `${sum.days}日` }),
-      el("td", { style: gBg(GC.plan), text: num(Math.round(sum.p.outTotal)) }),
+      el("td", { style: gBg(GC.plan), text: avg(sum.p.outTotal, sum.pCount) }),
       el("td", { style: gBg(GC.plan), text: yen(sum.p.sales) }),
       el("td", { style: gBg(GC.plan), text: yen(sum.p.gross) }),
-      el("td", { style: gBg(GC.actual), text: num(Math.round(sum.a.outTotal)) }),
+      el("td", { style: gBg(GC.actual), text: avg(sum.a.outTotal, sum.aCount) }),
       el("td", { style: gBg(GC.actual), text: yen(sum.a.sales) }),
       el("td", { style: gBg(GC.actual), text: yen(sum.a.gross) }),
       el("td", { style: totDiff == null ? "" : `color:${totDiff >= 0 ? "#43b483" : "#e35d6a"}`,
@@ -172,7 +183,7 @@ export function renderDailyDetail(host, { fy, month, sections, maps }) {
           ach == null ? null : el("span", { style: `color:${hex};font-weight:700`, text: pct(ach) }),
         ]),
         el("div", { class: "row", style: "gap:12px;flex-wrap:wrap;margin-top:4px;font-size:12px" }, [
-          kv("アウト", num(Math.round(a.outTotal)), d.plan.outTotal ? num(Math.round(d.plan.outTotal)) : null),
+          kv("アウト/台", a.outAvg ? num(Math.round(a.outAvg)) : "—", d.plan.outAvg ? num(Math.round(d.plan.outAvg)) : null),
           kv("売上", yen(a.sales), d.plan.sales ? yen(d.plan.sales) : null, MC.sales),
           kv("粗利", yen(a.gross), d.plan.gross ? yen(d.plan.gross) : null, MC.gross),
         ]),

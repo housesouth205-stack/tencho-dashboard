@@ -85,6 +85,9 @@ export function monthDailySeries(sections, year, month, maps) {
 // monthDailySeries はグラフ用に粗利だけを合算した薄い形なので、
 // 表に出すぶんはここで作る。実績が無い日は actual を null にして、
 // 0と「未入力」を取り違えないようにする（0を実績として描くと未入力日が谷に見える）。
+//
+// アウトは outTotal（総アウト）に加えて outAvg（台あたり平均）も持たせる。
+// 総アウトは台数が変わると日ごとの比較にならないため、表には平均のほうを出す。
 export function monthDailyDetail(sections, year, month, maps) {
   const days = daysInMonth(year, month);
   const rows = [];
@@ -93,7 +96,7 @@ export function monthDailyDetail(sections, year, month, maps) {
     const bySection = new Map();
     const tp = { outTotal: 0, sales: 0, gross: 0 };
     const ta = { outTotal: 0, sales: 0, gross: 0 };
-    let tCount = 0, anyActual = false;
+    let tCount = 0, tpCount = 0, taCount = 0, anyActual = false;
 
     for (const s of sections) {
       const k = key(date, s.id);
@@ -102,18 +105,30 @@ export function monthDailyDetail(sections, year, month, maps) {
       const aRow = maps.actual.get(k);
       const a = hasActual(aRow) ? actualCalc(aRow, count) : null;
 
-      bySection.set(s.id, { count: count || 0, plan: p, actual: a });
+      bySection.set(s.id, { count: count || 0, plan: withOutAvg(p, count), actual: a ? withOutAvg(a, count) : null });
       tp.outTotal += p.outTotal; tp.sales += p.sales; tp.gross += p.gross;
       tCount += count || 0;
+      // 合計の平均は、その日に数字が入っている区分の台数だけで割る。全区分の台数で
+      // 割ると、計画も実績も無い区分の台数まで分母に入って平均が沈む。
+      if (p.outTotal) tpCount += count || 0;
       if (a) {
         anyActual = true;
         ta.outTotal += a.outTotal; ta.sales += a.sales; ta.gross += a.gross;
+        taCount += count || 0;
       }
     }
-    bySection.set("total", { count: tCount, plan: tp, actual: anyActual ? ta : null });
+    tp.outAvg = tpCount ? tp.outTotal / tpCount : null;
+    ta.outAvg = taCount ? ta.outTotal / taCount : null;
+    bySection.set("total", { count: tCount, planCount: tpCount, actualCount: taCount, plan: tp, actual: anyActual ? ta : null });
     rows.push({ day: d, date, bySection });
   }
   return rows;
+}
+
+// 台あたり平均アウト。台数が未入力の日は割れないので null（0にすると「アウト0の日」に見える）。
+function withOutAvg(o, count) {
+  o.outAvg = count ? o.outTotal / count : null;
+  return o;
 }
 
 // 会計年度集計。monthMaps(month)->maps を受け取り12ヶ月を合算＋月次系列。
