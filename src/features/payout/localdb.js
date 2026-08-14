@@ -70,8 +70,14 @@ function toEntry(m) {
     coinRef: m["参考コイン単価"] ?? null,
     coinRefCond: m["参考コイン単価条件"] || "",
   };
-  const names = [m["機種名"], ...(m["別表記"] || [])];
-  entry.keys = [...new Set(names.map(matchKey).filter(Boolean))];
+  // 店舗の遊技台CSVは機種名ではなく検定型式名で入っていることが多い
+  // （店側「S/新ﾊﾅﾋﾞR/HA」＝型式名「S/新ハナビR/HA」）。
+  // 型式名でしか名前が繋がらない機種もある
+  // （機種名「ぱちスロ ギャグダー」＝型式名「SギャグラーKB」）ので、
+  // 機種名・別表記と同じ土俵の照合キーとして型式名も index に入れる。
+  const names = [m["機種名"], m["型式名"], ...(m["別表記"] || [])];
+  entry.katashiki = m["型式名"] || "";
+  entry.keys = [...new Set(names.filter(Boolean).map(matchKey).filter(Boolean))];
   return entry;
 }
 
