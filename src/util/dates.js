@@ -43,6 +43,15 @@ export function todayFiscalYear() {
   return fiscalYearOf(new Date());
 }
 
+// 年度セレクタの選択肢（新しい順）。翌年度は計画を先に入れるため、過去は取込んだ
+// 昨年度以前の実績を見返す・前年比を出すために遡れるようにしておく。
+export function fiscalYearOptions(back = 5) {
+  const now = todayFiscalYear();
+  const out = [];
+  for (let y = now + 1; y >= now - back; y--) out.push(y);
+  return out;
+}
+
 // 会議資料の月度表記（令和）。"2025-01-01" → "R7.01"。令和1年＝2019年。
 export const waMonthLabel = (ym) => {
   const [y, m] = String(ym).slice(0, 10).split("-").map(Number);

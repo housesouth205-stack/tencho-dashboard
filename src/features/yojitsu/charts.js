@@ -155,7 +155,9 @@ export function diffBars(series, { title } = {}) {
 //
 // series は [{ label, plan, actual, kind }]。kind は "sat"|"sun"|"holiday"|""。
 // 売上と粗利は桁が10倍違うので同じ軸に載せず、呼び出し側で2つに分けて使う。
-export function dailyBars(series, { title, color = C.pos, unit = "" } = {}) {
+// baseLabel: 横線が何を指すか。日別の表は計画とも昨年とも比べるので、
+// 凡例とツールチップの文言を呼び出し側から変えられるようにしている。
+export function dailyBars(series, { title, color = C.pos, unit = "", baseLabel = "計画" } = {}) {
   const n = series.length;
   const w = 640, h = 168, padL = 46, padB = 20, padT = 14, padR = 10;
   const iw = w - padL - padR, ih = h - padB - padT;
@@ -188,7 +190,7 @@ export function dailyBars(series, { title, color = C.pos, unit = "" } = {}) {
       const top = y(d.actual);
       const ratio = d.plan ? d.actual / d.plan : null;
       svg.appendChild(s("rect", { x: x(i) - bw / 2, y: top, width: bw, height: Math.max(1.5, y(0) - top), rx: 2, fill: color },
-        s("title", {}, `${d.label}｜実績 ${abbr(d.actual)}${unit} / 計画 ${abbr(d.plan)}${unit}`
+        s("title", {}, `${d.label}｜実績 ${abbr(d.actual)}${unit} / ${baseLabel} ${abbr(d.plan)}${unit}`
           + (ratio == null ? "" : `（${Math.round(ratio * 100)}%）`))));
     }
     if (d.plan) {
@@ -196,11 +198,11 @@ export function dailyBars(series, { title, color = C.pos, unit = "" } = {}) {
       svg.appendChild(s("line", {
         x1: x(i) - bw / 2 - 1.5, y1: py, x2: x(i) + bw / 2 + 1.5, y2: py,
         stroke: C.ref, "stroke-width": 1.6,
-      }, s("title", {}, `${d.label}｜計画 ${abbr(d.plan)}${unit}`)));
+      }, s("title", {}, `${d.label}｜${baseLabel} ${abbr(d.plan)}${unit}`)));
     }
   });
   xLabels(svg, series, x, h);
-  return wrap(title, svg, [["実績", color], ["計画（横線）", C.ref], ["土日祝", "#f0a12e"]]);
+  return wrap(title, svg, [["実績", color], [`${baseLabel}（横線）`, C.ref], ["土日祝", "#f0a12e"]]);
 }
 
 function wrap(title, svg, legend) {
