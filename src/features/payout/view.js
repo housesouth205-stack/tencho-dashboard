@@ -14,8 +14,8 @@ const guessType = (m) => (AT_HINT.test(String(m).normalize("NFKC")) ? "Aタイ�
 const AUTO_SCORE = 0.55; // Web一括取得で自動確定する名前類似度の下限
 // 機種DBの一括適用で自動確定する名前類似度の下限。
 // 完全一致だけに絞ると候補選択の手数が多くなるため、この値まで自動で入れる。
-// 自動で入れたものは 状態列に一致率を出し、備考にも残して後から見直せるようにしている。
-const DB_AUTO_SCORE = 0.5;
+// 自動で入れたものは状態列に一致率を出し、備考にも照合相手を残して後から見直せる。
+const DB_AUTO_SCORE = 0.3;
 
 const SRC_LABEL = {
   manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定",
@@ -79,7 +79,7 @@ export async function mount(host) {
   const info = el("div", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px", html:
     "出玉率(機械割)を機種×設定で登録すると、シミュレーターが自動で使います。<br>" +
     "📚 <b>機種DB</b>(同梱・通信不要): スマスロ／6号機の出玉率を出典URL・信頼度つきで収録。設定別の表から取れた機種は<b>機種DB</b>、機械割のレンジしか無い機種はタイプ標準カーブで補間して<b>機種DB推定</b>。<b>まずこれを試すのが速い</b>。状態列にカーソルを乗せると信頼度・出典・照合相手が出ます。<br>" +
-    "　一括適用は名前の一致率50%以上を自動で入れます。完全一致でなかった機種は状態列に<b>一致率</b>を橙色で出すので、そこだけ見直してください。<br>" +
+    "　一括適用は名前の一致率30%以上を自動で入れます。店舗の機種名が型式名でも照合できます（例「S/新ﾊﾅﾋﾞR/HA」）。完全一致でなかった機種は状態列に<b>一致率</b>を橙色で出すので、そこだけ見直してください。<br>" +
     "🌐 <b>Web取得</b>: 機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジから補間(<b>Web推定</b>)。<br>" +
     "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" });
   host.appendChild(info);
@@ -105,9 +105,10 @@ export async function mount(host) {
     const per6 = !!(res.per6 && res.per6.filter((v) => v != null).length >= 3);
     r.source = res.source === "db" ? (per6 ? "db-per6" : "db-range") : (per6 ? "dmm-per6" : "dmm-range");
     // 完全一致でないときは、どの機種名に当てたかと一致率を残す。
-    // 一致率50%でも自動で入るので、後から見直せる手掛かりが要る。
+    // 一致率30%でも自動で入るので、後から見直せる手掛かりが要る。
+    const who = res.katashiki && res.katashiki !== res.name ? `${res.name}（型式名 ${res.katashiki}）` : res.name;
     const matched = res.score != null && res.score < 1
-      ? `\n照合: 「${res.name}」に一致率${Math.round(res.score * 100)}%で適用`
+      ? `\n照合: 「${who}」に一致率${Math.round(res.score * 100)}%で適用`
       : "";
     r.note = res.source === "db"
       ? `機種DB（信頼度 ${res.confidence || "—"}／条件 ${res.condition || "—"}）${matched}\n出典: ${(res.urls || []).join("\n")}`
@@ -296,8 +297,10 @@ function pickCandidate(model, ranked) {
       const conf = c.source === "db" && c.confidence ? `・信頼度${c.confidence}` : "";
       const info = (known.length >= 3 ? `${site}・設定別 ${known[0]}〜${known[known.length - 1]}%`
         : (c.range ? `${site}・レンジ ${c.range[0]}〜${c.range[1]}%` : `${site}・データ無`)) + conf;
+      // 店側の名前が型式名のことがあるので、候補にも型式名を並べて見分けやすくする
+      const label = c.katashiki && c.katashiki !== c.name ? `${c.name}（${c.katashiki}）` : c.name;
       return el("button", { class: "btn", style: "display:flex;justify-content:space-between;gap:12px;width:100%;text-align:left", onclick: () => close(c) },
-        [el("span", { text: c.name }), el("span", { class: "hint", text: `${info} ・一致${Math.round(c.score * 100)}%` })]);
+        [el("span", { text: label }), el("span", { class: "hint", text: `${info} ・一致${Math.round(c.score * 100)}%` })]);
     });
     const box = el("div", { style: "background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;max-width:560px;width:92%;max-height:80vh;overflow:auto" }, [
       el("div", { style: "font-weight:700;margin-bottom:4px", text: "Web候補を選択" }),

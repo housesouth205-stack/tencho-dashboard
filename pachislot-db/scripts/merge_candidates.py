@@ -75,8 +75,14 @@ def decide_lineup(sources_: list[tuple[str, list[int]]]) -> tuple[tuple[int, ...
     top, n = tally.most_common(1)[0]
     tied = [l for l, c in tally.items() if c == n]
     if len(tied) > 1:
+        # 票数が並んだら、設定の少ない申告を採る。
+        # 6段階の表は「全部ある」ではなく雛形のまま埋めた結果のことがある一方、
+        # 中間設定を抜いた表はその機種に無いから抜いたと読むのが自然なため。
+        # ここは票が割れた上での判断なので、退けた申告も必ず備考に残す。
+        top = min(tied, key=len)
         detail = " / ".join(f"{nm}={list(l)}" for nm, l in votes)
-        return None, f"存在する設定の申告が割れている（{detail}）"
+        return top, (f"存在する設定の申告が割れたため、設定の少ない{list(top)}を採用"
+                     f"（申告: {detail}）")
 
     if len(tally) > 1:  # 少数派がいた場合は、何を退けたかを残す
         others = " / ".join(f"{nm}={list(l)}" for nm, l in votes if l != top)
@@ -176,6 +182,34 @@ def merge_one(rec: dict, today: str) -> dict:
         maker_urls.append(dmm["url"])
 
     katashiki = pw.get("型式名", "") or dmm.get("型式名", "")
+
+    # ---------------- 型式名の接頭辞から分かること
+    # 検定型式名の頭文字は媒体を表す。実データ572機種で例外が無いことを確認済み:
+    #   L・LB で始まる202機種は全てP-WORLDの規則区分が「スマスロ」
+    #   S で始まる機種にスマスロは1件も無い（全て6号機系＝メダル機）
+    # 規則区分が読めなかった機種のメディア区分を、推測ではなく型式名から補える。
+    # LB は遊技性がボーナス主体のBT機。P-WORLDは「Aタイプ」に寄せて載せているが、
+    # 実機の括りに合わせてBTとして扱う。
+    mark = ""
+    kt = katashiki.strip()
+    if re.match(r"^LB", kt):
+        mark = "LB"
+    elif re.match(r"^L", kt):
+        mark = "L"
+    elif re.match(r"^S", kt):
+        mark = "S"
+
+    if mark in ("L", "LB") and not kikaku:
+        notes.append(f"型式名『{kt}』が{mark}始まりのためスマスロと判断"
+                     "（規則区分はP-WORLDで確認できず）")
+    elif mark == "S" and not kikaku:
+        notes.append(f"型式名『{kt}』がS始まりのためメダル機と判断"
+                     "（規則区分はP-WORLDで確認できず）")
+
+    if mark == "LB":
+        machine_type = "BT"
+        notes.append(f"型式名『{kt}』がLB始まりのためBT機として分類"
+                     + (f"（P-WORLDの掲載は『{pw_type}』）" if pw_type else ""))
     if pw.get("型式名") and dmm.get("型式名") and pw["型式名"] != dmm["型式名"]:
         notes.append(f"型式名が不一致（P-WORLD『{pw['型式名']}』/ DMMぱちタウン『{dmm['型式名']}』）")
 
@@ -247,7 +281,10 @@ def merge_one(rec: dict, today: str) -> dict:
         "メーカー": maker,
         "機種タイプ": machine_type or slo.get("機種タイプ", ""),
         "メディア区分": ("スマスロ" if kikaku == "スマスロ"
-                        else ("メダル機" if kikaku else slo.get("メディア区分", ""))),
+                        else "メダル機" if kikaku
+                        else "スマスロ" if mark in ("L", "LB")
+                        else "メダル機" if mark == "S"
+                        else slo.get("メディア区分", "")),
         "ATタイプ": slo.get("ATタイプ", ""),
         "ボーナスタイプ": "",
         "規則区分": kikaku,
