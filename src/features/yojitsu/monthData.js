@@ -13,6 +13,23 @@ export async function loadMonthMaps(fy, month) {
   return { cy, machines: await load("machines_day"), plan: await load("plan_day"), actual: await load("actual_day") };
 }
 
+// 指定fy/monthと前年同月を、1回の取得でまとめて返す。
+// select は店舗の全行を返してこちら側で月に切っているので、前年比のために
+// もう一度同じテーブルを取りに行く必要はない（往復を倍にしない）。
+export async function loadMonthMapsWithPrev(fy, month) {
+  const [machines, plan, actual] = await Promise.all([
+    repo.select("machines_day", { eq: { store_id: state.storeId } }),
+    repo.select("plan_day", { eq: { store_id: state.storeId } }),
+    repo.select("actual_day", { eq: { store_id: state.storeId } }),
+  ]);
+  const pick = (f) => {
+    const cy = calendarYear(f, month);
+    const prefix = `${cy}-${String(month).padStart(2, "0")}`;
+    return { cy, machines: bucket(machines, prefix), plan: bucket(plan, prefix), actual: bucket(actual, prefix) };
+  };
+  return { cur: pick(fy), prev: pick(fy - 1) };
+}
+
 // 年度分を1回ずつ取得し、monthMaps(month)->maps を返すファクトリ（年度サマリー用）。
 export async function loadFiscalMonthMaps(fy) {
   const [machines, plan, actual] = await Promise.all([

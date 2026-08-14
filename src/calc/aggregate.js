@@ -131,6 +131,16 @@ function withOutAvg(o, count) {
   return o;
 }
 
+// 前年比較用に、今年の実績が入っている日にちだけを残した前年のマップを返す。
+// 8月14日時点で「今年14日ぶん」と「昨年1ヶ月ぶん」を並べると、どんなに good な月でも
+// 前年比マイナスに見える。達成率を planElapsed と比べるのと同じ理由で、日数をそろえる。
+// 前年の同じ日が休業・未入力なら落ちるので、営業日数も一緒に見せること。
+export function sameDaysMaps(curMaps, prevMaps) {
+  const days = new Set();
+  for (const [k, r] of curMaps.actual) if (hasActual(r)) days.add(k.slice(8, 10)); // "YYYY-MM-DD|section" の DD
+  return { ...prevMaps, actual: new Map([...prevMaps.actual].filter(([k]) => days.has(k.slice(8, 10)))) };
+}
+
 // 会計年度集計。monthMaps(month)->maps を受け取り12ヶ月を合算＋月次系列。
 export function fyAggregate(sections, fy, monthMaps) {
   const months = fiscalMonths();
