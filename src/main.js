@@ -1,6 +1,6 @@
 import { initRouter } from "./core/router.js";
 import { state } from "./core/state.js";
-import { todayFiscalYear } from "./util/dates.js";
+import { fiscalYearOptions } from "./util/dates.js";
 import { el } from "./util/dom.js";
 import { currentSession, signIn, signOut, authErrorMessage } from "./core/auth.js";
 import { mountFreshnessBar } from "./core/freshness.js";
@@ -9,8 +9,7 @@ import { authRequired, AUTH_EMAIL, STORE_NAME } from "./core/config.js";
 function initFySelector() {
   const sel = document.getElementById("fySelect");
   if (sel.options.length) return; // 二重初期化防止
-  const now = todayFiscalYear();
-  for (let y = now + 1; y >= now - 3; y--) {
+  for (const y of fiscalYearOptions()) {
     sel.appendChild(el("option", { value: y, text: `${y}年度`, selected: y === state.fy ? "selected" : null }));
   }
   sel.addEventListener("change", (e) => {

@@ -1,7 +1,7 @@
 import { el, clear, modal } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { flushAll } from "../../core/autosave.js";
-import { fiscalMonths, daysInMonth, calendarYear } from "../../util/dates.js";
+import { fiscalMonths, daysInMonth, calendarYear, fiscalYearOptions } from "../../util/dates.js";
 import { monthAggregate, monthDailySeries, fyAggregate, sameDaysMaps } from "../../calc/aggregate.js";
 import { yen, pct, num } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
@@ -44,6 +44,15 @@ export async function mount(host) {
   ]));
 
   const ctrl = el("div", { class: "row", style: "align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px" });
+  // 年度はヘッダーにもあるが、スマホでは隠れて押しづらい。過去年度を見返すのは
+  // この画面なので、月の選択と同じ場所にも置く（値はヘッダーと同期させる）。
+  const fySel = el("select", { class: "inp", style: "width:104px", onchange: (e) => {
+    state.fy = Number(e.target.value);
+    const head = document.getElementById("fySelect");
+    if (head) head.value = state.fy;
+    mount(host);
+  } }, fiscalYearOptions().map((y) => el("option", { value: y, text: `${y}年度`, selected: y === state.fy ? "selected" : null })));
+  ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "年度" }), fySel]));
   const granBtns = el("div", { class: "row", style: "gap:2px" }, ["month", "year"].map((g) =>
     el("button", { class: "btn sm " + (g === gran ? "primary" : "ghost"), text: g === "month" ? "月" : "年度", onclick: () => { gran = g; mount(host); } })));
   ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "粒度" }), granBtns]));
@@ -64,7 +73,7 @@ export async function mount(host) {
   host.appendChild(summary);
 
   async function refresh() {
-    let agg, series, maps = null, prev = null, showAverages = gran === "month";
+    let agg, series, maps = null, prevMaps = null, prev = null, showAverages = gran === "month";
     if (gran === "year") {
       const monthMaps = await loadFiscalMonthMaps(state.fy);
       const r = fyAggregate(state.sections, state.fy, monthMaps);
@@ -74,16 +83,16 @@ export async function mount(host) {
       maps = both.cur;
       agg = monthAggregate(state.sections, maps.cy, month, maps);
       series = monthDailySeries(state.sections, maps.cy, month, maps);
+      prevMaps = both.prev;
       // 前年同月は、今年の実績がある日にちだけに絞ってから集計する（14日ぶん対1ヶ月ぶんにしない）
-      const prevMaps = sameDaysMaps(maps, both.prev);
-      const prevAgg = monthAggregate(state.sections, both.prev.cy, month, prevMaps);
-      prev = { fy: state.fy - 1, cy: both.prev.cy, total: prevAgg.total };
+      const prevAgg = monthAggregate(state.sections, prevMaps.cy, month, sameDaysMaps(maps, prevMaps));
+      prev = { fy: state.fy - 1, cy: prevMaps.cy, total: prevAgg.total };
     }
     const target = await loadBudgetTotals({ mode: gran, fy: state.fy, month });
     const opts = gran === "month" ? { daysTotal: daysInMonth(calendarYear(state.fy, month), month) } : {};
     renderSummary(summary, agg, series, target, showAverages, { ...opts, prev });
     // 日別の実績は月モードだけ。年モードは1点が1ヶ月なので日別の表に意味がない。
-    if (maps) renderDailyDetail(summary, { fy: state.fy, month, sections: state.sections, maps });
+    if (maps) renderDailyDetail(summary, { fy: state.fy, month, sections: state.sections, maps, prevMaps });
   }
   async function openCalendar() {
     const body = el("div");
