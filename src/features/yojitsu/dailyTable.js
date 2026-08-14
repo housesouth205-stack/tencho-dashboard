@@ -9,6 +9,7 @@ import { el, clear } from "../../util/dom.js";
 import { yen, num, pct } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
 import { dayKind, holidayName } from "../../util/holiday.js";
+import { daysInMonth } from "../../util/dates.js";
 import { monthDailyDetail } from "../../calc/aggregate.js";
 import { dailyBars } from "./charts.js";
 
@@ -89,6 +90,10 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     const hasAny = series.some((d) => d.actual);
     if (!hasAny) {
       body.appendChild(el("div", { class: "placeholder", text: "この区分の実績がまだありません。「日別入力」から入れると表とグラフが出ます。" }));
+      return;
+    }
+    if (cmp === "prev" && !hasPrev) {
+      body.appendChild(noPrevNote());
       return;
     }
 
@@ -200,6 +205,27 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     return el("div", { class: "table-wrap" }, t);
   }
 
+  // 「昨年」を押したのに出せないときの説明。何を探して見つからなかったのかまで書く。
+  // 「データがありません」だけだと、入れ忘れなのか照合が外れているのか区別できず、
+  // 店側でも直せない（実際にどちらなのかが分からず時間を使った）。
+  function noPrevNote() {
+    const cy = prevMaps ? prevMaps.cy : null;
+    const mm = String(month).padStart(2, "0");
+    const last = daysInMonth(cy, month);
+    // その月の行そのものはあるか。行はあるのに出せないなら、区分（section）の
+    // 照合が外れている＝区分を作り直したときに起きる。
+    const rowsInMonth = prevMaps ? prevMaps.actual.size : 0;
+    const lines = rowsInMonth
+      ? [`昨年（${cy}年${month}月）の実績は ${rowsInMonth}件 入っていますが、いまの区分（${sections.map((s) => s.label).join("・")}）と結びついていません。`,
+        "設定タブで区分を作り直すと、前の区分で入れた実績は照合できなくなります。この場合は昨年度ぶんを取り込み直すと直ります。"]
+      : [`昨年（${cy}年${month}月）の実績が入っていません。`,
+        `探した範囲は ${cy}-${mm}-01 〜 ${cy}-${mm}-${last} です。`,
+        `年度セレクタを「${cy}年度」にすると、その年に実績が入っているかを確認できます。無ければ「月計画表を取込」で昨年度のファイルを取り込むと比較できます。`];
+    return el("div", { class: "card", style: `border-left:3px solid ${GC.prev};padding:12px 14px` },
+      el("div", { class: "col", style: "gap:6px" }, lines.map((t, i) =>
+        el("div", { class: i ? "hint" : null, style: i ? "" : "font-weight:700", text: t }))));
+  }
+
   function achCell(r) {
     if (r == null) return el("td", { text: "" });
     const hex = achieveHex(r);
@@ -246,12 +272,10 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     }));
   }
   for (const c of [{ id: "plan", label: "計画" }, { id: "prev", label: "昨年" }]) {
-    // 昨年のデータが無いときは押せてもすべて空欄になるだけなので、理由を出して止める
-    const off = c.id === "prev" && !hasPrev;
+    // 昨年のデータが無くても押せるままにする。押せないボタンは、スマホだと理由を出す
+    // 場所（ツールチップ）が無くて「壊れている」ようにしか見えない。押したら理由を出す。
     cmpChips.appendChild(el("button", {
       class: "btn sm ghost", "data-cmp": c.id, text: c.label,
-      disabled: off ? "disabled" : null,
-      title: off ? `昨年（${prevMaps ? prevMaps.cy : ""}年${month}月）の実績がありません` : null,
       onclick: () => { cmp = c.id; draw(); },
     }));
   }
