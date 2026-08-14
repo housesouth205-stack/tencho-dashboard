@@ -54,6 +54,37 @@ def _rates(src: dict) -> dict[int, float]:
     return {int(k): float(v) for k, v in (src.get("設定別出率") or {}).items()}
 
 
+def decide_lineup(sources_: list[tuple[str, list[int]]]) -> tuple[tuple[int, ...] | None, str]:
+    """「その機種に存在する設定」を情報源の申告から決める。
+
+    設定1・2・5・6しか無い機種に、6段階の表を載せている情報源が1件でもあると、
+    設定3・4に実在しない値が入ってしまう。値とは別に顔ぶれを多数決で決めて防ぐ。
+
+    判断に使うのは「意味のある申告」だけにする。設定1と6しか載せていない表は
+    『設定2〜5が無い』という主張ではなく単に情報が薄いだけなので、
+    3つ以上かつ中間設定（2〜5）を含む申告に限って票として数える。
+
+    戻り値は (採用する顔ぶれ, 判断の説明)。決められなければ (None, 理由)。
+    """
+    votes = [(n, tuple(l)) for n, l in sources_
+             if l and len(l) >= 3 and any(2 <= s <= 5 for s in l)]
+    if not votes:
+        return None, ""
+
+    tally = Counter(l for _, l in votes)
+    top, n = tally.most_common(1)[0]
+    tied = [l for l, c in tally.items() if c == n]
+    if len(tied) > 1:
+        detail = " / ".join(f"{nm}={list(l)}" for nm, l in votes)
+        return None, f"存在する設定の申告が割れている（{detail}）"
+
+    if len(tally) > 1:  # 少数派がいた場合は、何を退けたかを残す
+        others = " / ".join(f"{nm}={list(l)}" for nm, l in votes if l != top)
+        return top, (f"存在する設定は{n}情報源が一致した{list(top)}を採用"
+                     f"（異なる申告: {others}）")
+    return top, ""
+
+
 def merge_one(rec: dict, today: str) -> dict:
     name = rec["機種名"]
     srcs = rec["情報源"]
@@ -88,11 +119,37 @@ def merge_one(rec: dict, today: str) -> dict:
             if s not in rates:
                 rates[s] = v
                 filled_from[s] = sname
+
+    # ---------------- 存在する設定の確定
+    # 値を入れる前に顔ぶれを決め、そこに無い設定は空欄に戻す。
+    # パチ7は値の条件（完全攻略時など）が揃わず出率としては採らないが、
+    # 設定の並びは判断材料になるので票には入れる。
+    lineup, lineup_note = decide_lineup([
+        ("スロベース", slo.get("設定の顔ぶれ") or []),
+        ("ななプレス", nana.get("設定の顔ぶれ") or []),
+        ("パチ7", p7.get("設定の顔ぶれ") or []),
+    ])
+    if lineup:
+        dropped = sorted(s for s in rates if s not in lineup)
+        if dropped:
+            vals = "・".join(f"設定{s}={rates[s]}%" for s in dropped)
+            notes.append(f"存在しない設定として空欄に戻した: {vals}"
+                         f"（{filled_from.get(dropped[0], primary)}は掲載していたが、"
+                         f"他情報源は{list(lineup)}のみ）")
+            for s in dropped:
+                rates.pop(s, None)
+                filled_from.pop(s, None)
+        if lineup_note:
+            notes.append(lineup_note)
+    elif lineup_note:
+        notes.append(lineup_note)
     supplemented = sorted(s for s, n in filled_from.items() if n != primary)
 
     conflicts: list[str] = []
     agreed: list[int] = []
     for s in SETTINGS:
+        if lineup and s not in lineup:
+            continue  # 存在しない設定は突き合わせの対象にしない
         vals = [(n, r[s]) for n, r, _ in by_source if s in r]
         if len(vals) < 2:
             continue
@@ -204,6 +261,7 @@ def merge_one(rec: dict, today: str) -> dict:
         "出率出典URL": rate_urls,
         "コイン単価出典URL": coin_urls,
         "メーカー出典URL": maker_urls,
+        "存在する設定": list(lineup) if lineup else [],
         "現行判定": genko,
         "信頼度": conf,
         "別表記": aliases,

@@ -11,7 +11,11 @@ import { buildMinSetting, MIN_CHOICES } from "../simulator/minSetting.js";
 
 const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|アイムジャグ|ジャグ/;
 const guessType = (m) => (AT_HINT.test(String(m).normalize("NFKC")) ? "Aタイプ" : "AT機");
-const AUTO_SCORE = 0.55; // 一括取得で自動確定する名前類似度の下限
+const AUTO_SCORE = 0.55; // Web一括取得で自動確定する名前類似度の下限
+// 機種DBの一括適用で自動確定する名前類似度の下限。
+// 完全一致だけに絞ると候補選択の手数が多くなるため、この値まで自動で入れる。
+// 自動で入れたものは 状態列に一致率を出し、備考にも残して後から見直せるようにしている。
+const DB_AUTO_SCORE = 0.5;
 
 const SRC_LABEL = {
   manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定",
@@ -74,7 +78,8 @@ export async function mount(host) {
 
   const info = el("div", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px", html:
     "出玉率(機械割)を機種×設定で登録すると、シミュレーターが自動で使います。<br>" +
-    "📚 <b>機種DB</b>(同梱・通信不要): スマスロ／6号機の出玉率を出典URL・信頼度つきで収録。設定別の表から取れた機種は<b>機種DB</b>、機械割のレンジしか無い機種はタイプ標準カーブで補間して<b>機種DB推定</b>。<b>まずこれを試すのが速い</b>。状態列にカーソルを乗せると信頼度と出典が出ます。<br>" +
+    "📚 <b>機種DB</b>(同梱・通信不要): スマスロ／6号機の出玉率を出典URL・信頼度つきで収録。設定別の表から取れた機種は<b>機種DB</b>、機械割のレンジしか無い機種はタイプ標準カーブで補間して<b>機種DB推定</b>。<b>まずこれを試すのが速い</b>。状態列にカーソルを乗せると信頼度・出典・照合相手が出ます。<br>" +
+    "　一括適用は名前の一致率50%以上を自動で入れます。完全一致でなかった機種は状態列に<b>一致率</b>を橙色で出すので、そこだけ見直してください。<br>" +
     "🌐 <b>Web取得</b>: 機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジから補間(<b>Web推定</b>)。<br>" +
     "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" });
   host.appendChild(info);
@@ -90,12 +95,24 @@ export async function mount(host) {
     if (res.source === "db" && res.type && TYPES[res.type]) r.type = res.type;
     const pay = payoutFromDmm(res, r.type);
     if (!pay) return false;
+    // レンジ補間は設定1〜6を必ず埋めるが、設定1・2・5・6しか無い機種がある。
+    // 機種DBが「存在する設定」を持っていれば、そこに無い設定は空欄に戻す。
+    // 空欄はシミュレーターへの「この設定は入れない」という指示でもある。
+    if (res.source === "db" && res.lineup && res.lineup.length) {
+      for (let s = 1; s <= 6; s++) if (!res.lineup.includes(s)) pay[s - 1] = null;
+    }
     r.payout = pay; r.registered = true;
     const per6 = !!(res.per6 && res.per6.filter((v) => v != null).length >= 3);
     r.source = res.source === "db" ? (per6 ? "db-per6" : "db-range") : (per6 ? "dmm-per6" : "dmm-range");
+    // 完全一致でないときは、どの機種名に当てたかと一致率を残す。
+    // 一致率50%でも自動で入るので、後から見直せる手掛かりが要る。
+    const matched = res.score != null && res.score < 1
+      ? `\n照合: 「${res.name}」に一致率${Math.round(res.score * 100)}%で適用`
+      : "";
     r.note = res.source === "db"
-      ? `機種DB（信頼度 ${res.confidence || "—"}／条件 ${res.condition || "—"}）\n出典: ${(res.urls || []).join("\n")}`
+      ? `機種DB（信頼度 ${res.confidence || "—"}／条件 ${res.condition || "—"}）${matched}\n出典: ${(res.urls || []).join("\n")}`
       : null;
+    r.matchScore = res.source === "db" ? (res.score ?? null) : null;
     r.sourceUrl = res.source === "db" ? (res.urls || [])[0] || null : null;
     if (res.source !== "db" && res.id) { r.dmmId = { id: res.id, source: res.source || "dmm" }; dmmMap[r.model] = r.dmmId; }
     return true;
@@ -107,6 +124,7 @@ export async function mount(host) {
     try {
       const list = await dbCandidates(r.model);
       if (!list.length) { toast(`「${r.model}」は機種DBに見つかりませんでした`, "warn"); return; }
+      // 個別に押したときは候補を見せる。一括と違い、選ぶ手間より確実さを優先する。
       const res = (list.length === 1 && list[0].score >= 1) ? list[0] : await pickCandidate(r.model, list);
       if (!res) return; // キャンセル
       if (applyResult(r, res)) { updateReg(); draw(); toast(`「${r.model}」を機種DBから反映（信頼度 ${res.confidence || "—"}）`, "ok"); }
@@ -141,10 +159,9 @@ export async function mount(host) {
         dbBulkBtn.textContent = `照合中… ${ok + ask.length + miss + 1}/${targets.length}`;
         const list = await dbCandidates(r.model).catch(() => []);
         if (!list.length) { miss++; continue; }
-        // 自動で入れるのは正規化後の完全一致が1件のときだけ。
-        // 名前が似ているだけの候補を自動採用すると、別機種の出玉率が入って
-        // 粗利計算までまとめて狂うので、必ず人の確認を挟む。
-        if (list.length === 1 && list[0].score >= 1) { if (applyResult(r, list[0])) ok++; }
+        // 一致率が閾値以上なら自動で入れる。完全一致でないものは
+        // 状態列に一致率を出し、備考に照合相手を残して後から見直せるようにする。
+        if (list[0].score >= DB_AUTO_SCORE) { if (applyResult(r, list[0])) ok++; }
         else ask.push({ r, ranked: list });
       }
       updateReg(); draw();
@@ -225,8 +242,14 @@ export async function mount(host) {
           },
         })));
       }
-      const sc = r.registered ? (r.source === "manual" ? "var(--ok)" : "var(--blue)") : "var(--warn)";
-      cells.push(el("td", { style: `color:${sc}`, title: r.note || null, text: r.registered ? SRC_LABEL[r.source] : "未登録" }));
+      // 名前が完全一致でなかった機種は一致率を併記する。取り違えに気づけるようにするため。
+      const inexact = r.matchScore != null && r.matchScore < 1;
+      const sc = !r.registered ? "var(--warn)"
+        : inexact ? "var(--accent)" : (r.source === "manual" ? "var(--ok)" : "var(--blue)");
+      const label = r.registered
+        ? SRC_LABEL[r.source] + (inexact ? ` ${Math.round(r.matchScore * 100)}%` : "")
+        : "未登録";
+      cells.push(el("td", { style: `color:${sc}`, title: r.note || null, text: label }));
       cells.push(el("td", { class: "row", style: "gap:4px" }, [
         el("button", { class: "btn sm ghost", title: "機種DBから適用", text: "📚", onclick: () => fetchOneFromDb(r) }),
         el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) }),

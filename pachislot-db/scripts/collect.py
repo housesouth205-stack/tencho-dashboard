@@ -26,7 +26,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import sources  # noqa: E402
-from fetch_specs import Politeness, extract_condition, extract_rates, fetch  # noqa: E402
+from fetch_specs import (  # noqa: E402
+    Politeness, extract_condition, extract_lineup, extract_rates_and_lineup, fetch,
+)
 
 ROOT = Path(__file__).resolve().parent.parent
 TARGETS = ROOT / "data" / "targets.json"
@@ -71,7 +73,7 @@ def collect_nanapress(pol: Politeness) -> dict[str, dict]:
             info = sources.nanapress_spec_page(html)
             if not info["スペックページ"]:
                 continue
-            rates = extract_rates(html)
+            rates, lineup = extract_rates_and_lineup(html)
             if len(rates) < 2:
                 continue  # 見出しは機械割系でも表が載っていないページがある
             key = sources.norm_name(info["機種名"])
@@ -80,6 +82,7 @@ def collect_nanapress(pol: Politeness) -> dict[str, dict]:
                     "機種名": info["機種名"],
                     "url": url,
                     "設定別出率": {str(k): v for k, v in sorted(rates.items())},
+                    "設定の顔ぶれ": lineup,
                     "出率条件": extract_condition(html),
                 }
             break
@@ -107,10 +110,12 @@ def collect_slobase(pol: Politeness) -> dict[str, dict]:
         key = sources.norm_name(info["機種名"])
         if not key:
             continue
+        rates, lineup = extract_rates_and_lineup(html)
         index[key] = {
             **info,
             "url": u,
-            "設定別出率": {str(k): v for k, v in sorted(extract_rates(html).items())},
+            "設定別出率": {str(k): v for k, v in sorted(rates.items())},
+            "設定の顔ぶれ": lineup,
             "出率条件": extract_condition(html),
         }
         if i % 25 == 0 or i == len(urls):
@@ -152,6 +157,9 @@ def collect_machine(rec: dict, pol: Politeness, slobase: dict[str, dict],
         if html is not None:
             p7 = sources.pachi7_machine_page(html)
             p7["url"] = rec["p7_url"]
+            # 設定別の表を持つページがある。値は条件（完全攻略時など）が混ざり
+            # 揃わないので採らないが、どの設定が並んでいるかは判断材料になる。
+            p7["設定の顔ぶれ"] = extract_lineup(html)
             p7["設定別出率"] = {}
             if p7["機械割下限"] is not None:
                 p7["設定別出率"] = {"1": p7["機械割下限"], "6": p7["機械割上限"]}

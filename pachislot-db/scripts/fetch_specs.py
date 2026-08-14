@@ -161,10 +161,32 @@ def _rate(text: str) -> float | None:
 
 def extract_rates(html: str) -> dict[int, float]:
     """HTML内の表から {設定番号: 出率} を抽出。縦持ち・横持ちの両方に対応。"""
+    return extract_rates_and_lineup(html)[0]
+
+
+def extract_lineup(html: str) -> list[int]:
+    """その機種に「存在する設定」の一覧を、設定別表の見出し・行から読む。
+
+    出率の値とは別に扱う。値が範囲表記だったり条件違い（完全攻略時など）で
+    採用できないページでも、どの設定が並んでいるかは分かるため。
+    設定1・2・5・6しか無い機種を、6段階の表を載せている情報源に引きずられて
+    設定3・4まで埋めてしまうのを防ぐのに使う。
+    """
+    return extract_rates_and_lineup(html)[1]
+
+
+def extract_rates_and_lineup(html: str) -> tuple[dict[int, float], list[int]]:
+    """出率と、その表に並んでいた設定の一覧を返す。
+
+    一覧は「値が読めたかどうか」ではなく「行・列として存在したか」で決める。
+    値が読めない設定でも、その機種に存在すること自体は表が示しているため。
+    """
     best: dict[int, float] = {}
+    best_lineup: list[int] = []
 
     for grid in minihtml.tables(html):
         found: dict[int, float] = {}
+        lineup: set[int] = set()
 
         # 横持ち: ヘッダ行が 設定1..6、どこかの行が「機械割/出玉率」
         # 設定1と設定6だけを載せる表も多いため2列から受け付ける。
@@ -180,6 +202,7 @@ def extract_rates(html: str) -> dict[int, float]:
             for row in grid[1:]:
                 if not row or not RATE_LABEL_RE.search(row[0]):
                     continue
+                lineup |= set(cols.values())  # 出率の行が実在する表だけを一覧の根拠にする
                 for i, s in cols.items():
                     if i < len(row) and (v := _rate(row[i])) is not None:
                         found.setdefault(s, v)
@@ -196,13 +219,19 @@ def extract_rates(html: str) -> dict[int, float]:
                     if not row:
                         continue
                     s = _setting_index(row[0], bare=bare)
-                    if s and rate_col < len(row) and (v := _rate(row[rate_col])) is not None:
+                    if not s:
+                        continue
+                    lineup.add(s)
+                    if rate_col < len(row) and (v := _rate(row[rate_col])) is not None:
                         found.setdefault(s, v)
 
         if len(found) > len(best):
             best = found
+        # 一覧は値が読めた表とは限らない（範囲表記・条件違いの表でも並びは分かる）ので別に採る
+        if len(lineup) > len(best_lineup):
+            best_lineup = sorted(lineup)
 
-    return best
+    return best, best_lineup
 
 
 def extract_condition(html: str) -> str:
