@@ -12,6 +12,7 @@ import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
 import { hbars, cumLine, diffBars } from "./charts.js";
+import { renderDailyDetail } from "./dailyTable.js";
 
 let month = new Date().getMonth() + 1;
 let gran = "month";
@@ -63,19 +64,21 @@ export async function mount(host) {
   host.appendChild(summary);
 
   async function refresh() {
-    let agg, series, showAverages = gran === "month";
+    let agg, series, maps = null, showAverages = gran === "month";
     if (gran === "year") {
       const monthMaps = await loadFiscalMonthMaps(state.fy);
       const r = fyAggregate(state.sections, state.fy, monthMaps);
       agg = { perSection: r.perSection, total: r.total }; series = r.series;
     } else {
-      const maps = await loadMonthMaps(state.fy, month);
+      maps = await loadMonthMaps(state.fy, month);
       agg = monthAggregate(state.sections, maps.cy, month, maps);
       series = monthDailySeries(state.sections, maps.cy, month, maps);
     }
     const target = await loadBudgetTotals({ mode: gran, fy: state.fy, month });
     const opts = gran === "month" ? { daysTotal: daysInMonth(calendarYear(state.fy, month), month) } : {};
     renderSummary(summary, agg, series, target, showAverages, opts);
+    // 日別の実績は月モードだけ。年モードは1点が1ヶ月なので日別の表に意味がない。
+    if (maps) renderDailyDetail(summary, { fy: state.fy, month, sections: state.sections, maps });
   }
   async function openCalendar() {
     const body = el("div");

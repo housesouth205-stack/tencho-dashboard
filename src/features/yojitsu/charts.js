@@ -149,6 +149,60 @@ export function diffBars(series, { title } = {}) {
   return wrap(title, svg, [["計画を上回った日", C.pos], ["下回った日", C.neg]]);
 }
 
+// 日別の実績を縦棒で、計画をその上の細い横線で重ねる。
+// 計画と実績を2本並べると31日ぶんでは1本3px以下になって比較できないため、
+// 「棒＝実績／線＝計画」にして1日1本に収めている。線より棒が高ければ達成。
+//
+// series は [{ label, plan, actual, kind }]。kind は "sat"|"sun"|"holiday"|""。
+// 売上と粗利は桁が10倍違うので同じ軸に載せず、呼び出し側で2つに分けて使う。
+export function dailyBars(series, { title, color = C.pos, unit = "" } = {}) {
+  const n = series.length;
+  const w = 640, h = 168, padL = 46, padB = 20, padT = 14, padR = 10;
+  const iw = w - padL - padR, ih = h - padB - padT;
+  const vals = series.map((d) => d.actual);
+  const max = Math.max(1, ...series.map((d) => Math.max(d.plan || 0, d.actual || 0)));
+  const y = (v) => padT + ih - (ih * v) / max;
+  const x = (i) => padL + (iw * (i + 0.5)) / Math.max(1, n);
+  const bw = Math.max(3, Math.min(16, (iw / Math.max(1, n)) * 0.62));
+  const svg = s("svg", { viewBox: `0 0 ${w} ${h}`, width: "100%", style: "max-width:100%" });
+
+  // 土日祝の帯。曜日で山谷が動くので、これが無いと増減の理由が読めない
+  series.forEach((d, i) => {
+    if (!d.kind) return;
+    svg.appendChild(s("rect", {
+      x: x(i) - (iw / Math.max(1, n)) / 2, y: padT, width: iw / Math.max(1, n), height: ih,
+      fill: d.kind === "weekday" ? "none" : "#f0a12e", opacity: d.kind === "sat" ? 0.06 : 0.1,
+    }));
+  });
+
+  for (const g of [1, 0.5]) {
+    const gy = y(max * g);
+    svg.appendChild(s("line", { x1: padL, y1: gy, x2: padL + iw, y2: gy, stroke: C.line }));
+    svg.appendChild(s("text", { x: padL - 4, y: gy + 3, "text-anchor": "end", "font-size": "9", fill: C.dim }, abbr(max * g)));
+  }
+  svg.appendChild(s("line", { x1: padL, y1: y(0), x2: padL + iw, y2: y(0), stroke: C.dim }));
+
+  series.forEach((d, i) => {
+    // 実績が無い日は棒を描かない。0で描くと未入力が「売上ゼロの日」に見える
+    if (d.actual != null) {
+      const top = y(d.actual);
+      const ratio = d.plan ? d.actual / d.plan : null;
+      svg.appendChild(s("rect", { x: x(i) - bw / 2, y: top, width: bw, height: Math.max(1.5, y(0) - top), rx: 2, fill: color },
+        s("title", {}, `${d.label}｜実績 ${abbr(d.actual)}${unit} / 計画 ${abbr(d.plan)}${unit}`
+          + (ratio == null ? "" : `（${Math.round(ratio * 100)}%）`))));
+    }
+    if (d.plan) {
+      const py = y(d.plan);
+      svg.appendChild(s("line", {
+        x1: x(i) - bw / 2 - 1.5, y1: py, x2: x(i) + bw / 2 + 1.5, y2: py,
+        stroke: C.ref, "stroke-width": 1.6,
+      }, s("title", {}, `${d.label}｜計画 ${abbr(d.plan)}${unit}`)));
+    }
+  });
+  xLabels(svg, series, x, h);
+  return wrap(title, svg, [["実績", color], ["計画（横線）", C.ref], ["土日祝", "#f0a12e"]]);
+}
+
 function wrap(title, svg, legend) {
   const box = document.createElement("div");
   box.className = "card";

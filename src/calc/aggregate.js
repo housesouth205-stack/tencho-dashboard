@@ -81,6 +81,41 @@ export function monthDailySeries(sections, year, month, maps) {
   return out;
 }
 
+// 月の日次明細。区分ごと＋合計を、日単位で 計画/実績（アウト・売上・粗利）まで持つ。
+// monthDailySeries はグラフ用に粗利だけを合算した薄い形なので、
+// 表に出すぶんはここで作る。実績が無い日は actual を null にして、
+// 0と「未入力」を取り違えないようにする（0を実績として描くと未入力日が谷に見える）。
+export function monthDailyDetail(sections, year, month, maps) {
+  const days = daysInMonth(year, month);
+  const rows = [];
+  for (let d = 1; d <= days; d++) {
+    const date = ymd(year, month, d);
+    const bySection = new Map();
+    const tp = { outTotal: 0, sales: 0, gross: 0 };
+    const ta = { outTotal: 0, sales: 0, gross: 0 };
+    let tCount = 0, anyActual = false;
+
+    for (const s of sections) {
+      const k = key(date, s.id);
+      const count = maps.machines.get(k)?.count;
+      const p = planCalc(maps.plan.get(k), count);
+      const aRow = maps.actual.get(k);
+      const a = hasActual(aRow) ? actualCalc(aRow, count) : null;
+
+      bySection.set(s.id, { count: count || 0, plan: p, actual: a });
+      tp.outTotal += p.outTotal; tp.sales += p.sales; tp.gross += p.gross;
+      tCount += count || 0;
+      if (a) {
+        anyActual = true;
+        ta.outTotal += a.outTotal; ta.sales += a.sales; ta.gross += a.gross;
+      }
+    }
+    bySection.set("total", { count: tCount, plan: tp, actual: anyActual ? ta : null });
+    rows.push({ day: d, date, bySection });
+  }
+  return rows;
+}
+
 // 会計年度集計。monthMaps(month)->maps を受け取り12ヶ月を合算＋月次系列。
 export function fyAggregate(sections, fy, monthMaps) {
   const months = fiscalMonths();
