@@ -2,10 +2,10 @@ import { el, clear, modal } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { flushAll } from "../../core/autosave.js";
 import { fiscalMonths, daysInMonth, calendarYear } from "../../util/dates.js";
-import { monthAggregate, monthDailySeries, fyAggregate } from "../../calc/aggregate.js";
+import { monthAggregate, monthDailySeries, fyAggregate, sameDaysMaps } from "../../calc/aggregate.js";
 import { yen, pct, num } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
-import { loadMonthMaps, loadFiscalMonthMaps } from "./monthData.js";
+import { loadMonthMaps, loadMonthMapsWithPrev, loadFiscalMonthMaps } from "./monthData.js";
 import { renderDayCalendar } from "./dayCalendar.js";
 import { pickMonthlyPlan } from "./importPlan.js";
 import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
@@ -64,19 +64,24 @@ export async function mount(host) {
   host.appendChild(summary);
 
   async function refresh() {
-    let agg, series, maps = null, showAverages = gran === "month";
+    let agg, series, maps = null, prev = null, showAverages = gran === "month";
     if (gran === "year") {
       const monthMaps = await loadFiscalMonthMaps(state.fy);
       const r = fyAggregate(state.sections, state.fy, monthMaps);
       agg = { perSection: r.perSection, total: r.total }; series = r.series;
     } else {
-      maps = await loadMonthMaps(state.fy, month);
+      const both = await loadMonthMapsWithPrev(state.fy, month);
+      maps = both.cur;
       agg = monthAggregate(state.sections, maps.cy, month, maps);
       series = monthDailySeries(state.sections, maps.cy, month, maps);
+      // 前年同月は、今年の実績がある日にちだけに絞ってから集計する（14日ぶん対1ヶ月ぶんにしない）
+      const prevMaps = sameDaysMaps(maps, both.prev);
+      const prevAgg = monthAggregate(state.sections, both.prev.cy, month, prevMaps);
+      prev = { fy: state.fy - 1, cy: both.prev.cy, total: prevAgg.total };
     }
     const target = await loadBudgetTotals({ mode: gran, fy: state.fy, month });
     const opts = gran === "month" ? { daysTotal: daysInMonth(calendarYear(state.fy, month), month) } : {};
-    renderSummary(summary, agg, series, target, showAverages, opts);
+    renderSummary(summary, agg, series, target, showAverages, { ...opts, prev });
     // 日別の実績は月モードだけ。年モードは1点が1ヶ月なので日別の表に意味がない。
     if (maps) renderDailyDetail(summary, { fy: state.fy, month, sections: state.sections, maps });
   }
@@ -94,9 +99,10 @@ export async function mount(host) {
   refresh();
 }
 
-// 指標色: 売上=青 / 粗利=緑（全画面で統一）。グループ色: 計画=鋼青 / 実績=深緑
+// 指標色: 売上=青 / 粗利=緑（全画面で統一）。グループ色: 計画=鋼青 / 実績=深緑 / 前年=グレー
+// 前年は目標ではなく参考値なので、計画・実績と競わない無彩色にする。
 const MC = { sales: "#4f8ff7", gross: "#2fb888", target: "#f0a12e", land: "#a56cf0" };
-const GC = { plan: "#6b7f9e", actual: "#1f9d70" };
+const GC = { plan: "#6b7f9e", actual: "#1f9d70", prev: "#8a91a3" };
 
 function miniKpi(label, value, color, sub) {
   return el("div", { style: "min-width:128px;flex:1" }, [
@@ -114,6 +120,51 @@ function groupPanel(title, accent, items) {
 const secBadge = (sec) => { const c = sectionColor(sec); return el("span", { class: "badge", style: `background:${tint(c, 0.16)};color:${c};font-weight:700`, text: sec.label }); };
 const dec = (v, d = 2) => (v == null || isNaN(v) ? "—" : Number(v).toFixed(d));
 
+// 前年比。増減の主語は必ず「今年」（昨年の値の下に出すので、書かないと逆に読める）。
+const yoy = (cur, base) => (base ? cur / base - 1 : null);
+const yoyHex = (r) => (r == null ? GC.prev : r >= 0 ? "#43b483" : "#e35d6a");
+const yoyText = (r, unit = "%") =>
+  (r == null ? "今年 —" : `今年 ${r >= 0 ? "+" : "−"}${(Math.abs(r) * (unit === "%" ? 100 : 1)).toFixed(1)}${unit}`);
+
+// 金額は「¥187,600,000」まで伸びる。折り返せない文字列なので、箱を狭くすると
+// 隣の項目に重なって読めなくなる。折り返し前提で幅を確保する。
+function prevKpi(label, value, sub, subHex, color) {
+  return el("div", { style: "flex:1 1 138px;min-width:138px" }, [
+    el("div", { class: "hint", text: label }),
+    el("div", { style: `font-size:17px;font-weight:800;margin-top:2px;white-space:nowrap;color:${color}`, text: value }),
+    el("div", { class: "hint", style: `color:${subHex};font-weight:700;white-space:nowrap`, text: sub }),
+  ]);
+}
+
+// 📅 昨年同月。値は昨年の実績で、その下が今年の増減。
+// 実績パネルの金額と桁が合わないように見えるが、それは今年の実績がある日にちだけで
+// 昨年を集計しているため（月の途中で1ヶ月ぶんと比べると必ず大幅マイナスに見える）。
+function prevPanel(t, prev) {
+  const title = `📅 昨年同月（${prev.cy}年${month}月）`;
+  const p = prev.total;
+  if (!p.actualDays) {
+    return el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${GC.prev};background:${tint(GC.prev, 0.05)}` }, [
+      el("div", { style: `font-weight:800;font-size:13px;color:${GC.prev};margin-bottom:8px`, text: title }),
+      el("div", { class: "hint", text: "昨年同月の実績がありません。「月計画表を取込」で昨年度のぶんを入れると増減が出ます。" }),
+    ]);
+  }
+  const rateDiff = p.grossRate != null && t.grossRate != null ? t.grossRate - p.grossRate : null;
+  const items = [
+    prevKpi("売上", yen(p.actual.sales), yoyText(yoy(t.actual.sales, p.actual.sales)), yoyHex(yoy(t.actual.sales, p.actual.sales)), MC.sales),
+    prevKpi("粗利", yen(p.actual.gross), yoyText(yoy(t.actual.gross, p.actual.gross)), yoyHex(yoy(t.actual.gross, p.actual.gross)), MC.gross),
+    prevKpi("アウト/台", num(p.avgOut), yoyText(yoy(t.avgOut, p.avgOut)), yoyHex(yoy(t.avgOut, p.avgOut)), "var(--fg)"),
+    // 粗利率は率どうしの差なので%ではなくpt（28%→29%は「+3.6%」ではなく「+1.0pt」）
+    prevKpi("粗利率", p.grossRate == null ? "—" : pct(p.grossRate), rateDiff == null ? "今年 —" : yoyText(rateDiff * 100, "pt"), yoyHex(rateDiff), MC.gross),
+    prevKpi("営業日数", `${p.actualDays}日`, `今年 ${t.actualDays}日`, GC.prev, "var(--fg)"),
+  ];
+  return el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${GC.prev};background:${tint(GC.prev, 0.05)}` }, [
+    el("div", { style: `font-weight:800;font-size:13px;color:${GC.prev};margin-bottom:8px`, text: title }),
+    el("div", { class: "row", style: "gap:14px;flex-wrap:wrap" }, items),
+    el("div", { class: "hint", style: "margin-top:6px;font-size:11px",
+      text: "今年の実績が入っている日にちと同じ日で昨年を集計しています（月の途中でも比べられるように）。" }),
+  ]);
+}
+
 function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   clear(host);
   const t = agg.total;
@@ -128,7 +179,9 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
     miniKpi("売上", yen(t.actual.sales), MC.sales),
     miniKpi("粗利", yen(t.actual.gross), MC.gross, actualRate == null ? "" : "粗利率 " + pct(actualRate)),
   ]);
-  const left = el("div", { class: "col", style: "flex:1.25;min-width:300px;gap:12px" }, [planPanel, actualPanel]);
+  // 前年は月モードのみ（年度モードは年度どうしの比較になるので別途）
+  const left = el("div", { class: "col", style: "flex:1.25;min-width:300px;gap:12px" },
+    [planPanel, actualPanel, opts.prev ? prevPanel(t, opts.prev) : null].filter(Boolean));
 
   // 右列: 区分別バー（上）＋達成状況（下、実績の右に位置）
   const bars = hbars(agg.perSection.map((r) => ({ label: r.section.label, plan: r.plan.gross, actual: r.actual.gross, color: sectionColor(r.section) })), { title: "区分別 計画vs実績（粗利）" });
