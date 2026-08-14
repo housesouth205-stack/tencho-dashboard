@@ -32,6 +32,11 @@ export async function mount(host) {
     // 実績で選んで投入するときの条件
     pick: { rate: "*", metric: "out", dir: "low", n: 10, set: 6, skipJug: true },
     islandModels: {}, minSaved: {}, sessions: [], savedAt: null, carriedOver: false,
+    // 据え置き（前日のまま触らない）台。区分キー → { 台番: true }。
+    // 一括操作（実績で選んで投入・全台リセット・ブラシ）の対象から外す。
+    // 個別タップでは変えられる（ロックすると解除を忘れたときに詰むため）。
+    // 設定と同じく保存され、翌日以降も引き継がれる。
+    hold: {}, holdMode: false,
     zoom: null, // スマホ島図の倍率（再描画をまたいで保つ）
     pan: null, // 同じく、見ている位置
     heat: "", // 背景に重ねる実績ヒート（""=設定色のみ / out / sales / gross）
@@ -40,7 +45,10 @@ export async function mount(host) {
     min: buildMinSetting(null), // 機種→最低設定。reloadで実データに差し替える
   };
   // 未保存の変更があるか。日付を移動する前に必ず確認する（黙って消えるのを防ぐ）
-  const isDirty = () => JSON.stringify(st.assign) !== st.baseline;
+  // 据え置き指定も保存対象なので、変えたら未保存扱いにする。
+  // これが無いと🔒を付けただけで日付を移動したときに黙って消える。
+  const snapshot = () => JSON.stringify([st.assign, st.hold]);
+  const isDirty = () => snapshot() !== st.baseline;
 
   const ctrl = el("div", { class: "row", style: "gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px" });
   host.appendChild(ctrl);
@@ -86,10 +94,15 @@ export async function mount(host) {
       el("button", { class: "btn sm ghost", title: "今日に戻る", text: "今日", onclick: () => goDate(localYmd()) }),
     ]),
     // 全部やり直すときの操作なので、日付のとなりに置く（島図の上にまとめる）
-    reset ? el("button", { class: "btn sm ghost", title: "全区分をまとめて戻します（機種ごとに使える一番下の設定。パネル消灯機種は設定2）",
+    reset ? el("button", { class: "btn sm ghost", title: "全区分をまとめて戻します（機種ごとに使える一番下の設定。パネル消灯機種は設定2）。据え置き指定の台はそのまま残します",
       // スマホは長いラベルだと日付の行が折り返して2段になるので短くする
       text: window.matchMedia("(max-width: 700px)").matches ? "全台リセット" : "全台を最低設定に戻す",
-      onclick: () => { st.assign = {}; render(); } }) : null,
+      onclick: () => { resetAll(); render(); } }) : null,
+    // 上の「全台を最低設定に戻す」は画面上だけ。以降の日に残った保存までは消さないので
+    // 引き継ぎが古い設定を拾い続ける。それを断ち切る操作を別に用意する。
+    reset ? el("button", { class: "btn sm ghost", style: "color:var(--accent);border-color:var(--accent)",
+      title: "この日に「全台最低設定」を保存し、以降の日の保存を削除します。以降は前日の設定を引き継ぐ状態に戻ります",
+      text: "この日から仕切り直す", onclick: () => askResetFrom() }) : null,
   ]);
   const lInp = numI(st.L, (v) => { st.L = v; saveExchange(); render(); }, 0.1, 72);
   const kInp = numI(st.K, (v) => { st.K = v; saveExchange(); render(); }, 0.1, 72);
@@ -158,9 +171,13 @@ export async function mount(host) {
     const sameDay = sessions.filter((s) => s.target_date === st.date && s.allocation?.assign).sort(newest);
     st.savedAt = sameDay[0]?.created_at || null;
     st.carriedOver = !sameDay[0] && !!st.prev;
-    const src = sameDay[0]?.allocation?.assign || st.prev?.allocation?.assign || {};
+    const chosen = sameDay[0] || st.prev;
+    const src = chosen?.allocation?.assign || {};
     st.assign = JSON.parse(JSON.stringify(src));
-    st.baseline = JSON.stringify(st.assign);
+    // 据え置き指定も設定と一緒に引き継ぐ。「この台はしばらく触らない」は
+    // 1日だけの話ではないので、解除するまで残るほうが運用に合う。
+    st.hold = JSON.parse(JSON.stringify(chosen?.allocation?.hold || {}));
+    st.baseline = snapshot();
 
     const secById = new Map(state.sections.map((s) => [s.id, s]));
     // 出玉率が1つでも入っていればその機種の実データとして扱う。
@@ -206,6 +223,25 @@ export async function mount(host) {
     return v ? clampSetting(v, minOf(u)) : baseOf(u);
   };
   const settingOf = (u) => settingIn(st.assign, u);
+  // 据え置き指定。一括操作はこれが立っている台を飛ばす。
+  const isHeld = (u) => !!(st.hold[u.secKey] || {})[u.dai];
+  const toggleHold = (u) => {
+    const H = (st.hold[u.secKey] = st.hold[u.secKey] || {});
+    if (H[u.dai]) delete H[u.dai];
+    else H[u.dai] = true;
+    if (!Object.keys(H).length) delete st.hold[u.secKey];
+  };
+  const holdCount = () => Object.values(st.hold).reduce((n, m) => n + Object.keys(m).length, 0);
+  // 全台を最低設定へ。据え置き指定の台だけは今の設定を残す。
+  function resetAll() {
+    const keep = {};
+    for (const u of st.allUnits) {
+      if (!u.sec || !isHeld(u)) continue;
+      const v = (st.assign[u.secKey] || {})[u.dai];
+      if (v != null) (keep[u.secKey] = keep[u.secKey] || {})[u.dai] = v;
+    }
+    st.assign = keep;
+  }
   // 前日（保存済みの直近シミュ）の設定。比較不能ならnull。
   const prevSettingOf = (u) => { const pa = st.prev?.allocation?.assign; return pa ? settingIn(pa, u) : null; };
   const curveOf = (u) => u.payout || TYPES[u.group];
@@ -265,7 +301,9 @@ export async function mount(host) {
     const p = st.pick;
     const val = (u) => (p.metric === "out" ? u.out : u.gross);
     // ジャグラーの島は方針で設定を固定しているので、外すかどうかを選べるようにする
-    const pool = st.allUnits.filter((u) => u.sec && !(p.skipJug && isBulkExcluded(u.dai))
+    // 据え置き指定の台は一括の対象から外す。前日のまま置いておきたいのに
+    // 「アウトが低い順」で拾われて書き換わるのを防ぐ。
+    const pool = st.allUnits.filter((u) => u.sec && !isHeld(u) && !(p.skipJug && isBulkExcluded(u.dai))
       && (p.rate === "*" || u.sec.key === p.rate) && Number.isFinite(val(u)));
     pool.sort((a, b) => (p.dir === "low" ? val(a) - val(b) : val(b) - val(a)));
     return pool.slice(0, p.n);
@@ -347,9 +385,10 @@ export async function mount(host) {
       const changed = diff && prevSet != null && prevSet !== s;
       const min = minOf(u);
       const base = baseOf(u);
+      const held = isHeld(u);
       return {
         dai: u.dai, model: shortModel(u.model), setting: s, minSetting: min, secLabel: u.secLabel, color: sectionColor(u.sec),
-        prevSetting: diff ? prevSet : null, changed,
+        prevSetting: diff ? prevSet : null, changed, held,
         // 据え置きでも「最低設定より上＝投入中」の台は色を残す。全部白にすると
         // 前日から入れっぱなしの高設定がどこにあるか分からなくなるため。
         dim: diff && !changed && s <= base,
@@ -363,6 +402,7 @@ export async function mount(host) {
           // どの設定が実在するかは台を触る前に知りたいので、全部そろっていない機種だけ出す
           u.spec && usableOf(u).length < 6 ? `使える設定: ${usableOf(u).join("・")}` : "",
           changed ? `前回 設定${prevSet} → 今回 設定${s}` : "",
+          held ? "🔒 据え置き（一括操作の対象外。個別タップでは変更できます）" : "",
         ].filter(Boolean).join("\n"),
       };
     });
@@ -460,9 +500,25 @@ export async function mount(host) {
           onchange: (e) => { st.heat = e.target.value; render(); } },
           HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
         el("span", { class: "hint", style: "font-size:11.5px",
-          text: window.matchMedia("(max-width: 700px)").matches
-            ? `タップで設定${st.brush}を投入`
-            : `台をタップすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
+          text: st.holdMode ? "据え置き選択中：タップで🔒の付け外し（設定は変わりません）"
+            : window.matchMedia("(max-width: 700px)").matches
+              ? `タップで設定${st.brush}を投入`
+              : `台をタップすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
+      ]),
+      // 据え置き（前日のまま触らない台）の指定。マスにチェックボックスを置くと
+      // 台番と設定で窮屈になりスマホで誤タップも増えるため、モードで切り替える。
+      el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
+        el("button", {
+          class: "btn sm " + (st.holdMode ? "primary" : "ghost"),
+          style: st.holdMode ? "" : "border-color:var(--accent);color:var(--accent)",
+          title: "ONの間は台のタップが据え置き指定の付け外しになります",
+          text: st.holdMode ? "🔒 据え置き選択中（終了）" : "🔒 据え置きを選ぶ",
+          onclick: () => { st.holdMode = !st.holdMode; render(); },
+        }),
+        el("span", { class: "hint", style: "font-size:11.5px",
+          text: `据え置き ${holdCount()}台：一括操作（実績で選んで投入・全台リセット）の対象外。個別タップでは変更できます` }),
+        holdCount() ? el("button", { class: "btn sm ghost", text: "全解除",
+          onclick: () => { st.hold = {}; render(); } }) : null,
       ]),
     ]);
 
@@ -525,11 +581,16 @@ export async function mount(host) {
         onCellClick: (dai) => {
           const u = unitByDai.get(dai);
           if (!u) return;
+          // 据え置き選択モード中はタップの意味が変わる。マスにチェックボックスを描くと
+          // 台番と設定で既に窮屈なうえ、スマホでは誤タップが増えるためモードで切り替える。
+          if (st.holdMode) { toggleHold(u); render(); return; }
           const A = (st.assign[u.secKey] = st.assign[u.secKey] || {}); // その台自身の区分に入れる
           // 置けない設定（機種に無い・パネル消灯）は選べる設定に寄せて理由を知らせる
           const { setting, reason } = placeSetting(u, st.brush);
           if (reason) toast(`${shortModel(u.model)} は${reason}ため設定${setting}にしました`, "");
           A[dai] = setting; // 選択中の設定を置く（戻すには最低設定を選んでクリック）
+          // 据え置き台でも個別タップは通す。ロックにすると解除を忘れたときに動かせなくなる。
+          if (isHeld(u)) toast(`${shortModel(u.model)} は据え置き指定ですが、個別指定なので変更しました`, "");
           render();
         },
       };
@@ -668,19 +729,19 @@ export async function mount(host) {
 
   // 1日ぶんの保存。sim_session は (store_id, target_date) に一意制約が無く、onConflict:id では
   // idを持たない新規行が毎回作られて重複していくため、同じ日の行を消してから入れ直す。
-  async function saveDay(date, assign, targets = st.targets) {
+  async function saveDay(date, assign, targets = st.targets, hold = st.hold) {
     const g = totalsAll(assign, targets);
     await repo.remove("sim_session", { store_id: state.storeId, target_date: date });
     await repo.upsert("sim_session", {
       store_id: state.storeId, target_date: date, plan_gross: Math.round(g.tgt),
-      allocation: { L: st.L, K: st.K, assign, expectedGross: Math.round(g.gross), expectedSales: Math.round(g.sales), bySet: g.bySet },
+      allocation: { L: st.L, K: st.K, assign, hold, expectedGross: Math.round(g.gross), expectedSales: Math.round(g.sales), bySet: g.bySet },
       reason: `全区分: 予想粗利${Math.round(g.gross)}/計画${Math.round(g.tgt)}`, status: "draft",
     }, { onConflict: ["id"] });
   }
 
   // 読み込み時点(baseline)から変わった台を拾う。値がnullなら最低設定に戻した台。
   function changedUnits() {
-    const before = JSON.parse(st.baseline || "{}");
+    const [before] = JSON.parse(st.baseline || "[{},{}]");
     const out = [];
     for (const sec of sSections) {
       const b = before[sec.key] || {}, a = st.assign[sec.key] || {};
@@ -714,6 +775,57 @@ export async function mount(host) {
     return n;
   }
 
+  // この日から全台を最低設定にやり直す。
+  // 引き継ぎは「対象日より前の最新の保存」を拾うので、古い日に残った設定が
+  // ずっと引き継がれ続けることがある。その連鎖をここで断つ。
+  //
+  // この日に「全台最低設定」を保存するだけでは足りない。以降の日に保存が残っていると
+  // そちらが優先されて元の設定が残るため、それらは消す必要がある。
+  // 消す前に対象日を必ず並べて見せる（保存済みデータを消す操作なので）。
+  function askResetFrom() {
+    const later = [...new Set(st.sessions
+      .filter((s) => s.allocation?.assign && s.target_date > st.date)
+      .map((s) => s.target_date))].sort();
+    const sameDay = st.sessions.some((s) => s.target_date === st.date && s.allocation?.assign);
+    const heldN = holdCount();
+
+    const close = modal(`${st.date} から全台を最低設定に戻す`, el("div", { class: "col", style: "gap:8px;min-width:min(480px,88vw)" }, [
+      el("p", { style: "margin:0" }, [
+        el("b", { text: st.date }), el("span", { text: " に「全台が最低設定」を保存します。" }),
+      ]),
+      el("p", { class: "hint", style: "margin:0",
+        text: "これ以降の日は、保存が無ければこの状態を引き継ぎます。実機を触っていない前提での引き継ぎなので、以降は前日の設定がそのまま続きます。" }),
+      later.length ? el("div", { class: "card", style: "padding:8px 10px;border-left:4px solid var(--accent)" }, [
+        el("div", { style: "font-weight:700;color:var(--accent);margin-bottom:4px", text: `⚠ 以降の保存 ${later.length}日ぶんを削除します` }),
+        el("div", { class: "hint", style: "word-break:break-all", text: later.join(" / ") }),
+        el("div", { class: "hint", style: "margin-top:4px", text: "残しておくと、その日は自分の保存内容を表示するため、古い設定が残り続けます。" }),
+      ]) : el("p", { class: "hint", style: "margin:0", text: "これ以降に保存済みの日はありません。" }),
+      sameDay ? el("p", { class: "hint", style: "margin:0", text: `${st.date} の保存済み内容も上書きします。` }) : null,
+      heldN ? el("p", { class: "hint", style: "margin:0", text: `🔒 据え置き指定の ${heldN}台 は今の設定のまま残します。` }) : null,
+    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [
+      el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }),
+      el("button", { class: "btn primary", style: "background:var(--accent);border-color:var(--accent)",
+        text: later.length ? `リセットして${later.length}日ぶんを削除` : "リセットする",
+        onclick: async () => { close(); await doResetFrom(later); } }),
+    ]));
+  }
+
+  async function doResetFrom(later) {
+    try {
+      setSaveState("saving");
+      resetAll(); // 据え置き台だけ今の設定を残して、他は最低設定へ
+      await saveDay(st.date, st.assign);
+      for (const d of later) await repo.remove("sim_session", { store_id: state.storeId, target_date: d });
+      st.sessions = await repo.select("sim_session", { eq: { store_id: state.storeId } });
+      st.savedAt = new Date().toISOString();
+      st.baseline = snapshot();
+      setSaveState("saved");
+      render();
+      toast(`${st.date} から全台を最低設定に戻しました`
+        + (later.length ? `（以降の保存 ${later.length}日ぶんを削除）` : ""), "ok");
+    } catch (e) { errorToast(e); }
+  }
+
   async function save(opts = {}) {
     const changes = changedUnits();
     try {
@@ -721,7 +833,7 @@ export async function mount(host) {
       await saveDay(st.date, st.assign);
       st.sessions = await repo.select("sim_session", { eq: { store_id: state.storeId } });
       st.savedAt = new Date().toISOString();
-      st.baseline = JSON.stringify(st.assign);
+      st.baseline = snapshot();
       setSaveState("saved");
       render();
       const laterDays = new Set(st.sessions.filter((s) => s.allocation?.assign && s.target_date > st.date).map((s) => s.target_date)).size;
