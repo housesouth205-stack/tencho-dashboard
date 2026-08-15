@@ -2,7 +2,7 @@ import { el, clear, modal } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { flushAll } from "../../core/autosave.js";
 import { fiscalMonths, daysInMonth, calendarYear, fiscalYearOptions } from "../../util/dates.js";
-import { monthAggregate, monthDailySeries, fyAggregate, sameDaysMaps } from "../../calc/aggregate.js";
+import { monthAggregate, monthDailySeries, fyAggregate, sameDaysMaps, fyMonthlyTotals, sumMonths } from "../../calc/aggregate.js";
 import { yen, pct, num } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
 import { loadMonthMaps, loadMonthMapsWithPrev, loadFiscalMonthMaps } from "./monthData.js";
@@ -11,7 +11,7 @@ import { pickMonthlyPlan } from "./importPlan.js";
 import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
-import { hbars, cumLine, diffBars } from "./charts.js";
+import { hbars, cumLine, diffBars, dailyBars, cumCompare } from "./charts.js";
 import { renderDailyDetail } from "./dailyTable.js";
 
 let month = new Date().getMonth() + 1;
@@ -73,11 +73,25 @@ export async function mount(host) {
   host.appendChild(summary);
 
   async function refresh() {
-    let agg, series, maps = null, prevMaps = null, prev = null, showAverages = gran === "month";
+    let agg, series, maps = null, prevMaps = null, prev = null, prevMonthly = null, showAverages = gran === "month";
     if (gran === "year") {
       const monthMaps = await loadFiscalMonthMaps(state.fy);
       const r = fyAggregate(state.sections, state.fy, monthMaps);
       agg = { perSection: r.perSection, total: r.total }; series = r.series;
+      // 前年度。同じ取得結果から年度違いで切り出せるので通信は増えない。
+      const curM = fyMonthlyTotals(state.sections, state.fy, monthMaps);
+      const prvM = fyMonthlyTotals(state.sections, state.fy - 1, (m) => monthMaps(m, state.fy - 1), (m) => monthMaps(m));
+      // 前年度は「今年度に実績がある月」だけ足す。5ヶ月ぶんと12ヶ月ぶんを比べない。
+      prev = {
+        title: `📅 昨年度（${state.fy - 1}年度）`, unitLabel: "実績月数",
+        cur: sumMonths(curM), base: sumMonths(prvM, (i) => curM[i].actualDays > 0),
+        empty: `${state.fy - 1}年度の実績がありません。年度セレクタで${state.fy - 1}年度を開くと、入っているかを確認できます。`,
+      };
+      prevMonthly = curM.map((c, i) => ({
+        label: `${c.month}月`,
+        actual: c.actualDays ? c.actual.sales : null,
+        base: prvM[i].actualDays ? prvM[i].actual.sales : null,
+      }));
     } else {
       const both = await loadMonthMapsWithPrev(state.fy, month);
       maps = both.cur;
@@ -86,11 +100,15 @@ export async function mount(host) {
       prevMaps = both.prev;
       // 前年同月は、今年の実績がある日にちだけに絞ってから集計する（14日ぶん対1ヶ月ぶんにしない）
       const prevAgg = monthAggregate(state.sections, prevMaps.cy, month, sameDaysMaps(maps, prevMaps));
-      prev = { fy: state.fy - 1, cy: prevMaps.cy, total: prevAgg.total };
+      prev = {
+        title: `📅 昨年同月（${prevMaps.cy}年${month}月）`, unitLabel: "営業日数",
+        cur: agg.total, base: prevAgg.total,
+        empty: "昨年同月の実績がありません。「月計画表を取込」で昨年度のぶんを入れると増減が出ます。",
+      };
     }
     const target = await loadBudgetTotals({ mode: gran, fy: state.fy, month });
     const opts = gran === "month" ? { daysTotal: daysInMonth(calendarYear(state.fy, month), month) } : {};
-    renderSummary(summary, agg, series, target, showAverages, { ...opts, prev });
+    renderSummary(summary, agg, series, target, showAverages, { ...opts, prev, prevMonthly });
     // 日別の実績は月モードだけ。年モードは1点が1ヶ月なので日別の表に意味がない。
     if (maps) renderDailyDetail(summary, { fy: state.fy, month, sections: state.sections, maps, prevMaps });
   }
@@ -145,32 +163,38 @@ function prevKpi(label, value, sub, subHex, color) {
   ]);
 }
 
-// 📅 昨年同月。値は昨年の実績で、その下が今年の増減。
-// 実績パネルの金額と桁が合わないように見えるが、それは今年の実績がある日にちだけで
-// 昨年を集計しているため（月の途中で1ヶ月ぶんと比べると必ず大幅マイナスに見える）。
-function prevPanel(t, prev) {
-  const title = `📅 昨年同月（${prev.cy}年${month}月）`;
-  const p = prev.total;
-  if (!p.actualDays) {
-    return el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${GC.prev};background:${tint(GC.prev, 0.05)}` }, [
-      el("div", { style: `font-weight:800;font-size:13px;color:${GC.prev};margin-bottom:8px`, text: title }),
-      el("div", { class: "hint", text: "昨年同月の実績がありません。「月計画表を取込」で昨年度のぶんを入れると増減が出ます。" }),
-    ]);
-  }
+// 📅 昨年（月モードは昨年同月／年度モードは昨年度）。値は昨年の実績で、その下が今年の増減。
+// 実績パネルの金額と桁が合わないように見えるが、それは今年の実績がある日（月）だけで
+// 昨年を集計しているため（途中で1ヶ月ぶん・1年ぶんと比べると必ず大幅マイナスに見える）。
+function prevPanel(prev) {
+  const { title, cur: t, base: p, unitLabel } = prev;
+  const box = (children) => el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${GC.prev};background:${tint(GC.prev, 0.05)}` },
+    [el("div", { style: `font-weight:800;font-size:13px;color:${GC.prev};margin-bottom:8px`, text: title }), ...children]);
+  // 単位は日（月モード）と月（年度モード）で変わる。数え方が違うものを同じ欄に出すので
+  // 「実績月数 5／今年 5」のように必ず両方の数を書く。
+  const cnt = (a) => (unitLabel === "実績月数" ? a.months : a.actualDays);
+  if (!cnt(p)) return box([el("div", { class: "hint", text: prev.empty })]);
+
   const rateDiff = p.grossRate != null && t.grossRate != null ? t.grossRate - p.grossRate : null;
+  const kpi = (label, key, fmt, color) => {
+    const r = yoy(t.actual[key], p.actual[key]);
+    return prevKpi(label, fmt(p.actual[key]), yoyText(r), yoyHex(r), color);
+  };
+  const unit = unitLabel === "実績月数" ? "ヶ月" : "日";
   const items = [
-    prevKpi("売上", yen(p.actual.sales), yoyText(yoy(t.actual.sales, p.actual.sales)), yoyHex(yoy(t.actual.sales, p.actual.sales)), MC.sales),
-    prevKpi("粗利", yen(p.actual.gross), yoyText(yoy(t.actual.gross, p.actual.gross)), yoyHex(yoy(t.actual.gross, p.actual.gross)), MC.gross),
+    kpi("売上", "sales", yen, MC.sales),
+    kpi("粗利", "gross", yen, MC.gross),
     prevKpi("アウト/台", num(p.avgOut), yoyText(yoy(t.avgOut, p.avgOut)), yoyHex(yoy(t.avgOut, p.avgOut)), "var(--fg)"),
     // 粗利率は率どうしの差なので%ではなくpt（28%→29%は「+3.6%」ではなく「+1.0pt」）
     prevKpi("粗利率", p.grossRate == null ? "—" : pct(p.grossRate), rateDiff == null ? "今年 —" : yoyText(rateDiff * 100, "pt"), yoyHex(rateDiff), MC.gross),
-    prevKpi("営業日数", `${p.actualDays}日`, `今年 ${t.actualDays}日`, GC.prev, "var(--fg)"),
+    prevKpi(unitLabel, `${cnt(p)}${unit}`, `今年 ${cnt(t)}${unit}`, GC.prev, "var(--fg)"),
   ];
-  return el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${GC.prev};background:${tint(GC.prev, 0.05)}` }, [
-    el("div", { style: `font-weight:800;font-size:13px;color:${GC.prev};margin-bottom:8px`, text: title }),
+  return box([
     el("div", { class: "row", style: "gap:14px;flex-wrap:wrap" }, items),
     el("div", { class: "hint", style: "margin-top:6px;font-size:11px",
-      text: "今年の実績が入っている日にちと同じ日で昨年を集計しています（月の途中でも比べられるように）。" }),
+      text: unitLabel === "実績月数"
+        ? "今年度に実績が入っている月の、同じ日にちだけで昨年度を集計しています（進行中の月も日数をそろえて比べられるように）。"
+        : "今年の実績が入っている日にちと同じ日で昨年を集計しています（月の途中でも比べられるように）。" }),
   ]);
 }
 
@@ -188,9 +212,8 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
     miniKpi("売上", yen(t.actual.sales), MC.sales),
     miniKpi("粗利", yen(t.actual.gross), MC.gross, actualRate == null ? "" : "粗利率 " + pct(actualRate)),
   ]);
-  // 前年は月モードのみ（年度モードは年度どうしの比較になるので別途）
   const left = el("div", { class: "col", style: "flex:1.25;min-width:300px;gap:12px" },
-    [planPanel, actualPanel, opts.prev ? prevPanel(t, opts.prev) : null].filter(Boolean));
+    [planPanel, actualPanel, opts.prev ? prevPanel(opts.prev) : null].filter(Boolean));
 
   // 右列: 区分別バー（上）＋達成状況（下、実績の右に位置）
   const bars = hbars(agg.perSection.map((r) => ({ label: r.section.label, plan: r.plan.gross, actual: r.actual.gross, color: sectionColor(r.section) })), { title: "区分別 計画vs実績（粗利）" });
@@ -203,6 +226,18 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
     cumLine(series, { title: `粗利の累計 予実｜点線は着地見込み（残りの${unit}は計画どおりの場合）` }),
     diffBars(series, { title: `${unit}別の過不足（実績−計画・粗利）` }),
   ]));
+
+  // 年度モードの前年比較。過去と比べるのは売上（粗利は釘・設定の判断がそのまま出て
+  // 年をまたぐとぶれる）。月ごとの勝ち負けと、年度を通した差の両方を出す。
+  const pm = opts.prevMonthly;
+  if (pm && pm.some((r) => r.base != null)) {
+    host.appendChild(el("div", { class: "col", style: "margin-top:12px;gap:12px" }, [
+      dailyBars(pm.map((r) => ({ label: r.label, plan: r.base || 0, actual: r.actual })),
+        { title: "月別 売上（棒＝今年度／横線＝昨年度）", color: MC.sales, unit: "円", baseLabel: "昨年度" }),
+      cumCompare(pm.map((r) => ({ label: r.label, cur: r.actual, base: r.base })),
+        { title: "売上の累計 今年度vs昨年度（実績のある月まで）", color: MC.sales, unit: "円" }),
+    ]));
+  }
 
   // 予実テーブル
   host.appendChild(sectionTable(agg, t));

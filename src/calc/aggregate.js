@@ -141,6 +141,35 @@ export function sameDaysMaps(curMaps, prevMaps) {
   return { ...prevMaps, actual: new Map([...prevMaps.actual].filter(([k]) => days.has(k.slice(8, 10)))) };
 }
 
+// 年度の月別合計。前年度と月どうしで並べるために、月ごとの実績・計画と
+// 「その月に実績が入っているか」を持つ（実績の無い月を0で埋めない）。
+// alignMaps を渡すと、その年（＝今年度）に実績がある日にちだけを残して集計する。
+// 前年度を出すときに使う。月単位でそろえるだけだと、進行中の月が「今年14日ぶん対
+// 昨年1ヶ月ぶん」になって年度の前年比が沈む。
+export function fyMonthlyTotals(sections, fy, monthMaps, alignMaps) {
+  return fiscalMonths().map((m) => {
+    const maps = monthMaps(m);
+    const use = alignMaps ? sameDaysMaps(alignMaps(m), maps) : maps;
+    const t = monthAggregate(sections, calendarYear(fy, m), m, use).total;
+    return { month: m, plan: t.plan, actual: t.actual, actualDays: t.actualDays, sumCount: t.sumCount };
+  });
+}
+
+// 実績のある月だけを足した合計。年度の途中で「今年5ヶ月ぶん」と「昨年度12ヶ月ぶん」を
+// 比べると必ず大幅マイナスに見えるので、前年度は今年度と同じ月だけで足す。
+export function sumMonths(rows, keep) {
+  const acc = { actual: { sales: 0, gross: 0, outTotal: 0 }, actualDays: 0, sumCount: 0, months: 0 };
+  rows.forEach((r, i) => {
+    if (keep && !keep(i)) return;
+    if (!r.actualDays) return;
+    acc.actual.sales += r.actual.sales; acc.actual.gross += r.actual.gross; acc.actual.outTotal += r.actual.outTotal;
+    acc.actualDays += r.actualDays; acc.sumCount += r.sumCount; acc.months++;
+  });
+  acc.avgOut = acc.sumCount ? acc.actual.outTotal / acc.sumCount : null;
+  acc.grossRate = acc.actual.sales ? acc.actual.gross / acc.actual.sales : null;
+  return acc;
+}
+
 // 会計年度集計。monthMaps(month)->maps を受け取り12ヶ月を合算＋月次系列。
 export function fyAggregate(sections, fy, monthMaps) {
   const months = fiscalMonths();

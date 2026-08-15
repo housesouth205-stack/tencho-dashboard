@@ -31,14 +31,15 @@ export async function loadMonthMapsWithPrev(fy, month) {
 }
 
 // 年度分を1回ずつ取得し、monthMaps(month)->maps を返すファクトリ（年度サマリー用）。
+// 第2引数に別の年度を渡せば同じ取得結果から前年度も切り出せる（前年比のために取り直さない）。
 export async function loadFiscalMonthMaps(fy) {
   const [machines, plan, actual] = await Promise.all([
     repo.select("machines_day", { eq: { store_id: state.storeId } }),
     repo.select("plan_day", { eq: { store_id: state.storeId } }),
     repo.select("actual_day", { eq: { store_id: state.storeId } }),
   ]);
-  return (month) => {
-    const cy = calendarYear(fy, month);
+  return (month, useFy = fy) => {
+    const cy = calendarYear(useFy, month);
     const prefix = `${cy}-${String(month).padStart(2, "0")}`;
     return { cy, machines: bucket(machines, prefix), plan: bucket(plan, prefix), actual: bucket(actual, prefix) };
   };
