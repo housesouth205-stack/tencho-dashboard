@@ -34,6 +34,9 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     ...sections.map((s) => ({ id: s.id, label: s.label, color: sectionColor(s), section: s }))];
   let cur = "total";
   let cmp = "plan"; // 比べる相手: plan=計画 / prev=昨年の同じ日
+  // 比べる指標は相手ごとに覚えておく。計画は粗利が目標、昨年との比較は売上が素直、と
+  // 既定が違うので、切り替えるたびに選び直させたくない。
+  const metricBy = { plan: "gross", prev: "sales" };
 
   const wrap = el("div", { class: "col", style: "gap:10px;margin-top:18px" });
   host.appendChild(wrap);
@@ -47,6 +50,10 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
   const cmpChips = el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center" },
     el("span", { class: "hint", text: "比較" }));
   bar.appendChild(cmpChips);
+  // 何で比べるか。表の差・率、グラフ、合計欄がまとめてこの指標に変わる。
+  const metChips = el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center" },
+    el("span", { class: "hint", text: "指標" }));
+  bar.appendChild(metChips);
   const body = el("div", { class: "col", style: "gap:12px" });
   wrap.appendChild(body);
 
@@ -54,16 +61,27 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
   // 昨年の同じ日にち。2月など日数が違う月は昨年に無い日が出るので null を許す。
   function pickPrev(i) { return prevRows && prevRows[i] ? prevRows[i].bySection.get(cur) || null : null; }
 
+  // 指標ごとの見せ方。アウトだけは台あたりの平均なので、足し上げずに台数で
+  // 重みづけした平均で比べる（合計欄・累計グラフとも）。
+  const METRICS = {
+    sales: { label: "売上", key: "sales", fmt: yen, barColor: MC.sales, avg: false },
+    gross: { label: "粗利", key: "gross", fmt: yen, barColor: MC.gross, avg: false },
+    // アウトは金額ではないので売上（青）・粗利（緑）とは別の無彩色に寄せる
+    out: { label: "アウト", key: "outAvg", fmt: (v) => num(Math.round(v)), barColor: "#6f7c91", avg: true },
+  };
+
   // 比べる相手の見出し・色・列ラベルと、1日ぶんから相手の数字を取り出す関数。
   // 表・グラフ・カードで同じ定義を使い回す（切替のたびに3か所直すのを避ける）。
-  // 前年比は売上で見る。粗利は出玉の波と釘・設定の判断がそのまま出るので年をまたぐと
-  // ぶれが大きく、「去年より客が入ったか」を見るには売上のほうが素直。
-  // 計画との比較は粗利が目標なので従来どおり粗利で出す。
-  const cmpInfo = () => (cmp === "prev"
-    ? { head: `📅 昨年（${prevMaps ? prevMaps.cy : ""}年）`, short: "昨年", color: GC.prev,
-      metric: "sales", diff: "売上差", rate: "前年比(売上)", of: (d) => d.prev, count: (d) => d.prevCount }
-    : { head: "📋 計画", short: "計画", color: GC.plan,
-      metric: "gross", diff: "粗利差", rate: "達成率", of: (d) => d.plan, count: (d) => d.planCount });
+  // 前年比の既定を売上にしているのは、粗利は出玉の波と釘・設定の判断がそのまま出て
+  // 年をまたぐとぶれが大きく、「去年より客が入ったか」を見るには売上が素直なため。
+  const cmpInfo = () => {
+    const M = METRICS[metricBy[cmp]];
+    return cmp === "prev"
+      ? { head: `📅 昨年（${prevMaps ? prevMaps.cy : ""}年）`, short: "昨年", color: GC.prev, M,
+        diff: `${M.label}差`, rate: `前年比(${M.label})`, of: (d) => d.prev, count: (d) => d.prevCount }
+      : { head: "📋 計画", short: "計画", color: GC.plan, M,
+        diff: `${M.label}差`, rate: `達成率(${M.label})`, of: (d) => d.plan, count: (d) => d.planCount };
+  };
 
   function draw() {
     chips.querySelectorAll("button").forEach((b) => {
@@ -72,6 +90,9 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     });
     cmpChips.querySelectorAll("button").forEach((b) => {
       b.className = "btn sm " + (b.dataset.cmp === cmp ? "primary" : "ghost");
+    });
+    metChips.querySelectorAll("button").forEach((b) => {
+      b.className = "btn sm " + (b.dataset.met === metricBy[cmp] ? "primary" : "ghost");
     });
     clear(body);
 
@@ -101,21 +122,27 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     }
 
     const C = cmpInfo();
-    const toBar = (kind) => series.map((d) => ({
-      label: String(d.day), kind: d.kind,
-      plan: (C.of(d) || {})[kind] || 0, actual: d.actual ? d.actual[kind] : null,
-    }));
+    // 取り込んだ日付までの合計。表の一番下まで送らなくても、
+    // 「今のところ去年（計画）に対してどうなのか」が最初に目に入るようにする。
+    body.appendChild(totalsBox(series, C));
+
+    const unit = C.M.avg ? "" : "円";
     body.appendChild(el("div", { class: "row", style: "gap:12px;flex-wrap:wrap" }, [
-      dailyBars(toBar("sales"), { title: `日別 売上（棒＝実績／横線＝${C.short}）`, color: MC.sales, unit: "円", baseLabel: C.short }),
-      dailyBars(toBar("gross"), { title: `日別 粗利（棒＝実績／横線＝${C.short}）`, color: MC.gross, unit: "円", baseLabel: C.short }),
-    ]));
-    // 昨年と比べるときは累計も出す。日別の棒は曜日で上下するので、
-    // 「月を通して去年を上回っているのか」は累計でないと読み取れない。
-    if (cmp === "prev") {
-      body.appendChild(cumCompare(series.map((d) => ({
-        label: String(d.day), cur: d.actual ? d.actual.sales : null, base: d.prev ? d.prev.sales : null,
-      })), { title: "売上の累計 今年vs昨年（同じ日にちで比較）", color: MC.sales, unit: "円" }));
-    }
+      dailyBars(series.map((d) => ({
+        label: String(d.day), kind: d.kind,
+        plan: (C.of(d) || {})[C.M.key] || 0, actual: d.actual ? d.actual[C.M.key] : null,
+      })), { title: `日別 ${C.M.label}（棒＝実績／横線＝${C.short}）`, color: C.M.barColor, unit, baseLabel: C.short }),
+      // 昨年と比べるときは累計（アウトは平均）も出す。日別の棒は曜日で上下するので、
+      // 「月を通して去年を上回っているのか」はこちらでないと読み取れない。
+      cmp === "prev" ? cumCompare(series.map((d) => ({
+        label: String(d.day),
+        cur: C.M.avg ? (d.actual ? [d.actual.outTotal, d.actualCount] : null) : (d.actual ? d.actual[C.M.key] : null),
+        base: C.M.avg ? (d.prev ? [d.prev.outTotal, d.prevCount] : null) : (d.prev ? d.prev[C.M.key] : null),
+      })), {
+        title: `${C.M.label}の${C.M.avg ? "平均" : "累計"} 今年vs昨年（同じ日にちで比較）`,
+        color: C.M.barColor, unit, avg: C.M.avg, seriesLabel: C.M.avg ? "平均" : "累計",
+      }) : null,
+    ].filter(Boolean)));
 
     body.appendChild(narrow() ? cards(series, C) : table(series, C));
     body.appendChild(el("p", { class: "hint", style: "margin:0",
@@ -155,18 +182,18 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     // 達成率と差額は実績のある日の計画（pe）と突き合わせる。
     // アウトだけは平均で見せるので、計の行も足し上げではなく
     // 総アウト ÷ 台数（日ごとの台数を足したもの）で出す。
-    const M = C.metric; // 比べる指標: 昨年=売上 / 計画=粗利
+    const MK = C.M.key; // 比べる指標の1日ぶんの値（アウトは台あたり平均）
     const sum = {
       p: { outTotal: 0, sales: 0, gross: 0 }, pCount: 0, baseDays: 0,
-      pe: { sales: 0, gross: 0 },
+      pe: { sales: 0, gross: 0, outTotal: 0, count: 0 },
       a: { outTotal: 0, sales: 0, gross: 0 }, aCount: 0, days: 0,
     };
     for (const d of series) {
       const a = d.actual;
       const b = C.of(d) || {};
-      const ach = a && b[M] ? a[M] / b[M] : null;
+      const ach = a && b[MK] ? a[MK] / b[MK] : null;
       // 相手の数字が無い日は差も出さない（昨年が休業の日に「+全額」と出るのを防ぐ）
-      const diff = a && b[M] != null ? a[M] - (b[M] || 0) : null;
+      const diff = a && b[MK] != null ? a[MK] - (b[MK] || 0) : null;
       // 計画は月ぶん全部を足す（残り日数ぶんも含めて月の計画額を見たいため）。
       // 昨年は今年の実績がある日にちだけ足す。月ぶん全部と14日ぶんを並べると前年比が半分に見える。
       if (cmp === "plan" || a) {
@@ -178,6 +205,7 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
         sum.a.outTotal += a.outTotal; sum.a.sales += a.sales; sum.a.gross += a.gross; sum.days++;
         sum.aCount += d.actualCount;
         sum.pe.sales += b.sales || 0; sum.pe.gross += b.gross || 0;
+        sum.pe.outTotal += b.outTotal || 0; sum.pe.count += C.count(d);
       }
       const jp = KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()];
       tb.appendChild(el("tr", { style: kindStyle(d.kind) }, [
@@ -190,12 +218,15 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
         el("td", { style: gBg(GC.actual), text: a ? yen(a.sales) : "" }),
         el("td", { style: gBg(GC.actual), text: a ? yen(a.gross) : "" }),
         el("td", { style: diff == null ? "" : `color:${diff >= 0 ? "#43b483" : "#e35d6a"};font-weight:600`,
-          text: diff == null ? "" : (diff >= 0 ? "+" : "−") + yen(Math.abs(diff)) }),
+          text: diff == null ? "" : (diff >= 0 ? "+" : "−") + C.M.fmt(Math.abs(diff)) }),
         achCell(ach),
       ]));
     }
-    const totAch = sum.pe[M] ? sum.a[M] / sum.pe[M] : null;
-    const totDiff = sum.days ? sum.a[M] - sum.pe[M] : null;
+    // アウトは足し上げられないので、計の行も台数で割った平均どうしで比べる
+    const totCur = C.M.avg ? (sum.aCount ? sum.a.outTotal / sum.aCount : null) : sum.a[MK];
+    const totBase = C.M.avg ? (sum.pe.count ? sum.pe.outTotal / sum.pe.count : null) : sum.pe[MK];
+    const totAch = totBase ? totCur / totBase : null;
+    const totDiff = sum.days && totBase != null && totCur != null ? totCur - totBase : null;
     const avg = (total, count) => (count ? num(Math.round(total / count)) : "—");
     tb.appendChild(el("tr", { style: "font-weight:700;border-top:2px solid var(--line)" }, [
       el("td", { class: "txt", text: "計" }),
@@ -208,12 +239,57 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       el("td", { style: gBg(GC.actual), text: yen(sum.a.sales) }),
       el("td", { style: gBg(GC.actual), text: yen(sum.a.gross) }),
       el("td", { style: totDiff == null ? "" : `color:${totDiff >= 0 ? "#43b483" : "#e35d6a"}`,
-        text: totDiff == null ? "" : (totDiff >= 0 ? "+" : "−") + yen(Math.abs(totDiff)) }),
+        text: totDiff == null ? "" : (totDiff >= 0 ? "+" : "−") + C.M.fmt(Math.abs(totDiff)) }),
       achCell(totAch),
     ]));
     t.appendChild(tb);
     // 10列あるので表の中だけ横スクロールさせる（他の表と揃える）
     return el("div", { class: "table-wrap" }, t);
+  }
+
+  // 取り込んだ日付までの合計を、売上・粗利・アウトの3つとも並べて出す。
+  // 指標スイッチで1つずつ見せる形にすると、3回切り替えないと全体像が掴めない。
+  // 集計の範囲は「今年の実績がある日」。相手が計画でも昨年でも同じ日で突き合わせる。
+  function totalsBox(series, C) {
+    const z = () => ({ sales: 0, gross: 0, outTotal: 0, count: 0 });
+    const acc = { cur: z(), base: z(), days: 0, baseDays: 0, last: null };
+    for (const d of series) {
+      const a = d.actual;
+      if (!a) continue;
+      acc.days++; acc.last = d.day;
+      acc.cur.sales += a.sales; acc.cur.gross += a.gross; acc.cur.outTotal += a.outTotal; acc.cur.count += d.actualCount;
+      const b = C.of(d);
+      if (!b) continue;
+      const has = b.sales || b.gross || b.outTotal;
+      if (has) acc.baseDays++;
+      acc.base.sales += b.sales || 0; acc.base.gross += b.gross || 0;
+      acc.base.outTotal += b.outTotal || 0; acc.base.count += C.count(d);
+    }
+    const val = (o, m) => (m.avg ? (o.count ? o.outTotal / o.count : null) : o[m.key === "outAvg" ? "outTotal" : m.key]);
+    const cell = (id) => {
+      const m = METRICS[id];
+      const c = val(acc.cur, m), b = val(acc.base, m);
+      const r = b ? c / b : null;
+      const on = id === metricBy[cmp];
+      return el("div", { style: `flex:1 1 150px;min-width:150px;padding:6px 8px;border-radius:6px;${on ? `background:${tint(C.color, 0.1)}` : ""}` }, [
+        el("div", { class: "hint", text: m.label + (m.avg ? "/台" : "") }),
+        el("div", { style: `font-size:18px;font-weight:800;white-space:nowrap;color:${m.barColor}`, text: c == null ? "—" : m.fmt(c) }),
+        el("div", { class: "hint", style: "font-size:11px;white-space:nowrap", text: `${C.short} ${b == null ? "—" : m.fmt(b)}` }),
+        el("div", { style: `font-size:11.5px;font-weight:700;white-space:nowrap;color:${achieveHex(r)}`,
+          text: r == null ? "—" : `${pct(r)}（${c - b >= 0 ? "+" : "−"}${m.fmt(Math.abs(c - b))}）` }),
+      ]);
+    };
+    const head = acc.last == null ? "" : `${month}/${acc.last}まで の合計`;
+    const sub = cmp === "prev"
+      ? `実績${acc.days}日／昨年${acc.baseDays}日ぶん（同じ日にちで突き合わせ）`
+      : `実績${acc.days}日ぶん。同じ日の計画と比べています（月ぶん全部の計画とは違います）`;
+    return el("div", { class: "card", style: `border-top:3px solid ${C.color};background:${tint(C.color, 0.04)}` }, [
+      el("div", { class: "row", style: "align-items:baseline;gap:8px;margin-bottom:6px" }, [
+        el("b", { style: "font-size:13px", text: head }),
+        el("span", { class: "hint", style: "font-size:11px", text: sub }),
+      ]),
+      el("div", { class: "row", style: "gap:10px;flex-wrap:wrap" }, ["sales", "gross", "out"].map(cell)),
+    ]);
   }
 
   // 「昨年」を押したのに出せないときの説明。何を探して見つからなかったのかまで書く。
@@ -250,7 +326,7 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       if (!d.actual) continue;
       const a = d.actual;
       const b = C.of(d) || {};
-      const ach = b[C.metric] ? a[C.metric] / b[C.metric] : null;
+      const ach = b[C.M.key] ? a[C.M.key] / b[C.M.key] : null;
       const hex = achieveHex(ach);
       box.appendChild(el("div", { class: "card", style: `padding:8px 10px;${kindStyle(d.kind)}` }, [
         el("div", { class: "row", style: "align-items:baseline;gap:6px" }, [
@@ -282,6 +358,12 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     chips.appendChild(el("button", {
       class: "btn sm ghost", "data-id": t.id, text: t.label,
       onclick: () => { cur = t.id; draw(); },
+    }));
+  }
+  for (const [id, m] of Object.entries(METRICS)) {
+    metChips.appendChild(el("button", {
+      class: "btn sm ghost", "data-met": id, text: m.label,
+      onclick: () => { metricBy[cmp] = id; draw(); },
     }));
   }
   for (const c of [{ id: "plan", label: "計画" }, { id: "prev", label: "昨年" }]) {

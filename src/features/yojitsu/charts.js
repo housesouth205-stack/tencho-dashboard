@@ -110,26 +110,35 @@ export function cumLine(series, { title } = {}) {
 // 今年と昨年の累計を重ねる。日別の棒は曜日で上下して差が読み取りにくいので、
 // 「月を通してどれだけ差がついたか」はこちらで見る。
 // 昨年は月末まで引き、今年は実績のある日で止める（先を計画で伸ばすと前年比が濁る）。
-export function cumCompare(series, { title, color = C.pos, unit = "" } = {}) {
+// avg=true のときは {cur:[合計,台数]} を受け取り、累計ではなく「そこまでの平均」を描く。
+// アウトは台あたりの数字なので足し上げても意味がなく、台数で重みづけした平均で見る。
+export function cumCompare(series, { title, color = C.pos, unit = "", avg = false, seriesLabel = "累計" } = {}) {
   const n = series.length;
   const w = 620, h = 210, padL = 46, padB = 22, padT = 14, padR = 74;
   const iw = w - padL - padR, ih = h - padB - padT;
-  let cc = 0, cb = 0, last = -1;
+  const norm = (v) => (avg ? (v && v[1] ? { v: v[0], w: v[1] } : null) : (v == null ? null : { v, w: 1 }));
+  let cv = 0, cw = 0, bv = 0, bw = 0, last = -1;
   const A = [], B = [];
   series.forEach((d) => {
-    if (d.cur == null) A.push(null);
-    else { cc += d.cur; A.push(cc); last = A.length - 1; }
-    if (d.base == null) B.push(null);
-    else { cb += d.base; B.push(cb); }
+    const c = norm(d.cur), b = norm(d.base);
+    if (!c) A.push(null);
+    else { cv += c.v; cw += c.w; A.push(avg ? cv / cw : cv); last = A.length - 1; }
+    if (!b) B.push(null);
+    else { bv += b.v; bw += b.w; B.push(avg ? bv / bw : bv); }
   });
-  const max = Math.max(1, ...A.filter((v) => v != null), ...B.filter((v) => v != null));
+  const seen = [...A, ...B].filter((v) => v != null);
+  const max = Math.max(1, ...seen);
+  // 平均（アウト）は0から描くと2本が重なって差が見えない。下を実測値に寄せる。
+  // 目盛りの数字は実際の値を出すので、0起点でないことは軸を見れば分かる。
+  const lo = avg && seen.length ? Math.min(...seen) * 0.95 : 0;
+  const span = max - lo || 1;
   const x = (i) => padL + (n <= 1 ? 0 : (iw * i) / (n - 1));
-  const y = (v) => padT + ih - (ih * v) / max;
+  const y = (v) => padT + ih - (ih * (v - lo)) / span;
   const svg = s("svg", { viewBox: `0 0 ${w} ${h}`, width: "100%", style: "max-width:100%" });
   for (let g = 0; g <= 4; g++) {
     const gy = padT + (ih * g) / 4;
     svg.appendChild(s("line", { x1: padL, y1: gy, x2: padL + iw, y2: gy, stroke: C.line }));
-    svg.appendChild(s("text", { x: padL - 4, y: gy + 3, "text-anchor": "end", "font-size": "9", fill: C.dim }, abbr(max * (1 - g / 4))));
+    svg.appendChild(s("text", { x: padL - 4, y: gy + 3, "text-anchor": "end", "font-size": "9", fill: C.dim }, abbr(lo + span * (1 - g / 4))));
   }
   // 今日時点の差を面で見せる。線2本だけだと、どちらがどれだけ上かが読み取りにくい
   if (last >= 0) {
@@ -167,11 +176,11 @@ export function cumCompare(series, { title, color = C.pos, unit = "" } = {}) {
   }
   series.forEach((d, i) => {
     if (A[i] == null && B[i] == null) return;
-    const tip = `${d.label}｜今年累計 ${A[i] == null ? "—" : abbr2(A[i])}／昨年累計 ${B[i] == null ? "—" : abbr2(B[i])}${unit}`;
+    const tip = `${d.label}｜今年の${seriesLabel} ${A[i] == null ? "—" : abbr2(A[i])}／昨年の${seriesLabel} ${B[i] == null ? "—" : abbr2(B[i])}${unit}`;
     svg.appendChild(s("rect", { x: x(i) - iw / Math.max(1, n) / 2, y: padT, width: iw / Math.max(1, n), height: ih, fill: "transparent" }, s("title", {}, tip)));
   });
   xLabels(svg, series, x, h);
-  return wrap(title, svg, [["今年の累計", color], ["昨年の累計（破線）", C.ref]]);
+  return wrap(title, svg, [[`今年の${seriesLabel}`, color], [`昨年の${seriesLabel}（破線）`, C.ref]]);
 }
 
 // 日別の過不足（実績−計画）。0を基準にした発散バーで「どの日で落としたか」が分かる。
