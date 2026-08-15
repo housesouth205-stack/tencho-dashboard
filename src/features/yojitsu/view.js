@@ -131,10 +131,12 @@ export async function mount(host) {
 const MC = { sales: "#4f8ff7", gross: "#2fb888", target: "#f0a12e", land: "#a56cf0" };
 const GC = { plan: "#6b7f9e", actual: "#1f9d70", prev: "#8a91a3" };
 
+// 金額は「¥122,760,000」まで伸びるが折り返せない。箱を content より狭くすると
+// はみ出して隣の数字と重なるので、折り返し前提の幅を持たせる（スマホで実際に潰れていた）。
 function miniKpi(label, value, color, sub) {
-  return el("div", { style: "min-width:128px;flex:1" }, [
+  return el("div", { style: "flex:1 1 152px;min-width:152px" }, [
     el("div", { class: "hint", text: label }),
-    el("div", { style: `font-size:21px;font-weight:800;margin-top:2px;color:${color}`, text: value }),
+    el("div", { style: `font-size:21px;font-weight:800;margin-top:2px;white-space:nowrap;color:${color}`, text: value }),
     sub ? el("div", { class: "hint", text: sub }) : null,
   ]);
 }

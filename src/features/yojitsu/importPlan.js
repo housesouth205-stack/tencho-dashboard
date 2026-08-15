@@ -5,6 +5,8 @@ import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { yen, num } from "../../util/format.js";
 import { parseMonthlyPlan } from "../../import/monthlyPlanXlsx.js";
 import { planCalc } from "../../calc/planCalc.js";
+import { ymd } from "../../util/dates.js";
+import { FISCAL_START_MONTH } from "../../core/config.js";
 
 const CONFLICT = ["store_id", "ymd", "section_id"];
 
@@ -17,7 +19,7 @@ export function pickMonthlyPlan({ fy, sections, onDone }) {
     try {
       const buf = await file.arrayBuffer();
       const { rows, warnings } = await parseMonthlyPlan(buf, { fy, sections });
-      showPreview(file.name, rows, warnings, onDone);
+      showPreview(file.name, rows, warnings, onDone, fy);
     } catch (e) { errorToast(e); }
   });
   document.body.appendChild(input);
@@ -25,9 +27,27 @@ export function pickMonthlyPlan({ fy, sections, onDone }) {
   setTimeout(() => input.remove(), 0);
 }
 
-function showPreview(filename, rows, warnings, onDone) {
+function showPreview(filename, rows, warnings, onDone, fy) {
   const body = el("div", { class: "col" });
   body.appendChild(el("p", { class: "hint", text: `${filename} — 解析結果 ${rows.length} 行` }));
+
+  // どの期間に書き込むのかを必ず見せる。日付欄が「1〜31」だけのシートは
+  // 取込時に選んでいる年度で年が決まるので、昨年度のファイルを今年度のまま取り込むと
+  // 今年の日付を黙って上書きしてしまう。書き込む先の日付を出しておけば気づける。
+  const ymds = rows.map((r) => r.ymd).sort();
+  if (ymds.length) {
+    const from = ymds[0], to = ymds[ymds.length - 1];
+    const days = new Set(ymds).size;
+    body.appendChild(el("div", { class: "card", style: "border-left:3px solid var(--accent,#4f8ff7);font-weight:700" },
+      [el("div", { text: `書き込む期間: ${from} 〜 ${to}（${days}日ぶん）` }),
+        el("div", { class: "hint", style: "font-weight:400;margin-top:2px",
+          text: `取込先の年度は「${fy}年度」です。日付が想定と違う場合は、取り消して年度を切り替えてから取り込み直してください。` })]));
+    // 選択中の年度（4月〜翌3月）の外に出ている行は、ほぼ年度の選び間違い
+    const outside = ymds.filter((d) => d < ymd(fy, FISCAL_START_MONTH, 1) || d > ymd(fy + 1, FISCAL_START_MONTH - 1, 31));
+    if (outside.length) {
+      warnings = [...warnings, `${fy}年度（${fy}-04-01〜${fy + 1}-03-31）の外の日付が ${outside.length}行 あります（${outside[0]} など）。年度の選び間違いでなければそのまま取り込んで問題ありません。`];
+    }
+  }
 
   for (const w of warnings) body.appendChild(el("div", { class: "card", style: "border-left:3px solid var(--warn)", text: "⚠ " + w }));
 
