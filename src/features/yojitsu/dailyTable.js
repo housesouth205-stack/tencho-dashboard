@@ -11,7 +11,7 @@ import { sectionColor, tint } from "../../util/colors.js";
 import { dayKind, holidayName } from "../../util/holiday.js";
 import { daysInMonth } from "../../util/dates.js";
 import { monthDailyDetail } from "../../calc/aggregate.js";
-import { dailyBars } from "./charts.js";
+import { dailyBars, cumCompare } from "./charts.js";
 
 const MC = { sales: "#4f8ff7", gross: "#2fb888" };
 const GC = { plan: "#6b7f9e", actual: "#1f9d70", prev: "#8a91a3" };
@@ -56,11 +56,14 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
 
   // 比べる相手の見出し・色・列ラベルと、1日ぶんから相手の数字を取り出す関数。
   // 表・グラフ・カードで同じ定義を使い回す（切替のたびに3か所直すのを避ける）。
+  // 前年比は売上で見る。粗利は出玉の波と釘・設定の判断がそのまま出るので年をまたぐと
+  // ぶれが大きく、「去年より客が入ったか」を見るには売上のほうが素直。
+  // 計画との比較は粗利が目標なので従来どおり粗利で出す。
   const cmpInfo = () => (cmp === "prev"
-    ? { head: `📅 昨年（${prevMaps ? prevMaps.cy : ""}年）`, short: "昨年", color: GC.prev, diff: "粗利差", rate: "前年比",
-      of: (d) => d.prev, count: (d) => d.prevCount }
-    : { head: "📋 計画", short: "計画", color: GC.plan, diff: "粗利差", rate: "達成率",
-      of: (d) => d.plan, count: (d) => d.planCount });
+    ? { head: `📅 昨年（${prevMaps ? prevMaps.cy : ""}年）`, short: "昨年", color: GC.prev,
+      metric: "sales", diff: "売上差", rate: "前年比(売上)", of: (d) => d.prev, count: (d) => d.prevCount }
+    : { head: "📋 計画", short: "計画", color: GC.plan,
+      metric: "gross", diff: "粗利差", rate: "達成率", of: (d) => d.plan, count: (d) => d.planCount });
 
   function draw() {
     chips.querySelectorAll("button").forEach((b) => {
@@ -106,12 +109,19 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       dailyBars(toBar("sales"), { title: `日別 売上（棒＝実績／横線＝${C.short}）`, color: MC.sales, unit: "円", baseLabel: C.short }),
       dailyBars(toBar("gross"), { title: `日別 粗利（棒＝実績／横線＝${C.short}）`, color: MC.gross, unit: "円", baseLabel: C.short }),
     ]));
+    // 昨年と比べるときは累計も出す。日別の棒は曜日で上下するので、
+    // 「月を通して去年を上回っているのか」は累計でないと読み取れない。
+    if (cmp === "prev") {
+      body.appendChild(cumCompare(series.map((d) => ({
+        label: String(d.day), cur: d.actual ? d.actual.sales : null, base: d.prev ? d.prev.sales : null,
+      })), { title: "売上の累計 今年vs昨年（同じ日にちで比較）", color: MC.sales, unit: "円" }));
+    }
 
     body.appendChild(narrow() ? cards(series, C) : table(series, C));
     body.appendChild(el("p", { class: "hint", style: "margin:0",
       text: "アウトは台あたりの平均（総アウト÷台数）。台数の増減で数字が動かないので日ごとに比べられる。実績が未入力の日は空欄。"
         + (cmp === "prev"
-          ? `前年比は粗利の今年÷昨年。${prevMaps ? prevMaps.cy : ""}年${month}月の同じ日にちと比べている（休業や未入力で昨年に無い日は空欄）。`
+          ? `前年比は売上の今年÷昨年（粗利は年をまたぐとぶれが大きいため）。${prevMaps ? prevMaps.cy : ""}年${month}月の同じ日にちと比べている（休業や未入力で昨年に無い日は空欄）。`
             + "計の行の昨年は、今年の実績がある日にちだけを足した額（月ぶん全部と比べると前年比が半分に見えるため）。日数欄の「昨n日」がその日数。"
           : "達成率は粗利の実績÷計画。計の行だけは、計画列は月ぶん全部・達成率と粗利差は実績のある日の計画と比べた値（残り日数ぶんの計画で未達に見えるのを避けるため）。")
         + "アウトの計は足し上げではなく、日ごとの台数で重みづけした平均。" }));
@@ -145,17 +155,18 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     // 達成率と差額は実績のある日の計画（pe）と突き合わせる。
     // アウトだけは平均で見せるので、計の行も足し上げではなく
     // 総アウト ÷ 台数（日ごとの台数を足したもの）で出す。
+    const M = C.metric; // 比べる指標: 昨年=売上 / 計画=粗利
     const sum = {
       p: { outTotal: 0, sales: 0, gross: 0 }, pCount: 0, baseDays: 0,
-      pe: { gross: 0 },
+      pe: { sales: 0, gross: 0 },
       a: { outTotal: 0, sales: 0, gross: 0 }, aCount: 0, days: 0,
     };
     for (const d of series) {
       const a = d.actual;
       const b = C.of(d) || {};
-      const ach = a && b.gross ? a.gross / b.gross : null;
+      const ach = a && b[M] ? a[M] / b[M] : null;
       // 相手の数字が無い日は差も出さない（昨年が休業の日に「+全額」と出るのを防ぐ）
-      const diff = a && b.gross != null ? a.gross - (b.gross || 0) : null;
+      const diff = a && b[M] != null ? a[M] - (b[M] || 0) : null;
       // 計画は月ぶん全部を足す（残り日数ぶんも含めて月の計画額を見たいため）。
       // 昨年は今年の実績がある日にちだけ足す。月ぶん全部と14日ぶんを並べると前年比が半分に見える。
       if (cmp === "plan" || a) {
@@ -166,7 +177,7 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       if (a) {
         sum.a.outTotal += a.outTotal; sum.a.sales += a.sales; sum.a.gross += a.gross; sum.days++;
         sum.aCount += d.actualCount;
-        sum.pe.gross += b.gross || 0;
+        sum.pe.sales += b.sales || 0; sum.pe.gross += b.gross || 0;
       }
       const jp = KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()];
       tb.appendChild(el("tr", { style: kindStyle(d.kind) }, [
@@ -183,8 +194,8 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
         achCell(ach),
       ]));
     }
-    const totAch = sum.pe.gross ? sum.a.gross / sum.pe.gross : null;
-    const totDiff = sum.days ? sum.a.gross - sum.pe.gross : null;
+    const totAch = sum.pe[M] ? sum.a[M] / sum.pe[M] : null;
+    const totDiff = sum.days ? sum.a[M] - sum.pe[M] : null;
     const avg = (total, count) => (count ? num(Math.round(total / count)) : "—");
     tb.appendChild(el("tr", { style: "font-weight:700;border-top:2px solid var(--line)" }, [
       el("td", { class: "txt", text: "計" }),
@@ -239,7 +250,7 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       if (!d.actual) continue;
       const a = d.actual;
       const b = C.of(d) || {};
-      const ach = b.gross ? a.gross / b.gross : null;
+      const ach = b[C.metric] ? a[C.metric] / b[C.metric] : null;
       const hex = achieveHex(ach);
       box.appendChild(el("div", { class: "card", style: `padding:8px 10px;${kindStyle(d.kind)}` }, [
         el("div", { class: "row", style: "align-items:baseline;gap:6px" }, [
@@ -247,6 +258,8 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
           el("span", { class: "hint", title: holidayName(maps.cy, month, d.day) || null,
             text: KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()] }),
           el("span", { class: "grow" }),
+          // 何の%かは切替で変わる。数字だけだと達成率と前年比を取り違える
+          ach == null ? null : el("span", { class: "hint", style: "font-size:10.5px", text: C.rate }),
           ach == null ? null : el("span", { style: `color:${hex};font-weight:700`, text: pct(ach) }),
         ]),
         el("div", { class: "row", style: "gap:12px;flex-wrap:wrap;margin-top:4px;font-size:12px" }, [

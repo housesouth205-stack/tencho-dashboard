@@ -107,6 +107,73 @@ export function cumLine(series, { title } = {}) {
   return wrap(title, svg, [["計画の累計（破線）", C.ref], ["実績の累計", C.pos], ["着地見込み（点線）", C.pos]]);
 }
 
+// 今年と昨年の累計を重ねる。日別の棒は曜日で上下して差が読み取りにくいので、
+// 「月を通してどれだけ差がついたか」はこちらで見る。
+// 昨年は月末まで引き、今年は実績のある日で止める（先を計画で伸ばすと前年比が濁る）。
+export function cumCompare(series, { title, color = C.pos, unit = "" } = {}) {
+  const n = series.length;
+  const w = 620, h = 210, padL = 46, padB = 22, padT = 14, padR = 74;
+  const iw = w - padL - padR, ih = h - padB - padT;
+  let cc = 0, cb = 0, last = -1;
+  const A = [], B = [];
+  series.forEach((d) => {
+    if (d.cur == null) A.push(null);
+    else { cc += d.cur; A.push(cc); last = A.length - 1; }
+    if (d.base == null) B.push(null);
+    else { cb += d.base; B.push(cb); }
+  });
+  const max = Math.max(1, ...A.filter((v) => v != null), ...B.filter((v) => v != null));
+  const x = (i) => padL + (n <= 1 ? 0 : (iw * i) / (n - 1));
+  const y = (v) => padT + ih - (ih * v) / max;
+  const svg = s("svg", { viewBox: `0 0 ${w} ${h}`, width: "100%", style: "max-width:100%" });
+  for (let g = 0; g <= 4; g++) {
+    const gy = padT + (ih * g) / 4;
+    svg.appendChild(s("line", { x1: padL, y1: gy, x2: padL + iw, y2: gy, stroke: C.line }));
+    svg.appendChild(s("text", { x: padL - 4, y: gy + 3, "text-anchor": "end", "font-size": "9", fill: C.dim }, abbr(max * (1 - g / 4))));
+  }
+  // 今日時点の差を面で見せる。線2本だけだと、どちらがどれだけ上かが読み取りにくい
+  if (last >= 0) {
+    const pts = [];
+    for (let i = 0; i <= last; i++) if (B[i] != null) pts.push(`${x(i)},${y(B[i])}`);
+    for (let i = last; i >= 0; i--) if (B[i] != null) pts.push(`${x(i)},${y(A[i])}`);
+    if (pts.length) svg.appendChild(s("polygon", { points: pts.join(" "), fill: A[last] >= (B[last] || 0) ? color : C.neg, opacity: "0.12" }));
+  }
+  const poly = (arr, col, dash, width) => {
+    const pts = arr.map((v, i) => (v == null ? null : `${x(i)},${y(v)}`)).filter(Boolean).join(" ");
+    if (pts) svg.appendChild(s("polyline", { points: pts, fill: "none", stroke: col, "stroke-width": width, "stroke-dasharray": dash, "stroke-linejoin": "round" }));
+  };
+  poly(B, C.ref, "5 4", 2);
+  poly(A, color, null, 2.5);
+  if (last === 0) svg.appendChild(s("circle", { cx: x(0), cy: y(A[0]), r: 3.5, fill: color }));
+
+  // 右端に直接ラベル。凡例を往復しなくても「今どれだけ差がついているか」が読める
+  const clamp = (v) => Math.max(padT + 12, Math.min(padT + ih - 6, v));
+  const lx = padL + iw + 6;
+  const bEnd = [...B].reverse().find((v) => v != null);
+  const ya0 = last >= 0 ? clamp(y(A[last])) : null;
+  if (bEnd != null) {
+    // 今年とほぼ同額だとラベルが重なって両方読めなくなるので、昨年側をずらす
+    let yb = clamp(y(bEnd));
+    if (ya0 != null && Math.abs(yb - ya0) < 26) yb = clamp(ya0 + (ya0 > padT + ih / 2 ? -26 : 26));
+    svg.appendChild(s("text", { x: lx, y: yb + 3, "font-size": "10", "font-weight": "700", fill: C.ref }, "昨年 " + abbr2(bEnd)));
+  }
+  if (last >= 0) {
+    const ya = ya0;
+    svg.appendChild(s("circle", { cx: x(last), cy: y(A[last]), r: 4.5, fill: color, stroke: "#fff", "stroke-width": 2 }));
+    svg.appendChild(s("text", { x: lx, y: ya - 2, "font-size": "10.5", "font-weight": "800", fill: color }, "今年 " + abbr2(A[last])));
+    const r = B[last] ? A[last] / B[last] - 1 : null;
+    if (r != null) svg.appendChild(s("text", { x: lx, y: ya + 10, "font-size": "9.5", "font-weight": "700", fill: r >= 0 ? C.pos : C.neg },
+      `${series[last].label}時点 ${r >= 0 ? "+" : "−"}${(Math.abs(r) * 100).toFixed(1)}%`));
+  }
+  series.forEach((d, i) => {
+    if (A[i] == null && B[i] == null) return;
+    const tip = `${d.label}｜今年累計 ${A[i] == null ? "—" : abbr2(A[i])}／昨年累計 ${B[i] == null ? "—" : abbr2(B[i])}${unit}`;
+    svg.appendChild(s("rect", { x: x(i) - iw / Math.max(1, n) / 2, y: padT, width: iw / Math.max(1, n), height: ih, fill: "transparent" }, s("title", {}, tip)));
+  });
+  xLabels(svg, series, x, h);
+  return wrap(title, svg, [["今年の累計", color], ["昨年の累計（破線）", C.ref]]);
+}
+
 // 日別の過不足（実績−計画）。0を基準にした発散バーで「どの日で落としたか」が分かる。
 export function diffBars(series, { title } = {}) {
   const n = series.length;
