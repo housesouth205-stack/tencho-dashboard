@@ -129,14 +129,17 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 台番＋機種名は正方形。機種名は2行まで入るので、以前より読める。
     const head = el("div", {
       style: (horiz ? `width:${headSize}px;height:${headSize}px;flex:none;` : "flex:1;min-width:0;min-height:0;") +
-        `box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;` +
+        `box-sizing:border-box;background:${headBg};border-radius:3px;padding:1px;overflow:hidden;position:relative;` +
         `border:1px solid ${p && p.heat ? "transparent" : "var(--line)"};` +
         "display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1",
     }, [
-      // 据え置き台は台番の前に鍵を出す。一括操作で飛ばされる台がどこか、
-      // 島図を見たまま分かるようにする（別の一覧を開かずに済ませたい）。
-      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;color:${headInk}`,
-        text: (p && p.held ? "🔒" : "") + String(c.dai_no) }),
+      // 据え置き台の鍵は角に重ねる。台番の前に文字として置くと、3桁の台番では
+      // 34pxのマスに収まらず折り返して、下の機種名が押し出されて読めなくなる。
+      p && p.held ? el("div", { style: "position:absolute;top:0;left:0;font-size:8px;line-height:1;pointer-events:none;" +
+        "text-shadow:0 0 2px #fff,0 0 2px #fff", text: "🔒" }) : null,
+      // 台番は必ず1行。折り返すと機種名の2行ぶんが押し出される。
+      el("div", { style: `font-size:11px;font-weight:800;line-height:1.1;white-space:nowrap;color:${headInk}`,
+        text: String(c.dai_no) }),
       p ? el("div", { style: `font-size:8px;font-weight:600;line-height:1.05;color:${ink || (p.dim ? "#6b7382" : "#2a3140")};` +
         "overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-all;" +
         "max-width:100%;text-align:center", text: p.model }) : null,
