@@ -32,7 +32,10 @@ export function parseKtacsKoben(arrayBuffer, filename = "") {
   const col = {
     dai: findCol(H, ["台番号"]), model: findCol(H, ["機種名"]),
     out: findCol(H, ["投入"]), sa: findCol(H, ["差引"]), payout: findCol(H, ["出率"]), big: findCol(H, ["ＢＢ回数", "ＢＢ回数 "]),
-    sales: findCol(H, ["台売上"]), gross: findCol(H, ["機械粗利"]),
+    // 項目パターンによって列名が違う。「合計売上/日」「台粗利」は1台1日あたりで、
+    // 台売上・機械粗利と同じ意味。コイン単価×投入で出すより誤差が出ない
+    // （ｺｲﾝ利益は小数2桁しかなく、粗利が数%ずれる）。「粗利合計」は期間合計なので使わない。
+    sales: findCol(H, ["台売上", "合計売上/日", "合計売上"]), gross: findCol(H, ["機械粗利", "台粗利"]),
     coinPrice: findCol(H, ["ｺｲﾝ単"]), coinProfit: findCol(H, ["ｺｲﾝ利益"]),
   };
   if (col.out < 0) { warnings.push(`${filename}: 「投入」列がありません`); return { denom, period, rows: [], warnings }; }

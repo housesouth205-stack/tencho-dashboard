@@ -3,6 +3,8 @@ import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { parseKtacsKoben } from "../../import/ktacsCsv.js";
+import { rateKeyOfDai } from "../../core/daiSection.js";
+import { compressToRanges, formatRanges } from "../../util/daiRange.js";
 import { parsePlCsv } from "../../import/plCsv.js";
 import { importIslandXlsx, showIslandHistory } from "./islandImport.js";
 
@@ -13,13 +15,13 @@ export async function mount(host) {
   clear(host);
   host.appendChild(el("div", { class: "view-title" }, [
     el("h1", { text: "データ取込" }),
-    el("small", { text: "K-TACs 遊技台個別CSV（20円/5円/2円）・島図Excel・月次の損益/経費CSV" }),
+    el("small", { text: "K-TACs 遊技台個別CSV（全レート1ファイル可）・島図Excel・月次の損益/経費CSV" }),
   ]));
 
   const zone = el("div", {
     class: "placeholder",
     style: "cursor:pointer",
-    text: "遊技台個別CSV（3レート分）をここにドラッグ＆ドロップ、またはクリックして選択",
+    text: "遊技台個別CSVをここにドラッグ＆ドロップ、またはクリックして選択（全レート1ファイルでも、レート別でも可）",
   });
   const input = el("input", { type: "file", accept: ".csv", multiple: true, style: "display:none", onchange: () => handle([...input.files]) });
   zone.appendChild(input);
@@ -83,6 +85,30 @@ export async function mount(host) {
       const period = parsed.find((p) => p.period?.start)?.period || { start: null, end: null };
       const label = period.start ? `${period.start}〜${period.end}` : new Date().toLocaleDateString("ja-JP");
 
+      // 区分は台番から決める。ホールコンの出力は全レート1ファイルになり、
+      // ファイル冒頭のレート表記（20円など）が付かないことがあるため。
+      // 表記がある古いファイルは、台番で決まらなかった台の受け皿として使う。
+      const assign = [];      // { row, sec, byDai }
+      const unassigned = [];  // どの区分にも入らない台番
+      const mismatch = [];    // 台番判定とファイルのレート表記が食い違う台番
+      for (const p of parsed) {
+        const fileSec = p.sectionKey ? secByKey.get(p.sectionKey) : null;
+        for (const r of p.rows) {
+          const key = rateKeyOfDai(r.dai_no);
+          const sec = (key && secByKey.get(key)) || fileSec;
+          if (!sec) { unassigned.push(r.dai_no); continue; }
+          if (fileSec && key && sec.id !== fileSec.id) mismatch.push(r.dai_no);
+          assign.push({ row: r, sec });
+        }
+      }
+      // 未割当は「捨てて取り込む」と後で数が合わない事故になる。書き込む前に止める。
+      if (unassigned.length) {
+        renderUnassigned(result, unassigned, label);
+        toast(`どの区分にも入らない台が ${unassigned.length}台 あります`, "err");
+        return;
+      }
+      if (!assign.length) { toast("取り込める台がありませんでした", "err"); return; }
+
       setSaveState("saving");
       // 既存 is_current を解除
       const currents = await repo.select("snapshot_period", { eq: { store_id: state.storeId, is_current: true } });
@@ -92,16 +118,20 @@ export async function mount(host) {
         store_id: state.storeId, label, start_date: toDate(period.start), end_date: toDate(period.end), is_current: true,
       }, { onConflict: ["id"] });
 
-      const snaps = [];
-      const summary = [];
+      const snaps = assign.map(({ row: r, sec }) => ({
+        period_id: periodRow.id, dai_no: r.dai_no, store_id: state.storeId, section_id: sec.id,
+        model_name: r.model, out_val: r.out, sa_val: r.sa, payout: r.payout, big_count: r.big, sales: r.sales, gross: r.gross,
+      }));
+      // 結果は区分ごとにまとめる（1ファイルに全レートが入るので、ファイル単位では意味がない）
+      const byLabel = new Map();
+      for (const a of assign) byLabel.set(a.sec.label, (byLabel.get(a.sec.label) || 0) + 1);
+      const summary = [...byLabel].map(([lbl, dai]) => ({ label: lbl, dai }));
+      const warnings = parsed.flatMap((p) => p.warnings || []);
+      if (mismatch.length) {
+        warnings.push(`ファイルのレート表記と台番の設定が食い違う台が ${mismatch.length}台 あります（${mismatch.slice(0, 8).join(", ")}${mismatch.length > 8 ? " ほか" : ""}）。台番の設定を優先しました。`);
+      }
+      if (warnings.length) summary.push({ label: "注意", dai: "", warnings });
       for (const p of parsed) {
-        const sec = secByKey.get(p.sectionKey);
-        if (!sec) { toast(`レート ${p.denom}円 に対応する区分がありません`, "err"); continue; }
-        for (const r of p.rows) snaps.push({
-          period_id: periodRow.id, dai_no: r.dai_no, store_id: state.storeId, section_id: sec.id,
-          model_name: r.model, out_val: r.out, sa_val: r.sa, payout: r.payout, big_count: r.big, sales: r.sales, gross: r.gross,
-        });
-        summary.push({ label: sec.label, dai: p.rows.length, warnings: p.warnings });
         await repo.upsert("import_log", { store_id: state.storeId, kind: "ktacs_csv", filename: p.name, row_count: p.rows.length, status: "ok", message: label }, { onConflict: ["id"] });
       }
       for (let i = 0; i < snaps.length; i += 200) await repo.upsert("machine_snapshot", snaps.slice(i, i + 200), { onConflict: ["period_id", "dai_no"] });
@@ -142,6 +172,20 @@ async function importPlCsv(file, msgHost) {
   } catch (e) { errorToast(e); }
 }
 
+// 台番がどの区分にも入っていないとき。取り込まずに、直す場所と番号を出す。
+// 件数だけ出しても直せないので、番号の範囲まで見せる。
+function renderUnassigned(host, dai, label) {
+  clear(host);
+  host.appendChild(el("div", { class: "card col", style: "border-left:3px solid #e35d6a" }, [
+    el("h2", { text: "取り込めませんでした" }),
+    el("div", { style: "font-weight:700", text: `どの区分にも入らない台番が ${dai.length}台 あります（${formatRanges(compressToRanges(dai))}）` }),
+    el("p", { class: "hint", style: "margin:0", text:
+      `期間 ${label} のファイルです。設定タブの「台番」に、この番号を含む区分を足してから取り込み直してください。`
+      + "取込は行っていないので、前回のスナップショットはそのまま残っています。" }),
+    el("div", {}, el("button", { class: "btn primary sm", text: "設定タブを開く", onclick: () => { location.hash = "settings"; } })),
+  ]));
+}
+
 function renderResult(host, label, summary, total) {
   clear(host);
   const card = el("div", { class: "card col" }, [
@@ -149,7 +193,7 @@ function renderResult(host, label, summary, total) {
     el("p", { class: "hint", text: `期間 ${label} / 合計 ${total}台` }),
   ]);
   for (const s of summary) {
-    card.appendChild(el("div", { text: `・${s.label}: ${s.dai}台` }));
+    if (s.dai !== "") card.appendChild(el("div", { text: `・${s.label}: ${s.dai}台` }));
     for (const w of s.warnings || []) card.appendChild(el("div", { class: "hint", style: "color:var(--warn)", text: "⚠ " + w }));
   }
   card.appendChild(el("p", { class: "hint", text: "「機種分析」「島図」タブに反映されます（最新スナップショット）。" }));
