@@ -1,6 +1,7 @@
 import { STORE_ID } from "./config.js";
 import { todayFiscalYear } from "../util/dates.js";
 import { repo } from "./repo.js";
+import { loadDaiRanges } from "./daiSection.js";
 
 // 画面横断の状態。区分(section_def)はここにキャッシュする。
 export const state = {
@@ -16,6 +17,9 @@ const DEFAULT_SECTIONS = [
 ];
 
 export async function loadSections() {
+  // 台番→区分の対応も同じタイミングで読む。各画面が loadSections を待ってから
+  // 描画するので、ここに乗せておけば rateKeyOfDai が種のまま描かれることがない。
+  await loadDaiRanges();
   let rows = await repo.select("section_def", { eq: { store_id: state.storeId }, order: "sort_order" });
   if (rows.length === 0) {
     const seed = DEFAULT_SECTIONS.map((s) => ({ ...s, store_id: state.storeId, is_active: true }));

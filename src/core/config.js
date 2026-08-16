@@ -9,16 +9,17 @@ export const STORE_NAME = "TOHO池袋店";
 
 export const FISCAL_START_MONTH = 4; // 会計年度の開始月
 
-// 店舗固有: 台番号→区分（レート）。1F=20スロ、BF=2スロ＋5スロ。
+// 店舗固有: 台番号→区分（レート）の初期値。1F=20スロ、BF=2スロ＋5スロ。
 // ヒートマップは「同じレートの中での高い/低い」で色を決めるため、スナップショットの
 // 区分に依存せず台番号だけで判定できるようにしておく（データ未取込の台でも効く）。
+//
+// これは設定が空の店で使う種でしかない。実際の判定は core/daiSection.js の
+// rateKeyOfDai()（設定タブで編集した値）を使うこと。入替のたびにここを直す運用はもうしない。
 export const RATE_RANGES = [
   { key: "S20", from: 1, to: 144 },
   { key: "S2", from: 145, to: 192 },
   { key: "S5", from: 193, to: 304 },
 ];
-export const rateKeyOfDai = (dai) =>
-  RATE_RANGES.find((r) => dai >= r.from && dai <= r.to)?.key || null;
 
 // 島図の見た目の微調整。台番の範囲ごとにマス単位でずらす（drow=下が＋ / dcol=右が＋）。
 // 島図Excelそのままだと空いた行が白帯になったり区分の境目が分かりにくいため、
