@@ -2,7 +2,7 @@ import { el, clear } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { num, pct, shortModel } from "../../util/format.js";
 import { heatColor, heatPoint, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
-import { rateKeyOfDai } from "../../core/config.js";
+import { rateKeyOfDai } from "../../core/daiSection.js";
 import { printContent } from "../../print/printService.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";

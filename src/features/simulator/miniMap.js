@@ -1,7 +1,8 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
 import { el, floorBar, floorSplit } from "../../util/dom.js";
 import { heatText } from "../../calc/heat.js";
-import { rateKeyOfDai, tweakCell, settingSideOfDai } from "../../core/config.js";
+import { tweakCell, settingSideOfDai } from "../../core/config.js";
+import { rateKeyOfDai } from "../../core/daiSection.js";
 import { num } from "../../util/format.js";
 
 export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08a", 5: "#ffc46b", 6: "#e9c8ff" };
