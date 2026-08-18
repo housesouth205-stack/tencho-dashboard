@@ -9,6 +9,7 @@ const TABS = [
   { id: "analysis", label: "機種分析", load: () => import("../features/analysis/view.js") },
   { id: "payout", label: "出玉率", load: () => import("../features/payout/view.js") },
   { id: "expense", label: "経費", load: () => import("../features/expense/view.js") },
+  { id: "capex", label: "増台計画", load: () => import("../features/capex/view.js") },
   { id: "import", label: "取込", load: () => import("../features/import/view.js") },
   { id: "settings", label: "設定", load: () => import("../features/settings/view.js") },
 ];
