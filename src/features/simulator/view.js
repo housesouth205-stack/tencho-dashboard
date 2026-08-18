@@ -394,6 +394,9 @@ export async function mount(host) {
         // 前日から入れっぱなしの高設定がどこにあるか分からなくなるため。
         dim: diff && !changed && s <= base,
         heat: hr ? heatColor(u[st.heat], groupRange(hr, rateKeyOfDai(u.dai))) : null,
+        // 背景に実績を出しているときは、その数字も設定ブロックに入れる。
+        // 色の濃さだけでは「いくらか」が読めず、結局タップして確かめることになっていた。
+        metric: st.heat ? u[st.heat] : null,
         tip: [
           `アウト ${num(u.out)}・コイン単価 ${u.coin}（機種分析）`,
           st.heat ? `${heatLabel} ${num(u[st.heat])}（背景色＝同レート内の高低）` : "",
@@ -531,7 +534,7 @@ export async function mount(host) {
         ...HEAT5.map(box), el("span", { text: "高" }),
         el("span", { text: "（レートごと・真ん中＝平均）" }),
         box(HEAT_MINUS), el("span", { text: "マイナス" }), box(HEAT_ZERO), el("span", { text: "稼働なし" }),
-        el("span", { class: "hint", text: "数字と枠は設定・前日比のまま" }),
+        el("span", { class: "hint", text: "設定ブロックの下段＝その台の実績値。枠は前日比のまま" }),
       ]));
     }
 
