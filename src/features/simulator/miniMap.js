@@ -11,11 +11,12 @@ export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08
 // 設定を上下に置く台は縦に「正方形＋半分」、左右に置く台は横に同じだけ使うので、
 // 行の高さと横置きの列の幅は同じ値になる。描画と幅計算で必ずこれを使うこと
 // （以前は同じ計算を2か所に書いていて、片方が古いまま通路が広がっていた）。
-// 背景に実績を出しているときは、設定ブロックに数字も入れる。半分の高さだと
-// 設定の数字と5〜6桁が同じ行に並んで潰れるので、そのぶんだけ縦に広げる。
+// 背景に実績を出しているときは、設定ブロックを実績の数字に入れ替える。
+// 半分の幅・高さだと5〜6桁が潰れるので、そのぶんだけ広げる
+// （縦向きの島ではこの値が「幅」になるので、上げすぎると通路が狭くなる）。
 export function cellGeom(cellW, withMetric) {
   const head = cellW ? parseFloat(cellW) : 34;
-  const set = Math.round(head * (withMetric ? 0.78 : 0.5));
+  const set = Math.round(head * (withMetric ? 0.7 : 0.5));
   return { head, set, span: head + 1 + set };
 }
 
@@ -169,21 +170,23 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // 設定ブロックは淡い設定色のままなので、白抜きにすると読めなくなる。
     const mtext = p && p.metric != null ? num(p.metric) : null;
     const metricEl = mtext ? el("span", {
-      style: `font-size:${(horiz ? [7.5, 6.5] : [8, 7])[mtext.length >= 6 ? 1 : 0]}px;` +
-        "font-weight:700;letter-spacing:-.04em;white-space:nowrap;color:#4a5260",
+      style: `font-size:${(horiz ? [7.5, 6] : [10, 8.5])[mtext.length >= 6 ? 1 : 0]}px;` +
+        "font-weight:800;letter-spacing:-.04em;white-space:nowrap;color:#3a4150",
       text: mtext,
     }) : null;
     const setBlk = el("div", {
       style: (horiz ? `width:${setSize}px;height:${headSize}px;` : `height:${setSize}px;`) + "flex:none;box-sizing:border-box;" +
         `background:${setBg};border:${setBorder};border-radius:3px;` +
-        // 縦向きの島は横幅が狭いので▲▼と数字を縦に並べる。
-        // 実績を出すときは、上に設定・下に数字の2段にする（横に並べると数字が切れる）。
-        `display:flex;flex-direction:${metricEl || horiz ? "column" : "row"};align-items:center;justify-content:center;` +
+        // 縦向きの島は横幅が狭いので▲▼と数字を縦に並べる
+        `display:flex;flex-direction:${horiz ? "column" : "row"};align-items:center;justify-content:center;` +
         "gap:1px;line-height:1;overflow:hidden",
-    }, p ? (metricEl
-      ? [el("div", { style: "display:flex;flex-direction:row;align-items:center;gap:1px;line-height:1" },
-          [arrowEl, setNum].filter(Boolean)), metricEl]
-      : [arrowEl, setNum].filter(Boolean)) : null);
+      // 設定の数字は実績と入れ替わって見えなくなるので、ここで読めるようにしておく
+      title: p && metricEl ? `設定${p.setting}` : null,
+      // 実績を出しているときは設定の数字を出さない。2つ並ぶとどちらも小さくなって
+      // 読めなくなるため。設定はブロックの塗り（凡例の色）とタップで分かる。
+      // 縦向きの島は設定ブロックの「幅」が狭い。▲▼を上に重ねると数字が入りきらないので、
+      // 実績を出しているあいだは枠の色（赤＝上げ／青＝下げ）に任せる。
+    }, p ? [metricEl && horiz ? null : arrowEl, metricEl || setNum].filter(Boolean) : null);
 
     const first = side === "top" || side === "left";
     const cell = el("div", {
