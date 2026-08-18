@@ -9,6 +9,7 @@ import { yen } from "../../util/format.js";
 import { parsePlCsv, COLS as PL_COLS } from "../../import/plCsv.js";
 import { parsePlPdf } from "../../import/plPdf.js";
 import { importIslandXlsx, showIslandHistory } from "./islandImport.js";
+import { openPlManual } from "./plManual.js";
 
 const toDate = (s) => (s ? String(s).replace(/\//g, "-") : null);
 
@@ -65,6 +66,8 @@ export async function mount(host) {
       el("div", { class: "grow" }),
       plInput,
       el("button", { class: "btn sm", text: "会議資料を取込", onclick: () => plInput.click() }),
+      // 資料が紙のスキャンだと機械では読めない。そのときの入り口をここに置く。
+      el("button", { class: "btn sm ghost", text: "手入力", onclick: () => openPlManual(plMsg) }),
       el("button", { class: "btn sm ghost", text: "経費タブを見る", onclick: () => { location.hash = "expense"; } }),
     ]),
     plMsg,
@@ -233,7 +236,7 @@ async function importPlPdf(file, msgHost) {
   unitSel.addEventListener("change", draw);
   draw();
 
-  const body = el("div", { class: "col", style: "gap:10px;min-width:min(760px,88vw)" }, [
+  const body = el("div", { class: "col", style: "gap:10px;min-width:min(760px,100%)" }, [
     el("p", { class: "hint", style: "margin:0", text: `${file.name} から ${rows.length}か月ぶんを読みました。金額が資料と合っているか確かめてから取り込んでください。` }),
     el("div", { class: "row", style: "gap:8px;align-items:center" }, [
       el("label", { class: "lbl", style: "margin:0", text: "資料の単位" }), unitSel,
@@ -265,13 +268,21 @@ async function importPlPdf(file, msgHost) {
 // 件数だけ出しても直せないので、資料の作りが分かるところまで見せる。
 function showPdfMiss(file, warnings, sheets, msgHost) {
   const NL = String.fromCharCode(10);
+  let close = () => {};
   const pre = el("pre", { style: "white-space:pre-wrap;font-size:11px;line-height:1.5;max-height:52vh;overflow:auto;background:var(--panel-3);padding:10px;border-radius:6px",
     text: sheets.map((s) => `--- ${s.page}ページ（月度: ${s.months.join(", ") || "見つからず"} / 拾えた行 ${s.hits}）` + NL + s.lines.join(NL)).join(NL + NL) || "（文字が取り出せませんでした）" });
-  modal("PDFから読めた中身", el("div", { class: "col", style: "gap:8px;min-width:min(760px,88vw)" }, [
+  close = modal("PDFから読めた中身", el("div", { class: "col", style: "gap:8px;min-width:min(760px,100%)" }, [
     el("p", { class: "hint", style: "margin:0", text: `${file.name}。ここに資料の文字が出ていれば、費目の呼び方を足せば読めるようになります。` }),
     ...warnings.map((w) => el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w })),
     !sheets.some((s) => s.lines.length)
-      ? el("div", { class: "hint", style: "color:#e35d6a", text: "文字が1つも入っていません。紙をスキャンしたPDFだと読めません（今までどおりCSVにしてください）。" })
+      ? el("div", { class: "col", style: "gap:6px" }, [
+        el("div", { class: "hint", style: "color:#e35d6a", text:
+          "文字が1つも入っていません。紙をスキャンしたPDFなので、機械では数字を読めません。" }),
+        el("div", { class: "hint", text:
+          "本部にデータ（Excel・CSV）か、印刷せずに書き出したPDFをもらえるか聞いてみてください。それまでは手入力が早いです。" }),
+        el("div", {}, el("button", { class: "btn sm primary", text: "手入力で入れる",
+          onclick: () => { close(); openPlManual(msgHost); } })),
+      ])
       : null,
     pre,
   ].filter(Boolean)), null);
