@@ -41,6 +41,11 @@ const SUBTOTALS = ["jinken", "hanbai", "tatemono", "koukyou", "shokeihi"];
 export function parsePlText(text) {
   const lines = [];
   let sub = 0;
+  let pending = null; // 費目名だけの行。数字が次の行に来る文字起こしがある
+  const push = (label, field, nums, guess) => {
+    lines.push({ label, field, nums, guess });
+    if (guess) sub++;
+  };
   for (const raw of String(text || "").split(/\r?\n/)) {
     const t = raw.normalize("NFKC").trim();
     if (!t) continue;
@@ -48,26 +53,30 @@ export function parsePlText(text) {
     const cleaned = t.replace(/[△▲-]?[\d,]+(?:\.\d+)?\s*[%％]/g, " ").replace(/\d+\s*日/g, " ");
     const label = cleaned.replace(/[\d,.\s△▲()%-]+/g, " ").trim().split(/\s+/)[0] || "";
     const k = key(label);
-    if (!k) continue;
     const isSub = k === "小計" || k === "小";
     const col = isSub ? null : COLS.find(([, names]) => names.some((n) => k === key(n) || k.startsWith(key(n))));
-    if (!col && !isSub) continue;
     const nums = [...cleaned.matchAll(/(^|[\s(])([△▲-]?[\d][\d,]*)(?=[\s)]|$)/g)]
       .map((m) => Number(m[2].replace(/,/g, "").replace(/^[△▲]/, "-")))
       .filter((n) => isFinite(n));
-    if (!nums.length) continue;
-    if (isSub) {
-      const field = SUBTOTALS[sub];
-      if (!field) continue;
-      lines.push({ label: `小計(${sub + 1}つ目)`, field, nums, guess: true });
-      sub++;
-    } else {
-      lines.push({ label, field: col[0], nums });
+
+    if (col || isSub) {
+      // 費目は分かったが数字が無い行。次に数字だけの行が来たらその組で拾う
+      if (!nums.length) { pending = { label, field: isSub ? SUBTOTALS[sub] : col[0], guess: isSub }; continue; }
+      if (isSub) { if (SUBTOTALS[sub]) push(`小計(${sub + 1}つ目)`, SUBTOTALS[sub], nums, true); }
+      else push(label, col[0], nums, false);
+      pending = null;
+      continue;
+    }
+    if (pending && nums.length && !k) {
+      if (pending.field) push(pending.guess ? `小計(${sub + 1}つ目)` : pending.label, pending.field, nums, pending.guess);
+      pending = null;
     }
   }
   const m = String(text || "").normalize("NFKC")
     .match(/(?:令和|[Rr])\s*\d{1,2}\s*[年.\-/]\s*\d{1,2}|\d{4}\s*[年.\-/]\s*\d{1,2}/);
-  return { lines, ym: m ? parseMonthLabel(m[0].replace(/\s+/g, "")) : null };
+  const got = new Set(lines.map((l) => l.field));
+  return { lines, ym: m ? parseMonthLabel(m[0].replace(/\s+/g, "")) : null,
+    missing: COLS.map(([k2]) => k2).filter((k2) => !got.has(k2)) };
 }
 
 export async function openPlManual(msgHost, onDone) {
@@ -214,7 +223,7 @@ function openPaste(onFill) {
   const idx = el("select", { class: "inp", style: "width:120px" },
     [1, 2, 3, 4, 5, 6].map((n) => el("option", { value: String(n), text: `${n}番目`, selected: n === 2 ? "selected" : null })));
   const out = el("div", { class: "col", style: "gap:4px" });
-  let parsed = { lines: [], ym: null };
+  let parsed = { lines: [], ym: null, missing: [] };
 
   const draw = () => {
     clear(out);
@@ -224,6 +233,11 @@ function openPaste(onFill) {
       return;
     }
     if (parsed.ym) out.appendChild(el("div", { class: "hint", text: `月度らしきもの: ${parsed.ym.slice(0, 7)}` }));
+    // 拾えなかった費目は必ず出す。黙って抜けると、そのまま空欄で保存されて後から気づけない
+    if (parsed.missing.length) {
+      out.appendChild(el("div", { class: "hint", style: "color:#c77700",
+        text: `拾えなかった費目（手で入れてください）: ${parsed.missing.map((k) => LABEL[k]).join("・")}` }));
+    }
     const t = el("table", { class: "grid mono compact" });
     t.appendChild(el("thead", {}, el("tr", {}, [el("th", { class: "txt", text: "費目" }),
       el("th", { class: "txt", text: "行にあった数字" }), el("th", { text: "使う値" })])));
