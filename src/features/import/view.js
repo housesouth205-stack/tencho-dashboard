@@ -1,11 +1,13 @@
-import { el, clear } from "../../util/dom.js";
+import { el, clear, modal } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { parseKtacsKoben } from "../../import/ktacsCsv.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
 import { compressToRanges, formatRanges } from "../../util/daiRange.js";
-import { parsePlCsv } from "../../import/plCsv.js";
+import { yen } from "../../util/format.js";
+import { parsePlCsv, COLS as PL_COLS } from "../../import/plCsv.js";
+import { parsePlPdf } from "../../import/plPdf.js";
 import { importIslandXlsx, showIslandHistory } from "./islandImport.js";
 
 const toDate = (s) => (s ? String(s).replace(/\//g, "-") : null);
@@ -15,7 +17,7 @@ export async function mount(host) {
   clear(host);
   host.appendChild(el("div", { class: "view-title" }, [
     el("h1", { text: "データ取込" }),
-    el("small", { text: "K-TACs 遊技台個別CSV（全レート1ファイル可）・島図Excel・月次の損益/経費CSV" }),
+    el("small", { text: "K-TACs 遊技台個別CSV（全レート1ファイル可）・島図Excel・月次の損益/経費（会議資料のPDF/CSV）" }),
   ]));
 
   const zone = el("div", {
@@ -49,20 +51,20 @@ export async function mount(host) {
     ]),
   ]));
 
-  // 月次の損益・経費。会議資料は月1回・紙(PDF)でしか出ないので、読み取ったCSVを
-  // ここから入れる。日次のデータと違って月に一度きりの作業。
+  // 月次の損益・経費。会議資料は月1回・PDFで出るので、PDFのまま入れられるようにする。
+  // 読み取ったCSVも今までどおり受ける（PDFの作りが変わって読めないときの逃げ道）。
   const plMsg = el("div", { class: "col", style: "margin-top:6px" });
   const plInput = el("input", {
-    type: "file", accept: ".csv", style: "display:none",
-    onchange: () => importPlCsv(plInput.files[0], plMsg).finally(() => { plInput.value = ""; }),
+    type: "file", accept: ".pdf,.csv", style: "display:none",
+    onchange: () => importPl(plInput.files[0], plMsg).finally(() => { plInput.value = ""; }),
   });
   host.appendChild(el("div", { class: "card", style: "margin-top:14px;padding:10px 12px" }, [
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("div", { style: "font-weight:700", text: "月次の損益・経費" }),
-      el("span", { class: "hint", text: "会議資料から作ったCSV。月1回、資料をもらったときに入れます" }),
+      el("span", { class: "hint", text: "会議資料のPDF（作ったCSVでも可）。月1回、資料をもらったときに入れます" }),
       el("div", { class: "grow" }),
       plInput,
-      el("button", { class: "btn sm", text: "月次CSVを取込", onclick: () => plInput.click() }),
+      el("button", { class: "btn sm", text: "会議資料を取込", onclick: () => plInput.click() }),
       el("button", { class: "btn sm ghost", text: "経費タブを見る", onclick: () => { location.hash = "expense"; } }),
     ]),
     plMsg,
@@ -170,6 +172,111 @@ async function importPlCsv(file, msgHost) {
     for (const w of warnings) msgHost.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
     toast(`${rows.length}か月ぶんを取込みました`, "ok");
   } catch (e) { errorToast(e); }
+}
+
+// 会議資料の取込。PDFはそのまま読み、CSVは今までどおり。
+async function importPl(file, msgHost) {
+  if (!file) return;
+  return /\.pdf$/i.test(file.name) ? importPlPdf(file, msgHost) : importPlCsv(file, msgHost);
+}
+
+// pl_month への書き込み。CSVもPDFも最後はここを通る。
+async function savePlRows(rows, warnings, file, kind, msgHost) {
+  setSaveState("saving");
+  const recs = rows.map((r) => ({ ...r, store_id: state.storeId }));
+  for (let i = 0; i < recs.length; i += 200) {
+    await repo.upsert("pl_month", recs.slice(i, i + 200), { onConflict: ["store_id", "ym", "kind"] });
+  }
+  await repo.upsert("import_log", {
+    store_id: state.storeId, kind, filename: file.name,
+    row_count: recs.length, status: warnings.length ? "warn" : "ok",
+    message: `${rows[0].label}〜${rows[rows.length - 1].label}`,
+  }, { onConflict: ["id"] });
+  setSaveState("saved");
+  clear(msgHost);
+  msgHost.appendChild(el("div", { class: "hint", text: `${rows.length}か月ぶんを取込みました（${rows[0].label}〜${rows[rows.length - 1].label}）` }));
+  for (const w of warnings) msgHost.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
+  toast(`${rows.length}か月ぶんを取込みました`, "ok");
+}
+
+// 会議資料のPDF。読み違いが月次の数字に混ざると後から気づけないので、
+// 必ず「読めたもの」を見せてから保存する。単位（千円/円）もここで決める。
+async function importPlPdf(file, msgHost) {
+  clear(msgHost);
+  msgHost.appendChild(el("div", { class: "hint", text: "PDFを読んでいます…" }));
+  let parsed;
+  try { parsed = await parsePlPdf(await file.arrayBuffer(), file.name); }
+  catch (e) { clear(msgHost); errorToast(e); return; }
+  clear(msgHost);
+  const { rows, warnings, sheets } = parsed;
+  if (!rows.length) { showPdfMiss(file, warnings, sheets, msgHost); return; }
+
+  const unitSel = el("select", { class: "inp", style: "width:110px" }, [
+    el("option", { value: "1000", text: "千円" }), el("option", { value: "1", text: "円" }),
+  ]);
+  const table = el("div", { class: "table-wrap" });
+  const draw = () => {
+    clear(table);
+    const unit = Number(unitSel.value);
+    const use = PL_COLS.filter(([k]) => rows.some((r) => r[k] != null));
+    const t = el("table", { class: "grid mono compact" });
+    t.appendChild(el("thead", {}, el("tr", {}, [el("th", { class: "txt", text: "月度" }),
+      ...use.map(([, names]) => el("th", { text: names[0] }))])));
+    const tb = el("tbody");
+    for (const r of rows) tb.appendChild(el("tr", {}, [
+      el("td", { class: "txt", style: "white-space:nowrap", text: `${r.label}（${r.ym.slice(0, 7)}）` }),
+      ...use.map(([k]) => el("td", { text: r[k] == null ? "—" : yen(r[k] * unit) })),
+    ]));
+    t.appendChild(tb);
+    table.appendChild(t);
+  };
+  unitSel.addEventListener("change", draw);
+  draw();
+
+  const body = el("div", { class: "col", style: "gap:10px;min-width:min(760px,88vw)" }, [
+    el("p", { class: "hint", style: "margin:0", text: `${file.name} から ${rows.length}か月ぶんを読みました。金額が資料と合っているか確かめてから取り込んでください。` }),
+    el("div", { class: "row", style: "gap:8px;align-items:center" }, [
+      el("label", { class: "lbl", style: "margin:0", text: "資料の単位" }), unitSel,
+      el("span", { class: "hint", text: "店舗別営業実績表はふつう千円です" }),
+    ]),
+    table,
+    ...warnings.map((w) => el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w })),
+  ]);
+  const close = modal("読み取り結果の確認", body,
+    el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [
+      el("button", { class: "btn ghost", text: "読めた中身を見る", onclick: () => { close(); showPdfMiss(file, warnings, sheets, msgHost); } }),
+      el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }),
+      el("button", { class: "btn primary", text: "この内容で取込む", onclick: async () => {
+        const unit = Number(unitSel.value);
+        // 読めなかった費目は列ごと入れない。nullで書くと、前にCSVから入れた値を
+        // 消してしまう（同じ月を読み直しただけで数字が消えるのは事故になる）。
+        const recs = rows.map((r) => {
+          const o = { ym: r.ym, kind: r.kind, label: r.label, src: r.src };
+          for (const [k] of PL_COLS) if (r[k] != null) o[k] = Math.round(r[k] * unit);
+          return o;
+        });
+        close();
+        try { await savePlRows(recs, warnings, file, "pl_pdf", msgHost); } catch (e) { errorToast(e); }
+      } }),
+    ]));
+}
+
+// 読めなかったとき（または中身を見たいとき）。抽出した行をそのまま出す。
+// 件数だけ出しても直せないので、資料の作りが分かるところまで見せる。
+function showPdfMiss(file, warnings, sheets, msgHost) {
+  const NL = String.fromCharCode(10);
+  const pre = el("pre", { style: "white-space:pre-wrap;font-size:11px;line-height:1.5;max-height:52vh;overflow:auto;background:var(--panel-3);padding:10px;border-radius:6px",
+    text: sheets.map((s) => `--- ${s.page}ページ（月度: ${s.months.join(", ") || "見つからず"} / 拾えた行 ${s.hits}）` + NL + s.lines.join(NL)).join(NL + NL) || "（文字が取り出せませんでした）" });
+  modal("PDFから読めた中身", el("div", { class: "col", style: "gap:8px;min-width:min(760px,88vw)" }, [
+    el("p", { class: "hint", style: "margin:0", text: `${file.name}。ここに資料の文字が出ていれば、費目の呼び方を足せば読めるようになります。` }),
+    ...warnings.map((w) => el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w })),
+    !sheets.some((s) => s.lines.length)
+      ? el("div", { class: "hint", style: "color:#e35d6a", text: "文字が1つも入っていません。紙をスキャンしたPDFだと読めません（今までどおりCSVにしてください）。" })
+      : null,
+    pre,
+  ].filter(Boolean)), null);
+  clear(msgHost);
+  msgHost.appendChild(el("div", { class: "hint", style: "color:var(--accent)", text: warnings[0] || "取り込める月度が見つかりませんでした" }));
 }
 
 // 台番がどの区分にも入っていないとき。取り込まずに、直す場所と番号を出す。

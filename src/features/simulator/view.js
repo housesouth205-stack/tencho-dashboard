@@ -534,7 +534,7 @@ export async function mount(host) {
         ...HEAT5.map(box), el("span", { text: "高" }),
         el("span", { text: "（レートごと・真ん中＝平均）" }),
         box(HEAT_MINUS), el("span", { text: "マイナス" }), box(HEAT_ZERO), el("span", { text: "稼働なし" }),
-        el("span", { class: "hint", text: "設定ブロックの下段＝その台の実績値。枠は前日比のまま" }),
+        el("span", { class: "hint", text: "設定の数字は実績値に入れ替わります（設定は塗りの色・凡例を参照）" }),
       ]));
     }
 
