@@ -113,10 +113,18 @@ export function rateLines(rows, { title, narrow } = {}) {
     if (pts.length < 2) continue;
     svg.appendChild(s("polyline", { points: pts.join(" "), fill: "none", stroke: secColor(sec.key), "stroke-width": 2 * f }));
   }
+  // 点が1つしかないと線が引けないので、印だけ置く（工事回1回のときに真っ白に見えていた）
+  if (rows.length === 1) {
+    for (const sec of SECS) {
+      if (rows[0].rate[sec.key] == null) continue;
+      svg.appendChild(s("circle", { cx: cx(0), cy: yOf(rows[0].rate[sec.key]), r: 3 * f, fill: secColor(sec.key) }));
+    }
+  }
   const skip = iw / rows.length < 30 * f ? 2 : 1;
   rows.forEach((r, i) => {
     if (i % skip) return;
-    svg.appendChild(s("text", { x: cx(i), y: h - 4 * f, "text-anchor": "middle", "font-size": 8.5 * f, fill: C.dim }, ymLabel(r.ym).slice(2)));
+    svg.appendChild(s("text", { x: cx(i), y: h - 4 * f, "text-anchor": "middle", "font-size": 8.5 * f, fill: C.dim },
+      r.xlabel || ymLabel(r.ym).slice(2)));
   });
   return wrap(title, svg, SECS.map((x) => [x.label, secColor(x.key)]), "スマート設置比率");
 }
