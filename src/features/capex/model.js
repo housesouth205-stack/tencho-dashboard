@@ -5,6 +5,7 @@
 // 列を固定した表にすると次の見積でまた直すことになる）。
 import { repo } from "../../core/repo.js";
 import { STORE_ID } from "../../core/config.js";
+import { parseRanges, countOf } from "../../util/daiRange.js";
 
 const K_ITEMS = "capex_items";
 const K_ROUNDS = "capex_rounds";
@@ -60,22 +61,18 @@ function seedRounds(items) {
   const unit = items.find((i) => i.kind === "unit");
   const box = items.find((i) => i.kind === "box" && i.quoteDate >= "2026-11-01");
   return [{
-    id: uid(), label: "1回目（20スロ 82〜94番台）", workDate: "2026-11-02", dai: 13, daiText: "82-94",
+    id: uid(), label: "1回目", workDate: "2026-11-02",
+    adds: [{ rate: "S20", count: 13, daiText: "82-94" }],
     lines: [unit && { itemId: unit.id, qty: 13 }, box && { itemId: box.id, qty: 15 }].filter(Boolean),
   }];
 }
 
 // 現状台数は「202611 増台数と数値」の値。増台後の設置比率はここから出す。
+// 計画そのものは工事回（capex_rounds）が持つので、ここは分母・分子だけ。
 function seedGrowth() {
   return {
     base: { S20: { total: 144, smart: 81 }, S5: { total: 112, smart: 41 }, S2: { total: 48, smart: 16 } },
-    scenarios: [
-      { id: uid(), label: "3ヶ月毎", every: 3, start: "2026-11", per: { S20: 13, S5: 0, S2: 0 }, count: 16,
-        workItemName: "設置作業費（13台ずつ）" },
-      { id: uid(), label: "6ヶ月毎", every: 6, start: "2026-11", per: { S20: 13, S5: 13, S2: 0 }, count: 8,
-        workItemName: "設置作業費（26台まとめ）" },
-    ],
-    activeId: null,
+    workItemName: "設置作業費（13台ずつ）",
   };
 }
 
@@ -92,6 +89,11 @@ const put = (key, value) =>
   repo.upsert("app_setting", { store_id: STORE_ID, key, value: { ...value, updated_at: new Date().toISOString() } },
     { onConflict: ["store_id", "key"] });
 
+// 前の形（回ごとに台番テキストを1つだけ持つ）で保存された分を、
+// レート別の内訳に読み替える。読めない古いデータを黙って捨てない。
+const migrateRound = (r) => (r.adds ? r
+  : { ...r, adds: [{ rate: "S20", count: Number(r.dai) || 0, daiText: r.daiText || "" }] });
+
 export async function loadPlan() {
   const it = await get(K_ITEMS, null);
   const items = it?.list || seedItems();
@@ -99,8 +101,8 @@ export async function loadPlan() {
   const gr = await get(K_GROWTH, null);
   return {
     items,
-    rounds: rd?.list || seedRounds(items),
-    growth: gr?.base ? gr : seedGrowth(),
+    rounds: (rd?.list || seedRounds(items)).map(migrateRound),
+    growth: gr?.base ? { workItemName: seedGrowth().workItemName, ...gr } : seedGrowth(),
     seeded: { items: !it, rounds: !rd, growth: !gr },
   };
 }
@@ -170,57 +172,80 @@ export function paymentSchedule(rounds, items) {
   return { rows, total: cum };
 }
 
-/* ───────── 増台シナリオ ───────── */
+/* ───────── 増台の計画（工事回から出す） ───────── */
 export const SECS = [
   { key: "S20", label: "20スロ" },
   { key: "S5", label: "5スロ" },
   { key: "S2", label: "2スロ" },
 ];
+export const secLabel = (key) => SECS.find((s) => s.key === key)?.label || key;
 
-// シナリオ → 各回の増台と、区分ごとの設置比率の推移。
-// 総台数を超えて増やさない（比率が100%を超えると計画として読めない）。
-export function projectGrowth(base, sc) {
+// 1回ぶんの増台内訳（レート別）。台番だけ入れて台数を書き忘れることがあるので、
+// 台数が空なら台番の個数で数える。
+export function addsByRate(round) {
+  const by = {};
+  for (const s of SECS) by[s.key] = 0;
+  for (const a of round?.adds || []) {
+    if (!(a.rate in by)) continue;
+    by[a.rate] += Number(a.count) || countOf(parseRanges(a.daiText || "").ranges);
+  }
+  return by;
+}
+export const addTotal = (round) => SECS.reduce((n, s) => n + addsByRate(round)[s.key], 0);
+
+// 工事回を並べて、区分ごとのスマート設置比率がどう動くかを出す。
+// 総台数を超えては増やさない（比率が100%を超えると計画として読めない）。
+export function projectFromRounds(base, rounds) {
   const cur = {};
   for (const s of SECS) cur[s.key] = base?.[s.key]?.smart || 0;
+  const sorted = [...(rounds || [])].sort((a, b) => String(a.workDate).localeCompare(String(b.workDate)));
   const rows = [];
-  for (let i = 0; i < (sc.count || 0); i++) {
-    const ym = addMonth(sc.start, i * (sc.every || 3));
+  for (const r of sorted) {
+    const want = addsByRate(r);
     const add = {}, after = {}, rate = {};
     let sum = 0;
     for (const s of SECS) {
       const total = base?.[s.key]?.total || 0;
-      // 回ごとに台数を変えたいことがある（1回目は20スロだけ、途中から5スロも など）。
-      // 個別指定があればそれを使い、無ければ「毎回いくつ」の既定値。
-      const want = Number(sc.overrides?.[ym]?.[s.key] ?? sc.per?.[s.key] ?? 0);
-      const a = Math.max(0, Math.min(want, total - cur[s.key]));
+      const a = Math.max(0, Math.min(want[s.key], total - cur[s.key]));
       cur[s.key] += a;
       add[s.key] = a; after[s.key] = cur[s.key];
       rate[s.key] = total ? cur[s.key] / total : null;
       sum += a;
     }
-    if (!sum) break; // 全区分が上限に達したら、増えない回は出さない（完了月がぼやける）
-    rows.push({ ym, add, after, rate, sum });
+    // 増えない回も残す。工事費だけ発生する回を消すと、支払予定と行数が合わなくなる
+    rows.push({ id: r.id, label: r.label, workDate: r.workDate, ym: ymOf(r.workDate), add, after, rate, sum,
+      over: SECS.some((s) => want[s.key] > add[s.key]) });
   }
   const totalAll = SECS.reduce((n, s) => n + (base?.[s.key]?.total || 0), 0);
   const smartAll = SECS.reduce((n, s) => n + cur[s.key], 0);
   return { rows, added: rows.reduce((n, r) => n + r.sum, 0), finalRate: totalAll ? smartAll / totalAll : null };
 }
 
-// シナリオから導入ラウンドを組み立てる（支払予定はこのラウンドから出る）。
-export function roundsFromScenario(sc, base, items) {
-  const { rows } = projectGrowth(base, sc);
+// 「買うもの」の初期値。ユニットは増台数ぶん、HC-BOXは見積の比率ぶん、工事費は台数ぶん。
+// 入れたあとは1件ずつ直せる（見積が変われば台数と個数はずれる）。
+export function suggestLines(count, items, workItemName) {
   const unit = items.find((i) => i.kind === "unit");
   const box = items.find((i) => i.kind === "box");
-  // 工事費は名前で指定する。見つからないときに kind:"work" の先頭を拾うと、
-  // 見積の内訳（通信テスト費など）を工事費として台数ぶん掛けてしまう。指定が無ければ入れない。
-  const work = sc.workItemName ? items.find((i) => i.name === sc.workItemName) : null;
-  return rows.filter((r) => r.sum).map((r, i) => ({
-    id: uid(), label: `${i + 1}回目`, workDate: r.ym + "-01", dai: r.sum,
-    lines: [
-      unit && { itemId: unit.id, qty: r.sum },
-      // HC-BOXは台数ぶん。見積は15個/13台と予備を含むので、同じ比率で増やす
-      box && { itemId: box.id, qty: Math.round(r.sum * (box.qty / (unit?.qty || box.qty))) },
-      work && { itemId: work.id, qty: r.sum },
-    ].filter(Boolean),
-  }));
+  const work = workItemName ? items.find((i) => i.name === workItemName) : null;
+  const boxQty = box && unit && unit.qty ? Math.round(count * (box.qty / unit.qty)) : count;
+  return [
+    unit && { itemId: unit.id, qty: count },
+    box && { itemId: box.id, qty: boxQty },
+    work && { itemId: work.id, qty: count },
+  ].filter(Boolean);
+}
+
+// 先々の計画をまとめて作る。同じ内訳を n ヶ月おきに count 回。
+// 台番はここでは決められない（島に空きが出る場所は毎回違う）ので、
+// 台数だけ入れて台番は後から1回ずつ入れてもらう。
+export function makeRounds({ start, every, times, adds, items, workItemName, startNo = 1 }) {
+  const out = [];
+  for (let i = 0; i < times; i++) {
+    const ym = addMonth(start, i * every);
+    const copy = (adds || []).filter((a) => Number(a.count) > 0).map((a) => ({ rate: a.rate, count: Number(a.count), daiText: "" }));
+    const n = copy.reduce((s, a) => s + a.count, 0);
+    out.push({ id: uid(), label: `${startNo + i}回目`, workDate: ym + "-01", adds: copy,
+      lines: suggestLines(n, items, workItemName) });
+  }
+  return out;
 }
