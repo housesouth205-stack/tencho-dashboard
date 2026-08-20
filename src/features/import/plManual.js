@@ -162,6 +162,22 @@ export async function openPlManual(msgHost, onDone) {
   unitSel.addEventListener("change", () => fillFrom(monthInp.value));
   fillFrom(defYm);
 
+  // 月次はほとんどの費目が前月と同じ（地代家賃・減価償却費・保守料…）。
+  // 前月をひな形にして、動いた費目だけ直すほうが早く、打ち間違いも減る。
+  const copyBtn = el("button", { class: "btn sm ghost", text: "前月の値を入れる", onclick: () => {
+    const prev = prevRow();
+    if (!prev) { toast("前月のデータがありません", "err"); return; }
+    const u = unit();
+    let n = 0;
+    for (const [k, i] of Object.entries(inputs)) {
+      if (prev[k] == null) continue;
+      i.value = String(Math.round(prev[k] / u));
+      n++;
+    }
+    refresh();
+    toast(`前月の${n}項目を入れました。変わったところだけ直してください`, "ok");
+  } });
+
   const pasteBtn = el("button", { class: "btn sm ghost", text: "文字を貼り付けて埋める",
     onclick: () => openPaste((vals, ym) => {
       if (ym && !byYm.has(ym.slice(0, 7))) { monthInp.value = ym.slice(0, 7); note.textContent = `${ym.slice(0, 7)} は未入力です。`; }
@@ -175,6 +191,7 @@ export async function openPlManual(msgHost, onDone) {
       el("div", {}, [el("label", { class: "lbl", text: "月度" }), monthInp]),
       el("div", {}, [el("label", { class: "lbl", text: "資料の単位" }), unitSel]),
       el("div", {}, pasteBtn),
+      el("div", {}, copyBtn),
       el("div", { class: "grow" }, note),
     ]),
     grid,
