@@ -66,6 +66,9 @@ export async function mount(host) {
       el("div", { class: "grow" }),
       plInput,
       el("button", { class: "btn sm", text: "会議資料を取込", onclick: () => plInput.click() }),
+      // NotebookLM等でPDFをCSVに起こしたとき、ファイルに保存しなくても入れられるように。
+      // スマホだとファイルを作るほうが手間なので、貼り付けの口を用意しておく。
+      el("button", { class: "btn sm ghost", text: "CSVを貼り付けて取込", onclick: () => importPlPaste(plMsg) }),
       // 資料が紙のスキャンだと機械では読めない。そのときの入り口をここに置く。
       el("button", { class: "btn sm ghost", text: "手入力", onclick: () => openPlManual(plMsg) }),
       el("button", { class: "btn sm ghost", text: "経費タブを見る", onclick: () => { location.hash = "expense"; } }),
@@ -200,6 +203,58 @@ async function savePlRows(rows, warnings, file, kind, msgHost) {
   msgHost.appendChild(el("div", { class: "hint", text: `${rows.length}か月ぶんを取込みました（${rows[0].label}〜${rows[rows.length - 1].label}）` }));
   for (const w of warnings) msgHost.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
   toast(`${rows.length}か月ぶんを取込みました`, "ok");
+}
+
+// CSVの文字を貼って取り込む。中身はファイル版とまったく同じパーサを通す。
+async function importPlPaste(msgHost) {
+  const ta = el("textarea", { rows: "8", spellcheck: "false",
+    placeholder: "月度,総売上高,売上原価,…\nR8.07,114535,95667,…",
+    style: "width:100%;box-sizing:border-box;font-size:12px;line-height:1.5;font-family:monospace" });
+  const out = el("div", { class: "col", style: "gap:6px" });
+  let parsed = { rows: [], warnings: [] };
+
+  const draw = () => {
+    clear(out);
+    if (!ta.value.trim()) { out.appendChild(el("div", { class: "hint", text: "貼り付けると、読めた月がここに出ます。" })); return; }
+    if (!parsed.rows.length) {
+      out.appendChild(el("div", { class: "hint", style: "color:#e35d6a", text: parsed.warnings[0] || "読める行がありません" }));
+      return;
+    }
+    const use = PL_COLS.filter(([k]) => parsed.rows.some((r) => r[k] != null));
+    const t = el("table", { class: "grid mono compact" });
+    t.appendChild(el("thead", {}, el("tr", {}, [el("th", { class: "txt", text: "月度" }),
+      ...use.map(([, names]) => el("th", { text: names[0] }))])));
+    const tb = el("tbody");
+    for (const r of parsed.rows) tb.appendChild(el("tr", {}, [
+      el("td", { class: "txt", style: "white-space:nowrap", text: `${r.label}（${r.ym.slice(0, 7)}）` }),
+      ...use.map(([k]) => el("td", { text: r[k] == null ? "—" : yen(r[k]) })),
+    ]));
+    t.appendChild(tb);
+    out.appendChild(el("div", { class: "table-wrap", style: "max-height:40vh;overflow:auto" }, t));
+    for (const w of parsed.warnings) out.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
+  };
+  const reparse = () => {
+    // ファイル版と同じ道を通す（千円→円の換算も検算もそのまま効く）
+    parsed = ta.value.trim() ? parsePlCsv(new TextEncoder().encode(ta.value).buffer, "貼り付け") : { rows: [], warnings: [] };
+    draw();
+  };
+  ta.addEventListener("input", reparse);
+  draw();
+
+  const close = modal("CSVを貼り付けて取込", el("div", { class: "col", style: "gap:10px;min-width:min(760px,100%)" }, [
+    el("p", { class: "hint", style: "margin:0", text:
+      "1行目が「月度,総売上高,…」の見出し、2行目から中身。金額は資料と同じ千円で。NotebookLMなどで作ったCSVをそのまま貼れます。" }),
+    ta, out,
+  ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [
+    el("button", { class: "btn ghost", text: "やめる", onclick: () => close() }),
+    el("button", { class: "btn primary", text: "この内容で取込む", onclick: async () => {
+      if (!parsed.rows.length) { toast("読める行がありません", "err"); return; }
+      close();
+      try { await savePlRows(parsed.rows, parsed.warnings, { name: "（貼り付け）" }, "pl_paste", msgHost); }
+      catch (e) { errorToast(e); }
+    } }),
+  ]));
+  setTimeout(() => ta.focus(), 50);
 }
 
 // 会議資料のPDF。読み違いが月次の数字に混ざると後から気づけないので、
