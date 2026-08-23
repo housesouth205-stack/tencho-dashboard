@@ -28,6 +28,14 @@ export const PAY_MODES = [
 
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : "id" + Math.random().toString(36).slice(2));
 
+// 種別ごとに、いちばん新しい見積の品目を取る。
+// 増台のたびに見積が来るので、単価台帳には同じ品目が何行も並ぶ（HC-BOXは既に2行ある）。
+// 配列の先頭を拾うと、新しい見積を足しても古い単価を使い続ける。単価台帳の表は
+// 見積日順に並べて見せているので、拾っている行と見えている行が食い違って気づけない。
+const latestOf = (items, kind) => (items || [])
+  .filter((i) => i.kind === kind)
+  .sort((a, b) => String(b.quoteDate || "").localeCompare(String(a.quoteDate || "")))[0];
+
 /* ───────── 初期値 ─────────
    見積書と「202611 増台数と数値」から分かっている数字だけを種にする。
    推測した数字は入れない（空欄のまま店で埋めてもらう方が事故が少ない）。 */
@@ -58,8 +66,8 @@ function seedItems() {
 }
 
 function seedRounds(items) {
-  const unit = items.find((i) => i.kind === "unit");
-  const box = items.find((i) => i.kind === "box" && i.quoteDate >= "2026-11-01");
+  const unit = latestOf(items, "unit");
+  const box = latestOf(items, "box");
   return [{
     id: uid(), label: "1回目", workDate: "2026-11-02",
     adds: [{ rate: "S20", count: 13, daiText: "82-94" }],
@@ -224,8 +232,8 @@ export function projectFromRounds(base, rounds) {
 // 「買うもの」の初期値。ユニットは増台数ぶん、HC-BOXは見積の比率ぶん、工事費は台数ぶん。
 // 入れたあとは1件ずつ直せる（見積が変われば台数と個数はずれる）。
 export function suggestLines(count, items, workItemName) {
-  const unit = items.find((i) => i.kind === "unit");
-  const box = items.find((i) => i.kind === "box");
+  const unit = latestOf(items, "unit");
+  const box = latestOf(items, "box");
   const work = workItemName ? items.find((i) => i.name === workItemName) : null;
   const boxQty = box && unit && unit.qty ? Math.round(count * (box.qty / unit.qty)) : count;
   return [
