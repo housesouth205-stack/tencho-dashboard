@@ -170,6 +170,14 @@ function findings(rows) {
   }
   const yachin = rangeOf("yachin");
   if (yachin && yachin.width === 0) line(`地代家賃は毎月 ${kf(yachin.min)}千円で固定。ここは動かせません。`);
+  // 地代家賃は契約なので月では動かない。動いていたら「そういう月がある」ではなく、
+  // 資料の行がずれて別の費目を拾ったことをまず疑う（横向きにスキャンされた資料を
+  // 回さずに読んで、地代家賃4,000を消耗品費213と取り違えたことがある）。
+  else if (yachin) {
+    box.appendChild(el("div", { style: "font-size:13px;color:#e0a52e;font-weight:600",
+      text: `⚠ 地代家賃が月によって違います（${kf(yachin.min)}〜${kf(yachin.max)}千円）。`
+        + "資料の行がずれて別の費目を拾っている可能性があります。取込タブの手入力で直せます。" }));
+  }
 
   const red = rows.filter((r) => r.op != null && r.op < 0);
   if (red.length) {
