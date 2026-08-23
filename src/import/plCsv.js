@@ -82,8 +82,12 @@ export function parsePlCsv(arrayBuffer, filename = "") {
     for (const [key] of COLS) {
       if (idx[key] == null) continue;
       const v = num(line[idx[key]]);
-      rec[key] = v == null ? null : Math.round(v * 1000);
-      if (v != null) any = true;
+      // 空欄は書かない。列が丸ごと無いときと同じ扱いにする。
+      // nullで上書きすると、前に入れた値が消える（1か月ぶんだけ費目が空のCSVを
+      // 入れ直しただけで、入っていた地代家賃が消えてしまう）。
+      if (v == null) continue;
+      rec[key] = Math.round(v * 1000);
+      any = true;
     }
     if (!any) { warnings.push(`${r + 1}行目: 金額が1つも入っていないので飛ばしました`); continue; }
 
