@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ファミコン風テーマ 5案</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+@font-face { font-family:"Misaki"; src:url("assets/fonts/misaki_gothic_2nd.ttf") format("truetype"); font-display:swap; }
+
+/* 色はファミコン実機の54色パレットから取る。中間色を勝手に作らないほうが「らしく」なる。
+   $0F=#000000 $30=#FCFCFC $10=#BCBCBC $00=#7C7C7C $02=#0000BC $12=#0078F8 $22=#3CBCFC
+   $16=#F83800 $06=#A81000 $26=#FCA044 $28=#F8B800 $38=#F8D878 $1A=#00B800 $2A=#58D854 */
+
+/* ===== 共通の土台 ===== */
+.fcbase {
+  --font:"Misaki",monospace; --radius:0px; --shadow:none; --shadow-lg:none;
+  font-family:var(--font); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:none; background:var(--bg); color:var(--fg);
+}
+.fcbase h1{font-size:32px;font-weight:normal;line-height:1.5;margin:0 0 8px}
+.fcbase h2{font-size:16px;font-weight:normal;margin:0 0 8px}
+.fcbase .view-title small,.fcbase .savestate,.fcbase .hint{font-size:16px}
+.fcbase .appbar{padding:8px 16px;box-shadow:none;position:static}
+.fcbase .tabs{padding:8px 8px 0;gap:0}
+.fcbase .tab{border-radius:0;border-bottom:none;font-weight:normal;padding:6px 10px;background:transparent}
+.fcbase .tab.active{background:transparent}   /* 既定テーマの桃色地を消す */
+.fcbase .brand b{color:inherit}               /* 既定テーマの赤が漏れるのを止める */
+.fcbase main{padding:16px}
+.fcbase .card{border-radius:0;padding:16px}
+.fcbase .btn{border-radius:0;padding:6px 14px}
+.fcbase table.grid{font-size:16px}
+.fcbase table.grid th,.fcbase table.grid td{padding:5px 10px}
+.fcbase .badge{border-radius:0;font-size:16px;font-weight:normal;padding:0 8px;border:2px solid currentColor;background:transparent}
+/* ▶ は美咲ゴシックに無いのでCSSの三角で描く */
+.fcbase .tab::before{content:"";display:inline-block;width:0;height:0;margin-right:6px;
+  border-left:8px solid transparent;border-top:5px solid transparent;border-bottom:5px solid transparent;vertical-align:1px}
+.fcbase .tab.active::before{border-left-color:currentColor}
+.fcbase .heat span{padding:2px 12px;display:inline-block;color:#000}
+.fcbase .heat span:nth-child(1){background:var(--heat-1)}
+.fcbase .heat span:nth-child(2){background:var(--heat-2)}
+.fcbase .heat span:nth-child(3){background:var(--heat-3)}
+.fcbase .heat span:nth-child(4){background:var(--heat-4);color:#FCFCFC}
+.fcbase .heat span:nth-child(5){background:var(--heat-5);color:#FCFCFC}
+
+/* ===== A 王道（DQ1〜4）黒地×白枠 ===== */
+.vA{--bg:#000;--panel:#000;--panel-2:#000;--panel-3:#0a0a0a;--line:#FCFCFC;--pastel-blue:#101828;--pastel-red:#281010;--fg:#FCFCFC;--fg-dim:#BCBCBC;--accent:#F8D878;
+    --ok:#58D854;--warn:#F8B800;--bad:#F83800;--blue:#3CBCFC;
+    --heat-1:#F8D878;--heat-2:#F8B800;--heat-3:#FCA044;--heat-4:#F83800;--heat-5:#A81000}
+.vA .card{background:#000;border:4px solid #FCFCFC;box-shadow:inset 0 0 0 2px #000}
+.vA .appbar,.vA .tabs{background:#000;border-bottom:4px solid #FCFCFC}
+.vA .tab{color:#7C7C7C} .vA .tab.active{color:#FCFCFC}
+.vA .btn{background:#000;border:3px solid #FCFCFC;color:#FCFCFC}
+.vA .btn.primary{color:#F8D878;border-color:#F8D878;background:#000}
+.vA table.grid th,.vA table.grid td{border:2px solid #FCFCFC;background:#000}
+.vA table.grid th{color:#BCBCBC}
+.vA .badge.s{color:#3CBCFC} .vA .badge.p{color:#F83800}
+
+/* ===== B 紺窓（戦闘コマンド窓）黒地×紺の面 ===== */
+.vB{--bg:#000;--panel:#0000BC;--panel-2:#000;--panel-3:#0000A0;--line:#FCFCFC;--pastel-blue:#0000E0;--pastel-red:#281010;--fg:#FCFCFC;--fg-dim:#BCBCBC;--accent:#F8D878;
+    --ok:#58D854;--warn:#F8D878;--bad:#FCA044;--blue:#3CBCFC;
+    --heat-1:#F8D878;--heat-2:#F8B800;--heat-3:#FCA044;--heat-4:#F83800;--heat-5:#A81000}
+.vB .card{background:#0000BC;border:4px solid #FCFCFC;box-shadow:inset 0 0 0 2px #0000BC}
+.vB .appbar{background:#0000BC;border-bottom:4px solid #FCFCFC}
+.vB .tabs{background:#000;border-bottom:4px solid #FCFCFC}
+.vB .tab{color:#7C7C7C} .vB .tab.active{color:#FCFCFC}
+.vB .btn{background:#0000BC;border:3px solid #FCFCFC;color:#FCFCFC}
+.vB .btn.primary{color:#F8D878;border-color:#F8D878}
+.vB table.grid th,.vB table.grid td{border:2px solid #FCFCFC;background:#0000BC}
+.vB table.grid th{background:#000;color:#FCFCFC}
+.vB table.grid tbody tr:nth-child(even) td{background:#0000A0}
+.vB .badge.s{color:#3CBCFC} .vB .badge.p{color:#FCA044}
+
+/* ===== C モノクロ（白黒2階調）色を一切使わない =====
+   達成率の良し悪しは色ではなく▲と白黒反転で示す。
+   ヒートは灰色を作らず、ファミコンと同じ網掛け（ディザ）で濃さを表す。 */
+.vC{--bg:#000;--panel:#000;--panel-2:#000;--panel-3:#0a0a0a;--line:#FCFCFC;--pastel-blue:#202020;--pastel-red:#202020;--fg:#FCFCFC;--fg-dim:#BCBCBC;--accent:#FCFCFC;
+    --ok:#FCFCFC;--warn:#FCFCFC;--bad:#FCFCFC;--blue:#FCFCFC}
+.vC .card{background:#000;border:4px solid #FCFCFC;box-shadow:inset 0 0 0 2px #000}
+.vC .appbar,.vC .tabs{background:#000;border-bottom:4px solid #FCFCFC}
+.vC .tab{color:#7C7C7C} .vC .tab.active{color:#FCFCFC}
+.vC .btn{background:#000;border:3px solid #FCFCFC;color:#FCFCFC}
+.vC .btn.primary{background:#FCFCFC;color:#000}
+.vC table.grid th,.vC table.grid td{border:2px solid #FCFCFC;background:#000}
+.vC table.grid th{background:#FCFCFC;color:#000}
+.vC .badge{color:#FCFCFC}
+.vC .heat span{padding:2px 14px;color:#FCFCFC;text-shadow:1px 1px 0 #000}
+.vC .heat span:nth-child(1){background:radial-gradient(#FCFCFC 0.7px,#000 0.8px) 0 0/8px 8px}
+.vC .heat span:nth-child(2){background:radial-gradient(#FCFCFC 0.9px,#000 1px) 0 0/5px 5px}
+.vC .heat span:nth-child(3){background:repeating-conic-gradient(#FCFCFC 0 25%,#000 0 50%) 0 0/6px 6px}
+.vC .heat span:nth-child(4){background:radial-gradient(#000 0.9px,#FCFCFC 1px) 0 0/5px 5px;color:#000;text-shadow:none}
+.vC .heat span:nth-child(5){background:#FCFCFC;color:#000;text-shadow:none}
+
+/* ===== D 琥珀（アンバーCRT）単色＋走査線 ===== */
+.vD{--bg:#000;--panel:#000;--panel-2:#000;--panel-3:#140e00;--line:#F8B800;--pastel-blue:#241a00;--pastel-red:#241a00;--fg:#F8B800;--fg-dim:#8a6600;--accent:#F8D878;
+    --ok:#F8D878;--warn:#F8B800;--bad:#FCA044;--blue:#F8D878;
+    --heat-1:#3a2a00;--heat-2:#7a5600;--heat-3:#B88400;--heat-4:#F8B800;--heat-5:#F8D878}
+.vD .card{background:#000;border:4px solid #F8B800;box-shadow:inset 0 0 0 2px #000}
+.vD .appbar,.vD .tabs{background:#000;border-bottom:4px solid #F8B800}
+.vD .tab{color:#8a6600} .vD .tab.active{color:#F8D878}
+.vD .btn{background:#000;border:3px solid #F8B800;color:#F8B800}
+.vD .btn.primary{background:#F8B800;color:#000}
+.vD table.grid th,.vD table.grid td{border:2px solid #F8B800;background:#000}
+.vD table.grid th{color:#F8D878}
+.vD .badge{color:#F8B800}
+.vD .heat span:nth-child(1),.vD .heat span:nth-child(2){color:#F8B800}
+.vD .heat span:nth-child(3),.vD .heat span:nth-child(4),.vD .heat span:nth-child(5){color:#000}
+/* ブラウン管の走査線。3pxおきなので文字は潰れない。 */
+.vD{position:relative}
+.vD::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(180deg,rgba(0,0,0,.35) 0 1px,transparent 1px 3px)}
+
+/* ===== E 原色アクセント（レベルアップ画面風）===== */
+.vE{--bg:#000;--panel:#000;--panel-2:#0000BC;--panel-3:#101010;--line:#7C7C7C;--pastel-blue:#101828;--pastel-red:#281010;--fg:#FCFCFC;--fg-dim:#BCBCBC;--accent:#F8D878;
+    --ok:#58D854;--warn:#F8B800;--bad:#F83800;--blue:#3CBCFC;
+    --heat-1:#58D854;--heat-2:#F8D878;--heat-3:#F8B800;--heat-4:#FCA044;--heat-5:#F83800}
+.vE .card{background:#000;border:4px solid #FCFCFC;box-shadow:inset 0 0 0 2px #000}
+.vE .appbar,.vE .tabs{background:#000;border-bottom:4px solid #FCFCFC}
+.vE .tab{color:#0078F8} .vE .tab.active{color:#F8D878}
+.vE .btn{background:#000;border:3px solid #3CBCFC;color:#3CBCFC}
+.vE .btn.primary{background:#F8B800;border-color:#F8B800;color:#000}
+.vE table.grid th,.vE table.grid td{border:2px solid #7C7C7C;background:#000}
+.vE table.grid th{background:#0000BC;color:#F8D878}
+.vE table.grid tbody tr:nth-child(even) td{background:#101010}
+.vE h1,.vE h2{color:#F8D878}
+.vE .brand b{color:#F8D878}
+.vE .badge.s{background:#0078F8;color:#FCFCFC;border-color:#0078F8}
+.vE .badge.p{background:#F83800;color:#FCFCFC;border-color:#F83800}
+.vE .view-title small{color:#3CBCFC}
+
+/* ===== 並べ ===== */
+body{margin:0;background:#3a3a3a;font-family:system-ui,sans-serif}
+.grid5{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;align-items:start}
+.tag{background:#fff;color:#000;font:700 13px system-ui;padding:5px 10px}
+</style>
+</head>
+<body>
+<div class="grid5" id="grid"></div>
+<script>
+const BODY = `
+  <header class="appbar"><div class="brand">TOHO池袋店 <b>店長ダッシュボード</b></div>
+    <div class="spacer"></div><div class="savestate saved">ほぞんした</div></header>
+  <nav class="tabs">
+    <button class="tab active">予実</button><button class="tab">島図・設定</button>
+    <button class="tab">機種分析</button><button class="tab">出玉率</button></nav>
+  <main>
+    <div class="view-title"><h1>予実管理</h1><small>2026年8月</small></div>
+    <div class="card">
+      <h2>8月14日までの合計</h2>
+      <table class="grid">
+        <thead><tr><th class="txt">項目</th><th>実績</th><th>昨年</th><th>前年比</th></tr></thead>
+        <tbody>
+          <tr><td class="txt">売上</td><td class="mono">¥205,800,000</td><td class="mono">¥160,800,000</td><td class="mono" style="color:var(--ok)">MARKUP128.0%</td></tr>
+          <tr><td class="txt">粗利</td><td class="mono">¥59,220,000</td><td class="mono">¥44,616,000</td><td class="mono" style="color:var(--ok)">MARKUP132.7%</td></tr>
+          <tr><td class="txt">アウト/台</td><td class="mono">3,500</td><td class="mono">3,345</td><td class="mono" style="color:var(--warn)">MARKUP104.6%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin:10px 0 0">実績14日／昨年12日ぶん</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary">とりこむ</button><button class="btn">日報をつくる</button></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 10px"><span class="badge s">20スロ</span> 144台　<span class="badge p">2スロ</span> 48台</p>
+      <p class="heat" style="margin:0"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></p>
+    </div>
+  </main>`;
+
+const V = [
+  ["vA", "A 王道 — 黒地 × 白枠（DQ1〜4）"],
+  ["vB", "B 紺窓 — 面が紺（戦闘コマンド窓）"],
+  ["vC", "C モノクロ — 色を使わず網掛けで濃淡"],
+  ["vD", "D 琥珀 — 単色アンバー＋走査線"],
+  ["vE", "E 原色 — 見出し金・区分に原色（レベルアップ画面風）"],
+];
+const g = document.getElementById("grid");
+for (const [cls, label] of V) {
+  const wrap = document.createElement("div");
+  // Cは色を持たないので、達成率の良し悪しは▲で示す（色に頼らない表現の確認も兼ねる）
+  const body = BODY.replaceAll("MARKUP", cls === "vC" ? "▲" : "");
+  wrap.innerHTML = `<div class="tag">${label}</div><div class="fcbase ${cls}">${body}</div>`;
+  g.appendChild(wrap);
+}
+</script>
+</body>
+</html>
