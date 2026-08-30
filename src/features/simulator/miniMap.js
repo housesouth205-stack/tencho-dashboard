@@ -11,9 +11,12 @@ export const SET_COLORS = { 1: "#eef1f6", 2: "#e9d8c8", 3: "#dfe4ec", 4: "#ffe08
 // 設定を上下に置く台は縦に「正方形＋半分」、左右に置く台は横に同じだけ使うので、
 // 行の高さと横置きの列の幅は同じ値になる。描画と幅計算で必ずこれを使うこと
 // （以前は同じ計算を2か所に書いていて、片方が古いまま通路が広がっていた）。
-export function cellGeom(cellW) {
+// 背景に実績を出しているときは、設定ブロックを実績の数字に入れ替える。
+// 半分の幅・高さだと5〜6桁が潰れるので、そのぶんだけ広げる
+// （縦向きの島ではこの値が「幅」になるので、上げすぎると通路が狭くなる）。
+export function cellGeom(cellW, withMetric) {
   const head = cellW ? parseFloat(cellW) : 34;
-  const set = Math.round(head / 2);
+  const set = Math.round(head * (withMetric ? 0.7 : 0.5));
   return { head, set, span: head + 1 + set };
 }
 
@@ -50,7 +53,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
   const cells = all.filter((l) => l.floor === floor);
   // 台番＋機種名のブロックは正方形、設定ブロックはその半分。
   // 設定を上下に置く台は「正方形＋半分」の高さ、左右に置く台はその幅になる。
-  const geom = cellGeom(cellW);
+  const withMetric = placement.some((p) => p.metric != null);
+  const geom = cellGeom(cellW, withMetric);
   const headSize = geom.head, setSize = geom.set;
   const rowH = opts.rowH || geom.span + "px";
   // レートの変わり目（2スロ／5スロ）は通路を1マスぶん取って区切りを分かりやすくする
@@ -152,22 +156,37 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     if (!p) { setBg = "var(--panel-3)"; setBorder = "1px solid var(--line)"; }
     else if (p.changed) { setBg = SET_COLORS[p.setting]; setBorder = "2px solid " + (up ? UPC : DNC); }
     else { setBg = SET_COLORS[p.setting]; setBorder = "1px solid " + (p.setting >= 4 ? (p.color || "#b9a45e") : "var(--line)"); }
+    // 前日の数字は出さない。上げたか下げたかだけ分かればよい。
+    const arrowEl = p && p.changed
+      ? el("span", { style: `font-size:8px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null;
+    // 今日の設定（主役）
+    const setNum = p ? el("span", {
+      style: `font-size:${quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
+        `color:${quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46"}`,
+      text: String(p.setting),
+    }) : null;
+    // 実績の数字。桁が増えるほど、また縦向きの島（幅が狭い）ほど小さくする。
+    // 色はヒートの文字色を使わない。塗られているのは台番ブロックのほうで、
+    // 設定ブロックは淡い設定色のままなので、白抜きにすると読めなくなる。
+    const mtext = p && p.metric != null ? num(p.metric) : null;
+    const metricEl = mtext ? el("span", {
+      style: `font-size:${(horiz ? [7.5, 6] : [10, 8.5])[mtext.length >= 6 ? 1 : 0]}px;` +
+        "font-weight:800;letter-spacing:-.04em;white-space:nowrap;color:#3a4150",
+      text: mtext,
+    }) : null;
     const setBlk = el("div", {
       style: (horiz ? `width:${setSize}px;height:${headSize}px;` : `height:${setSize}px;`) + "flex:none;box-sizing:border-box;" +
         `background:${setBg};border:${setBorder};border-radius:3px;` +
         // 縦向きの島は横幅が狭いので▲▼と数字を縦に並べる
         `display:flex;flex-direction:${horiz ? "column" : "row"};align-items:center;justify-content:center;` +
         "gap:1px;line-height:1;overflow:hidden",
-    }, p ? [
-      // 前日の数字は出さない。上げたか下げたかだけ分かればよい。
-      p.changed ? el("span", { style: `font-size:8px;font-weight:900;color:${up ? UPC : DNC}`, text: arrow }) : null,
-      // 今日の設定（主役）
-      el("span", {
-        style: `font-size:${quiet ? 10 : 12}px;font-weight:900;letter-spacing:-.02em;` +
-          `color:${quiet ? "#9aa2b1" : p.changed ? (up ? "#a3282e" : "#12437a") : "#333a46"}`,
-        text: String(p.setting),
-      }),
-    ] : null);
+      // 設定の数字は実績と入れ替わって見えなくなるので、ここで読めるようにしておく
+      title: p && metricEl ? `設定${p.setting}` : null,
+      // 実績を出しているときは設定の数字を出さない。2つ並ぶとどちらも小さくなって
+      // 読めなくなるため。設定はブロックの塗り（凡例の色）とタップで分かる。
+      // 縦向きの島は設定ブロックの「幅」が狭い。▲▼を上に重ねると数字が入りきらないので、
+      // 実績を出しているあいだは枠の色（赤＝上げ／青＝下げ）に任せる。
+    }, p ? [metricEl && horiz ? null : arrowEl, metricEl || setNum].filter(Boolean) : null);
 
     const first = side === "top" || side === "left";
     const cell = el("div", {
@@ -207,7 +226,7 @@ export function buildPlacementMap(layout, placement, opts = {}) {
   // いちばん広い階の幅に合わせ、足りないぶんは通路が伸びて吸収する。
   if (zoomed) {
     const all = layout.map(tweakCell);
-    const geom = cellGeom(opts.cellW);
+    const geom = cellGeom(opts.cellW, placement.some((p) => p.metric != null));
     const W = geom.head;
     const widthOf = (fl) => {
       const mine = all.filter((l) => l.floor === fl);

@@ -4,11 +4,12 @@
 import { decodeText, parseCsv, findCol } from "../util/csv.js";
 
 // 列名 → DBの列。別名も許す（元資料の言い方とこちらの言い方が揺れるため）。
-const COLS = [
+// PDF側（plPdf.js）も同じ対応表を見る。増やすときはここだけ直せばよい。
+export const COLS = [
   ["sales", ["総売上高", "実績_総売上高", "売上高"]],
   ["cogs", ["売上原価"]],
   ["gross", ["売上総利益", "粗利"]],
-  ["sga", ["一般管理費", "一般管理費合計"]],
+  ["sga", ["一般管理費", "一般管理費合計", "一般経費"]],
   ["op", ["営業利益"]],
   ["ordinary", ["経常利益"]],
   ["jinken", ["人件費"]],
@@ -17,7 +18,7 @@ const COLS = [
   ["koukyou", ["公共料金"]],
   ["shokeihi", ["一般諸経費"]],
   ["genka", ["減価償却費"]],
-  ["kyuyo", ["給与計", "給与"]],
+  ["kyuyo", ["給与計", "給与", "従業員給料"]],
   ["kigu", ["消耗器具費", "入替代"]],
   ["suidou", ["水道光熱費"]],
   ["yachin", ["地代家賃"]],
@@ -38,7 +39,8 @@ export function parseMonthLabel(s) {
   const t = String(s || "").trim().normalize("NFKC");
   if (!t) return null;
   let m = t.match(/^[RrＲｒ令和]*\s*(\d{1,2})\s*[年.\-\/]\s*(\d{1,2})/);
-  if (m && /^[RrＲｒ令]/.test(t)) {
+  // 「和7年5月」のように令が落ちた断片で渡ってくることがある（PDFは文字が分かれて出る）
+  if (m && /^[RrＲｒ令和]/.test(t)) {
     const y = 2018 + Number(m[1]), mo = Number(m[2]);
     if (mo >= 1 && mo <= 12) return `${y}-${String(mo).padStart(2, "0")}-01`;
     return null;
