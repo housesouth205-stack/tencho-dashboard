@@ -1,4 +1,5 @@
 // 経費タブのグラフ。予実タブと同じく依存ゼロのSVG自前描画。
+import { cssVar } from "../../util/colors.js";
 // 金額はDBには円で入っているが、表示は会議資料と同じ「千円」に揃える。
 // 手元の紙とそのまま突き合わせられるほうが、桁を揃えるより価値が高い。
 const NS = "http://www.w3.org/2000/svg";
@@ -13,6 +14,14 @@ export const CAT = [
   { key: "other", label: "その他", color: "#aab2c2" },
 ];
 const C = { dim: "#8a91a3", line: "#e3e8f2", fg: "#2f3440", pos: "#2a78d6", neg: "#e34948", zero: "#7d8595" };
+
+// 費目の色（家賃・人件費・入替代…）は意味付きなので動かさない。
+// 白い紙を前提にした「地の色」だけ、テーマから取り直す。
+function syncChrome() {
+  C.fg = cssVar("--fg", "#2f3440");
+  C.dim = cssVar("--fg-dim", "#8a91a3");
+  C.line = cssVar("--line", "#e3e8f2");
+}
 // 入替代は積み上げグラフと同じ色にする（2つのグラフで同じものが同じ色に見えるように）。
 const KIGU = CAT.find((c) => c.key === "kigu").color;
 
@@ -79,6 +88,7 @@ const sizing = (narrow) => (narrow ? { w: 360, padL: 46, padR: 8, f: 1.3 } : { w
 
 // 一般管理費の中身（積み上げ棒）。合計の高さが何で動いているかを見る。
 export function stackedSga(items, { title, narrow } = {}) {
+  syncChrome();
   const n = items.length;
   const { w, padL, padR, f } = sizing(narrow);
   const h = narrow ? 190 : 264, padT = 14, padB = 30 * f;
@@ -133,6 +143,7 @@ const hasParts = (r) => r.jinken != null || r.kigu != null || r.yachin != null;
 
 // 入替代と営業利益。どちらも千円なので目盛りは1本で足りる。
 export function kiguVsOp(items, { title, narrow } = {}) {
+  syncChrome();
   const n = items.length;
   const { w, padL, f } = sizing(narrow);
   const h = narrow ? 180 : 250, padR = 46 * f, padT = 14, padB = 30 * f;

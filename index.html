@@ -9,6 +9,15 @@
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/components.css">
   <link rel="stylesheet" href="assets/css/print.css">
+  <link rel="stylesheet" href="assets/css/theme-dq.css">
+  <script>
+    // テーマは最初の描画より前に当てる。src/main.js は module なので読み込みが後回しになり、
+    // そこで当てると白い画面が一瞬出てから黒に変わる。キーは src/core/theme.js と同じ。
+    try {
+      var t = localStorage.getItem("tencho.theme");
+      if (t === "dq") document.documentElement.dataset.theme = t;
+    } catch (e) { /* localStorageを読めない端末では通常テーマで出る */ }
+  </script>
 </head>
 <body>
   <div id="app">

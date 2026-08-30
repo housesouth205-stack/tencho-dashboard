@@ -8,3 +8,15 @@ export const tint = (hex, alpha = 0.14) => {
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 };
+
+// CSSの変数を読む。テーマで変わる色をJS側に直書きすると、
+// 背景が黒に変わったときに目盛りの文字が背景に溶けて消える。
+// DOMが無い環境や未定義の変数では既定値を返すので、呼び出し側は分岐しなくてよい。
+export function cssVar(name, fallback) {
+  try {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return v || fallback;
+  } catch {
+    return fallback;
+  }
+}

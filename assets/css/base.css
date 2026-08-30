@@ -33,7 +33,14 @@ button, input, select { font-family: inherit; font-size: inherit; color: inherit
 .savestate.saved { color: var(--ok); }
 
 /* ---- tabs ---- */
-.tabs { display: flex; gap: 4px; padding: 6px 16px 0; background: var(--panel); border-bottom: 1px solid var(--line); }
+.tabs {
+  display: flex; gap: 4px; padding: 6px 16px 0; background: var(--panel); border-bottom: 1px solid var(--line);
+  /* タブは7つ。文字が大きいテーマだと390pxの画面に収まらず、折り返して
+     「予実」が1文字ずつ縦に割れる。折り返さずに横へスクロールさせる。 */
+  overflow-x: auto; scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 0 0 auto; white-space: nowrap; }
 .tab {
   appearance: none; background: transparent; border: none; cursor: pointer;
   color: var(--fg-dim); padding: 9px 16px; border-radius: 8px 8px 0 0;
