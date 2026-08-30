@@ -36,7 +36,7 @@ import { dailyBars } from "./src/features/yojitsu/charts.js";
 import { heatColor, heatText, heat5, heatMinus, heatZero, minMax, refreshHeatPalette } from "./src/calc/heat.js";
 
 // 本物のタブ7つ（router.js の定義と同じ並び）
-const TABS = ["予実","島図・設定","機種分析","出玉率","経費","取込","設定"];
+const TABS = ["予実","島図・設定","機種分析","出玉率","経費","増台計画","取込","設定"];
 const nav = document.getElementById("tabs");
 TABS.forEach((t, i) => nav.appendChild(el("button", { class: "tab" + (i === 0 ? " active" : ""), text: t })));
 
