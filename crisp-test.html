@@ -1,24 +1,93 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><style>
-@font-face { font-family:"PM12"; src:url("assets/fonts/PixelMplus12-Regular.ttf") format("truetype"); }
-@font-face { font-family:"Misaki"; src:url("assets/fonts/misaki_gothic_2nd.ttf") format("truetype"); }
-body{margin:0;background:#000;color:#fff;-webkit-font-smoothing:none;font-smooth:never}
-.row{padding:3px 6px;white-space:nowrap}
-.lbl{font:11px system-ui;color:#8f8;padding:6px 6px 0}
-</style></head><body>
-<div id="o"></div>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>ドットフォントの等倍サイズを測る</title>
+<style>
+/* ここに候補フォントを並べる。差し替えるときは @font-face と FONTS の両方に足す。 */
+@font-face { font-family:"PixelMplus12"; src:url("assets/fonts/PixelMplus12-Regular.ttf") format("truetype"); }
+body { margin:0; background:#111; color:#eee; font:13px/1.6 system-ui, sans-serif; }
+h1 { font-size:15px; margin:0; padding:12px 14px; background:#000; border-bottom:2px solid #444; }
+p.note { margin:0; padding:10px 14px; color:#9aa; }
+pre { margin:0; padding:12px 14px; background:#000; font:13px/1.7 monospace; white-space:pre; overflow-x:auto; }
+.sample { padding:14px; background:#000; border-top:2px solid #444; -webkit-font-smoothing:none; font-smooth:never; }
+.lbl { font:11px system-ui; color:#7d7; margin-top:10px; }
+.row { white-space:nowrap; overflow-x:auto; padding:2px 0; }
+</style>
+</head>
+<body>
+<h1>ドットフォントの等倍サイズを測る</h1>
+<p class="note">
+ビットマップ由来のフォントは、設計サイズの整数倍でないとアンチエイリアスが乗って滲む。
+<b>「12px設計だから12pxで出せばよい」とは限らない</b>（PixelMplus12は実際12pxで滲む）。
+文字を構成する画素のうち、黒でも白でもない中間調がどれだけあるかを数えて判定する。
+フォントを差し替えたら必ずこれを取り直し、<code>assets/fonts/README.md</code> の表を更新すること。
+</p>
+<pre id="out">測定中…</pre>
+<div class="sample" id="sample"></div>
+
 <script>
-const T = "予実管理 売上 ¥205,800,000 粗利 132.7% アウト/台 3,500";
-const o = document.getElementById("o");
-for (const [f, sizes] of [["PM12",[12,16,20,24,36]], ["Misaki",[8,16,24]]]) {
-  for (const s of sizes) {
-    const l = document.createElement("div");
-    l.className = "lbl"; l.textContent = `${f} ${s}px`;
-    const d = document.createElement("div");
-    d.className = "row";
-    d.style.font = `${s}px "${f}", monospace`;
-    d.textContent = T;
-    o.appendChild(l); o.appendChild(d);
+const FONTS = ["PixelMplus12"];
+const SIZES = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48];
+// ダッシュボードで実際に出る文字。かな・漢字・数字・記号を混ぜる
+// （数字だけで測ると、漢字がつぶれる条件を見落とす）。
+const TEXT = "予実管理 売上 ¥205,800,000 粗利 132.7% アウト/台 3,500";
+
+function midtonePct(font, size) {
+  const cv = document.createElement("canvas");
+  const m = cv.getContext("2d");
+  m.font = `${size}px "${font}"`;
+  cv.width = Math.ceil(m.measureText(TEXT).width) + 8;
+  cv.height = Math.ceil(size * 2);
+  const c = cv.getContext("2d", { willReadFrequently: true });
+  c.fillStyle = "#fff"; c.fillRect(0, 0, cv.width, cv.height);
+  c.font = `${size}px "${font}"`;
+  c.fillStyle = "#000";
+  c.textBaseline = "top";
+  c.fillText(TEXT, 2, Math.round(size * 0.3));
+  const d = c.getImageData(0, 0, cv.width, cv.height).data;
+  let mid = 0, ink = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    const v = d[i];
+    if (v < 235) ink++;              // 文字を構成する画素
+    if (v > 20 && v < 235) mid++;    // そのうち中間調（＝滲み）
   }
+  // 文字の量で割る。割らないとサイズ間で比べられない（大きい字ほど画素数が増えるため）。
+  return ink ? (100 * mid) / ink : 0;
 }
-</script></body></html>
+
+document.fonts.ready
+  .then(() => Promise.all(FONTS.flatMap((f) => SIZES.map((s) => document.fonts.load(`${s}px "${f}"`)))))
+  .then(() => {
+    const rows = ["フォント          サイズ    中間調    判定"];
+    const good = {};
+    for (const f of FONTS) {
+      good[f] = [];
+      for (const s of SIZES) {
+        const p = midtonePct(f, s);
+        const ok = p < 3;
+        if (ok) good[f].push(s);
+        rows.push(`${f.padEnd(18)}${String(s).padStart(3)}px${p.toFixed(1).padStart(9)}%    ${ok ? "くっきり（等倍）" : p < 12 ? "やや滲み" : "滲んでいる"}`);
+      }
+      rows.push(`${" ".repeat(18)}→ 使えるサイズ: ${good[f].join(", ")}px`, "");
+    }
+    document.getElementById("out").textContent = rows.join("\n");
+
+    // 目でも確かめられるように、実際の描画も並べる
+    const host = document.getElementById("sample");
+    for (const f of FONTS) {
+      for (const s of SIZES) {
+        const l = document.createElement("div");
+        l.className = "lbl";
+        l.textContent = `${f} ${s}px${good[f].includes(s) ? "  ← 等倍" : ""}`;
+        const d = document.createElement("div");
+        d.className = "row";
+        d.style.font = `${s}px "${f}", monospace`;
+        d.textContent = TEXT;
+        host.appendChild(l); host.appendChild(d);
+      }
+    }
+  });
+</script>
+</body>
+</html>
