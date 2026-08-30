@@ -2,10 +2,17 @@
 // 支払いは棒＋累計線、設置比率は区分別の折れ線。印刷にもそのまま載せるので
 // 画面幅に依存しない座標系で描き、viewBoxで伸縮させる。
 import { SECS, ymLabel } from "./model.js";
-import { SECTION_PALETTE } from "../../util/colors.js";
+import { SECTION_PALETTE, cssVar } from "../../util/colors.js";
 
 const NS = "http://www.w3.org/2000/svg";
 const C = { dim: "#8a91a3", line: "#e3e8f2", bar: "#4f8ff7", cum: "#2fb888" };
+
+// bar/cum は売上=青・粗利=緑と同じ意味付きの色なので動かさない。
+// 白い紙を前提にした目盛りとグリッドだけ、テーマから取り直す。
+function syncChrome() {
+  C.dim = cssVar("--fg-dim", "#8a91a3");
+  C.line = cssVar("--line", "#e3e8f2");
+}
 export const secColor = (key) => SECTION_PALETTE[Math.max(0, SECS.findIndex((s) => s.key === key)) % SECTION_PALETTE.length];
 
 function s(tag, attrs = {}, children = []) {
@@ -48,6 +55,7 @@ function wrap(title, svg, legend, note) {
 // 月別の支払い（棒）と累計（線）。金額は万円。
 // 円のまま目盛りに出すと8桁が並んで読めないので、他の資料と同じ万円で揃える。
 export function paymentBars(rows, { title, narrow } = {}) {
+  syncChrome();
   const w = narrow ? 360 : 680, h = narrow ? 190 : 220, f = narrow ? 1.3 : 1;
   const padL = 40 * f, padR = 42 * f, padT = 10, padB = 26 * f;
   const iw = w - padL - padR, ih = h - padT - padB;
@@ -96,6 +104,7 @@ export function paymentBars(rows, { title, narrow } = {}) {
 
 // 区分ごとのスマート設置比率の推移。100%の線を引いて、どこで打ち止めかが分かるようにする。
 export function rateLines(rows, { title, narrow } = {}) {
+  syncChrome();
   const w = narrow ? 360 : 680, h = narrow ? 190 : 220, f = narrow ? 1.3 : 1;
   const padL = 36 * f, padR = 10 * f, padT = 10, padB = 26 * f;
   const iw = w - padL - padR, ih = h - padT - padB;

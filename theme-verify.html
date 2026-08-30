@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>テーマ検証</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/print.css">
+<link rel="stylesheet" href="assets/css/theme-dq.css">
+<script>
+  // 本物と同じ経路でテーマを当てる（?theme=dq で指定）
+  try {
+    var t = new URLSearchParams(location.search).get("theme");
+    if (t === "dq") document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>
+</head>
+<body>
+<div id="app">
+  <header class="appbar">
+    <div class="brand">TOHO池袋店 <b>店長ダッシュボード</b></div>
+    <div class="spacer"></div>
+    <div class="field"><span>年度</span><select id="fy"><option>2026年度</option></select></div>
+    <div class="savestate saved">保存しました</div>
+  </header>
+  <nav class="tabs" id="tabs"></nav>
+  <main id="view"></main>
+</div>
+<pre id="measured" style="background:#fff;color:#000;font:12px monospace;padding:8px;margin:0"></pre>
+
+<script type="module">
+import { el } from "./src/util/dom.js";
+import { dailyBars } from "./src/features/yojitsu/charts.js";
+import { heatColor, heatText, heat5, heatMinus, heatZero, minMax, refreshHeatPalette } from "./src/calc/heat.js";
+
+// 本物のタブ7つ（router.js の定義と同じ並び）
+const TABS = ["予実","島図・設定","機種分析","出玉率","経費","増台計画","取込","設定"];
+const nav = document.getElementById("tabs");
+TABS.forEach((t, i) => nav.appendChild(el("button", { class: "tab" + (i === 0 ? " active" : ""), text: t })));
+
+const w = new URLSearchParams(location.search).get("w");
+if (w) {
+  const app = document.getElementById("app");
+  app.style.width = w + "px";
+  app.style.overflow = "hidden";
+  document.body.style.width = w + "px";
+}
+
+const view = document.getElementById("view");
+view.appendChild(el("div", { class: "view-title" }, [el("h1", { text: "予実管理" }), el("small", { text: "2026年8月" })]));
+
+// --- 本物のグラフモジュールに合成データを渡す ---
+const series = Array.from({ length: 31 }, (_, i) => {
+  const d = new Date(2026, 7, i + 1), dow = d.getDay();
+  return {
+    label: String(i + 1),
+    plan: 6_000_000 + (i % 5) * 400_000,
+    actual: i < 14 ? 5_400_000 + (i % 7) * 900_000 : null,  // 15日以降は未入力（0で埋めない）
+    kind: dow === 0 ? "sun" : dow === 6 ? "sat" : "",
+  };
+});
+const chartCard = el("div", { class: "card col" });
+chartCard.appendChild(el("h2", { text: "日別 売上（棒＝実績／横線＝計画）" }));
+chartCard.appendChild(dailyBars(series, { title: "", unit: "円" }));
+view.appendChild(chartCard);
+
+// --- 本物のヒートで表を塗る ---
+const vals = [1200, 2400, 3100, 3900, 4800, 5600, -300, 0];
+const range = minMax(vals);
+const t = el("table", { class: "grid" });
+t.appendChild(el("thead", {}, el("tr", {}, [el("th", { class: "txt", text: "台番" }), el("th", { text: "アウト" }), el("th", { text: "売上" })])));
+const tb = el("tbody");
+vals.forEach((v, i) => {
+  const c = heatColor(v, range);
+  tb.appendChild(el("tr", {}, [
+    el("td", { class: "txt", text: String(101 + i) }),
+    el("td", { style: `background:${c};color:${heatText(c)}`, text: String(v) }),
+    el("td", { text: "¥" + (v * 1200).toLocaleString("ja-JP") }),
+  ]));
+});
+t.appendChild(tb);
+const heatCard = el("div", { class: "card col", style: "margin-top:12px" }, [el("h2", { text: "ヒート（本物の heat.js）" })]);
+heatCard.appendChild(el("div", { class: "table-wrap" }, t));
+const box = (c) => el("span", { style: `display:inline-block;width:22px;height:16px;background:${c};border:1px solid var(--line)` });
+heatCard.appendChild(el("div", { class: "row", style: "gap:4px;align-items:center;margin-top:8px" }, [
+  el("span", { class: "hint", text: "低" }), ...heat5().map(box), el("span", { class: "hint", text: "高" }),
+  box(heatMinus()), el("span", { class: "hint", text: "マイナス" }), box(heatZero()), el("span", { class: "hint", text: "稼働なし" }),
+]));
+heatCard.appendChild(el("div", { class: "row", style: "gap:8px;margin-top:10px" }, [
+  el("button", { class: "btn primary", text: "取り込む" }),
+  el("button", { class: "btn", text: "日報をつくる" }),
+  el("span", { class: "badge s", text: "20スロ" }), el("span", { class: "badge p", text: "2スロ" }),
+]));
+view.appendChild(heatCard);
+
+// --- 実測（目視ではなく数字で確認する）---
+await new Promise((r) => (document.fonts ? document.fonts.ready.then(r) : r()));
+requestAnimationFrame(() => {
+  const cs = getComputedStyle(document.documentElement);
+  const tabHeights = [...document.querySelectorAll(".tab")].map((b) => Math.round(b.getBoundingClientRect().height));
+  const axisFill = document.querySelector("#view svg text")?.getAttribute("fill") || "(なし)";
+  const out = [
+    `theme            = ${document.documentElement.dataset.theme || "(通常)"}`,
+    `--bg / --fg      = ${cs.getPropertyValue("--bg").trim()} / ${cs.getPropertyValue("--fg").trim()}`,
+    `--heat-1..5      = ${[1,2,3,4,5].map((i)=>cs.getPropertyValue(`--heat-${i}`).trim()).join(" ")}`,
+    `heat5() [JS]     = ${heat5().join(" ")}`,
+    `グラフ目盛の色    = ${axisFill}`,
+    `body font-family = ${getComputedStyle(document.body).fontFamily}`,
+    `body font-size   = ${getComputedStyle(document.body).fontSize}`,
+    `タブ数/高さ       = ${tabHeights.length} / [${tabHeights.join(",")}]  ← 全部同じ高さなら折り返していない`,
+    `タブ scrollW/clientW = ${nav.scrollWidth} / ${nav.clientWidth}  はみ出し=${nav.scrollWidth > nav.clientWidth}（横スクロールで見える）`,
+    `本文の横はみ出し  = ${document.documentElement.scrollWidth > document.documentElement.clientWidth}  ← false であること`,
+  ].join("\n");
+  document.getElementById("measured").textContent = out;
+});
+</script>
+</body>
+</html>

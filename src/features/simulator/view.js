@@ -8,7 +8,7 @@ import { localYmd, addDays } from "../../util/dates.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { computeMachine, TYPES, sectionL, sectionTanka, round1, fmt1, fillHoles, usableSettings, snapSetting } from "./economics.js";
 import { buildMinSetting, clampSetting } from "./minSetting.js";
-import { heatColor, minMaxByGroup, groupRange, HEAT5, HEAT_MINUS, HEAT_ZERO } from "../../calc/heat.js";
+import { heatColor, minMaxByGroup, groupRange, heat5, heatMinus, heatZero } from "../../calc/heat.js";
 import { isBulkExcluded, bulkExcludeLabel } from "../../core/config.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
@@ -531,9 +531,9 @@ export async function mount(host) {
       const box = (c) => el("span", { style: `display:inline-block;width:20px;height:12px;background:${c};border:1px solid var(--line)` });
       body.appendChild(el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--fg-dim)" }, [
         el("span", { style: "font-weight:700", text: `背景＝${(HEATS.find((h) => h[0] === st.heat) || [])[1]}の実績：低` }),
-        ...HEAT5.map(box), el("span", { text: "高" }),
+        ...heat5().map(box), el("span", { text: "高" }),
         el("span", { text: "（レートごと・真ん中＝平均）" }),
-        box(HEAT_MINUS), el("span", { text: "マイナス" }), box(HEAT_ZERO), el("span", { text: "稼働なし" }),
+        box(heatMinus()), el("span", { text: "マイナス" }), box(heatZero()), el("span", { text: "稼働なし" }),
         el("span", { class: "hint", text: "設定の数字は実績値に入れ替わります（設定は塗りの色・凡例を参照）" }),
       ]));
     }

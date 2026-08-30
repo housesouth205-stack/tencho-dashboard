@@ -7,6 +7,7 @@
 // アウト×計画実績で20列を超えて、横スクロールしないと1日ぶんも読めなくなる。
 import { el, clear } from "../../util/dom.js";
 import { yen, num, pct } from "../../util/format.js";
+import { cssVar } from "../../util/colors.js";
 import { sectionColor, tint } from "../../util/colors.js";
 import { dayKind, holidayName } from "../../util/holiday.js";
 import { daysInMonth } from "../../util/dates.js";
@@ -30,7 +31,9 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
   // 昨年の同じ月。日付合わせ（8/14は昨年の8/14）で並べるので、日にちで引けるよう同じ形で持つ。
   const prevRows = prevMaps ? monthDailyDetail(sections, prevMaps.cy, month, prevMaps) : null;
   const hasPrev = !!prevRows && prevRows.some((r) => r.bySection.get("total")?.actual);
-  const tabs = [{ id: "total", label: "合計", color: "#2f3440" },
+  // 「合計」の色は地の文字色。直書きの #2f3440 だと黒地のテーマで見出しが消えるため
+  // --fg から取る（通常テーマの --fg は #2f3440 なので見た目は変わらない）。
+  const tabs = [{ id: "total", label: "合計", color: cssVar("--fg", "#2f3440") },
     ...sections.map((s) => ({ id: s.id, label: s.label, color: sectionColor(s), section: s }))];
   let cur = "total";
   let cmp = "plan"; // 比べる相手: plan=計画 / prev=昨年の同じ日

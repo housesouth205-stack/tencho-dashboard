@@ -1,0 +1,161 @@
+/* ドラクエ風テーマ（ドット絵）。html[data-theme="dq"] のときだけ効く。
+   通常テーマのファイルは一切書き換えず、ここで上から塗り替える方式にした。
+   気に入らなければ設定で戻せて、戻したときに元と1pxも変わらないことを保証したいため。
+
+   【重要】トークンは1つ残らず上書きする。
+   CSS変数は未定義でもエラーにならず、静かに :root の白基調の値を使う。
+   試作では --panel-3 を書き忘れて、黒い画面の真ん中で表の偶数行だけが
+   白く光り、そこだけ文字が読めなくなった。抜けは実行時に気づけない。 */
+
+@font-face {
+  font-family: "Misaki";
+  src: url("../fonts/misaki_gothic_2nd.ttf") format("truetype");
+  /* 読み込み中は既定フォントで出す。ドットで出ないより、読めるほうがまし。 */
+  font-display: swap;
+}
+
+:root[data-theme="dq"] {
+  /* ファミコン実機の54色パレットから取る。中間色を自分で作らないほうが「らしく」なる。
+     $0F=#000000 $30=#FCFCFC $10=#BCBCBC $00=#7C7C7C $38=#F8D878
+     $28=#F8B800 $26=#FCA044 $16=#F83800 $06=#A81000 $2A=#58D854 $22=#3CBCFC */
+  --bg: #000000;
+  --panel: #000000;
+  --panel-2: #000000;
+  --panel-3: #0a0a0a;
+  --line: #FCFCFC;
+  --fg: #FCFCFC;
+  --fg-dim: #BCBCBC;
+
+  --accent: #F8D878;      /* 見出しの金 */
+  --accent-hi: #FCFCFC;
+  --accent-dim: #6b5a10;
+  --ok: #58D854;
+  --warn: #F8D878;
+  --bad: #F83800;
+  --blue: #3CBCFC;
+
+  /* 淡色タイルは黒地では成立しないので、暗い面に置き換える */
+  --pastel-blue: #101828;
+  --pastel-green: #10281a;
+  --pastel-yellow: #282010;
+  --pastel-purple: #1c1030;
+  --pastel-red: #281010;
+
+  /* ヒート5段階。実データのセル（島図の34pxマス・機種分析の数字）の背景になるので
+     ベタ塗りにする。C案の網掛けは凡例では成立したが、文字の後ろに敷くと読めない。 */
+  --heat-1: #F8D878;
+  --heat-2: #F8B800;
+  --heat-3: #FCA044;
+  --heat-4: #F83800;
+  --heat-5: #A81000;
+  --heat-minus: #3CBCFC;
+  --heat-zero: #7C7C7C;
+
+  --shadow: none;
+  --shadow-lg: none;
+  --radius: 0px;
+  --font: "Misaki", monospace;
+}
+
+/* ---- ドットの等倍 ----
+   美咲ゴシックは8×8のビットマップ。8の倍数以外で出すとドットが滲む。
+   本文16px・見出し32pxに固定し、小さめの指定（12px等）も16pxへ引き上げる。 */
+:root[data-theme="dq"] body { font-size: 16px; line-height: 1.5; -webkit-font-smoothing: none; }
+:root[data-theme="dq"] h1 { font-size: 32px; line-height: 1.5; }
+:root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-size: 16px; }
+:root[data-theme="dq"] h1, :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-weight: normal; color: var(--accent); }
+:root[data-theme="dq"] .hint,
+:root[data-theme="dq"] .savestate,
+:root[data-theme="dq"] label.lbl,
+:root[data-theme="dq"] .view-title small,
+:root[data-theme="dq"] .btn.sm,
+:root[data-theme="dq"] table.grid,
+:root[data-theme="dq"] table.grid.compact th,
+:root[data-theme="dq"] .badge { font-size: 16px; }
+
+/* ---- DQのメッセージウィンドウ: 黒地に白の二重枠。角丸も影も無い ---- */
+:root[data-theme="dq"] .card,
+:root[data-theme="dq"] .modal,
+:root[data-theme="dq"] .toast {
+  border: 4px solid var(--line);
+  box-shadow: inset 0 0 0 2px var(--bg);
+}
+:root[data-theme="dq"] .appbar,
+:root[data-theme="dq"] .tabs { border-bottom: 4px solid var(--line); }
+:root[data-theme="dq"] .appbar .brand b { color: var(--accent); }
+
+/* 文字が16pxになるとヘッダーが390pxに収まらず、「店長ダッシュボード」が
+   語の途中で3行に割れる。店名は折り返さず1行に置き、年度と保存表示は
+   入らなければ次の行へ落とす（詰めて潰すより読める）。 */
+:root[data-theme="dq"] .appbar { flex-wrap: wrap; row-gap: 4px; }
+:root[data-theme="dq"] .appbar .brand,
+:root[data-theme="dq"] .appbar .field,
+:root[data-theme="dq"] .savestate { white-space: nowrap; }
+
+/* ---- タブ＝コマンドウィンドウ。選択中に ▶ カーソルを出す ----
+   ▶(U+25B6) は美咲ゴシックに収録されていない。文字で置くと豆腐（□）になるので
+   CSSの三角形で描く。拡大しても崩れず、フォントの収録に依存しない。 */
+:root[data-theme="dq"] .tab { border-radius: 0; border-bottom-color: transparent; font-weight: normal; }
+:root[data-theme="dq"] .tab.active { background: transparent; border-bottom-color: transparent; }
+:root[data-theme="dq"] .tab:hover { background: var(--pastel-blue); }
+:root[data-theme="dq"] .tab::before {
+  content: ""; display: inline-block; width: 0; height: 0; margin-right: 6px;
+  border-left: 8px solid transparent;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  vertical-align: 1px;
+}
+:root[data-theme="dq"] .tab.active::before { border-left-color: currentColor; }
+
+/* ---- ボタン・入力＝コマンド枠 ---- */
+:root[data-theme="dq"] .btn { border: 3px solid var(--line); border-radius: 0; background: var(--bg); }
+:root[data-theme="dq"] .btn:hover { background: var(--pastel-blue); }
+:root[data-theme="dq"] .btn.primary { background: var(--accent); border-color: var(--accent); color: #000; }
+:root[data-theme="dq"] .btn.primary:hover { background: var(--accent-hi); border-color: var(--accent-hi); }
+:root[data-theme="dq"] .btn.danger { color: var(--bad); border-color: var(--bad); }
+:root[data-theme="dq"] input[type=text],
+:root[data-theme="dq"] input[type=number],
+:root[data-theme="dq"] input[type=date],
+:root[data-theme="dq"] select.inp,
+:root[data-theme="dq"] .appbar select {
+  background: var(--bg); border: 3px solid var(--line); border-radius: 0; color: var(--fg);
+}
+:root[data-theme="dq"] input:focus,
+:root[data-theme="dq"] select:focus { border-color: var(--accent); box-shadow: none; }
+
+/* ---- 表 ---- */
+:root[data-theme="dq"] table.grid th,
+:root[data-theme="dq"] table.grid td { border: 2px solid var(--line); }
+:root[data-theme="dq"] table.grid th { background: var(--bg); color: var(--fg-dim); font-weight: normal; }
+:root[data-theme="dq"] table.grid tbody tr:hover td { background: var(--pastel-blue); }
+
+/* ---- バッジ＝枠だけ。淡色の面は黒地に合わない ---- */
+:root[data-theme="dq"] .badge { border-radius: 0; font-weight: normal; border: 2px solid currentColor; background: transparent; }
+:root[data-theme="dq"] .badge.s { color: var(--blue); }
+:root[data-theme="dq"] .badge.p { color: var(--bad); }
+
+:root[data-theme="dq"] .placeholder { border: 4px dashed var(--line); border-radius: 0; }
+:root[data-theme="dq"] .toast { border-radius: 0; }
+
+/* ---- ログイン画面（main.js が inline style で組んでいる） ----
+   角丸と影はJS側の指定なので、ここで打ち消さないとDQ調に揃わない。 */
+:root[data-theme="dq"] #loginBg > div {
+  border: 4px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0 0 0 2px var(--bg) !important;
+  background: var(--bg) !important;
+}
+:root[data-theme="dq"] #loginBg input { border-radius: 0 !important; }
+
+/* ---- 印刷 ----
+   本部報告の紙が黒背景になると現実的でない。印刷時はテーマを効かせない。
+   （印刷経路の本体は非表示iframeに自己完結HTMLを書くので元から影響を受けないが、
+     #printArea を直接使う経路のために明示しておく。） */
+@media print {
+  :root[data-theme="dq"] #printArea,
+  :root[data-theme="dq"] #printArea * {
+    font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", "Meiryo", system-ui, sans-serif;
+    color: #000;
+    background: #fff;
+  }
+  :root[data-theme="dq"] body { background: #fff; }
+}

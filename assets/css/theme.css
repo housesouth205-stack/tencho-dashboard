@@ -29,6 +29,8 @@
   --heat-3: #f9b234;
   --heat-4: #ef6a1c;
   --heat-5: #d62828;
+  --heat-minus: #9fd8ef;  /* マイナス（台粗利の赤字台） */
+  --heat-zero: #ffffff;   /* 0（稼働なし・撤去台） */
 
   --shadow: 0 1px 3px rgba(40, 50, 80, .07), 0 1px 2px rgba(40, 50, 80, .04);
   --shadow-lg: 0 10px 30px rgba(40, 50, 80, .15);

@@ -1,8 +1,19 @@
 // 依存ゼロのSVG自前描画。ダークテーマ配色。
+import { cssVar } from "../../util/colors.js";
 const NS = "http://www.w3.org/2000/svg";
 // pos/neg は色覚多様性・コントラストの検証を通した発散ペア（青↔赤）。
 // ref は計画（基準線）用のグレー。塗りではなく線なので plan より濃いものを使う。
 const C = { ok: "#43b483", warn: "#e0a52e", bad: "#e35d6a", accent: "#e35d6a", dim: "#8a91a3", line: "#e3e8f2", plan: "#c3cbdb", fg: "#2f3440", pos: "#2a78d6", neg: "#e34948", ref: "#7d8595" };
+
+// 系列の色（売上=青・粗利=緑…）は全画面で決めた意味付きの色なので動かさない。
+// 動かすのは「地の色」だけ: 目盛りの文字(fg)・薄い文字(dim)・グリッド線(line)。
+// この3つは白い紙を前提にした値なので、黒地のテーマではそのままだと読めない。
+// Cを書き換える形にしてあるので、参照側（C.fg など）は一切変えなくてよい。
+function syncChrome() {
+  C.fg = cssVar("--fg", "#2f3440");
+  C.dim = cssVar("--fg-dim", "#8a91a3");
+  C.line = cssVar("--line", "#e3e8f2");
+}
 
 function s(tag, attrs = {}, children = []) {
   const n = document.createElementNS(NS, tag);
@@ -15,6 +26,7 @@ const abbr = (n) => (n == null ? "—" : Math.abs(n) >= 1e8 ? (n / 1e8).toFixed(
 
 // 区分別 予算(計画)vs実績 横棒
 export function hbars(rows, { title } = {}) {
+  syncChrome();
   const w = 460, rowH = 34, pad = 74, top = 8, h = top + rows.length * rowH + 10;
   const max = Math.max(1, ...rows.map((r) => Math.max(r.plan, r.actual)));
   const bw = w - pad - 90;
@@ -41,6 +53,7 @@ function xLabels(svg, series, x, h) {
 // 累計の予実。日別の折れ線は曜日変動が支配的で差が読めなかったため累計にした。
 // 実績が途切れた先は「残りは計画どおり」で伸ばした着地見込み（アプリの着地KPIと同じ定義）。
 export function cumLine(series, { title } = {}) {
+  syncChrome();
   const n = series.length;
   const w = 620, h = 226, padL = 46, padB = 22, padT = 14, padR = 68;
   const iw = w - padL - padR, ih = h - padB - padT;
@@ -113,6 +126,7 @@ export function cumLine(series, { title } = {}) {
 // avg=true のときは {cur:[合計,台数]} を受け取り、累計ではなく「そこまでの平均」を描く。
 // アウトは台あたりの数字なので足し上げても意味がなく、台数で重みづけした平均で見る。
 export function cumCompare(series, { title, color = C.pos, unit = "", avg = false, seriesLabel = "累計" } = {}) {
+  syncChrome();
   const n = series.length;
   const w = 620, h = 210, padL = 46, padB = 22, padT = 14, padR = 74;
   const iw = w - padL - padR, ih = h - padB - padT;
@@ -185,6 +199,7 @@ export function cumCompare(series, { title, color = C.pos, unit = "", avg = fals
 
 // 日別の過不足（実績−計画）。0を基準にした発散バーで「どの日で落としたか」が分かる。
 export function diffBars(series, { title } = {}) {
+  syncChrome();
   const n = series.length;
   const w = 620, h = 190, padL = 46, padB = 22, padT = 16, padR = 10;
   const iw = w - padL - padR, ih = h - padB - padT;
@@ -234,6 +249,7 @@ export function diffBars(series, { title } = {}) {
 // baseLabel: 横線が何を指すか。日別の表は計画とも昨年とも比べるので、
 // 凡例とツールチップの文言を呼び出し側から変えられるようにしている。
 export function dailyBars(series, { title, color = C.pos, unit = "", baseLabel = "計画" } = {}) {
+  syncChrome();
   const n = series.length;
   const w = 640, h = 168, padL = 46, padB = 20, padT = 14, padR = 10;
   const iw = w - padL - padR, ih = h - padB - padT;

@@ -5,6 +5,8 @@ import { el } from "./util/dom.js";
 import { currentSession, signIn, signOut, authErrorMessage } from "./core/auth.js";
 import { mountFreshnessBar } from "./core/freshness.js";
 import { authRequired, AUTH_EMAIL, STORE_NAME } from "./core/config.js";
+import { onThemeChange } from "./core/theme.js";
+import { refreshHeatPalette } from "./calc/heat.js";
 
 function initFySelector() {
   const sel = document.getElementById("fySelect");
@@ -39,6 +41,14 @@ function startApp() {
   // データが古いままになっていないかをタブ直下に常時表示（描画は待たない）
   const nav = document.getElementById("tabs");
   mountFreshnessBar(nav.parentNode.insertBefore(el("div"), nav.nextSibling));
+
+  // 見た目を切り替えたとき、CSSだけでは追いつかないものをここで面倒みる。
+  // ヒートの色はJSがCSS変数を読んで保持しているので捨てさせ、グラフ（SVG）は
+  // 描いた時点の色で固まっているので今の画面を描き直す。
+  onThemeChange(() => {
+    refreshHeatPalette();
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+  });
 }
 
 // ログイン画面（パスワードのみ）。成功で onOk を呼ぶ。
