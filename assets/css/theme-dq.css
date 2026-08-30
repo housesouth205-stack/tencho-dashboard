@@ -8,8 +8,8 @@
    白く光り、そこだけ文字が読めなくなった。抜けは実行時に気づけない。 */
 
 @font-face {
-  font-family: "Misaki";
-  src: url("../fonts/misaki_gothic_2nd.ttf") format("truetype");
+  font-family: "PixelMplus12";
+  src: url("../fonts/PixelMplus12-Regular.ttf") format("truetype");
   /* 読み込み中は既定フォントで出す。ドットで出ないより、読めるほうがまし。 */
   font-display: swap;
 }
@@ -54,15 +54,17 @@
   --shadow: none;
   --shadow-lg: none;
   --radius: 0px;
-  --font: "Misaki", monospace;
+  --font: "PixelMplus12", monospace;
 }
 
 /* ---- ドットの等倍 ----
-   美咲ゴシックは8×8のビットマップ。8の倍数以外で出すとドットが滲む。
-   本文16px・見出し32pxに固定し、小さめの指定（12px等）も16pxへ引き上げる。 */
-:root[data-theme="dq"] body { font-size: 16px; line-height: 1.5; -webkit-font-smoothing: none; }
-:root[data-theme="dq"] h1 { font-size: 32px; line-height: 1.5; }
-:root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-size: 16px; }
+   PixelMplus12 が滲まないサイズを実測したところ、24pxと36pxだけだった
+   （12・16・18・20・25・30・48px はいずれもアンチエイリアスが乗る）。
+   設計は12pxだが12pxそのものでは滲むので、本文24px・見出し36pxに固定する。
+   小さめの指定（12px等）もすべて24pxへ引き上げる。 */
+:root[data-theme="dq"] body { font-size: 24px; line-height: 1.5; -webkit-font-smoothing: none; }
+:root[data-theme="dq"] h1 { font-size: 36px; line-height: 1.5; }
+:root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-size: 24px; }
 :root[data-theme="dq"] h1, :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-weight: normal; color: var(--accent); }
 :root[data-theme="dq"] .hint,
 :root[data-theme="dq"] .savestate,
@@ -71,7 +73,7 @@
 :root[data-theme="dq"] .btn.sm,
 :root[data-theme="dq"] table.grid,
 :root[data-theme="dq"] table.grid.compact th,
-:root[data-theme="dq"] .badge { font-size: 16px; }
+:root[data-theme="dq"] .badge { font-size: 24px; }
 
 /* ---- DQのメッセージウィンドウ: 黒地に白の二重枠。角丸も影も無い ---- */
 :root[data-theme="dq"] .card,
@@ -84,7 +86,7 @@
 :root[data-theme="dq"] .tabs { border-bottom: 4px solid var(--line); }
 :root[data-theme="dq"] .appbar .brand b { color: var(--accent); }
 
-/* 文字が16pxになるとヘッダーが390pxに収まらず、「店長ダッシュボード」が
+/* 文字が24pxになるとヘッダーが390pxに収まらず、「店長ダッシュボード」が
    語の途中で3行に割れる。店名は折り返さず1行に置き、年度と保存表示は
    入らなければ次の行へ落とす（詰めて潰すより読める）。 */
 :root[data-theme="dq"] .appbar { flex-wrap: wrap; row-gap: 4px; }
