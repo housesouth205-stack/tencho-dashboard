@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C案に色を足す — C→A の段階</title>
+<link rel="stylesheet" href="assets/css/theme.css">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<style>
+@font-face { font-family:"Misaki"; src:url("assets/fonts/misaki_gothic_2nd.ttf") format("truetype"); font-display:swap; }
+
+/* ファミコン実機パレット: $30=#FCFCFC $10=#BCBCBC $00=#7C7C7C
+   $38=#F8D878 $28=#F8B800 $26=#FCA044 $16=#F83800 $2A=#58D854 $22=#3CBCFC $12=#0078F8 */
+
+/* ===== 共通の土台（Aの骨格：黒地×白の二重枠）=====
+   トークンは1つ残らず埋める。未定義だと既定テーマの白が漏れて、
+   黒画面の真ん中に白い行が出る（実際に踏んだ）。 */
+.fcbase{
+  --font:"Misaki",monospace; --radius:0px; --shadow:none; --shadow-lg:none;
+  --bg:#000; --panel:#000; --panel-2:#000; --panel-3:#0a0a0a; --line:#FCFCFC;
+  --fg:#FCFCFC; --fg-dim:#BCBCBC; --accent:#FCFCFC;
+  --pastel-blue:#101828; --pastel-red:#281010;
+  font-family:var(--font); font-size:16px; line-height:1.5;
+  -webkit-font-smoothing:none; background:var(--bg); color:var(--fg);
+}
+.fcbase h1{font-size:32px;font-weight:normal;line-height:1.5;margin:0 0 8px}
+.fcbase h2{font-size:16px;font-weight:normal;margin:0 0 8px}
+.fcbase .view-title small,.fcbase .savestate,.fcbase .hint{font-size:16px}
+.fcbase .appbar{padding:8px 16px;box-shadow:none;position:static;background:#000;border-bottom:4px solid #FCFCFC}
+.fcbase .brand b{color:var(--accent)}
+.fcbase .tabs{padding:8px 8px 0;gap:0;background:#000;border-bottom:4px solid #FCFCFC}
+.fcbase .tab{border-radius:0;border-bottom:none;font-weight:normal;padding:6px 10px;background:transparent;color:#7C7C7C}
+.fcbase .tab.active{background:transparent;color:var(--accent)}
+.fcbase .tab::before{content:"";display:inline-block;width:0;height:0;margin-right:6px;
+  border-left:8px solid transparent;border-top:5px solid transparent;border-bottom:5px solid transparent;vertical-align:1px}
+.fcbase .tab.active::before{border-left-color:currentColor}
+.fcbase main{padding:16px}
+.fcbase .card{border-radius:0;padding:16px;background:#000;border:4px solid #FCFCFC;box-shadow:inset 0 0 0 2px #000}
+.fcbase .btn{border-radius:0;padding:6px 14px;background:#000;border:3px solid #FCFCFC;color:#FCFCFC}
+.fcbase .btn.primary{background:#FCFCFC;color:#000}
+.fcbase table.grid{font-size:16px}
+.fcbase table.grid th,.fcbase table.grid td{padding:5px 10px;border:2px solid #FCFCFC;background:#000}
+.fcbase table.grid th{background:#FCFCFC;color:#000}
+.fcbase .badge{border-radius:0;font-size:16px;font-weight:normal;padding:0 8px;border:2px solid currentColor;background:transparent;color:#FCFCFC}
+.fcbase .heat span{padding:2px 14px;display:inline-block;color:#FCFCFC;text-shadow:1px 1px 0 #000}
+
+/* ---- ヒートの網掛け（既定＝完全モノクロ）
+   灰色を作らず、点の密度で濃さを出す。実機が色数不足を誤魔化した手法。 ---- */
+.h-mono .heat span:nth-child(1){background:radial-gradient(#FCFCFC .7px,#000 .8px) 0 0/8px 8px}
+.h-mono .heat span:nth-child(2){background:radial-gradient(#FCFCFC .9px,#000 1px) 0 0/5px 5px}
+.h-mono .heat span:nth-child(3){background:repeating-conic-gradient(#FCFCFC 0 25%,#000 0 50%) 0 0/6px 6px}
+.h-mono .heat span:nth-child(4){background:radial-gradient(#000 .9px,#FCFCFC 1px) 0 0/5px 5px;color:#000;text-shadow:none}
+.h-mono .heat span:nth-child(5){background:#FCFCFC;color:#000;text-shadow:none}
+
+/* ---- ヒートを「網掛け＋色」に。ベタ塗りにせず網目を残すのがCらしさ ---- */
+.h-dither .heat span:nth-child(1){background:radial-gradient(#F8D878 .9px,#000 1px) 0 0/6px 6px}
+.h-dither .heat span:nth-child(2){background:repeating-conic-gradient(#F8D878 0 25%,#000 0 50%) 0 0/6px 6px}
+.h-dither .heat span:nth-child(3){background:repeating-conic-gradient(#F8B800 0 25%,#000 0 50%) 0 0/4px 4px}
+.h-dither .heat span:nth-child(4){background:radial-gradient(#000 .9px,#FCA044 1px) 0 0/5px 5px;color:#000;text-shadow:none}
+.h-dither .heat span:nth-child(5){background:#F83800;color:#FCFCFC;text-shadow:1px 1px 0 #000}
+
+/* ---- Aのベタ塗りヒート（比較用の右端） ---- */
+.h-solid .heat span:nth-child(1){background:#F8D878;color:#000;text-shadow:none}
+.h-solid .heat span:nth-child(2){background:#F8B800;color:#000;text-shadow:none}
+.h-solid .heat span:nth-child(3){background:#FCA044;color:#000;text-shadow:none}
+.h-solid .heat span:nth-child(4){background:#F83800;color:#FCFCFC;text-shadow:none}
+.h-solid .heat span:nth-child(5){background:#A81000;color:#FCFCFC;text-shadow:none}
+
+/* ===== 段階ごとの色の足し方 ===== */
+/* C0 元のC: 色ゼロ。良し悪しは▲だけ */
+.c0{--ok:#FCFCFC;--warn:#FCFCFC;--bad:#FCFCFC}
+
+/* C1 数字だけ色: 前年比の数値のみ緑/黄。▲は残すので色に頼らない */
+.c1{--ok:#58D854;--warn:#F8D878;--bad:#F83800}
+
+/* C2 区分にも色: C1＋バッジに青/赤。ヒートは網掛けのまま */
+.c2{--ok:#58D854;--warn:#F8D878;--bad:#F83800}
+.c2 .badge.s{color:#3CBCFC} .c2 .badge.p{color:#F83800}
+
+/* C3 網掛けにも色＋見出し金: ここまで来るとAに近いが、面が網目なので質感が残る */
+.c3{--ok:#58D854;--warn:#F8D878;--bad:#F83800;--accent:#F8D878}
+.c3 .badge.s{color:#3CBCFC} .c3 .badge.p{color:#F83800}
+.c3 h1,.c3 h2{color:#F8D878}
+.c3 .btn.primary{background:#F8D878;color:#000}
+
+/* C3b: C3のままヘッダだけAの黒地に戻す（白帯は主張が強いため） */
+.c3b{--ok:#58D854;--warn:#F8D878;--bad:#F83800;--accent:#F8D878}
+.c3b .badge.s{color:#3CBCFC} .c3b .badge.p{color:#F83800}
+.c3b h1,.c3b h2{color:#F8D878}
+.c3b .btn.primary{background:#F8D878;color:#000}
+.c3b table.grid th{background:#000;color:#BCBCBC}
+
+/* A 元のA: ベタ塗り・▲なし */
+.va{--ok:#58D854;--warn:#F8B800;--bad:#F83800;--accent:#F8D878}
+.va .badge.s{color:#3CBCFC} .va .badge.p{color:#F83800}
+.va table.grid th{background:#000;color:#BCBCBC}
+.va .btn.primary{background:#000;color:#F8D878;border-color:#F8D878}
+
+body{margin:0;background:#3a3a3a;font-family:system-ui,sans-serif}
+.grid5{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;align-items:start}
+.tag{background:#fff;color:#000;font:700 13px system-ui;padding:5px 10px}
+.tag i{font-weight:400;color:#555}
+</style>
+</head>
+<body>
+<div class="grid5" id="grid"></div>
+<script>
+const BODY = (mark) => `
+  <header class="appbar"><div class="brand">TOHO池袋店 <b>店長ダッシュボード</b></div>
+    <div class="spacer"></div><div class="savestate saved">ほぞんした</div></header>
+  <nav class="tabs">
+    <button class="tab active">予実</button><button class="tab">島図・設定</button>
+    <button class="tab">機種分析</button><button class="tab">出玉率</button></nav>
+  <main>
+    <div class="view-title"><h1>予実管理</h1><small>2026年8月</small></div>
+    <div class="card">
+      <h2>8月14日までの合計</h2>
+      <table class="grid">
+        <thead><tr><th class="txt">項目</th><th>実績</th><th>昨年</th><th>前年比</th></tr></thead>
+        <tbody>
+          <tr><td class="txt">売上</td><td class="mono">¥205,800,000</td><td class="mono">¥160,800,000</td><td class="mono" style="color:var(--ok)">${mark}128.0%</td></tr>
+          <tr><td class="txt">粗利</td><td class="mono">¥59,220,000</td><td class="mono">¥44,616,000</td><td class="mono" style="color:var(--ok)">${mark}132.7%</td></tr>
+          <tr><td class="txt">アウト/台</td><td class="mono">3,500</td><td class="mono">3,345</td><td class="mono" style="color:var(--warn)">${mark}104.6%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin:10px 0 0">実績14日／昨年12日ぶん</p>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary">とりこむ</button><button class="btn">日報をつくる</button></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <p style="margin:0 0 10px"><span class="badge s">20スロ</span> 144台　<span class="badge p">2スロ</span> 48台</p>
+      <p class="heat" style="margin:0"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></p>
+    </div>
+  </main>`;
+
+// [クラス, ヒートの描き方, ▲を出すか, 見出し]
+const V = [
+  ["c0","h-mono",  1, "C0 元のC <i>— 色ゼロ／網掛け／▲</i>"],
+  ["c1","h-mono",  1, "C1 <i>＋前年比の数字だけ色（▲は残す）</i>"],
+  ["c2","h-mono",  1, "C2 <i>＋区分バッジにも色</i>"],
+  ["c3","h-dither",1, "C3 <i>＋ヒートも色（網掛けのまま）・見出し金</i>"],
+  ["c3b","h-dither",1,"C3b <i>C3のまま表ヘッダだけAの黒地に</i>"],
+  ["va","h-solid", 0, "A 元のA <i>— ベタ塗り／▲なし</i>"],
+];
+const g = document.getElementById("grid");
+for (const [cls, heat, mark, label] of V) {
+  const w = document.createElement("div");
+  w.innerHTML = `<div class="tag">${label}</div>
+    <div class="fcbase ${cls} ${heat}">${BODY(mark ? "▲" : "")}</div>`;
+  g.appendChild(w);
+}
+const only = new URLSearchParams(location.search).get("only");
+if (only !== null) {
+  const keep = g.children[Number(only)];
+  [...g.children].forEach((c) => { if (c !== keep) c.remove(); });
+  g.style.gridTemplateColumns = "1fr";
+}
+</script>
+</body>
+</html>
