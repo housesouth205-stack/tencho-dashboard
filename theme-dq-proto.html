@@ -3,103 +3,125 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DQ風テーマ 試作</title>
+<title>ドラクエ風テーマ 比較（ファミコン風 / スーファミ風）</title>
 <link rel="stylesheet" href="assets/css/theme.css">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/components.css">
 <style>
-/* ===== ドラクエ風テーマ（theme.css のトークンを差し替えるだけ） ===== */
-:root {
-  --bg: #000000;
-  --panel: #000000;
-  --panel-2: #101038;
-  --panel-3: #08081c;
-  --line: #ffffff;
-  --fg: #ffffff;
-  --fg-dim: #a0a0b8;
+@font-face {
+  font-family: "Misaki";
+  src: url("assets/fonts/misaki_gothic_2nd.ttf") format("truetype");
+  font-display: swap;
+}
 
-  --accent: #f8d838;
-  --accent-hi: #fcfc54;
-  --accent-dim: #6b5a10;
-  --ok: #58d858;
-  --warn: #f8d838;
-  --bad: #f87858;
-  --blue: #58a8f8;
-
-  --pastel-blue: #182858;
-  --pastel-green: #103818;
-  --pastel-yellow: #383010;
-  --pastel-purple: #281848;
-  --pastel-red: #481818;
-
-  --heat-1: #204010; --heat-2: #6b7810; --heat-3: #f8d838;
-  --heat-4: #f89838; --heat-5: #f85858;
-
-  --shadow: none;
-  --shadow-lg: none;
+/* ===== 共通（ドット表示の土台） =====
+   美咲ゴシックは8×8のビットマップ。8の倍数以外だと滲むので寸法を8/16/24/32に固定する。 */
+.dq {
+  --font: "Misaki", monospace;
   --radius: 0px;
-  --font: "Unifont", "DotGothic16", monospace;
+  --shadow: none; --shadow-lg: none;
+  font-family: var(--font);
+  font-size: 16px; line-height: 1.5;
+  -webkit-font-smoothing: none;
+  background: var(--bg); color: var(--fg);
 }
-/* ドット絵は等倍でないと滲む。16pxのビットマップなので16/32pxに固定する。 */
-body { font-size: 16px; line-height: 1.6; -webkit-font-smoothing: none; font-smooth: never; }
+.dq h1 { font-size: 32px; font-weight: normal; line-height: 1.5; margin: 0 0 8px; }
+.dq h2 { font-size: 16px; font-weight: normal; margin: 0 0 8px; }
+.dq .view-title small, .dq .hint, .dq .savestate { font-size: 16px; }
+.dq .card { border-radius: 0; padding: 16px; }
+.dq .btn { border-radius: 0; padding: 6px 14px; }
+.dq table.grid { font-size: 16px; }
+.dq table.grid th, .dq table.grid td { padding: 5px 10px; }
+.dq .badge { border-radius: 0; font-size: 16px; font-weight: normal; padding: 0 8px; border-width: 2px; }
+.dq .appbar { padding: 8px 16px; box-shadow: none; position: static; }
+.dq .tabs { padding: 8px 8px 0; gap: 0; }
+.dq .tab { border-radius: 0; border-bottom: none; font-weight: normal; padding: 6px 12px; }
+.dq main { padding: 16px; }
 
-/* DQのメッセージウィンドウ = 黒地に白の二重枠。角丸も影も無い。 */
-.card, .modal, .toast {
-  border: 4px solid #fff !important; border-radius: 0 !important;
-  box-shadow: inset 0 0 0 2px #000 !important; background: #000 !important;
-  padding: 18px;
+/* DQの選択カーソル。▶ は美咲ゴシックに入っていないので、
+   CSSの三角で描く（フォントに無い字を待たずに済み、拡大しても崩れない）。 */
+.dq .tab::before {
+  content: ""; display: inline-block; width: 0; height: 0; margin-right: 6px;
+  border-left: 8px solid transparent;
+  border-top: 5px solid transparent; border-bottom: 5px solid transparent;
+  vertical-align: 1px;
 }
-.appbar {
-  background: #000; border-bottom: 4px solid #fff; box-shadow: none;
-  image-rendering: pixelated;
+.dq .tab.active::before { border-left-color: currentColor; }
+
+/* ===== ファミコン風（DQ I〜IV）=====
+   黒地に白枠だけ。中間色をほとんど使わない。 */
+.fc {
+  --bg: #000000; --panel: #000000; --panel-2: #101010; --panel-3: #0a0a0a;
+  --line: #ffffff; --fg: #ffffff; --fg-dim: #a8a8a8;
+  --accent: #fcfcfc; --accent-hi: #ffffff; --accent-dim: #505050;
+  --ok: #58d858; --warn: #fcd800; --bad: #f87858; --blue: #58a8fc;
+  --pastel-blue: #101828; --pastel-red: #281010;
+  --heat-1: #204010; --heat-2: #7c8800; --heat-3: #fcd800; --heat-4: #fc9838; --heat-5: #f85858;
 }
-.appbar .brand b { color: var(--accent); }
-
-/* タブ＝コマンドウィンドウ。選択中は ▶ カーソルを出す（DQの選択カーソル） */
-.tabs { background: #000; border-bottom: 4px solid #fff; gap: 0; padding: 8px 12px 0; }
-.tab { border-radius: 0; border-bottom: none; padding: 8px 14px; font-weight: normal; }
-.tab.active { background: transparent; color: var(--accent); border-bottom: none; }
-.tab.active::before { content: "▶"; margin-right: 4px; }
-.tab:not(.active)::before { content: "\00a0\00a0"; margin-right: 4px; }
-.tab:hover { background: #101038; color: #fff; }
-
-/* ボタン＝コマンド枠 */
-.btn { border: 3px solid #fff; border-radius: 0; background: #000; padding: 6px 14px; }
-.btn:hover { background: #101038; }
-.btn.primary { background: #000; color: var(--accent); border-color: var(--accent); }
-
-table.grid { font-size: 16px; }
-table.grid th, table.grid td { border: 2px solid #fff; padding: 6px 10px; }
-table.grid th { background: #101038; color: #fff; }
-table.grid tbody tr:nth-child(even) td { background: #08081c; }
-
-.badge { border-radius: 0; border: 2px solid currentColor; font-weight: normal; }
-.badge.s { color: var(--blue); background: #000; }
-.badge.p { color: var(--bad); background: #000; }
-
-input[type=text], input[type=number], select.inp {
-  background: #000; border: 3px solid #fff; border-radius: 0; color: #fff;
+.fc .card, .fc .modal {
+  background: #000; border: 4px solid #fff;
+  box-shadow: inset 0 0 0 2px #000;
 }
-.placeholder { border: 4px dashed #fff; border-radius: 0; }
-h1, h2, h3 { font-weight: normal; }
+.fc .appbar { background: #000; border-bottom: 4px solid #fff; }
+.fc .tabs { background: #000; border-bottom: 4px solid #fff; }
+.fc .tab.active { color: #fff; background: transparent; }
+.fc .tab:not(.active) { color: #a8a8a8; }
+.fc .btn { background: #000; border: 3px solid #fff; color: #fff; }
+.fc .btn.primary { color: #fcd800; border-color: #fcd800; }
+.fc table.grid th, .fc table.grid td { border: 2px solid #fff; }
+.fc table.grid th { background: #101010; color: #fff; }
+.fc table.grid tbody tr:nth-child(even) td { background: #0a0a0a; }
 
-/* ビットマップフォントは等倍でないと滲む。見出しも16の倍数に固定する。 */
-h1 { font-size: 32px; line-height: 1.5; }
-h2 { font-size: 16px; }
-.view-title small, .hint, label.lbl, .savestate { font-size: 16px; }
-.badge { font-size: 16px; padding: 1px 8px; }
-.btn.sm { font-size: 16px; }
-table.grid.compact th { font-size: 16px; }
+/* ===== スーファミ風（DQ V・VI）=====
+   紺のグラデ地に、金の枠と内側の白ライン。文字に影が付く。 */
+.sfc {
+  --bg: #101038; --panel: #182058; --panel-2: #202a70; --panel-3: #1a2260;
+  --line: #f0d878; --fg: #ffffff; --fg-dim: #a8b4e0;
+  --accent: #f8d838; --accent-hi: #fcfc80; --accent-dim: #6b5a10;
+  --ok: #78e878; --warn: #f8d838; --bad: #f88888; --blue: #88c0f8;
+  --pastel-blue: #202a70; --pastel-red: #4a2050;
+  --heat-1: #2a4a30; --heat-2: #8a9030; --heat-3: #f8d838; --heat-4: #f89838; --heat-5: #f86868;
+}
+.sfc { text-shadow: 2px 2px 0 rgba(0,0,0,.6); }
+.sfc .card, .sfc .modal {
+  background: linear-gradient(180deg, #202a70 0%, #141a48 100%);
+  border: 4px solid #f0d878;
+  box-shadow: inset 0 0 0 2px #101038, inset 0 0 0 4px #7888c8;
+}
+.sfc .appbar { background: linear-gradient(180deg, #202a70, #141a48); border-bottom: 4px solid #f0d878; }
+.sfc .tabs { background: #141a48; border-bottom: 4px solid #f0d878; }
+.sfc .tab.active { color: #f8d838; background: transparent; }
+.sfc .tab:not(.active) { color: #a8b4e0; }
+.sfc .btn { background: linear-gradient(180deg,#2a3488,#181e55); border: 3px solid #f0d878; color: #fff; }
+.sfc .btn.primary { color: #f8d838; }
+.sfc table.grid th, .sfc table.grid td { border: 2px solid #7888c8; }
+.sfc table.grid th { background: #2a3488; color: #f0d878; }
+.sfc table.grid tbody tr:nth-child(even) td { background: #1a2260; }
 
+/* ===== 比較用の並べ ===== */
+body { margin: 0; background: #444; font-family: system-ui, sans-serif; }
+.cmp { display: flex; gap: 0; align-items: stretch; }
+.cmp > div { flex: 1; min-width: 0; }
+.tag { background: #fff; color: #000; font: 700 13px system-ui; padding: 6px 12px; }
 </style>
 </head>
 <body>
-<div id="app">
+<div class="cmp">
+  <div>
+    <div class="tag">① ファミコン風（DQ I〜IV）── 黒地 × 白枠</div>
+    <div class="dq fc" id="fc"></div>
+  </div>
+  <div>
+    <div class="tag">② スーファミ風（DQ V・VI）── 紺地 × 金枠</div>
+    <div class="dq sfc" id="sfc"></div>
+  </div>
+</div>
+
+<script>
+const HTML = `
   <header class="appbar">
     <div class="brand">TOHO池袋店 <b>店長ダッシュボード</b></div>
     <div class="spacer"></div>
-    <div class="field"><span>年度</span>
-      <select><option>2026年度</option></select></div>
     <div class="savestate saved">ほぞんした</div>
   </header>
   <nav class="tabs">
@@ -113,41 +135,61 @@ table.grid.compact th { font-size: 16px; }
   </nav>
   <main>
     <div class="view-title"><h1>予実管理</h1><small>2026年8月</small></div>
-    <div class="row stack-md">
-      <div class="card grow">
-        <h2>▼ 8月14日までの合計</h2>
-        <table class="grid">
-          <thead><tr><th class="txt">項目</th><th>実績</th><th>昨年</th><th>前年比</th></tr></thead>
-          <tbody>
-            <tr><td class="txt">売上</td><td class="mono">¥205,800,000</td><td class="mono">¥160,800,000</td><td class="mono" style="color:var(--ok)">128.0%</td></tr>
-            <tr><td class="txt">粗利</td><td class="mono">¥59,220,000</td><td class="mono">¥44,616,000</td><td class="mono" style="color:var(--ok)">132.7%</td></tr>
-            <tr><td class="txt">アウト/台</td><td class="mono">3,500</td><td class="mono">3,345</td><td class="mono" style="color:var(--warn)">104.6%</td></tr>
-          </tbody>
-        </table>
-        <p style="margin-top:14px">実績14日／昨年12日ぶん（おなじ日にちで つきあわせ）</p>
-        <div class="row" style="margin-top:12px">
-          <button class="btn primary">とりこむ</button>
-          <button class="btn">日報をつくる</button>
-          <button class="btn">とじる</button>
-        </div>
-      </div>
-      <div class="card" style="min-width:300px">
-        <h2>▼ 区分</h2>
-        <p><span class="badge s">20スロ</span> 144台<br>
-           <span class="badge p">2スロ</span> 48台<br>
-           <span class="badge s">5スロ</span> 112台</p>
-        <p style="color:var(--fg-dim)">ごうけい 304台</p>
-        <h2 style="margin-top:18px">▼ ヒート</h2>
-        <p>
-          <span style="background:var(--heat-1);color:#fff;padding:2px 8px">1</span>
-          <span style="background:var(--heat-2);color:#000;padding:2px 8px">2</span>
-          <span style="background:var(--heat-3);color:#000;padding:2px 8px">3</span>
-          <span style="background:var(--heat-4);color:#000;padding:2px 8px">4</span>
-          <span style="background:var(--heat-5);color:#000;padding:2px 8px">5</span>
-        </p>
+    <div class="card">
+      <h2>8月14日までの合計</h2>
+      <div class="table-wrap"><table class="grid">
+        <thead><tr><th class="txt">項目</th><th>実績</th><th>昨年</th><th>前年比</th></tr></thead>
+        <tbody>
+          <tr><td class="txt">売上</td><td class="mono">¥205,800,000</td><td class="mono">¥160,800,000</td><td class="mono" style="color:var(--ok)">128.0%</td></tr>
+          <tr><td class="txt">粗利</td><td class="mono">¥59,220,000</td><td class="mono">¥44,616,000</td><td class="mono" style="color:var(--ok)">132.7%</td></tr>
+          <tr><td class="txt">アウト/台</td><td class="mono">3,500</td><td class="mono">3,345</td><td class="mono" style="color:var(--warn)">104.6%</td></tr>
+        </tbody>
+      </table></div>
+      <p style="margin:12px 0 0">実績14日／昨年12日ぶん（同じ日にちで突き合わせ）</p>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary">とりこむ</button>
+        <button class="btn">日報をつくる</button>
       </div>
     </div>
-  </main>
-</div>
+    <div class="card" style="margin-top:14px">
+      <h2>区分とヒート</h2>
+      <p><span class="badge s">20スロ</span> 144台　<span class="badge p">2スロ</span> 48台</p>
+      <p>
+        <span style="background:var(--heat-1);padding:2px 10px">1</span><span style="background:var(--heat-2);color:#000;padding:2px 10px">2</span><span style="background:var(--heat-3);color:#000;padding:2px 10px">3</span><span style="background:var(--heat-4);color:#000;padding:2px 10px">4</span><span style="background:var(--heat-5);color:#000;padding:2px 10px">5</span>
+      </p>
+      <p class="hint">スマスロ北斗の拳／L戦国乙女5L8／新ハナビR</p>
+    </div>
+  </main>`;
+document.getElementById("fc").innerHTML = HTML;
+document.getElementById("sfc").innerHTML = HTML;
+
+// ?only=fc / ?only=sfc でスマホ確認用に片方だけ全幅表示する。
+const only = new URLSearchParams(location.search).get("only");
+if (only) {
+  document.querySelectorAll(".tag").forEach((t) => t.remove());
+  const keep = document.getElementById(only);
+  document.querySelectorAll(".cmp > div").forEach((d) => { if (!d.contains(keep)) d.remove(); });
+  document.body.style.background = getComputedStyle(keep).backgroundColor;
+}
+
+// ?measure=1 で、はみ出しを実測して画面に出す（目視ではなく数字で確認するため）。
+if (new URLSearchParams(location.search).get("measure")) {
+  document.fonts.ready.then(() => {
+    const out = [];
+    for (const [name, node] of [["fc", document.getElementById("fc")], ["sfc", document.getElementById("sfc")]]) {
+      if (!node) continue;
+      const tabs = node.querySelector(".tabs");
+      const rows = [...node.querySelectorAll(".tab")].map((t) => Math.round(t.getBoundingClientRect().height));
+      out.push(`${name} tabs: scrollW=${tabs.scrollWidth} clientW=${tabs.clientWidth} overflow=${tabs.scrollWidth > tabs.clientWidth} tabH=[${rows.join(",")}]`);
+      out.push(`${name} body: scrollW=${document.documentElement.scrollWidth} winW=${innerWidth} overflow=${document.documentElement.scrollWidth > innerWidth}`);
+    }
+    const pre = document.createElement("pre");
+    pre.id = "measured";
+    pre.style.cssText = "background:#fff;color:#000;font:12px monospace;padding:8px;margin:0";
+    pre.textContent = out.join("\n");
+    document.body.prepend(pre);
+  });
+}
+</script>
 </body>
 </html>
