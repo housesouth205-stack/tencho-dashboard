@@ -75,6 +75,35 @@
 :root[data-theme="dq"] table.grid.compact th,
 :root[data-theme="dq"] .badge { font-size: 24px; }
 
+/* ---- スマホは12pxに落とす ----
+   滲むかどうかを決めるのはCSSのpxではなく「実際の画素」。
+   スマホは1CSSピクセルが2〜3画素なので、CSS12pxは実機で24px（2倍端末）
+   または36px（3倍端末）で描かれる。どちらもこのフォントが等倍で出るサイズなので、
+   PCの24pxと同じだけくっきりしたまま、文字だけ半分にできる。
+   crisp-test.html を倍率2・3で回して実測した結果:
+     2倍端末でくっきり: 12 / 18 / 30px
+     3倍端末でくっきり: 12 / 20 / 28 / 32px
+   本文に使えるのは両方に入る12pxだけ。見出しは共通のサイズが無いので倍率ごとに出し分ける。
+   1倍のまま横幅が狭い端末（ほぼ無い）はPCと同じ24pxのまま＝大きいが滲まない。 */
+@media (max-width: 700px) and (min-resolution: 2dppx) {
+  :root[data-theme="dq"] body { font-size: 12px; }
+  :root[data-theme="dq"] h1 { font-size: 18px; }
+  :root[data-theme="dq"] h2,
+  :root[data-theme="dq"] h3,
+  :root[data-theme="dq"] .hint,
+  :root[data-theme="dq"] .savestate,
+  :root[data-theme="dq"] label.lbl,
+  :root[data-theme="dq"] .view-title small,
+  :root[data-theme="dq"] .btn.sm,
+  :root[data-theme="dq"] table.grid,
+  :root[data-theme="dq"] table.grid.compact th,
+  :root[data-theme="dq"] .badge { font-size: 12px; }
+}
+/* 3倍端末では18pxが滲む（54画素）。20px（60画素）ならくっきり出る。 */
+@media (max-width: 700px) and (min-resolution: 2.5dppx) {
+  :root[data-theme="dq"] h1 { font-size: 20px; }
+}
+
 /* ---- DQのメッセージウィンドウ: 黒地に白の二重枠。角丸も影も無い ---- */
 :root[data-theme="dq"] .card,
 :root[data-theme="dq"] .modal,

@@ -28,19 +28,26 @@ pre { margin:0; padding:12px 14px; background:#000; font:13px/1.7 monospace; whi
 
 <script>
 const FONTS = ["PixelMplus12"];
-const SIZES = [8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48];
+const SIZES = [12, 15, 16, 17, 18, 19, 20, 21, 22, 24, 26, 28, 30, 32, 36];
 // ダッシュボードで実際に出る文字。かな・漢字・数字・記号を混ぜる
 // （数字だけで測ると、漢字がつぶれる条件を見落とす）。
 const TEXT = "予実管理 売上 ¥205,800,000 粗利 132.7% アウト/台 3,500";
 
+// 滲むかどうかは「CSSピクセル」ではなく「実際の画素」で決まる。
+// スマホは1CSSピクセルが2〜3画素なので、CSS12pxでも実機では24〜36画素で描かれる。
+// そのため画面の倍率(devicePixelRatio)を掛けた解像度で測る。
 function midtonePct(font, size) {
+  const dpr = window.devicePixelRatio || 1;
   const cv = document.createElement("canvas");
   const m = cv.getContext("2d");
   m.font = `${size}px "${font}"`;
-  cv.width = Math.ceil(m.measureText(TEXT).width) + 8;
-  cv.height = Math.ceil(size * 2);
+  const cssW = Math.ceil(m.measureText(TEXT).width) + 8;
+  const cssH = Math.ceil(size * 2);
+  cv.width = Math.ceil(cssW * dpr);
+  cv.height = Math.ceil(cssH * dpr);
   const c = cv.getContext("2d", { willReadFrequently: true });
-  c.fillStyle = "#fff"; c.fillRect(0, 0, cv.width, cv.height);
+  c.scale(dpr, dpr);
+  c.fillStyle = "#fff"; c.fillRect(0, 0, cssW, cssH);
   c.font = `${size}px "${font}"`;
   c.fillStyle = "#000";
   c.textBaseline = "top";
@@ -59,7 +66,8 @@ function midtonePct(font, size) {
 document.fonts.ready
   .then(() => Promise.all(FONTS.flatMap((f) => SIZES.map((s) => document.fonts.load(`${s}px "${f}"`)))))
   .then(() => {
-    const rows = ["フォント          サイズ    中間調    判定"];
+    const rows = [`画面の倍率(devicePixelRatio) = ${window.devicePixelRatio || 1}`, "",
+      "フォント          CSSサイズ  実画素   中間調    判定"];
     const good = {};
     for (const f of FONTS) {
       good[f] = [];
@@ -67,7 +75,8 @@ document.fonts.ready
         const p = midtonePct(f, s);
         const ok = p < 3;
         if (ok) good[f].push(s);
-        rows.push(`${f.padEnd(18)}${String(s).padStart(3)}px${p.toFixed(1).padStart(9)}%    ${ok ? "くっきり（等倍）" : p < 12 ? "やや滲み" : "滲んでいる"}`);
+        const dev = (s * (window.devicePixelRatio || 1)).toFixed(0);
+        rows.push(`${f.padEnd(18)}${String(s).padStart(4)}px${String(dev).padStart(7)}px${p.toFixed(1).padStart(9)}%    ${ok ? "くっきり（等倍）" : p < 12 ? "やや滲み" : "滲んでいる"}`);
       }
       rows.push(`${" ".repeat(18)}→ 使えるサイズ: ${good[f].join(", ")}px`, "");
     }
