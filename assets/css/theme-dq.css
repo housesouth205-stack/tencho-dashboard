@@ -14,6 +14,39 @@
   font-display: swap;
 }
 
+/* 同じ行の中で「数字は大きく・漢字とかなは小さく」を出すための仕掛け。
+   同じフォントファイルを unicode-range で文字種ごとに分け、和文側だけ
+   size-adjust で縮める。字を小さくしたいのは漢字・かなであって、
+   読み違えると困る数字は大きいままにしたい、という要望に応えるもの。
+
+   実際に出る大きさは font-size × size-adjust。ドットが滲むかどうかはその
+   掛けたあとの寸法で決まるので、24px×50%=12px のように等倍の値に着地させる。
+   倍率2倍の画面で実測: 和文0.3%（くっきり）／数字7.9%。 */
+@font-face {
+  font-family: "PixelMplus12JP50";
+  src: url("../fonts/PixelMplus12-Regular.ttf") format("truetype");
+  font-display: swap;
+  size-adjust: 50%;
+  /* 全角の記号（＝ ／ （ ） ：）も和文側に入れる。外すとここだけ原寸で残り、
+     縮んだ漢字の横に大きな記号が並んで不格好になる（実際にそうなった）。
+     全角数字 U+FF10-FF19 だけは数字なので原寸のまま残す。 */
+  unicode-range: U+3000-303F, U+3040-309F, U+30A0-30FF, U+3400-4DBF,
+                 U+4E00-9FFF, U+F900-FAFF,
+                 U+FF01-FF0F, U+FF1A-FF60, U+FF66-FF9F;
+}
+@font-face {
+  font-family: "PixelMplus12JP75";
+  src: url("../fonts/PixelMplus12-Regular.ttf") format("truetype");
+  font-display: swap;
+  size-adjust: 75%;
+  /* 全角の記号（＝ ／ （ ） ：）も和文側に入れる。外すとここだけ原寸で残り、
+     縮んだ漢字の横に大きな記号が並んで不格好になる（実際にそうなった）。
+     全角数字 U+FF10-FF19 だけは数字なので原寸のまま残す。 */
+  unicode-range: U+3000-303F, U+3040-309F, U+30A0-30FF, U+3400-4DBF,
+                 U+4E00-9FFF, U+F900-FAFF,
+                 U+FF01-FF0F, U+FF1A-FF60, U+FF66-FF9F;
+}
+
 :root[data-theme="dq"] {
   /* ファミコン実機の54色パレットから取る。中間色を自分で作らないほうが「らしく」なる。
      $0F=#000000 $30=#FCFCFC $10=#BCBCBC $00=#7C7C7C $38=#F8D878
@@ -54,7 +87,10 @@
   --shadow: none;
   --shadow-lg: none;
   --radius: 0px;
-  --font: "PixelMplus12", monospace;
+  /* 和文の面を先に置く。unicode-range で担当が決まるので、漢字・かなは
+     縮んだ面が、数字・英字・記号は等倍の面が使われる。
+     倍率1倍の画面は12pxが滲むので、控えめな75%（24px→18px相当）にする。 */
+  --font: "PixelMplus12JP75", "PixelMplus12", monospace;
 }
 
 /* ---- ドットの等倍 ----
@@ -63,7 +99,7 @@
    設計は12pxだが12pxそのものでは滲むので、本文24px・見出し36pxに固定する。
    小さめの指定（12px等）もすべて24pxへ引き上げる。 */
 :root[data-theme="dq"] body { font-size: 24px; line-height: 1.5; -webkit-font-smoothing: none; }
-:root[data-theme="dq"] h1 { font-size: 24px; line-height: 1.5; }
+:root[data-theme="dq"] h1 { font-size: 36px; line-height: 1.5; }
 :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-size: 24px; }
 :root[data-theme="dq"] h1, :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-weight: normal; color: var(--accent); }
 :root[data-theme="dq"] .hint,
@@ -75,28 +111,11 @@
 :root[data-theme="dq"] table.grid.compact th,
 :root[data-theme="dq"] .badge { font-size: 24px; }
 
-/* ---- 高精細なPCでは画面の文字を12pxに落とす ----
-   1倍の画面では24pxが最下限で、それより下は全滅（12〜23pxをすべて実測して確認）。
-   一方 Retina や Windows の拡大表示（倍率2倍）なら、CSS12pxが実機24画素で描かれるので
-   スマホと同じ理屈でくっきりしたまま半分にできる。
-   数字は読み違えると困るので表と等幅数字だけ18px（2倍端末で36画素＝等倍）に戻し、
-   見出し・タブ・ボタン・ラベルといった画面の文字だけを小さくする。
-   1倍のPCでは何も起きない（この節が丸ごと効かない）＝滲ませない。 */
+/* ---- 高精細なPC（Retina・拡大表示200%）----
+   12pxが等倍で出る画面なので、和文をもっと縮められる（24px×50%=12px）。
+   数字は24pxのまま。1倍の画面ではこの節が効かず、75%のまま。 */
 @media (min-width: 701px) and (min-resolution: 2dppx) {
-  :root[data-theme="dq"] body { font-size: 12px; }
-  :root[data-theme="dq"] h1 { font-size: 30px; }
-  :root[data-theme="dq"] h2,
-  :root[data-theme="dq"] h3,
-  :root[data-theme="dq"] .hint,
-  :root[data-theme="dq"] .savestate,
-  :root[data-theme="dq"] label.lbl,
-  :root[data-theme="dq"] .view-title small,
-  :root[data-theme="dq"] .btn.sm,
-  :root[data-theme="dq"] .badge { font-size: 12px; }
-  /* 数字は小さくしない。表の中身と等幅数字は18pxのまま。 */
-  :root[data-theme="dq"] table.grid,
-  :root[data-theme="dq"] table.grid.compact th,
-  :root[data-theme="dq"] .mono { font-size: 18px; }
+  :root[data-theme="dq"] { --font: "PixelMplus12JP50", "PixelMplus12", monospace; }
 }
 
 /* ---- スマホは12pxに落とす ----
@@ -110,6 +129,9 @@
    本文に使えるのは両方に入る12pxだけ。見出しは共通のサイズが無いので倍率ごとに出し分ける。
    1倍のまま横幅が狭い端末（ほぼ無い）はPCと同じ24pxのまま＝大きいが滲まない。 */
 @media (max-width: 700px) and (min-resolution: 2dppx) {
+  /* スマホは全体が12px。ここで和文を縮めると6pxになって読めないので、
+     文字種で分けず等倍の面だけを使う。 */
+  :root[data-theme="dq"] { --font: "PixelMplus12", monospace; }
   :root[data-theme="dq"] body { font-size: 12px; }
   :root[data-theme="dq"] h1 { font-size: 18px; }
   :root[data-theme="dq"] h2,
