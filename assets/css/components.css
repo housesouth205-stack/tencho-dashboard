@@ -85,3 +85,18 @@ table.grid tbody tr:hover td { background: var(--pastel-blue); }
 
 .hint { color: var(--fg-dim); font-size: 12px; }
 .mono { font-variant-numeric: tabular-nums; }
+
+/* 予実のパネル部品。もとは view.js に px 直書きだったが、それだとテーマ側から
+   一切さわれない（インラインの指定はCSSより強い）。ドット文字のテーマで
+   本文だけ大きくしても、ここが11〜13pxのまま取り残されて読めなくなった。
+   値は直書きだったものと同じなので、通常テーマの見た目は変わらない。 */
+.panel-title { font-weight: 800; font-size: 13px; margin-bottom: 8px; }
+.mini-title { font-weight: 800; font-size: 11.5px; margin-bottom: 1px; }
+.kpi-item { flex: 1 1 152px; min-width: 152px; }
+.kpi-item.sm { flex: 1 1 138px; min-width: 138px; }
+.kpi-value { font-size: 21px; font-weight: 800; margin-top: 2px; white-space: nowrap; }
+.kpi-value.sm { font-size: 17px; }
+.stat-value { font-size: 13px; }
+.stat-value.lg { font-size: 13.5px; }
+.hint.xs { font-size: 11px; }
+.chart-legend { display: flex; gap: 14px; margin-top: 6px; font-size: 11px; color: var(--fg-dim); }

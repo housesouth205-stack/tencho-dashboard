@@ -134,15 +134,15 @@ const GC = { plan: "#6b7f9e", actual: "#1f9d70", prev: "#8a91a3" };
 // 金額は「¥122,760,000」まで伸びるが折り返せない。箱を content より狭くすると
 // はみ出して隣の数字と重なるので、折り返し前提の幅を持たせる（スマホで実際に潰れていた）。
 function miniKpi(label, value, color, sub) {
-  return el("div", { style: "flex:1 1 152px;min-width:152px" }, [
+  return el("div", { class: "kpi-item" }, [
     el("div", { class: "hint", text: label }),
-    el("div", { style: `font-size:21px;font-weight:800;margin-top:2px;white-space:nowrap;color:${color}`, text: value }),
+    el("div", { class: "kpi-value", style: `color:${color}`, text: value }),
     sub ? el("div", { class: "hint", text: sub }) : null,
   ]);
 }
 function groupPanel(title, accent, items) {
   return el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${accent};background:${tint(accent, 0.05)}` }, [
-    el("div", { style: `font-weight:800;font-size:13px;color:${accent};margin-bottom:8px`, text: title }),
+    el("div", { class: "panel-title", style: `color:${accent}`, text: title }),
     el("div", { class: "row", style: "gap:14px;flex-wrap:wrap" }, items),
   ]);
 }
@@ -158,9 +158,9 @@ const yoyText = (r, unit = "%") =>
 // 金額は「¥187,600,000」まで伸びる。折り返せない文字列なので、箱を狭くすると
 // 隣の項目に重なって読めなくなる。折り返し前提で幅を確保する。
 function prevKpi(label, value, sub, subHex, color) {
-  return el("div", { style: "flex:1 1 138px;min-width:138px" }, [
+  return el("div", { class: "kpi-item sm" }, [
     el("div", { class: "hint", text: label }),
-    el("div", { style: `font-size:17px;font-weight:800;margin-top:2px;white-space:nowrap;color:${color}`, text: value }),
+    el("div", { class: "kpi-value sm", style: `color:${color}`, text: value }),
     el("div", { class: "hint", style: `color:${subHex};font-weight:700;white-space:nowrap`, text: sub }),
   ]);
 }
@@ -171,7 +171,7 @@ function prevKpi(label, value, sub, subHex, color) {
 function prevPanel(prev) {
   const { title, cur: t, base: p, unitLabel } = prev;
   const box = (children) => el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${GC.prev};background:${tint(GC.prev, 0.05)}` },
-    [el("div", { style: `font-weight:800;font-size:13px;color:${GC.prev};margin-bottom:8px`, text: title }), ...children]);
+    [el("div", { class: "panel-title", style: `color:${GC.prev}`, text: title }), ...children]);
   // 単位は日（月モード）と月（年度モード）で変わる。数え方が違うものを同じ欄に出すので
   // 「実績月数 5／今年 5」のように必ず両方の数を書く。
   const cnt = (a) => (unitLabel === "実績月数" ? a.months : a.actualDays);
@@ -193,7 +193,7 @@ function prevPanel(prev) {
   ];
   return box([
     el("div", { class: "row", style: "gap:14px;flex-wrap:wrap" }, items),
-    el("div", { class: "hint", style: "margin-top:6px;font-size:11px",
+    el("div", { class: "hint xs", style: "margin-top:6px",
       text: unitLabel === "実績月数"
         ? "今年度に実績が入っている月の、同じ日にちだけで昨年度を集計しています（進行中の月も日数をそろえて比べられるように）。"
         : "今年の実績が入っている日にちと同じ日で昨年を集計しています（月の途中でも比べられるように）。" }),
@@ -206,14 +206,18 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   // 左列: 計画→実績を縦に並べる（枠色で分離）。売上=青 / 粗利=緑 で統一
   const planRate = t.plan.sales ? t.plan.gross / t.plan.sales : null;
   const actualRate = t.actual.sales ? t.actual.gross / t.actual.sales : null;
+  // 粗利率は粗利の下ではなく横に並べる。下に置くとカードが1行ぶん高くなり、
+  // 計画・実績・昨年同月と3枚重なるぶんだけ縦に伸びる。
   const planPanel = groupPanel("📋 計画", GC.plan, [
     miniKpi("売上", yen(t.plan.sales), MC.sales),
-    miniKpi("粗利", yen(t.plan.gross), MC.gross, planRate == null ? "" : "粗利率 " + pct(planRate)),
-  ]);
+    miniKpi("粗利", yen(t.plan.gross), MC.gross),
+    planRate == null ? null : miniKpi("粗利率", pct(planRate), MC.gross),
+  ].filter(Boolean));
   const actualPanel = groupPanel("✅ 実績", GC.actual, [
     miniKpi("売上", yen(t.actual.sales), MC.sales),
-    miniKpi("粗利", yen(t.actual.gross), MC.gross, actualRate == null ? "" : "粗利率 " + pct(actualRate)),
-  ]);
+    miniKpi("粗利", yen(t.actual.gross), MC.gross),
+    actualRate == null ? null : miniKpi("粗利率", pct(actualRate), MC.gross),
+  ].filter(Boolean));
   const left = el("div", { class: "col", style: "flex:1.25;min-width:300px;gap:12px" },
     [planPanel, actualPanel, opts.prev ? prevPanel(opts.prev) : null].filter(Boolean));
 
@@ -271,7 +275,7 @@ function goalPanel(t, { daysTotal }) {
     miniKpi("着地見込", yen(t.landing.gross), MC.land, "実績＋残計画"),
   ].filter(Boolean);
   return el("div", { class: "card", style: `flex:1;border-top:3px solid ${hex};background:${tint(hex, 0.05)}` }, [
-    el("div", { style: `font-weight:800;font-size:13px;color:${hex};margin-bottom:8px`, text: "🎯 達成状況（粗利）" }),
+    el("div", { class: "panel-title", style: `color:${hex}`, text: "🎯 達成状況（粗利）" }),
     bar,
     el("div", { class: "row", style: "gap:14px;flex-wrap:wrap;margin-top:10px" }, items),
   ]);
@@ -285,7 +289,7 @@ const narrow = () => window.matchMedia("(max-width: 700px)").matches;
 function statCard(head, right, pairs, cols) {
   const line = ([label, value, color]) => el("div", { class: "row", style: "justify-content:space-between;gap:6px;align-items:baseline;min-width:0" }, [
     el("span", { class: "hint", style: "white-space:nowrap", text: label }),
-    el("b", { style: `font-size:13px;text-align:right${color ? ";color:" + color : ""}`, text: value }),
+    el("b", { class: "stat-value", style: `text-align:right${color ? ";color:" + color : ""}`, text: value }),
   ]);
   return el("div", { class: "card col", style: "padding:10px 12px;gap:6px" }, [
     el("div", { class: "row", style: "align-items:center;gap:8px" }, [head, el("div", { class: "grow" }), right].filter(Boolean)),
@@ -298,14 +302,14 @@ function statCard(head, right, pairs, cols) {
 // どれが計画でどれが実績か読み取れなかった。
 function kv(label, value, color) {
   return el("div", { class: "row", style: "justify-content:space-between;gap:4px;align-items:baseline;min-width:0" }, [
-    el("span", { class: "hint", style: "font-size:11px", text: label }),
-    el("b", { style: `font-size:13.5px;color:${color};white-space:nowrap`, text: value }),
+    el("span", { class: "hint xs", text: label }),
+    el("b", { class: "stat-value lg", style: `color:${color};white-space:nowrap`, text: value }),
   ]);
 }
 function grpBlock(title, accent, sales, gross) {
   return el("div", { class: "col", style: `flex:1;min-width:0;gap:2px;border:1px solid ${tint(accent, 0.3)};` +
     `border-top:3px solid ${accent};background:${tint(accent, 0.06)};border-radius:6px;padding:5px 7px` }, [
-    el("div", { style: `font-weight:800;font-size:11.5px;color:${accent};margin-bottom:1px`, text: title }),
+    el("div", { class: "mini-title", style: `color:${accent}`, text: title }),
     kv("売上", sales, MC.sales),
     kv("粗利", gross, MC.gross),
   ]);
@@ -331,7 +335,7 @@ function sectionCards(agg, t) {
 function averagesCards(agg, t) {
   const card = (r, isTotal) => statCard(
     isTotal ? el("b", { text: "合計" }) : secBadge(r.section),
-    r.paceGross == null ? null : el("b", { style: `color:${achieveHex(r.paceGross)};font-size:13px`, text: `${pct(r.paceGross)} ${r.paceGross >= 1 ? "順調" : r.paceGross >= 0.9 ? "やや遅れ" : "未達ペース"}` }),
+    r.paceGross == null ? null : el("b", { class: "stat-value", style: `color:${achieveHex(r.paceGross)}`, text: `${pct(r.paceGross)} ${r.paceGross >= 1 ? "順調" : r.paceGross >= 0.9 ? "やや遅れ" : "未達ペース"}` }),
     // 売上系=青 / 粗利系=緑。区分別カードと同じ色分けにそろえる。
     [["平均アウト", num(r.avgOut)], ["粗利率", r.grossRate == null ? "—" : pct(r.grossRate), MC.gross],
       ["日平均売上", yen(r.avgSalesDay), MC.sales], ["玉単価", dec(r.coinPrice, 2), MC.sales],
