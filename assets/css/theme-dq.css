@@ -121,6 +121,22 @@
 :root[data-theme="dq"] .badge { font-size: 24px; }
 :root[data-theme="dq"] .hint.xs { font-size: 24px; }
 
+/* ---- パネルの見出しを白の帯にする ----
+   表のヘッダと同じ見え方にそろえる。カードの内側余白ぶんだけ外へ広げて、
+   枠から枠までいっぱいの帯にする（数字は margin と padding で対にしてある）。
+   見出しの色（計画=鋼青／実績=深緑…）はJS側がインラインで付けていて
+   CSSでは勝てないので !important で黒にする。区分の色分けはカード上端の
+   3pxの線が担っているので、帯を単色にしても計画と実績は取り違えない。 */
+:root[data-theme="dq"] .panel-title,
+:root[data-theme="dq"] .chart-head {
+  background: var(--fg);
+  color: var(--bg) !important;
+  margin: -12px -14px 10px;
+  padding: 1px 14px;
+}
+:root[data-theme="dq"] .chart-head .hint,
+:root[data-theme="dq"] .chart-head .chart-legend { color: var(--bg); }
+
 /* ---- 余白を詰める ----
    文字が大きいぶん、14px前提で決められた余白のままだと間延びする。 */
 :root[data-theme="dq"] .card { padding: 12px 14px; }

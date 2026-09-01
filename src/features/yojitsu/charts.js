@@ -310,7 +310,7 @@ function wrap(title, svg, legend) {
   if (title) {
     // 見出しの行はまるごと空いているので、凡例をその右端に載せて1行ぶん詰める。
     const head = document.createElement("div");
-    head.className = "row";
+    head.className = "row chart-head";
     head.style.cssText = "align-items:baseline;gap:10px;flex-wrap:wrap";
     const h = document.createElement("div");
     h.className = "hint";

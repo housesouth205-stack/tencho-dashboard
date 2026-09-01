@@ -176,6 +176,12 @@ requestAnimationFrame(() => {
     `タブ scrollW/clientW = ${nav.scrollWidth} / ${nav.clientWidth}  はみ出し=${nav.scrollWidth > nav.clientWidth}（横スクロールで見える）`,
     `本文の横はみ出し  = ${document.documentElement.scrollWidth > document.documentElement.clientWidth}  ← false であること`,
     (() => {
+      const pt = document.querySelector(".panel-title");
+      const ch = document.querySelector(".chart-head");
+      const g = (e) => { const c = e && getComputedStyle(e); return c ? `${c.backgroundColor}/${c.color}` : "?"; };
+      return `見出しの帯 パネル = ${g(pt)}   グラフ = ${g(ch)}`;
+    })(),
+    (() => {
       const th = document.querySelector("table.grid th");
       const cs = th && getComputedStyle(th);
       return `表ヘッダ 背景/文字 = ${cs ? cs.backgroundColor : "?"} / ${cs ? cs.color : "?"}`;
