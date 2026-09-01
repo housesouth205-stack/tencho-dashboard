@@ -206,14 +206,18 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   // 左列: 計画→実績を縦に並べる（枠色で分離）。売上=青 / 粗利=緑 で統一
   const planRate = t.plan.sales ? t.plan.gross / t.plan.sales : null;
   const actualRate = t.actual.sales ? t.actual.gross / t.actual.sales : null;
+  // 粗利率は粗利の下ではなく横に並べる。下に置くとカードが1行ぶん高くなり、
+  // 計画・実績・昨年同月と3枚重なるぶんだけ縦に伸びる。
   const planPanel = groupPanel("📋 計画", GC.plan, [
     miniKpi("売上", yen(t.plan.sales), MC.sales),
-    miniKpi("粗利", yen(t.plan.gross), MC.gross, planRate == null ? "" : "粗利率 " + pct(planRate)),
-  ]);
+    miniKpi("粗利", yen(t.plan.gross), MC.gross),
+    planRate == null ? null : miniKpi("粗利率", pct(planRate), MC.gross),
+  ].filter(Boolean));
   const actualPanel = groupPanel("✅ 実績", GC.actual, [
     miniKpi("売上", yen(t.actual.sales), MC.sales),
-    miniKpi("粗利", yen(t.actual.gross), MC.gross, actualRate == null ? "" : "粗利率 " + pct(actualRate)),
-  ]);
+    miniKpi("粗利", yen(t.actual.gross), MC.gross),
+    actualRate == null ? null : miniKpi("粗利率", pct(actualRate), MC.gross),
+  ].filter(Boolean));
   const left = el("div", { class: "col", style: "flex:1.25;min-width:300px;gap:12px" },
     [planPanel, actualPanel, opts.prev ? prevPanel(opts.prev) : null].filter(Boolean));
 

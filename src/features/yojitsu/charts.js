@@ -302,13 +302,26 @@ function wrap(title, svg, legend) {
   box.className = "card";
   box.style.flex = "1";
   box.style.minWidth = "300px";
-  if (title) { const h = document.createElement("div"); h.className = "hint"; h.textContent = title; box.appendChild(h); }
-  box.appendChild(svg);
-  if (legend) {
-    const l = document.createElement("div");
+  const l = legend ? document.createElement("div") : null;
+  if (l) {
     l.className = "chart-legend";
     for (const [name, col] of legend) l.insertAdjacentHTML("beforeend", `<span><span style="display:inline-block;width:10px;height:10px;background:${col};border-radius:2px;margin-right:4px"></span>${name}</span>`);
-    box.appendChild(l);
+  }
+  if (title) {
+    // 見出しの行はまるごと空いているので、凡例をその右端に載せて1行ぶん詰める。
+    const head = document.createElement("div");
+    head.className = "row";
+    head.style.cssText = "align-items:baseline;gap:10px;flex-wrap:wrap";
+    const h = document.createElement("div");
+    h.className = "hint";
+    h.textContent = title;
+    head.appendChild(h);
+    if (l) { l.style.marginTop = "0"; l.style.marginLeft = "auto"; head.appendChild(l); }
+    box.appendChild(head);
+    box.appendChild(svg);
+  } else {
+    box.appendChild(svg);
+    if (l) box.appendChild(l);   // 見出しが無いグラフは従来どおり下に置く
   }
   return box;
 }

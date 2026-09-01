@@ -116,15 +116,17 @@ const kpiSm = (label, value, color, sub, subColor) => el("div", { class: "kpi-it
   el("div", { class: "hint", style: `color:${subColor};font-weight:700`, text: sub }),
 ]);
 
-const summary = el("div", { class: "row stack-md", style: "gap:12px;flex-wrap:wrap" });
+const summary = el("div", { class: "row", style: "flex-wrap:wrap;gap:14px;align-items:stretch" });
 summary.appendChild(el("div", { class: "col", style: "flex:1;min-width:320px;gap:12px" }, [
   panel("📋 計画", "#6b7f9e", [
     kpi("売上", "¥122,438,800", "#4f8ff7"),
-    kpi("粗利", "¥22,630,736", "#2fb888", "粗利率 18.5%"),
+    kpi("粗利", "¥22,630,736", "#2fb888"),
+    kpi("粗利率", "18.5%", "#2fb888"),
   ]),
   panel("✅ 実績", "#1f9d70", [
     kpi("売上", "¥127,856,500", "#4f8ff7"),
-    kpi("粗利", "¥22,047,039", "#2fb888", "粗利率 17.2%"),
+    kpi("粗利", "¥22,047,039", "#2fb888"),
+    kpi("粗利率", "17.2%", "#2fb888"),
   ]),
   el("div", { class: "card", style: "border-top:3px solid #8a91a3" }, [
     el("div", { class: "panel-title", style: "color:#8a91a3", text: "📅 昨年同月（2025年8月）" }),
@@ -173,6 +175,16 @@ requestAnimationFrame(() => {
     `タブ数/高さ       = ${tabHeights.length} / [${tabHeights.join(",")}]  ← 全部同じ高さなら折り返していない`,
     `タブ scrollW/clientW = ${nav.scrollWidth} / ${nav.clientWidth}  はみ出し=${nav.scrollWidth > nav.clientWidth}（横スクロールで見える）`,
     `本文の横はみ出し  = ${document.documentElement.scrollWidth > document.documentElement.clientWidth}  ← false であること`,
+    (() => {
+      const th = document.querySelector("table.grid th");
+      const cs = th && getComputedStyle(th);
+      return `表ヘッダ 背景/文字 = ${cs ? cs.backgroundColor : "?"} / ${cs ? cs.color : "?"}`;
+    })(),
+    (() => {
+      const lg = document.querySelector(".chart-legend");
+      const prev = lg && lg.previousElementSibling;
+      return `凡例 = ${lg ? (prev && prev.classList.contains("hint") ? "見出しと同じ行" : "見出しの外") : "なし"}`;
+    })(),
   ].join("\n");
   document.getElementById("measured").textContent = out;
 });

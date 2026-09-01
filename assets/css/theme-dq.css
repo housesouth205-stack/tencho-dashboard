@@ -141,7 +141,7 @@
 /* 縦に積んだカードが、隣の列の高さに合わせて伸びると下に大きな空白ができる。
    中身なりの高さで止める。グラフのカードは wrap() が inline で flex:1 を
    付けているので、ここだけは !important でないと効かない。 */
-:root[data-theme="dq"] .col > .card { flex: 0 0 auto !important; }
+:root[data-theme="dq"] .col > .card { flex: 0 1 auto !important; }
 /* KPIは152px幅で場所取りしていて、2つ並ぶと横に大きな空白ができる。
    数字が大きくなったぶん中身で幅が決まるようにして、余った幅は右へ流す。 */
 :root[data-theme="dq"] .kpi-item,
@@ -267,7 +267,7 @@
 /* ---- 表 ---- */
 :root[data-theme="dq"] table.grid th,
 :root[data-theme="dq"] table.grid td { border: 2px solid var(--line); }
-:root[data-theme="dq"] table.grid th { background: var(--bg); color: var(--fg-dim); font-weight: normal; }
+:root[data-theme="dq"] table.grid th { background: var(--fg); color: var(--bg); font-weight: normal; }
 :root[data-theme="dq"] table.grid tbody tr:hover td { background: var(--pastel-blue); }
 
 /* ---- バッジ＝枠だけ。淡色の面は黒地に合わない ---- */
