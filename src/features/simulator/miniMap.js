@@ -242,7 +242,7 @@ export function buildPlacementMap(layout, placement, opts = {}) {
     };
     opts = { ...opts, targetW: Math.max(...floors.map(widthOf)) };
   }
-  const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
+  const wrap = el("div", { class: (zoomed ? "placement-all" : "col") + " island-map", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
   // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする
   floors.forEach((fl, i) => {

@@ -15,36 +15,30 @@
 }
 
 /* 同じ行の中で「数字は大きく・漢字とかなは小さく」を出すための仕掛け。
-   同じフォントファイルを unicode-range で文字種ごとに分け、和文側だけ
-   size-adjust で縮める。字を小さくしたいのは漢字・かなであって、
-   読み違えると困る数字は大きいままにしたい、という要望に応えるもの。
+   同じフォントファイルを unicode-range で文字種ごとに分け、片方だけ size-adjust で拡縮する。
 
-   実際に出る大きさは font-size × size-adjust。ドットが滲むかどうかはその
-   掛けたあとの寸法で決まるので、24px×50%=12px のように等倍の値に着地させる。
-   倍率2倍の画面で実測: 和文0.3%（くっきり）／数字7.9%。 */
+   【重要】縮めるのは和文ではなく、拡大するのが数字。
+   最初は和文側を50%に縮めたが、画面には11〜13pxで置かれた小さなラベルが多数あり
+   （区分名・凡例・パネル見出しなど）、そこに半分が掛かって6px前後になり読めなくなった。
+   縮小は「元が小さいところ」を壊す。拡大なら壊れるところが無い。
+
+   対象は数字と、数字にくっつく記号（, . + - − % ¥）だけ。
+   「/」「:」は入れない。「アウト/台」の / まで大きくなって不格好になる。 */
 @font-face {
-  font-family: "PixelMplus12JP50";
+  font-family: "PixelMplus12Num15";
   src: url("../fonts/PixelMplus12-Regular.ttf") format("truetype");
   font-display: swap;
-  size-adjust: 50%;
-  /* 全角の記号（＝ ／ （ ） ：）も和文側に入れる。外すとここだけ原寸で残り、
-     縮んだ漢字の横に大きな記号が並んで不格好になる（実際にそうなった）。
-     全角数字 U+FF10-FF19 だけは数字なので原寸のまま残す。 */
-  unicode-range: U+3000-303F, U+3040-309F, U+30A0-30FF, U+3400-4DBF,
-                 U+4E00-9FFF, U+F900-FAFF,
-                 U+FF01-FF0F, U+FF1A-FF60, U+FF66-FF9F;
+  size-adjust: 150%;
+  unicode-range: U+0030-0039, U+002B, U+002C, U+002D, U+002E,
+                 U+0025, U+00A5, U+2212, U+FF05, U+FFE5;
 }
 @font-face {
-  font-family: "PixelMplus12JP75";
+  font-family: "PixelMplus12Num20";
   src: url("../fonts/PixelMplus12-Regular.ttf") format("truetype");
   font-display: swap;
-  size-adjust: 75%;
-  /* 全角の記号（＝ ／ （ ） ：）も和文側に入れる。外すとここだけ原寸で残り、
-     縮んだ漢字の横に大きな記号が並んで不格好になる（実際にそうなった）。
-     全角数字 U+FF10-FF19 だけは数字なので原寸のまま残す。 */
-  unicode-range: U+3000-303F, U+3040-309F, U+30A0-30FF, U+3400-4DBF,
-                 U+4E00-9FFF, U+F900-FAFF,
-                 U+FF01-FF0F, U+FF1A-FF60, U+FF66-FF9F;
+  size-adjust: 200%;
+  unicode-range: U+0030-0039, U+002B, U+002C, U+002D, U+002E,
+                 U+0025, U+00A5, U+2212, U+FF05, U+FFE5;
 }
 
 :root[data-theme="dq"] {
@@ -87,67 +81,138 @@
   --shadow: none;
   --shadow-lg: none;
   --radius: 0px;
-  /* 和文の面を先に置く。unicode-range で担当が決まるので、漢字・かなは
-     縮んだ面が、数字・英字・記号は等倍の面が使われる。
-     倍率1倍の画面は12pxが滲むので、控えめな75%（24px→18px相当）にする。 */
-  --font: "PixelMplus12JP75", "PixelMplus12", monospace;
+  /* 数字の面を先に置く。unicode-range で担当が決まるので、数字は拡大された面が、
+     それ以外（漢字・かな・英字）はうしろの原寸の面が使われる。 */
+  --font: "PixelMplus12Num15", "PixelMplus12", monospace;
 }
 
-/* ---- ドットの等倍 ----
-   PixelMplus12 が滲まないサイズを実測したところ、24pxと36pxだけだった
-   （12・16・18・20・25・30・48px はいずれもアンチエイリアスが乗る）。
-   設計は12pxだが12pxそのものでは滲むので、本文24px・見出し36pxに固定する。
-   小さめの指定（12px等）もすべて24pxへ引き上げる。 */
-:root[data-theme="dq"] body { font-size: 24px; line-height: 1.5; -webkit-font-smoothing: none; }
-:root[data-theme="dq"] h1 { font-size: 36px; line-height: 1.5; }
+/* ---- 文字の大きさ ----
+   数字は上の面が2倍にするので、ここに書く数字は「漢字・かなの大きさ」。
+   実際に出る数字はこの倍。本文18px → 数字36px。
+
+   等倍（滲まない）で出るのは 24px と 36px（倍率1倍）、12/18/30px（倍率2倍）。
+   14種類もある画面上の文字を全部そこに乗せることはできないので、
+   数字と本文という「読む対象」を優先して合わせ、ラベル類は多少やわらかくても
+   読める大きさを確保する方を採った。全部を等倍に揃えると、今度は階層が消える。 */
+:root[data-theme="dq"] body { font-size: 24px; line-height: 1.6; -webkit-font-smoothing: none; }
+:root[data-theme="dq"] h1 { font-size: 36px; line-height: 1.4; }
 :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-size: 24px; }
 :root[data-theme="dq"] h1, :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-weight: normal; color: var(--accent); }
+
+/* 表の数字がこの画面の主役なので、本文と同じ18px（＝数字36px）に置く。 */
+:root[data-theme="dq"] table.grid,
+:root[data-theme="dq"] table.grid.compact th { font-size: 24px; }
+
+/* 見出し・値。JS側の直書きをクラスにしたので、ここから大きさを決められる。 */
+:root[data-theme="dq"] .panel-title { font-size: 24px; }
+:root[data-theme="dq"] .mini-title { font-size: 24px; }
+:root[data-theme="dq"] .kpi-value { font-size: 24px; }
+:root[data-theme="dq"] .kpi-value.sm { font-size: 24px; }
+:root[data-theme="dq"] .stat-value,
+:root[data-theme="dq"] .stat-value.lg { font-size: 24px; }
+
+/* 添えものは15px。これ以上下げると漢字がつぶれる。 */
 :root[data-theme="dq"] .hint,
 :root[data-theme="dq"] .savestate,
 :root[data-theme="dq"] label.lbl,
 :root[data-theme="dq"] .view-title small,
 :root[data-theme="dq"] .btn.sm,
-:root[data-theme="dq"] table.grid,
-:root[data-theme="dq"] table.grid.compact th,
+:root[data-theme="dq"] .chart-legend,
 :root[data-theme="dq"] .badge { font-size: 24px; }
+:root[data-theme="dq"] .hint.xs { font-size: 24px; }
 
-/* ---- 高精細なPC（Retina・拡大表示200%）----
-   12pxが等倍で出る画面なので、和文をもっと縮められる（24px×50%=12px）。
-   数字は24pxのまま。1倍の画面ではこの節が効かず、75%のまま。 */
-@media (min-width: 701px) and (min-resolution: 2dppx) {
-  :root[data-theme="dq"] { --font: "PixelMplus12JP50", "PixelMplus12", monospace; }
+/* ---- 余白を詰める ----
+   文字が大きいぶん、14px前提で決められた余白のままだと間延びする。 */
+:root[data-theme="dq"] .card { padding: 12px 14px; }
+:root[data-theme="dq"] table.grid th,
+:root[data-theme="dq"] table.grid td { padding: 2px 8px; line-height: 1.35; }
+/* 入力欄とセレクタの中では数字を大きくしない。
+   高さが中身で決まらない部品なので、1.5倍の数字を入れると上下が切れる
+   （年度の「2026」が実際に切れた）。読ませたいのは表とKPIの数字であって、
+   入力中の値ではないので、ここは拡大しない面を使う。 */
+:root[data-theme="dq"] select,
+:root[data-theme="dq"] input[type=text],
+:root[data-theme="dq"] input[type=number],
+:root[data-theme="dq"] input[type=date] {
+  font-family: "PixelMplus12", monospace;
+  line-height: 1.35;
 }
 
-/* ---- スマホは12pxに落とす ----
-   滲むかどうかを決めるのはCSSのpxではなく「実際の画素」。
-   スマホは1CSSピクセルが2〜3画素なので、CSS12pxは実機で24px（2倍端末）
-   または36px（3倍端末）で描かれる。どちらもこのフォントが等倍で出るサイズなので、
-   PCの24pxと同じだけくっきりしたまま、文字だけ半分にできる。
-   crisp-test.html を倍率2・3で回して実測した結果:
-     2倍端末でくっきり: 12 / 18 / 30px
-     3倍端末でくっきり: 12 / 20 / 28 / 32px
-   本文に使えるのは両方に入る12pxだけ。見出しは共通のサイズが無いので倍率ごとに出し分ける。
-   1倍のまま横幅が狭い端末（ほぼ無い）はPCと同じ24pxのまま＝大きいが滲まない。 */
-@media (max-width: 700px) and (min-resolution: 2dppx) {
-  /* スマホは全体が12px。ここで和文を縮めると6pxになって読めないので、
-     文字種で分けず等倍の面だけを使う。 */
-  :root[data-theme="dq"] { --font: "PixelMplus12", monospace; }
-  :root[data-theme="dq"] body { font-size: 12px; }
-  :root[data-theme="dq"] h1 { font-size: 18px; }
+/* 縦に積んだカードが、隣の列の高さに合わせて伸びると下に大きな空白ができる。
+   中身なりの高さで止める。グラフのカードは wrap() が inline で flex:1 を
+   付けているので、ここだけは !important でないと効かない。 */
+:root[data-theme="dq"] .col > .card { flex: 0 0 auto !important; }
+/* KPIは152px幅で場所取りしていて、2つ並ぶと横に大きな空白ができる。
+   数字が大きくなったぶん中身で幅が決まるようにして、余った幅は右へ流す。 */
+:root[data-theme="dq"] .kpi-item,
+:root[data-theme="dq"] .kpi-item.sm { flex: 0 1 auto; min-width: 0; margin-right: 18px; }
+/* グラフのSVGは max-width:520px で止まるので、広いカードだと右が空く。 */
+:root[data-theme="dq"] .card > svg { max-width: none !important; }
+
+/* ---- 島図は触らない ----
+   34pxのマスに台番と機種名を収める設計で、寸法は cellGeom が決めている。
+   ここで数字を1.5倍にすると台番が折り返し、下の機種名が押し出されて読めなくなる
+   （同じ事故がロックの絵文字で一度起きている）。拡大しない面を使う。 */
+:root[data-theme="dq"] .island-map,
+:root[data-theme="dq"] .island-map * { font-family: "PixelMplus12", monospace; }
+
+/* ---- グラフの中の文字 ----
+   SVGの文字は viewBox の単位で置かれていて、CSSの大きさ指定が効かない。
+   ここに数字の拡大が掛かると目盛りだけ2倍になって崩れるので、
+   グラフの中だけは拡大しない面を使う。 */
+:root[data-theme="dq"] svg { font-family: "PixelMplus12", monospace; }
+
+/* ---- 高精細な画面 ----
+   倍率2倍だと24pxは等倍から外れる（48画素）。本文を18px（36画素＝等倍）に落とし、
+   数字は2倍側の面に替えて36pxを保つ。見える大きさは倍率1倍のときとほぼ同じ。 */
+@media (min-width: 701px) and (min-resolution: 2dppx) {
+  :root[data-theme="dq"] { --font: "PixelMplus12Num20", "PixelMplus12", monospace; }
+  :root[data-theme="dq"] body,
   :root[data-theme="dq"] h2,
   :root[data-theme="dq"] h3,
+  :root[data-theme="dq"] table.grid,
+  :root[data-theme="dq"] table.grid.compact th,
+  :root[data-theme="dq"] .panel-title,
+  :root[data-theme="dq"] .mini-title,
+  :root[data-theme="dq"] .kpi-value,
+  :root[data-theme="dq"] .kpi-value.sm,
+  :root[data-theme="dq"] .stat-value,
+  :root[data-theme="dq"] .stat-value.lg,
   :root[data-theme="dq"] .hint,
+  :root[data-theme="dq"] .hint.xs,
   :root[data-theme="dq"] .savestate,
   :root[data-theme="dq"] label.lbl,
   :root[data-theme="dq"] .view-title small,
   :root[data-theme="dq"] .btn.sm,
+  :root[data-theme="dq"] .chart-legend,
+  :root[data-theme="dq"] .badge { font-size: 18px; }
+  :root[data-theme="dq"] h1 { font-size: 30px; }
+}
+
+/* ---- スマホ ----
+   1CSSピクセルが2〜3画素で描かれるので、12pxでも実機では24〜36画素になり
+   ドットは崩れない（crisp-test.html を倍率2・3で回して確認）。 */
+@media (max-width: 700px) and (min-resolution: 2dppx) {
+  :root[data-theme="dq"] body { font-size: 12px; }
+  :root[data-theme="dq"] h1 { font-size: 16px; }
+  :root[data-theme="dq"] h2,
+  :root[data-theme="dq"] h3,
   :root[data-theme="dq"] table.grid,
   :root[data-theme="dq"] table.grid.compact th,
-  :root[data-theme="dq"] .badge { font-size: 12px; }
-}
-/* 3倍端末では18pxが滲む（54画素）。20px（60画素）ならくっきり出る。 */
-@media (max-width: 700px) and (min-resolution: 2.5dppx) {
-  :root[data-theme="dq"] h1 { font-size: 20px; }
+  :root[data-theme="dq"] .panel-title,
+  :root[data-theme="dq"] .kpi-value { font-size: 12px; }
+  :root[data-theme="dq"] .mini-title,
+  :root[data-theme="dq"] .kpi-value.sm,
+  :root[data-theme="dq"] .stat-value,
+  :root[data-theme="dq"] .stat-value.lg,
+  :root[data-theme="dq"] .hint,
+  :root[data-theme="dq"] .hint.xs,
+  :root[data-theme="dq"] .savestate,
+  :root[data-theme="dq"] label.lbl,
+  :root[data-theme="dq"] .view-title small,
+  :root[data-theme="dq"] .btn.sm,
+  :root[data-theme="dq"] .chart-legend,
+  :root[data-theme="dq"] .badge { font-size: 11px; }
 }
 
 /* ---- DQのメッセージウィンドウ: 黒地に白の二重枠。角丸も影も無い ---- */

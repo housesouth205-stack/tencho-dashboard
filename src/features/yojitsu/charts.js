@@ -306,7 +306,7 @@ function wrap(title, svg, legend) {
   box.appendChild(svg);
   if (legend) {
     const l = document.createElement("div");
-    l.style.cssText = "display:flex;gap:14px;margin-top:6px;font-size:11px;color:var(--fg-dim)";
+    l.className = "chart-legend";
     for (const [name, col] of legend) l.insertAdjacentHTML("beforeend", `<span><span style="display:inline-block;width:10px;height:10px;background:${col};border-radius:2px;margin-right:4px"></span>${name}</span>`);
     box.appendChild(l);
   }
