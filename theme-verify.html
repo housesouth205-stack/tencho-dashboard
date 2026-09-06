@@ -176,6 +176,12 @@ requestAnimationFrame(() => {
     `タブ scrollW/clientW = ${nav.scrollWidth} / ${nav.clientWidth}  はみ出し=${nav.scrollWidth > nav.clientWidth}（横スクロールで見える）`,
     `本文の横はみ出し  = ${document.documentElement.scrollWidth > document.documentElement.clientWidth}  ← false であること`,
     (() => {
+      // どの項目が「一段大きい」側に入っているかを実測で確かめる
+      const px = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e).fontSize : "—"; };
+      return `大きさ  主要な金額 ${px(".kpi-value")} / 昨年同月 ${px(".kpi-value.sm")} / 表 ${px("table.grid td")}` +
+             ` / 見出し ${px("h1")} / パネル名 ${px(".panel-title")} / 添えもの ${px(".hint")}`;
+    })(),
+    (() => {
       const pt = document.querySelector(".panel-title");
       const ch = document.querySelector(".chart-head");
       const g = (e) => { const c = e && getComputedStyle(e); return c ? `${c.backgroundColor}/${c.color}` : "?"; };
