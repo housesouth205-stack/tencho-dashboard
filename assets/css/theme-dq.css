@@ -96,6 +96,28 @@
 :root[data-theme="dq"] .chart-legend,
 :root[data-theme="dq"] .badge { font-size: 24px; }
 
+/* ---- 予実以外の画面もこの2段に寄せる ----
+   島図・機種分析・出玉率・経費・増台計画・取込・設定は、ラベルの大きさを
+   JS側に px で直書きしている（9〜22pxが55か所ほど）。直書きはCSSより強いので
+   クラスにしない限りテーマからは触れず、24pxの本文の横に11pxの文字が並んで
+   「行ごとに背丈が違う」状態になっていた。文字種の違いを直したのと同じ理由で、
+   ここも揃える。
+
+   予実のようにクラス化して回るのが本筋だが、対象がスマホ用の分岐やモーダルまで
+   散っていて、実データが無いと描画確認できない画面が多い。JSを55か所書き換えて
+   目視できないより、テーマ側の1指定で寄せるほうが事故が小さいと判断した。
+   通常テーマには影響しない（この節は data-theme="dq" の中だけ）。
+
+   島図のマスだけは除外する。34pxの枠に8pxで台番と機種名を入れる設計で、
+   ここを24pxにすると折り返して機種名が押し出される。 */
+:root[data-theme="dq"] [style*="font-size"]:not(.island-map *) { font-size: 24px !important; }
+
+/* もともと大きく置かれていたもの（各画面の主役の数字）は強調の段へ。
+   シミュレーターの総粗利・総売上、経費の合計など。 */
+:root[data-theme="dq"] [style*="font-size:20px"]:not(.island-map *),
+:root[data-theme="dq"] [style*="font-size:21px"]:not(.island-map *),
+:root[data-theme="dq"] [style*="font-size:22px"]:not(.island-map *) { font-size: 36px !important; }
+
 /* ---- パネルの見出しを白の帯にする ----
    表のヘッダと同じ見え方にそろえる。カードの内側余白ぶんだけ外へ広げて、
    枠から枠までいっぱいの帯にする（数字は margin と padding で対にしてある）。
@@ -152,6 +174,10 @@
   :root[data-theme="dq"] .btn.sm,
   :root[data-theme="dq"] .chart-legend,
   :root[data-theme="dq"] .badge { font-size: 18px; }
+  :root[data-theme="dq"] [style*="font-size"]:not(.island-map *) { font-size: 18px !important; }
+  :root[data-theme="dq"] [style*="font-size:20px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:21px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:22px"]:not(.island-map *) { font-size: 30px !important; }
 }
 
 /* ---- スマホ ----
@@ -180,6 +206,10 @@
   :root[data-theme="dq"] .btn.sm,
   :root[data-theme="dq"] .chart-legend,
   :root[data-theme="dq"] .badge { font-size: 12px; }
+  :root[data-theme="dq"] [style*="font-size"]:not(.island-map *) { font-size: 12px !important; }
+  :root[data-theme="dq"] [style*="font-size:20px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:21px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:22px"]:not(.island-map *) { font-size: 18px !important; }
 }
 
 /* ---- DQのメッセージウィンドウ: 黒地に白の二重枠。角丸も影も無い ---- */
