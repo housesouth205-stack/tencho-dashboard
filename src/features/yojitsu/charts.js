@@ -33,7 +33,7 @@ export function hbars(rows, { title } = {}) {
   const svg = s("svg", { viewBox: `0 0 ${w} ${h}`, width: "100%", style: "max-width:520px" });
   rows.forEach((r, i) => {
     const y = top + i * rowH;
-    svg.appendChild(s("text", { x: 0, y: y + 20, "font-size": "12", fill: C.fg }, r.label));
+    svg.appendChild(s("text", { x: 0, y: y + 20, class: "hbar-label", "font-size": "12", fill: C.fg }, r.label));
     svg.appendChild(s("rect", { x: pad, y: y + 6, width: (bw * r.plan) / max, height: 20, rx: 3, fill: C.plan }));
     svg.appendChild(s("rect", { x: pad, y: y + 10, width: (bw * r.actual) / max, height: 12, rx: 3, fill: r.color || achColor(r.plan ? r.actual / r.plan : null) }));
     svg.appendChild(s("text", { x: pad + bw + 4, y: y + 20, "font-size": "11", fill: C.dim }, `${abbr(r.actual)}/${abbr(r.plan)}`));
