@@ -95,6 +95,63 @@ heatCard.appendChild(el("div", { class: "row", style: "gap:8px;margin-top:10px" 
 ]));
 view.appendChild(heatCard);
 
+// --- 操作行・鮮度バー・区分バッジ・日別表（本物と同じクラス構成）---
+const fresh = el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap;padding:4px 12px;font-size:12px" }, [
+  el("button", { class: "btn sm ghost", style: "color:var(--accent);border-color:var(--accent);font-weight:700", text: "⚠ 日次実績: 09/03（3日前）" }),
+  el("button", { class: "btn sm ghost", style: "color:var(--fg-dim)", text: "台別CSV: 08/31（6日前）" }),
+  el("button", { class: "btn sm ghost", style: "color:var(--fg-dim)", text: "月次経費: 未取込" }),
+  el("span", { class: "hint", text: "そろそろ更新を" }),
+]);
+view.insertBefore(fresh, view.children[1] || null);
+
+const ctrl = el("div", { class: "row", style: "align-items:flex-end;gap:10px;flex-wrap:wrap;margin:10px 0 14px" }, [
+  el("div", {}, [el("label", { class: "lbl", text: "年度" }),
+    el("select", { class: "inp", style: "width:104px" }, [el("option", { text: "2026年度" })])]),
+  el("div", {}, [el("label", { class: "lbl", text: "粒度" }),
+    el("div", { class: "row", style: "gap:2px" }, [
+      el("button", { class: "btn sm primary", text: "月" }),
+      el("button", { class: "btn sm ghost", text: "年度" })])]),
+  el("div", {}, [el("label", { class: "lbl", text: "月" }),
+    el("select", { class: "inp", style: "width:90px" }, [el("option", { text: "9月" })])]),
+  el("button", { class: "btn primary", text: "日別入力" }),
+  el("button", { class: "btn", text: "🎯 目標粗利→計画" }),
+  el("button", { class: "btn", text: "📋 日報" }),
+  el("button", { class: "btn", text: "月間目標" }),
+  el("button", { class: "btn ghost", text: "月計画表を取込" }),
+]);
+view.insertBefore(ctrl, fresh.nextSibling);
+
+// 日別表。「+」だけ折り返して行が崩れていた欄と、折り返す見出しを再現する
+const daily = el("table", { class: "grid mono" });
+daily.appendChild(el("thead", {}, el("tr", {}, [
+  el("th", { class: "txt", text: "日" }), el("th", { class: "txt", text: "曜" }),
+  el("th", { text: "アウト/台" }), el("th", { text: "売上" }), el("th", { text: "粗利" }),
+  el("th", { text: "粗利差" }), el("th", { text: "達成率(粗利)" }),
+])));
+const dbody = el("tbody");
+[["1","火","7,395","¥3,515,600","¥649,552","+¥348,169","153.6%","#43b483"],
+ ["2","水","7,395","¥3,515,600","¥649,552","+¥95,590","114.7%","#43b483"],
+ ["3","木","7,395","¥3,515,600","¥649,552","−¥690,911","−6.4%","#e35d6a"],
+ ["4","金","7,395","¥3,515,600","¥649,552","+¥985,121","251.7%","#43b483"]].forEach((r) => {
+  dbody.appendChild(el("tr", {}, [
+    el("td", { class: "txt", text: r[0] }), el("td", { class: "txt", text: r[1] }),
+    el("td", { text: r[2] }), el("td", { text: r[3] }), el("td", { text: r[4] }),
+    el("td", { style: `color:${r[7]};font-weight:600`, text: r[5] }),
+    el("td", { style: `color:${r[7]};font-weight:600`, text: r[6] }),
+  ]));
+});
+daily.appendChild(dbody);
+const dcard = el("div", { class: "card col" }, [
+  el("div", { class: "panel-title", style: "color:#6b7f9e", text: "📅 日別の実績" }),
+  el("div", { class: "row", style: "gap:8px;align-items:center;margin-bottom:6px" }, [
+    el("span", { class: "badge", style: "background:rgba(229,72,77,.16);color:#e5484d;font-weight:700", text: "20スロ" }),
+    el("span", { class: "badge", style: "background:rgba(234,161,0,.16);color:#eaa100;font-weight:700", text: "5スロ" }),
+    el("span", { class: "badge", style: "background:rgba(59,130,246,.16);color:#3b82f6;font-weight:700", text: "2スロ" }),
+  ]),
+  el("div", { class: "table-wrap" }, daily),
+]);
+view.insertBefore(dcard, ctrl.nextSibling);
+
 // --- 実際の予実サマリーに近い形（クラスは本物と同じものを使う）---
 import { hbars } from "./src/features/yojitsu/charts.js";
 
@@ -156,7 +213,7 @@ right.appendChild(el("div", { class: "card", style: "border-top:3px solid #e0a52
   ]),
 ]));
 summary.appendChild(right);
-view.insertBefore(summary, view.children[1] || null);
+view.insertBefore(summary, dcard.nextSibling);
 
 // --- 実測（目視ではなく数字で確認する）---
 await new Promise((r) => (document.fonts ? document.fonts.ready.then(r) : r()));
@@ -180,6 +237,14 @@ requestAnimationFrame(() => {
       const px = (sel) => { const e = document.querySelector(sel); return e ? getComputedStyle(e).fontSize : "—"; };
       return `大きさ  主要な金額 ${px(".kpi-value")} / 昨年同月 ${px(".kpi-value.sm")} / 表 ${px("table.grid td")}` +
              ` / 見出し ${px("h1")} / パネル名 ${px(".panel-title")} / 添えもの ${px(".hint")}`;
+    })(),
+    (() => {
+      const cs = (sel, prop) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[prop] : "—"; };
+      const h = (sel) => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().height) : 0; };
+      return `バッジ 背景/枠 = ${cs(".badge","backgroundColor")} / ${cs(".badge","borderTopWidth")}\n` +
+        `表セル 折返し/縦位置 = ${cs("table.grid td","whiteSpace")} / ${cs("table.grid td","verticalAlign")}\n` +
+        `枠の高さ btn=${h(".btn")} btn.sm=${h(".btn.sm")} select=${h("select.inp")}  ← そろっていること\n` +
+        `グラフの区分名 = ${cs("svg text.hbar-label","fontSize")}`;
     })(),
     (() => {
       const pt = document.querySelector(".panel-title");

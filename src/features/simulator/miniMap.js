@@ -90,7 +90,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     // cellW を指定すると固定幅＋横スクロール（スマホ用）。既定は画面幅にフィット。
     const R = pack([...new Set(gc.map((c) => c.grid_row))].sort((a, b) => a - b), rowH, "8px");
     const C = pack(cols, colW, colGap);
-    const grid = el("div", { style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
+    const grid = el("div", { class: "island-map", style: `display:grid;gap:2px;grid-template-columns:${C.tpl.join(" ")};grid-template-rows:${R.tpl.join(" ")};` +
       `padding:${pad};box-sizing:content-box;width:${targetW ? targetW + "px" : cellW ? "max-content" : "100%"}` });
   // 設定ブロックは通路側。島ごとの指定（config の SETTING_SIDES）が最優先で、
   // 指定がなければ同じ列の真上・真下に台があるかで自動判定する。
@@ -242,7 +242,7 @@ export function buildPlacementMap(layout, placement, opts = {}) {
     };
     opts = { ...opts, targetW: Math.max(...floors.map(widthOf)) };
   }
-  const wrap = el("div", { class: (zoomed ? "placement-all" : "col") + " island-map", style: zoomed ? "width:max-content" : "gap:8px" });
+  const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
   // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする
   floors.forEach((fl, i) => {

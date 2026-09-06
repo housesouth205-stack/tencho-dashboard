@@ -70,12 +70,12 @@
    添えもの（.hint など）も24pxに揃える。15pxにすると滲むうえ、文字種で背が違って
    見えるのと同じ違和感が「行ごと」に出る。強弱は大きさではなく色で付ける
    （見出し=金、添えもの=グレー）。ドット絵の画面ではこのほうが素直に読める。 */
-:root[data-theme="dq"] body { font-size: 24px; line-height: 1.6; -webkit-font-smoothing: none; }
-:root[data-theme="dq"] h1 { font-size: 36px; line-height: 1.4; }
+:root[data-theme="dq"] body { font-size: 18px; line-height: 1.55; -webkit-font-smoothing: none; }
+:root[data-theme="dq"] h1 { font-size: 24px; line-height: 1.4; }
 :root[data-theme="dq"] h1, :root[data-theme="dq"] h2, :root[data-theme="dq"] h3 { font-weight: normal; color: var(--accent); }
 
 /* 強調するところ（36px）。ここを増減すれば強弱の付き方が変わる。 */
-:root[data-theme="dq"] .kpi-value { font-size: 36px; }
+:root[data-theme="dq"] .kpi-value { font-size: 24px; }
 
 /* それ以外は全部そろえる。 */
 :root[data-theme="dq"] h2,
@@ -94,7 +94,64 @@
 :root[data-theme="dq"] .view-title small,
 :root[data-theme="dq"] .btn.sm,
 :root[data-theme="dq"] .chart-legend,
-:root[data-theme="dq"] .badge { font-size: 24px; }
+:root[data-theme="dq"] .badge { font-size: 18px; }
+
+/* ---- 予実以外の画面もこの2段に寄せる ----
+   島図・機種分析・出玉率・経費・増台計画・取込・設定は、ラベルの大きさを
+   JS側に px で直書きしている（9〜22pxが55か所ほど）。直書きはCSSより強いので
+   クラスにしない限りテーマからは触れず、24pxの本文の横に11pxの文字が並んで
+   「行ごとに背丈が違う」状態になっていた。文字種の違いを直したのと同じ理由で、
+   ここも揃える。
+
+   予実のようにクラス化して回るのが本筋だが、対象がスマホ用の分岐やモーダルまで
+   散っていて、実データが無いと描画確認できない画面が多い。JSを55か所書き換えて
+   目視できないより、テーマ側の1指定で寄せるほうが事故が小さいと判断した。
+   通常テーマには影響しない（この節は data-theme="dq" の中だけ）。
+
+   島図のマスだけは除外する。34pxの枠に8pxで台番と機種名を入れる設計で、
+   ここを24pxにすると折り返して機種名が押し出される。 */
+:root[data-theme="dq"] [style*="font-size"]:not(.island-map *) { font-size: 18px !important; }
+
+/* もともと大きく置かれていたもの（各画面の主役の数字）は強調の段へ。
+   シミュレーターの総粗利・総売上、経費の合計など。 */
+:root[data-theme="dq"] [style*="font-size:20px"]:not(.island-map *),
+:root[data-theme="dq"] [style*="font-size:21px"]:not(.island-map *),
+:root[data-theme="dq"] [style*="font-size:22px"]:not(.island-map *) { font-size: 24px !important; }
+
+/* ---- 表のセル ----
+   金額に付く「+」だけが折り返して2行になり、行の高さが揃わなくなっていた。
+   表は .table-wrap が横スクロールを持っているので、折り返さず横に伸ばしてよい。
+   縦は中央に置く（上に寄っていた）。 */
+:root[data-theme="dq"] table.grid th,
+:root[data-theme="dq"] table.grid td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* ---- ボタン・入力欄の高さをそろえる ----
+   .btn / .btn.sm / select / input で余白も枠幅もばらばらだったため、
+   年度・粒度・月・各ボタンが並ぶ行で箱の大きさが不揃いに見えていた。
+   鮮度バーのチップも .btn.sm なので、同じ指定でそろう。 */
+:root[data-theme="dq"] .btn,
+:root[data-theme="dq"] .btn.sm,
+:root[data-theme="dq"] select.inp,
+:root[data-theme="dq"] .appbar select,
+:root[data-theme="dq"] input[type=text],
+:root[data-theme="dq"] input[type=number],
+:root[data-theme="dq"] input[type=date] {
+  box-sizing: border-box;
+  min-height: 37px;
+  padding: 3px 12px;
+  border-width: 3px;
+  line-height: 1.4;
+  font-size: 18px;
+}
+
+/* ---- グラフの中の区分名 ----
+   SVGの文字は viewBox の単位で置かれていて、直書きの12だと本文より小さく見えていた。
+   CSSのfont-sizeは属性より強いので、ここで単位を上げる。
+   ラベル欄の幅は74単位あるので、16単位でも「20スロ」は収まる。 */
+:root[data-theme="dq"] svg text.hbar-label { font-size: 16px; }
 
 /* ---- パネルの見出しを白の帯にする ----
    表のヘッダと同じ見え方にそろえる。カードの内側余白ぶんだけ外へ広げて、
@@ -133,7 +190,7 @@
    段をひとつ下げて 30px（強調）／18px（それ以外）にする。見える大きさはほぼ同じ。 */
 @media (min-width: 701px) and (min-resolution: 2dppx) {
   :root[data-theme="dq"] h1,
-  :root[data-theme="dq"] .kpi-value { font-size: 30px; }
+  :root[data-theme="dq"] .kpi-value { font-size: 18px; }
   :root[data-theme="dq"] body,
   :root[data-theme="dq"] h2,
   :root[data-theme="dq"] h3,
@@ -151,7 +208,11 @@
   :root[data-theme="dq"] .view-title small,
   :root[data-theme="dq"] .btn.sm,
   :root[data-theme="dq"] .chart-legend,
-  :root[data-theme="dq"] .badge { font-size: 18px; }
+  :root[data-theme="dq"] .badge { font-size: 12px; }
+  :root[data-theme="dq"] [style*="font-size"]:not(.island-map *) { font-size: 12px !important; }
+  :root[data-theme="dq"] [style*="font-size:20px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:21px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:22px"]:not(.island-map *) { font-size: 18px !important; }
 }
 
 /* ---- スマホ ----
@@ -180,6 +241,10 @@
   :root[data-theme="dq"] .btn.sm,
   :root[data-theme="dq"] .chart-legend,
   :root[data-theme="dq"] .badge { font-size: 12px; }
+  :root[data-theme="dq"] [style*="font-size"]:not(.island-map *) { font-size: 12px !important; }
+  :root[data-theme="dq"] [style*="font-size:20px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:21px"]:not(.island-map *),
+  :root[data-theme="dq"] [style*="font-size:22px"]:not(.island-map *) { font-size: 18px !important; }
 }
 
 /* ---- DQのメッセージウィンドウ: 黒地に白の二重枠。角丸も影も無い ---- */
@@ -238,7 +303,16 @@
 :root[data-theme="dq"] table.grid tbody tr:hover td { background: var(--pastel-blue); }
 
 /* ---- バッジ＝枠だけ。淡色の面は黒地に合わない ---- */
-:root[data-theme="dq"] .badge { border-radius: 0; font-weight: normal; border: 2px solid currentColor; background: transparent; }
+/* 区分バッジ（20スロ/5スロ/2スロ）は枠も面も持たせず、文字だけ色を付ける。
+   色付きの箱は表の中で行より目立ってしまう。どの区分かは文字色で分かる。
+   背景はJS側が secBadge でインラインに塗っているので、!important でないと消えない。 */
+:root[data-theme="dq"] .badge {
+  border-radius: 0;
+  border: none;
+  padding: 0;
+  font-weight: 700;
+  background: transparent !important;
+}
 :root[data-theme="dq"] .badge.s { color: var(--blue); }
 :root[data-theme="dq"] .badge.p { color: var(--bad); }
 
