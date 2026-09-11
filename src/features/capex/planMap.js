@@ -12,7 +12,7 @@ export const ROUND_COLORS = ["#e5484d", "#7c3aed", "#0ea5e9", "#16a34a", "#d9770
 export const roundColor = (i) => ROUND_COLORS[i % ROUND_COLORS.length];
 const RATE_TINT = 0.13;
 
-export const floorsOf = (layout) => [...new Set(layout.map((l) => l.floor))];
+export { floorsOf } from "../../util/floors.js";
 
 // 台のある行・列だけ残し、間の空きは細い通路に圧縮（島図と同じ方式）。
 function pack(sorted, content, gap) {

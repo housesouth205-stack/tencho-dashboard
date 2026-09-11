@@ -1,5 +1,6 @@
 // 設定投入の島図（コンパクト）モジュール。画面（クリック編集可）・印刷共用。
 import { el, floorBar, floorSplit } from "../../util/dom.js";
+import { floorsOf } from "../../util/floors.js";
 import { heatText } from "../../calc/heat.js";
 import { tweakCell, settingSideOfDai } from "../../core/config.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
@@ -220,7 +221,7 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
 // 画面表示: 凡例＋全フロア（1F/BF両方、全台表示）
 // opts.cellW 指定時はズーム対象としてまとめた中身だけを返す（枠は呼び出し側が付ける）。
 export function buildPlacementMap(layout, placement, opts = {}) {
-  const floors = [...new Set(layout.map((l) => l.floor))];
+  const floors = floorsOf(layout);
   const zoomed = !!opts.cellW;
   // スマホ（固定幅）では階ごとに列数が違うと左右の端がそろわない。
   // いちばん広い階の幅に合わせ、足りないぶんは通路が伸びて吸収する。

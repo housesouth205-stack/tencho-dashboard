@@ -46,10 +46,17 @@ export async function parseIslandXlsx(arrayBuffer) {
   const f1 = rowOfText(aoaMap, /1F.?フロア/);
   const fb = rowOfText(aoaMap, /BF.?フロア/);
   const legend = rowOfText(aoaMap, /撤去台/);
-  const floor1 = [f1 < 0 ? 0 : f1, fb < 0 ? aoaMap.length : fb - 1];
-  const floorB = fb < 0 ? null : [fb, (legend < 0 ? aoaMap.length : legend) - 1];
-  const floorOf = (r) => (r >= floor1[0] && r <= floor1[1] ? "1F" : floorB && r >= floorB[0] && r <= floorB[1] ? "BF" : null);
-  const floorStart = (fl) => (fl === "1F" ? floor1[0] : floorB[0]);
+  // 1FとBFは、シートのどちらが先に書かれていても拾えるようにする。
+  // 見出しの行番号で並べ、それぞれ「次の見出しの手前まで」を自分の領域にする。
+  // もとは1Fが先にある前提で範囲を作っていた（floor1 の終わりを BF の行-1 で決めていた）。
+  // BFが先のシートを読ませると1Fの範囲が空になり、全台がBF扱いで静かに入ってしまう。
+  const lastRow = (legend < 0 ? aoaMap.length : legend) - 1;
+  const heads = [["1F", f1], ["BF", fb]].filter(([, r]) => r >= 0).sort((a, b) => a[1] - b[1]);
+  if (!heads.length) heads.push(["1F", 0]); // 見出しの無いシートは全体を1Fとして読む
+  const zones = heads.map(([fl, r], i) => ({ fl, from: r, to: i + 1 < heads.length ? heads[i + 1][1] - 1 : lastRow }));
+  const floorOf = (r) => { const z = zones.find((z) => r >= z.from && r <= z.to); return z ? z.fl : null; };
+  const floorStart = (fl) => { const z = zones.find((z) => z.fl === fl); return z ? z.from : 0; };
+  const scanTo = zones[zones.length - 1].to;
 
   const at = (r, c) => (r >= 0 && r < aoaMap.length && c >= 0 ? aoaMap[r][c] ?? null : null);
   const adjMachine = (r, c) => {
@@ -60,7 +67,7 @@ export async function parseIslandXlsx(arrayBuffer) {
   // 台番候補セル
   const valid = (v) => isInt(v) && (setupMap.size ? setupMap.has(v) : v >= 1 && v <= 999);
   const cands = new Map();
-  for (let r = 0; r <= (floorB ? floorB[1] : floor1[1]); r++) {
+  for (let r = 0; r <= scanTo; r++) {
     const fl = floorOf(r);
     if (!fl) continue;
     for (let c = 0; c < (aoaMap[r] ? aoaMap[r].length : 0); c++) {
@@ -100,7 +107,7 @@ export async function parseIslandXlsx(arrayBuffer) {
     fixtures.push({ floor: fl, grid_row: r - floorStart(fl), grid_col: c, row_span: mg.e.r - mg.s.r + 1, col_span: mg.e.c - mg.s.c + 1, kind: k.kind, label: k.label });
     for (let rr = mg.s.r; rr <= mg.e.r; rr++) for (let cc = mg.s.c; cc <= mg.e.c; cc++) usedFix.add(rr + "," + cc);
   }
-  for (let r = 0; r <= (floorB ? floorB[1] : floor1[1]); r++) {
+  for (let r = 0; r <= scanTo; r++) {
     const fl = floorOf(r); if (!fl) continue;
     for (let c = 0; c < (aoaMap[r] ? aoaMap[r].length : 0); c++) {
       if (usedFix.has(r + "," + c)) continue;
