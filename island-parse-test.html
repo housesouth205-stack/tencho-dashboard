@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><title>島図パーサ 検証</title>
+<style>body{font:13px/1.7 monospace;background:#111;color:#eee;padding:12px}
+b{color:#7d7} .ng{color:#f88} .ok{color:#8f8}</style></head>
+<body><pre id="out">実行中…</pre>
+<script type="module">
+import { getXLSX } from "./src/util/sheetjs.js";
+import { parseIslandXlsx } from "./src/import/islandXlsx.js";
+import { floorsOf } from "./src/util/floors.js";
+
+const XLSX = await getXLSX();
+const log = [];
+
+// 島図シートを組み立てる。見出し行の下に台番を並べるだけの最小構成。
+// 台番の上の行に機種名を置くと adjMachine が拾う（実物と同じ形）。
+function sheetAoA(order) {
+  const blk = (head, nums) => [[head], nums.map(() => "機種"), nums];
+  const a = order === "1F先" ? [...blk("1Fフロア", [1,2,3,4]), ...blk("BFフロア", [101,102,103])]
+                             : [...blk("BFフロア", [101,102,103]), ...blk("1Fフロア", [1,2,3,4])];
+  return [...a, ["撤去台"]];
+}
+function book(order) {
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(sheetAoA(order)), "島図");
+  // 設定表: 台番の右に機種名
+  const setup = [[1,"機種"],[2,"機種"],[3,"機種"],[4,"機種"],[101,"機種"],[102,"機種"],[103,"機種"]];
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(setup), "設定表");
+  return XLSX.write(wb, { type: "array", bookType: "xlsx" });
+}
+
+for (const order of ["1F先", "BF先"]) {
+  const r = await parseIslandXlsx(book(order));
+  const daiOf = (fl) => r.layout.filter((l) => l.floor === fl).map((l) => l.dai_no).sort((a,b)=>a-b);
+  const okF1 = JSON.stringify(daiOf("1F")) === JSON.stringify([1,2,3,4]);
+  const okBF = JSON.stringify(daiOf("BF")) === JSON.stringify([101,102,103]);
+  const order2 = floorsOf(r.layout);
+  const okOrd = JSON.stringify(order2) === JSON.stringify(["1F","BF"]);
+  log.push(`【シートの並び: ${order}】`);
+  log.push(`  1Fの台 = ${JSON.stringify(daiOf("1F"))}  ${okF1 ? "OK" : "NG ← 1〜4のはず"}`);
+  log.push(`  BFの台 = ${JSON.stringify(daiOf("BF"))}  ${okBF ? "OK" : "NG ← 101〜103のはず"}`);
+  log.push(`  counts = 1F:${r.counts.f1} BF:${r.counts.bf} 合計:${r.counts.total}`);
+  log.push(`  表示順 = ${JSON.stringify(order2)}  ${okOrd ? "OK" : "NG ← 1F,BF のはず"}`);
+  log.push("");
+}
+// 並び順が data の順に依存しないことも確認
+log.push(`取り出し順が逆のデータ → ${JSON.stringify(floorsOf([{floor:"BF"},{floor:"1F"}]))}  (1F,BF なら OK)`);
+document.getElementById("out").textContent = log.join("\n");
+</script></body></html>

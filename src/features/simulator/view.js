@@ -12,6 +12,7 @@ import { heatColor, minMaxByGroup, groupRange, heat5, heatMinus, heatZero } from
 import { isBulkExcluded, bulkExcludeLabel } from "../../core/config.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
 import { buildPlacementMap, buildPlacementFloor, buildLegend, SET_COLORS } from "./miniMap.js";
+import { floorsOf } from "../../util/floors.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
 import { printContent, fitToPages } from "../../print/printService.js";
 import { sectionColor } from "../../util/colors.js";
@@ -718,7 +719,7 @@ export async function mount(host) {
   // BFは紙の高さをわずかに超えるので、fitToPages で1階＝1ページに収める。
   function printPlacement() {
     const placement = mergedPlacement();
-    const floors = [...new Set(st.layout.map((l) => l.floor))];
+    const floors = floorsOf(st.layout);
     const bodies = floors.map((fl) => el("div", {}, [
       el("h3", { text: `設定投入配置 ${st.date} — ${fl}` }),
       buildLegend(placement),
