@@ -162,8 +162,8 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     const t = el("table", { class: "grid mono" });
     t.appendChild(el("thead", {}, [
       el("tr", {}, [
-        el("th", { class: "txt", rowspan: 2, text: "日" }),
-        el("th", { rowspan: 2, text: "曜" }),
+        el("th", { class: "txt col-min", rowspan: 2, text: "日" }),
+        el("th", { class: "col-min", rowspan: 2, text: "曜" }),
         el("th", { colspan: 3, style: `${gBg(C.color)};color:${C.color};text-align:center`, text: C.head }),
         el("th", { colspan: 3, style: `${gBg(GC.actual)};color:${GC.actual};text-align:center`, text: "✅ 実績" }),
         el("th", { rowspan: 2, text: C.diff }),
@@ -212,8 +212,8 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       }
       const jp = KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()];
       tb.appendChild(el("tr", { style: kindStyle(d.kind) }, [
-        el("td", { class: "txt", text: String(d.day) }),
-        el("td", { title: holidayName(maps.cy, month, d.day) || null, text: jp }),
+        el("td", { class: "txt col-min", text: String(d.day) }),
+        el("td", { class: "col-min", title: holidayName(maps.cy, month, d.day) || null, text: jp }),
         el("td", { style: gBg(C.color), text: b.outAvg ? num(Math.round(b.outAvg)) : "—" }),
         el("td", { style: gBg(C.color), text: b.sales ? yen(b.sales) : "—" }),
         el("td", { style: gBg(C.color), text: b.gross ? yen(b.gross) : "—" }),

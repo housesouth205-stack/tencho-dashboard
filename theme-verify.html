@@ -121,23 +121,42 @@ const ctrl = el("div", { class: "row", style: "align-items:flex-end;gap:10px;fle
 ]);
 view.insertBefore(ctrl, fresh.nextSibling);
 
-// 日別表。「+」だけ折り返して行が崩れていた欄と、折り返す見出しを再現する
+// 日別表。本物と同じ2段ヘッダ（グループ色の背景つき）で組む。
+// 「アウト/台」だけ文字色の指定が無く、白帯用の黒文字が暗い背景に乗って消えていた。
+const tint = (hex, a) => { const n = parseInt(hex.slice(1), 16);
+  return `rgba(${n >> 16 & 255},${n >> 8 & 255},${n & 255},${a})`; };
+const PLAN = "#6b7f9e", ACT = "#1f9d70", SALES = "#4f8ff7", GROSS = "#2fb888";
+const gBg = (c) => `background:${tint(c, 0.08)}`;
 const daily = el("table", { class: "grid mono" });
-daily.appendChild(el("thead", {}, el("tr", {}, [
-  el("th", { class: "txt", text: "日" }), el("th", { class: "txt", text: "曜" }),
-  el("th", { text: "アウト/台" }), el("th", { text: "売上" }), el("th", { text: "粗利" }),
-  el("th", { text: "粗利差" }), el("th", { text: "達成率(粗利)" }),
-])));
+daily.appendChild(el("thead", {}, [
+  el("tr", {}, [
+    el("th", { class: "txt col-min", rowspan: 2, text: "日" }),
+    el("th", { class: "col-min", rowspan: 2, text: "曜" }),
+    el("th", { colspan: 3, style: `${gBg(PLAN)};color:${PLAN};text-align:center`, text: "📋 計画" }),
+    el("th", { colspan: 3, style: `${gBg(ACT)};color:${ACT};text-align:center`, text: "✅ 実績" }),
+    el("th", { rowspan: 2, text: "粗利差" }),
+    el("th", { rowspan: 2, text: "達成率(粗利)" }),
+  ]),
+  el("tr", {}, [
+    el("th", { id: "outHead", style: gBg(PLAN), text: "アウト/台" }),
+    el("th", { style: `${gBg(PLAN)};color:${SALES}`, text: "売上" }),
+    el("th", { style: `${gBg(PLAN)};color:${GROSS}`, text: "粗利" }),
+    el("th", { style: gBg(ACT), text: "アウト/台" }),
+    el("th", { style: `${gBg(ACT)};color:${SALES}`, text: "売上" }),
+    el("th", { style: `${gBg(ACT)};color:${GROSS}`, text: "粗利" }),
+  ]),
+]));
 const dbody = el("tbody");
-[["1","火","7,395","¥3,515,600","¥649,552","+¥348,169","153.6%","#43b483"],
- ["2","水","7,395","¥3,515,600","¥649,552","+¥95,590","114.7%","#43b483"],
- ["3","木","7,395","¥3,515,600","¥649,552","−¥690,911","−6.4%","#e35d6a"],
- ["4","金","7,395","¥3,515,600","¥649,552","+¥985,121","251.7%","#43b483"]].forEach((r) => {
+[["1","火","7,395","¥3,515,600","¥649,552","8,136","¥4,047,000","¥997,721","+¥348,169","153.6%","#43b483"],
+ ["2","水","7,395","¥3,515,600","¥649,552","8,168","¥3,925,000","¥745,142","+¥95,590","114.7%","#43b483"],
+ ["3","木","7,395","¥3,515,600","¥649,552","6,782","¥2,889,000","¥-41,359","−¥690,911","−6.4%","#e35d6a"]].forEach((r) => {
   dbody.appendChild(el("tr", {}, [
-    el("td", { class: "txt", text: r[0] }), el("td", { class: "txt", text: r[1] }),
-    el("td", { text: r[2] }), el("td", { text: r[3] }), el("td", { text: r[4] }),
-    el("td", { style: `color:${r[7]};font-weight:600`, text: r[5] }),
-    el("td", { style: `color:${r[7]};font-weight:600`, text: r[6] }),
+    el("td", { class: "txt col-min", text: r[0] }),
+    el("td", { class: "col-min", text: r[1] }),
+    el("td", { style: gBg(PLAN), text: r[2] }), el("td", { style: gBg(PLAN), text: r[3] }), el("td", { style: gBg(PLAN), text: r[4] }),
+    el("td", { style: gBg(ACT), text: r[5] }), el("td", { style: gBg(ACT), text: r[6] }), el("td", { style: gBg(ACT), text: r[7] }),
+    el("td", { style: `color:${r[10]};font-weight:600`, text: r[8] }),
+    el("td", { style: `color:${r[10]};font-weight:600`, text: r[9] }),
   ]));
 });
 daily.appendChild(dbody);
@@ -146,7 +165,6 @@ const dcard = el("div", { class: "card col" }, [
   el("div", { class: "row", style: "gap:8px;align-items:center;margin-bottom:6px" }, [
     el("span", { class: "badge", style: "background:rgba(229,72,77,.16);color:#e5484d;font-weight:700", text: "20スロ" }),
     el("span", { class: "badge", style: "background:rgba(234,161,0,.16);color:#eaa100;font-weight:700", text: "5スロ" }),
-    el("span", { class: "badge", style: "background:rgba(59,130,246,.16);color:#3b82f6;font-weight:700", text: "2スロ" }),
   ]),
   el("div", { class: "table-wrap" }, daily),
 ]);
@@ -239,12 +257,12 @@ requestAnimationFrame(() => {
              ` / 見出し ${px("h1")} / パネル名 ${px(".panel-title")} / 添えもの ${px(".hint")}`;
     })(),
     (() => {
-      const cs = (sel, prop) => { const e = document.querySelector(sel); return e ? getComputedStyle(e)[prop] : "—"; };
-      const h = (sel) => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().height) : 0; };
-      return `バッジ 背景/枠 = ${cs(".badge","backgroundColor")} / ${cs(".badge","borderTopWidth")}\n` +
-        `表セル 折返し/縦位置 = ${cs("table.grid td","whiteSpace")} / ${cs("table.grid td","verticalAlign")}\n` +
-        `枠の高さ btn=${h(".btn")} btn.sm=${h(".btn.sm")} select=${h("select.inp")}  ← そろっていること\n` +
-        `グラフの区分名 = ${cs("svg text.hbar-label","fontSize")}`;
+      const g = (el2, p) => (el2 ? getComputedStyle(el2)[p] : "—");
+      const oh = document.getElementById("outHead");
+      const w = (sel) => { const e = document.querySelector(sel); return e ? Math.round(e.getBoundingClientRect().width) : 0; };
+      return `アウト/台の見出し 文字/背景 = ${g(oh,"color")} / ${g(oh,"backgroundColor")}\n` +
+        `列の幅 日=${w("th.col-min")}px 曜=${w("th.col-min + th.col-min")}px  ← 中身なりに縮んでいること\n` +
+        `バッジ 背景/枠 = ${g(document.querySelector(".badge"),"backgroundColor")} / ${g(document.querySelector(".badge"),"borderTopWidth")}`;
     })(),
     (() => {
       const pt = document.querySelector(".panel-title");
