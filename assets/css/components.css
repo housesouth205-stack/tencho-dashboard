@@ -38,6 +38,11 @@ table.grid tbody tr:hover td { background: var(--pastel-blue); }
 
 /* 列の多い表はスマホだと画面幅に収まらない。ページごと横に伸びるとグラフと
    幅が合わなくなるので、表の中だけ横スクロールさせる。 */
+/* 1文字しか入らない列（日・曜）。table は width:100% なので、指定しないと
+   余った幅が全列に均等に配られ、「日」の1文字だけで100px以上使ってしまう。
+   width:1% と nowrap を組み合わせると中身の幅まで縮む。 */
+table.grid th.col-min, table.grid td.col-min { width: 1%; white-space: nowrap; }
+
 .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
 /* 狭い画面では表が最小幅まで潰れ、機種名が1文字ずつ折り返されて読めなくなる。
    本来の幅で組んでから横スクロールさせる（広い画面は今までどおり100%で収める）。 */

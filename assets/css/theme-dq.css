@@ -300,6 +300,12 @@
 :root[data-theme="dq"] table.grid th,
 :root[data-theme="dq"] table.grid td { border: 2px solid var(--line); }
 :root[data-theme="dq"] table.grid th { background: var(--fg); color: var(--bg); font-weight: normal; }
+/* 見出しが自前の背景色を持っている列は、白帯用の黒文字だと背景に溶けて消える。
+   計画・実績のグループ色を薄く敷いた「アウト/台」がまさにそれで、
+   暗い背景に黒い文字が乗って読めなくなっていた。
+   （売上・粗利は文字色も自前で持っているので無事だった＝気づきにくい壊れ方。）
+   自前の背景を持つ見出しは、地の文字色に戻す。 */
+:root[data-theme="dq"] table.grid th[style*="background"] { color: var(--fg); }
 :root[data-theme="dq"] table.grid tbody tr:hover td { background: var(--pastel-blue); }
 
 /* ---- バッジ＝枠だけ。淡色の面は黒地に合わない ---- */
