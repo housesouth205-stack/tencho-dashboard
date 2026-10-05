@@ -342,6 +342,56 @@
 }
 :root[data-theme="dq"] #loginBg input { border-radius: 0 !important; }
 
+/* ---- 角をドットで欠く（サンプルB-1：1段1pxの2段の階段） ----
+   角を直角のままにすると硬く、角丸(border-radius)だとドット絵に見えない。
+   四隅を1px×2段の階段で切り落として、ドットのまま少しだけ丸く見せる。
+   枠は細い2pxにそろえる（太い枠に1pxの欠けだと、欠けが目に入らない）。
+   切り落としは clip-path なので、枠の外へはみ出す飾り（影など）は付けないこと。 */
+:root[data-theme="dq"] {
+  --px: 1px;
+  --px-corner: polygon(
+    calc(var(--px)*2) 0, calc(100% - var(--px)*2) 0, calc(100% - var(--px)*2) var(--px), calc(100% - var(--px)) var(--px),
+    calc(100% - var(--px)) calc(var(--px)*2), 100% calc(var(--px)*2), 100% calc(100% - var(--px)*2), calc(100% - var(--px)) calc(100% - var(--px)*2),
+    calc(100% - var(--px)) calc(100% - var(--px)), calc(100% - var(--px)*2) calc(100% - var(--px)), calc(100% - var(--px)*2) 100%, calc(var(--px)*2) 100%,
+    calc(var(--px)*2) calc(100% - var(--px)), var(--px) calc(100% - var(--px)), var(--px) calc(100% - var(--px)*2), 0 calc(100% - var(--px)*2),
+    0 calc(var(--px)*2), var(--px) calc(var(--px)*2), var(--px) var(--px), calc(var(--px)*2) var(--px));
+}
+:root[data-theme="dq"] .card,
+:root[data-theme="dq"] .modal,
+:root[data-theme="dq"] .toast { border-width: 2px; box-shadow: none; }
+:root[data-theme="dq"] .btn,
+:root[data-theme="dq"] .btn.sm,
+:root[data-theme="dq"] input[type=text],
+:root[data-theme="dq"] input[type=number],
+:root[data-theme="dq"] input[type=date],
+:root[data-theme="dq"] select.inp,
+:root[data-theme="dq"] .appbar select { border-width: 2px; }
+:root[data-theme="dq"] .card,
+:root[data-theme="dq"] .modal,
+:root[data-theme="dq"] .toast,
+:root[data-theme="dq"] .btn,
+:root[data-theme="dq"] input[type=text],
+:root[data-theme="dq"] input[type=number],
+:root[data-theme="dq"] input[type=date],
+:root[data-theme="dq"] select.inp,
+:root[data-theme="dq"] .appbar select,
+:root[data-theme="dq"] table.grid,
+:root[data-theme="dq"] .placeholder,
+:root[data-theme="dq"] .sd-seg,
+:root[data-theme="dq"] .sd-chip,
+:root[data-theme="dq"] .sd-tile,
+:root[data-theme="dq"] .sd-day,
+:root[data-theme="dq"] .sd-newbadge,
+:root[data-theme="dq"] .sd-tag,
+:root[data-theme="dq"] .sd-tt,
+:root[data-theme="dq"] .sd-next,
+:root[data-theme="dq"] .sd-nrow,
+:root[data-theme="dq"] .sd-when,
+:root[data-theme="dq"] .mt-badge,
+:root[data-theme="dq"] .mt-chip,
+:root[data-theme="dq"] .mt-view,
+:root[data-theme="dq"] .mt-conf { border-radius: 0; clip-path: var(--px-corner); }
+
 /* ---- 印刷 ----
    本部報告の紙が黒背景になると現実的でない。印刷時はテーマを効かせない。
    （印刷経路の本体は非表示iframeに自己完結HTMLを書くので元から影響を受けないが、
