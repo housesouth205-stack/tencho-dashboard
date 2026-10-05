@@ -219,7 +219,8 @@ export async function mount(host) {
         TYPE_KEYS.map((k) => el("option", { value: k, text: k, selected: k === r.type ? "selected" : null })));
       // 最低設定: 2にするとシミュレーターがこの機種に設定1を割り当てなくなる
       const minSel = el("select", {
-        class: "inp", style: `width:64px${r.min > 1 ? ";border-color:var(--accent);font-weight:700" : ""}`,
+        // 幅は中身に合わせる。64px固定だと太字（設定2以上）のときに「設定2」の末尾が欠けていた
+        class: "inp", style: `width:auto;min-width:64px${r.min > 1 ? ";border-color:var(--accent);font-weight:700" : ""}`,
         title: "設定1にするとパネルが消灯する機種は2にする",
         onchange: (e) => { r.min = Number(e.target.value); draw(); },
       }, MIN_CHOICES.map((v) => el("option", { value: v, text: `設定${v}`, selected: v === r.min ? "selected" : null })));

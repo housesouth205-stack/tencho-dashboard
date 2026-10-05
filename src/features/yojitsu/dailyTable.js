@@ -25,6 +25,9 @@ const achieveHex = (r) => (r == null ? "#8a91a3" : r >= 1 ? "#43b483" : r >= 0.9
 // 土日祝の行色。曜日で数字が動くので、色が無いと良し悪しを読み違える
 const kindStyle = (kind) => (kind === "sun" || kind === "holiday" ? "background:rgba(227,93,106,.06)"
   : kind === "sat" ? "background:rgba(79,143,247,.06)" : "");
+// 曜日の文字色。行の背景だけだと淡すぎて、土日祝を拾うのに一行ずつ目で追うことになる
+const kindColor = (kind) => (kind === "sun" || kind === "holiday" ? "color:var(--bad);font-weight:700"
+  : kind === "sat" ? "color:var(--blue);font-weight:700" : null);
 
 export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps }) {
   const rows = monthDailyDetail(sections, maps.cy, month, maps);
@@ -212,8 +215,8 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       }
       const jp = KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()];
       tb.appendChild(el("tr", { style: kindStyle(d.kind) }, [
-        el("td", { class: "txt col-min", text: String(d.day) }),
-        el("td", { class: "col-min", title: holidayName(maps.cy, month, d.day) || null, text: jp }),
+        el("td", { class: "txt col-min", style: kindColor(d.kind), text: String(d.day) }),
+        el("td", { class: "col-min", style: kindColor(d.kind), title: holidayName(maps.cy, month, d.day) || null, text: jp }),
         el("td", { style: gBg(C.color), text: b.outAvg ? num(Math.round(b.outAvg)) : "—" }),
         el("td", { style: gBg(C.color), text: b.sales ? yen(b.sales) : "—" }),
         el("td", { style: gBg(C.color), text: b.gross ? yen(b.gross) : "—" }),
@@ -333,8 +336,8 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       const hex = achieveHex(ach);
       box.appendChild(el("div", { class: "card", style: `padding:8px 10px;${kindStyle(d.kind)}` }, [
         el("div", { class: "row", style: "align-items:baseline;gap:6px" }, [
-          el("b", { text: `${month}/${d.day}` }),
-          el("span", { class: "hint", title: holidayName(maps.cy, month, d.day) || null,
+          el("b", { style: kindColor(d.kind), text: `${month}/${d.day}` }),
+          el("span", { class: "hint", style: kindColor(d.kind), title: holidayName(maps.cy, month, d.day) || null,
             text: KIND_JP[d.kind] || WD[new Date(maps.cy, month - 1, d.day).getDay()] }),
           el("span", { class: "grow" }),
           // 何の%かは切替で変わる。数字だけだと達成率と前年比を取り違える
