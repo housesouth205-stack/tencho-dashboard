@@ -228,7 +228,9 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   host.appendChild(el("div", { class: "row", style: "flex-wrap:wrap;gap:14px;align-items:stretch" }, [left, right]));
   // 推移は2段構え。上=累計で「このままで届くか」、下=日別の過不足で「どこで落としたか」。
   const unit = gran === "year" ? "月" : "日";
-  host.appendChild(el("div", { class: "col", style: "margin-top:12px;gap:12px" }, [
+  // 2つのグラフは左右に並べる。横幅いっぱいに1つずつだと、横長に引き伸ばされて文字だけ大きくなり、
+  // 縦も2枚ぶん長くなっていた（広い画面のときだけ。狭い画面は今までどおり上下）
+  host.appendChild(el("div", { class: "yj-pair" }, [
     cumLine(series, { title: `粗利の累計 予実｜点線は着地見込み（残りの${unit}は計画どおりの場合）` }),
     diffBars(series, { title: `${unit}別の過不足（実績−計画・粗利）` }),
   ]));
@@ -245,11 +247,10 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
     ]));
   }
 
-  // 予実テーブル
-  host.appendChild(sectionTable(agg, t));
-
-  // 実績平均・進捗（月モードのみ）
-  if (showAverages) host.appendChild(averagesTable(agg, t));
+  // 予実テーブルと実績平均・進捗（月モードのみ）は左右に並べて縦を詰める
+  host.appendChild(showAverages
+    ? el("div", { class: "yj-pair yj-tables" }, [sectionTable(agg, t), averagesTable(agg, t)])
+    : el("div", { class: "yj-tables", style: "margin-top:12px" }, sectionTable(agg, t)));
 }
 
 // 🎯 達成状況: 粗利があといくら足りないか・残り日数で1日いくら必要かを一目で。
@@ -346,7 +347,7 @@ function averagesCards(agg, t) {
 
 function sectionTable(agg, t) {
   if (narrow()) return sectionCards(agg, t);
-  const table = el("table", { class: "grid mono" });
+  const table = el("table", { class: "grid mono compact" });
   const gBg = (c) => `background:${tint(c, 0.08)}`;
   // 2段ヘッダー: 計画/実績のグループ + 売上(青)/粗利(緑)
   table.appendChild(el("thead", {}, [
@@ -376,17 +377,18 @@ function sectionTable(agg, t) {
   body.appendChild(dataRow(null, t, true));
   table.appendChild(body);
   // スマホでは6列が画面幅に収まらないので表の中だけスクロールさせる（グラフと幅を揃える）
-  return el("div", { class: "table-wrap", style: "margin-top:14px" }, table);
+  // 隣の「実績平均・進捗」と見出しの高さをそろえるため、こちらにも見出しを付ける
+  return el("div", { class: "col" }, [el("h2", { style: "font-size:15px", text: "区分別 計画・実績" }), el("div", { class: "table-wrap" }, table)]);
 }
 
 function averagesTable(agg, t) {
-  const wrap = el("div", { class: "col", style: "margin-top:18px" }, el("h2", { style: "font-size:15px", text: "実績平均・進捗" }));
+  const wrap = el("div", { class: "col" }, el("h2", { style: "font-size:15px", text: "実績平均・進捗" }));
   if (narrow()) {
     wrap.appendChild(averagesCards(agg, t));
     wrap.appendChild(el("p", { class: "hint", text: "進捗ペース＝実績 ÷ 計画（実績のある経過日数分）。100%以上＝順調、90%未満＝計画に対して不足ペース。" }));
     return wrap;
   }
-  const table = el("table", { class: "grid mono" });
+  const table = el("table", { class: "grid mono compact" });
   table.appendChild(el("thead", {}, el("tr", {}, ["区分", "平均アウト", "日平均売上", "日平均粗利", "粗利率", "玉単価", "玉粗利", "進捗ペース"].map((h, i) =>
     el("th", { class: i === 0 ? "txt" : "", text: h })))));
   const body = el("tbody");

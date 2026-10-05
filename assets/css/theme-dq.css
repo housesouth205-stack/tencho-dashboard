@@ -342,6 +342,10 @@
 }
 :root[data-theme="dq"] #loginBg input { border-radius: 0 !important; }
 
+/* 予実の並べた表：テーマの table.grid.compact th より強い指定で、文字と余白を詰める */
+:root[data-theme="dq"] .yj-tables table.grid.compact th { font-size: 12px; padding: 3px 5px; white-space: normal; }
+:root[data-theme="dq"] .yj-tables table.grid.compact td { font-size: 13px; padding: 2px 4px; }
+
 /* ---- 角をドットで欠く（サンプルB-1：1段1pxの2段の階段） ----
    角を直角のままにすると硬く、角丸(border-radius)だとドット絵に見えない。
    四隅を1px×2段の階段で切り落として、ドットのまま少しだけ丸く見せる。
