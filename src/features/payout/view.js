@@ -3,23 +3,19 @@ import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num } from "../../util/format.js";
-import { TYPES, TYPE_KEYS, payoutFromDmm, round1, fmt1 } from "../simulator/economics.js";
+import { TYPES, TYPE_KEYS, round1, fmt1 } from "../simulator/economics.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
 import { dmmSearch, dmmFetch, rankCandidates, searchKeyword } from "./dmm.js";
 import { dbCandidates, dbMeta } from "./localdb.js";
 import { buildMinSetting, MIN_CHOICES } from "../simulator/minSetting.js";
-
-const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|アイムジャグ|ジャグ/;
-const guessType = (m) => (AT_HINT.test(String(m).normalize("NFKC")) ? "Aタイプ" : "AT機");
-const AUTO_SCORE = 0.55; // Web一括取得で自動確定する名前類似度の下限
-// 機種DBの一括適用で自動確定する名前類似度の下限。
-// 完全一致だけに絞ると候補選択の手数が多くなるため、この値まで自動で入れる。
-// 自動で入れたものは状態列に一致率を出し、備考にも照合相手を残して後から見直せる。
-const DB_AUTO_SCORE = 0.3;
+import { guessType, resultToSpec, AUTO_SCORE, DB_AUTO_SCORE } from "./autofill.js";
+import { rateKeyOfDai } from "../../core/daiSection.js";
 
 const SRC_LABEL = {
   manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定",
   "db-per6": "機種DB", "db-range": "機種DB推定", default: "未登録",
+  // 保存済みの由来（model_spec.source）。島図取込の自動補完で入ったものを「手動」と見せないため
+  db: "機種DB", web: "Web",
 };
 const SITE_LABEL = { "1geki": "一撃", dmm: "DMM", db: "機種DB" };
 
@@ -30,11 +26,20 @@ export async function mount(host) {
   clear(host);
   host.appendChild(el("div", { class: "view-title" }, [el("h1", { text: "出玉率管理" }), el("small", { text: "機種×設定の出玉率(機械割)。シミュレーターが自動参照" })]));
 
-  const period = await loadCurrentPeriod();
-  if (!period) { host.appendChild(el("div", { class: "placeholder", text: "「取込」タブで遊技台個別CSVを取込むと、機種一覧が表示されます。" })); return; }
-  const snap = await loadSnapshotRows(period.id);
+  // 機種の一覧は島図を優先する。島図は入替のたびに取り込むので、台別CSV（前の期間の集計）より
+  // 今の配置に近い。シミュレーターも島図の機種名で出玉率を引くので、ここも同じ名前で並べる。
+  const islandModels = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "island_models" } }))[0]?.value || {};
+  const islandMeta = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "island_meta" } }))[0]?.value || {};
+  const useIsland = Object.keys(islandModels).length > 0;
+  const period = useIsland ? null : await loadCurrentPeriod();
+  if (!useIsland && !period) { host.appendChild(el("div", { class: "placeholder", text: "「取込」タブで島図Excelか遊技台個別CSVを取込むと、機種一覧が表示されます。" })); return; }
+  const secByKey = new Map(state.sections.map((s) => [s.key, s]));
+  const snap = useIsland
+    ? Object.entries(islandModels).map(([dai, model]) => ({ dai_no: Number(dai), model_name: model, section_label: secByKey.get(rateKeyOfDai(Number(dai)))?.label }))
+    : await loadSnapshotRows(period.id);
   const specs = await repo.select("model_spec", {});
   const specMap = new Map();
+  const specSrc = new Map(specs.filter((x) => x.source === "db" || x.source === "web").map((x) => [x.model_name, x.source]));
   for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = round1(s.payout_rate); specMap.set(s.model_name, a); }
   const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
   const dmmMap = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "dmm_map" } }))[0]?.value || {}; // {model: dmm_id}
@@ -46,7 +51,7 @@ export async function mount(host) {
   const groups = new Map();
   for (const r of snap) {
     const g = groups.get(r.model_name) || { model: r.model_name, secs: new Set(), count: 0, minDai: r.dai_no };
-    g.secs.add(secLabel.get(r.section_id) || "?"); g.count++;
+    g.secs.add(r.section_label || secLabel.get(r.section_id) || "?"); g.count++;
     if (r.dai_no != null) g.minDai = Math.min(g.minDai ?? r.dai_no, r.dai_no);
     groups.set(r.model_name, g);
   }
@@ -58,7 +63,7 @@ export async function mount(host) {
     const registered = !!saved && saved.some((x) => x != null);
     const type = typeSetting[g.model] || guessType(g.model);
     const payout = registered ? saved : [...TYPES[type]];
-    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? "manual" : "default", dmmId: dmmMap[g.model] || null, min: minSetting.of(g.model) };
+    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? (specSrc.get(g.model) || "manual") : "default", dmmId: dmmMap[g.model] || null, min: minSetting.of(g.model) };
   }).sort((a, b) => a.minDai - b.minDai);
 
   const bar = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px" });
@@ -83,6 +88,10 @@ export async function mount(host) {
     "🌐 <b>Web取得</b>: 機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジから補間(<b>Web推定</b>)。<br>" +
     "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" });
   host.appendChild(info);
+  // どの資料の機種名で並んでいるかを出す。島図と台別CSVで機種が食い違うと、片方にしか無い機種が消えて見えるため
+  host.appendChild(el("div", { class: "hint", style: "margin:6px 0 8px", text: useIsland
+    ? `機種一覧は島図（${islandMeta.effectiveFrom || "日付不明"}から適用・${Object.keys(islandModels).length}台）に合わせています。島図を取り込むと入れ替わり、新しい機種は出玉率を自動で埋めます。`
+    : `機種一覧は台別CSV（${period.label || ""}）から作っています。島図を取り込むと島図の機種に切り替わります。` }));
 
   const tableHost = el("div", { style: "overflow:auto;max-height:66vh" });
   host.appendChild(tableHost);
@@ -90,32 +99,10 @@ export async function mount(host) {
   function updateReg() { const reg = rows.filter((r) => r.registered).length; regSpan.textContent = `登録 ${reg}/${rows.length} 機種`; }
 
   function applyResult(r, res) { // res = {id, source, range, per6}
-    // 機種DBはタイプも出典付きで持っているので、先にタイプを合わせてから出玉率を作る。
-    // レンジからの補間はタイプ標準カーブを使うため、順番を逆にすると違うカーブで補間される。
-    if (res.source === "db" && res.type && TYPES[res.type]) r.type = res.type;
-    const pay = payoutFromDmm(res, r.type);
-    if (!pay) return false;
-    // レンジ補間は設定1〜6を必ず埋めるが、設定1・2・5・6しか無い機種がある。
-    // 機種DBが「存在する設定」を持っていれば、そこに無い設定は空欄に戻す。
-    // 空欄はシミュレーターへの「この設定は入れない」という指示でもある。
-    if (res.source === "db" && res.lineup && res.lineup.length) {
-      for (let s = 1; s <= 6; s++) if (!res.lineup.includes(s)) pay[s - 1] = null;
-    }
-    r.payout = pay; r.registered = true;
-    const per6 = !!(res.per6 && res.per6.filter((v) => v != null).length >= 3);
-    r.source = res.source === "db" ? (per6 ? "db-per6" : "db-range") : (per6 ? "dmm-per6" : "dmm-range");
-    // 完全一致でないときは、どの機種名に当てたかと一致率を残す。
-    // 一致率30%でも自動で入るので、後から見直せる手掛かりが要る。
-    const who = res.katashiki && res.katashiki !== res.name ? `${res.name}（型式名 ${res.katashiki}）` : res.name;
-    const matched = res.score != null && res.score < 1
-      ? `\n照合: 「${who}」に一致率${Math.round(res.score * 100)}%で適用`
-      : "";
-    r.note = res.source === "db"
-      ? `機種DB（信頼度 ${res.confidence || "—"}／条件 ${res.condition || "—"}）${matched}\n出典: ${(res.urls || []).join("\n")}`
-      : null;
-    r.matchScore = res.source === "db" ? (res.score ?? null) : null;
-    r.sourceUrl = res.source === "db" ? (res.urls || [])[0] || null : null;
-    if (res.source !== "db" && res.id) { r.dmmId = { id: res.id, source: res.source || "dmm" }; dmmMap[r.model] = r.dmmId; }
+    const x = resultToSpec(res, r.type);
+    if (!x) return false;
+    Object.assign(r, { type: x.type, payout: x.payout, registered: true, source: x.source, note: x.note, matchScore: x.matchScore, sourceUrl: x.sourceUrl });
+    if (x.dmmId) { r.dmmId = x.dmmId; dmmMap[r.model] = x.dmmId; }
     return true;
   }
 
@@ -272,7 +259,7 @@ export async function mount(host) {
         types[r.model] = r.type; mins[r.model] = r.min;
         const s0 = String(r.source);
         // 由来を残す。機種DB由来は出典URLも一緒に保存しておくと、後から根拠を辿れる。
-        const src = s0.startsWith("db") ? "db" : s0.startsWith("dmm") ? "web" : "manual";
+        const src = s0.startsWith("db") ? "db" : s0.startsWith("dmm") || s0 === "web" ? "web" : "manual";
         for (let s = 0; s < 6; s++) {
           specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src, source_url: src === "db" ? r.sourceUrl || null : null });
         }

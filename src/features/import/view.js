@@ -7,6 +7,7 @@ import { rateKeyOfDai } from "../../core/daiSection.js";
 import { compressToRanges, formatRanges } from "../../util/daiRange.js";
 import { yen } from "../../util/format.js";
 import { parsePlCsv, COLS as PL_COLS } from "../../import/plCsv.js";
+import { importMeetingFile } from "../expense/meeting.js";
 import { parsePlPdf } from "../../import/plPdf.js";
 import { importIslandXlsx, showIslandHistory } from "./islandImport.js";
 import { openPlManual } from "./plManual.js";
@@ -56,13 +57,13 @@ export async function mount(host) {
   // 読み取ったCSVも今までどおり受ける（PDFの作りが変わって読めないときの逃げ道）。
   const plMsg = el("div", { class: "col", style: "margin-top:6px" });
   const plInput = el("input", {
-    type: "file", accept: ".pdf,.csv", style: "display:none",
+    type: "file", accept: ".pdf,.csv,.xlsx", style: "display:none",
     onchange: () => importPl(plInput.files[0], plMsg).finally(() => { plInput.value = ""; }),
   });
   host.appendChild(el("div", { class: "card", style: "margin-top:14px;padding:10px 12px" }, [
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("div", { style: "font-weight:700", text: "月次の損益・経費" }),
-      el("span", { class: "hint", text: "会議資料のPDF（作ったCSVでも可）。月1回、資料をもらったときに入れます" }),
+      el("span", { class: "hint", text: "会議資料のPDF・月次会議サマリーのExcel（作ったCSVでも可）。月1回、資料をもらったときに入れます" }),
       el("div", { class: "grow" }),
       plInput,
       el("button", { class: "btn sm", text: "会議資料を取込", onclick: () => plInput.click() }),
@@ -183,7 +184,18 @@ async function importPlCsv(file, msgHost) {
 // 会議資料の取込。PDFはそのまま読み、CSVは今までどおり。
 async function importPl(file, msgHost) {
   if (!file) return;
+  if (/\.xlsx$/i.test(file.name)) return importMeetingXlsx(file, msgHost);
   return /\.pdf$/i.test(file.name) ? importPlPdf(file, msgHost) : importPlCsv(file, msgHost);
+}
+
+// 月次会議サマリーExcel。経費タブの「会議サマリーを取込」と同じ処理を通す
+async function importMeetingXlsx(file, msgHost) {
+  clear(msgHost);
+  try {
+    const { summary, warnings } = await importMeetingFile(file);
+    msgHost.appendChild(el("div", { class: "hint", text: `${summary.title} を取込みました。経費タブで見られます。` }));
+    for (const w of warnings) msgHost.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
+  } catch (e) { errorToast(e); }
 }
 
 // pl_month への書き込み。CSVもPDFも最後はここを通る。

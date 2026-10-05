@@ -85,3 +85,18 @@
 .sd-calcol small { color: var(--fg-dim); margin-left: 3px; }
 .sd-calcol i { display: block; font-style: normal; font-size: 10px; background: var(--panel-2); color: var(--fg-dim); border-radius: 999px; padding: 0 7px; width: fit-content; }
 .sd-calcol i.nx { background: var(--sd-hl-bg); color: var(--sd-hl-fg); }
+
+/* カレンダー：スロットとパチンコを左右の列に分ける */
+.sd-calday { display: grid; grid-template-columns: 80px 1fr 1fr; gap: 12px; }
+.sd-calhead { font-weight: 700; color: var(--fg-dim); border-bottom: 1px solid var(--line); }
+.sd-calcell { min-width: 0; }
+.sd-nlabel { font-size: 12px; font-weight: 700; margin-top: 8px; opacity: .9; }
+@media (max-width: 700px) {
+  .sd-calday { grid-template-columns: 64px 1fr; }
+  .sd-calday .sd-calcell:nth-child(3) { grid-column: 2; }
+  .sd-calhead { display: none; }
+}
+/* パチンコの新台札は控えめに（スロットを主役にする） */
+.sd-newbadge.p { background: transparent; color: var(--fg-dim); border: 1px solid var(--line); }
+/* 日付ブロックの中でスロットとパチンコの間に区切りを入れる */
+.sd-daybody .sd-type ~ .sd-type { border-top: 2px solid var(--line); padding-top: 10px; }

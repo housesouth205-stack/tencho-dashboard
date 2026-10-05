@@ -8,6 +8,7 @@ import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { num } from "../../util/format.js";
 import { localYmd } from "../../util/dates.js";
 import { parseIslandXlsx } from "../../import/islandXlsx.js";
+import { autoFillModels } from "../payout/autofill.js";
 
 const loadMeta = async () =>
   (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "island_meta" } }))[0]?.value || {};
@@ -86,6 +87,28 @@ export async function importIslandXlsx(file, onDone) {
           "島図の表示は崩れますが、設定の投入や保存には影響しません。調整の台番を直してもらうよう伝えてください。" }),
       ]), null);
     }
+    await fillNewModels(Object.values(mdl));
     onDone?.();
   } catch (e) { errorToast(e); }
+}
+
+// 島図で新しく入った機種の出玉率を、機種DB→Webの順で自動で埋める。
+// 入替のたびに出玉率タブで探し直す手間を無くすため。迷う機種は勝手に入れず一覧で知らせる。
+async function fillNewModels(models) {
+  const status = el("div", { class: "hint", text: "新しい機種を確認しています…" });
+  const body = el("div", { class: "col", style: "gap:8px;min-width:min(460px,86vw)" }, [status]);
+  const close = modal("新しい機種の出玉率", body, null);
+  try {
+    const r = await autoFillModels(models, (msg) => { status.textContent = `出玉率を探しています… ${msg}`; });
+    if (!r.targets.length) { close(); return; }
+    status.textContent = `新しい機種 ${r.targets.length}機種のうち、機種DBで ${r.db.length}機種・Webで ${r.web.length}機種を自動で入れました。`;
+    const list = (title, arr) => arr.length ? el("div", {}, [el("b", { text: `${title}（${arr.length}）` }),
+      el("ul", { style: "margin:4px 0 0;padding-left:1.2em;line-height:1.6" }, arr.map((m) => el("li", { text: m })))]) : null;
+    [list("機種DBから", r.db), list("Webから", r.web), list("見つからなかった・名前が曖昧（出玉率タブで選んでください）", r.left)]
+      .filter(Boolean).forEach((n) => body.appendChild(n));
+    body.appendChild(el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:6px" }, [
+      el("button", { class: "btn ghost", text: "閉じる", onclick: () => close() }),
+      el("button", { class: "btn primary", text: "出玉率タブで確認", onclick: () => { close(); location.hash = "payout"; } }),
+    ]));
+  } catch (e) { close(); errorToast(e); }
 }
