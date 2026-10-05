@@ -130,10 +130,12 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     const C = cmpInfo();
     // 取り込んだ日付までの合計。表の一番下まで送らなくても、
     // 「今のところ去年（計画）に対してどうなのか」が最初に目に入るようにする。
-    body.appendChild(totalsBox(series, C));
+    // 合計の数字は左に縦並び、日別のグラフは右に置いて縦を詰める（狭い画面は上下）
+    const side = el("div", { class: "yj-side" }, [totalsBox(series, C)]);
+    body.appendChild(side);
 
     const unit = C.M.avg ? "" : "円";
-    body.appendChild(el("div", { class: "row", style: "gap:12px;flex-wrap:wrap" }, [
+    side.appendChild(el("div", { class: "col", style: "gap:12px;min-width:0" }, [
       dailyBars(series.map((d) => ({
         label: String(d.day), kind: d.kind,
         plan: (C.of(d) || {})[C.M.key] || 0, actual: d.actual ? d.actual[C.M.key] : null,
@@ -277,12 +279,15 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
       const c = val(acc.cur, m), b = val(acc.base, m);
       const r = b ? c / b : null;
       const on = id === metricBy[cmp];
-      return el("div", { style: `flex:1 1 150px;min-width:150px;padding:6px 8px;border-radius:6px;${on ? `background:${tint(C.color, 0.1)}` : ""}` }, [
+      // 計画（昨年）の数字と達成率は1行にまとめる。縦に並べた3つの高さを抑えるため
+      return el("div", { class: "yj-total" + (on ? " on" : ""), style: on ? `background:${tint(C.color, 0.1)}` : null }, [
         el("div", { class: "hint", text: m.label + (m.avg ? "/台" : "") }),
-        el("div", { style: `font-size:18px;font-weight:800;white-space:nowrap;color:${m.barColor}`, text: c == null ? "—" : m.fmt(c) }),
-        el("div", { class: "hint", style: "font-size:11px;white-space:nowrap", text: `${C.short} ${b == null ? "—" : m.fmt(b)}` }),
-        el("div", { style: `font-size:11.5px;font-weight:700;white-space:nowrap;color:${achieveHex(r)}`,
-          text: r == null ? "—" : `${pct(r)}（${c - b >= 0 ? "+" : "−"}${m.fmt(Math.abs(c - b))}）` }),
+        el("div", { class: "yj-total-v", style: `color:${m.barColor}`, text: c == null ? "—" : m.fmt(c) }),
+        el("div", { class: "yj-total-s" }, [
+          el("span", { class: "hint", text: `${C.short} ${b == null ? "—" : m.fmt(b)}` }),
+          el("span", { style: `color:${achieveHex(r)};font-weight:700`,
+            text: r == null ? "—" : `${pct(r)}（${c - b >= 0 ? "+" : "−"}${m.fmt(Math.abs(c - b))}）` }),
+        ]),
       ]);
     };
     const head = acc.last == null ? "" : `${month}/${acc.last}まで の合計`;
@@ -294,7 +299,7 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
         el("b", { style: "font-size:13px", text: head }),
         el("span", { class: "hint", style: "font-size:11px", text: sub }),
       ]),
-      el("div", { class: "row", style: "gap:10px;flex-wrap:wrap" }, ["sales", "gross", "out"].map(cell)),
+      el("div", { class: "yj-totals" }, ["sales", "gross", "out"].map(cell)),
     ]);
   }
 
