@@ -24,7 +24,9 @@ const ymd = (x) => `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0
 const ttag = (t) => `<span class="sd-tt ${t === "スロット" ? "s" : "p"}">${t === "スロット" ? "スロ" : "パチ"}</span>`;
 const norm = (s) => String(s || "").normalize("NFKC").toLowerCase();
 const fmtTs = (iso) => { if (!iso) return "—"; const d = new Date(iso); return isNaN(d) ? String(iso) : `${d.getMonth() + 1}/${d.getDate()}${wd(ymd(d))} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`; };
-const TYPES = [["パチンコ", "p"], ["スロット", "s"]];
+// 当店はスロット専門なので、どの画面もスロットを先（上）に出す
+const TYPES = [["スロット", "s"], ["パチンコ", "p"]];
+const typeRank = (t) => (t === "スロット" ? 0 : 1);
 
 export async function mount(host) {
   clear(host);
@@ -139,14 +141,18 @@ function dateEntryHtml(e, open, multi) {
   body += changesHtml(e, multi);
   const stores = new Set(e.new.map((x) => x.store_key)).size;
   const head = e.new.length
-    ? `<span class="sd-newbadge">新台 ${arr.length}機種・${s.new_dai || 0}台</span>${multi ? `<span class="hint sd-right">${stores}店舗に導入</span>` : ""}`
+    ? TYPES.map(([t]) => {
+        const sub = arr.filter((m) => m.type === t);
+        return sub.length ? `<span class="sd-newbadge${t === "スロット" ? "" : " p"}">${t} ${sub.length}機種・${sub.reduce((x, m) => x + m.total, 0)}台</span>` : "";
+      }).join("") + (multi ? `<span class="hint sd-right">${stores}店舗に導入</span>` : "")
     : `<span class="hint">新台なし</span>`;
   return `<details class="sd-day${e.new.length ? "" : " quiet"}"${open ? " open" : ""}><summary><span class="sd-date">${esc(e.date)} ${wd(e.date)}</span>${head}</summary><div class="sd-daybody">${body}</div></details>`;
 }
 
 // 増台・減台・レート移動（重要度低：一番下に折りたたみ）
 function changesHtml(e, multi) {
-  const up = e.up || [], rm = e.removed || [], mv = e.moved || [];
+  const bySlot = (l) => [...(l || [])].sort((a, b) => typeRank(a.type) - typeRank(b.type));
+  const up = bySlot(e.up), rm = bySlot(e.removed), mv = bySlot(e.moved);
   if (!up.length && !rm.length && !mv.length) return "";
   const s = e.summary || {};
   const st = (x) => (multi ? `<span class="hint">${esc(shortName(x.store || ""))}</span>` : "");
@@ -259,19 +265,28 @@ function renderCal(body) {
     const nm = ms.filter((m) => m.date === next);
     const dd = Math.round((new Date(next + "T00:00:00") - new Date(today + "T00:00:00")) / 86400000);
     h += `<div class="sd-next"><div><small>次の新台入替</small> <b>${esc(next)} ${wd(next)}</b> <span class="sd-when">${dd === 0 ? "本日" : dd === 1 ? "明日" : `あと${dd}日`}</span> <span class="sd-right">${nm.length}機種</span></div>`
-      + nm.map((m) => `<div class="sd-nrow">${ttag(m.type)} <b>${esc(m.name)}</b>${m.stores ? `<span class="hint sd-right">導入予定 ${m.stores}店舗</span>` : ""}</div>`).join("") + `</div>`;
+      + TYPES.map(([t]) => {
+        const sub = nm.filter((m) => m.type === t);
+        return sub.length ? `<div class="sd-nlabel">${t} ${sub.length}機種</div>` + sub.map((m) => `<div class="sd-nrow">${ttag(m.type)} <b>${esc(m.name)}</b>${m.stores ? `<span class="hint sd-right">導入予定 ${m.stores}店舗</span>` : ""}</div>`).join("") : "";
+      }).join("") + `</div>`;
   }
   const byMonth = {};
   for (const m of ms) (byMonth[m.date.slice(0, 7)] ||= []).push(m);
   for (const mo of Object.keys(byMonth).sort()) {
     const [y, mm] = mo.split("-");
-    h += `<h3 class="sd-month">${y}年${parseInt(mm, 10)}月 <span class="hint">${byMonth[mo].length}機種</span></h3>`;
+    const cnt = (t) => byMonth[mo].filter((m) => m.type === t).length;
+    h += `<h3 class="sd-month">${y}年${parseInt(mm, 10)}月 <span class="hint">スロット ${cnt("スロット")}機種・パチンコ ${cnt("パチンコ")}機種</span></h3>`
+      + `<div class="sd-calday sd-calhead"><div class="sd-calcol"></div>${TYPES.map(([t, dot]) => `<div class="sd-calcell"><span class="sd-dot ${dot}"></span> ${t}</div>`).join("")}</div>`;
     const byDay = {};
     for (const m of byMonth[mo]) (byDay[m.date] ||= []).push(m);
     for (const dt of Object.keys(byDay).sort()) {
       const cls = dt < today ? " past" : dt === next ? " next" : "";
-      h += `<div class="sd-calday${cls}"><div class="sd-calcol">${parseInt(dt.slice(8), 10)}日<small>${wd(dt)}</small>${dt < today ? `<i>導入済</i>` : dt === next ? `<i class="nx">次回</i>` : ""}</div><div>`
-        + byDay[dt].map((m) => `<div>${ttag(m.type)} ${esc(m.name)}${m.stores ? ` <span class="hint">${m.stores}店舗</span>` : ""}</div>`).join("") + `</div></div>`;
+      // スロットとパチンコを左右の列に分ける（スマホでは上下に積む）
+      h += `<div class="sd-calday${cls}"><div class="sd-calcol">${parseInt(dt.slice(8), 10)}日<small>${wd(dt)}</small>${dt < today ? `<i>導入済</i>` : dt === next ? `<i class="nx">次回</i>` : ""}</div>`
+        + TYPES.map(([t]) => {
+          const sub = byDay[dt].filter((m) => m.type === t);
+          return `<div class="sd-calcell">${sub.length ? sub.map((m) => `<div>${ttag(m.type)} ${esc(m.name)}${m.stores ? ` <span class="hint">${m.stores}店舗</span>` : ""}</div>`).join("") : `<span class="hint">—</span>`}</div>`;
+        }).join("") + `</div>`;
     }
   }
   box.innerHTML = h;

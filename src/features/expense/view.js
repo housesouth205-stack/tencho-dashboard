@@ -1,10 +1,12 @@
-// 経費タブ。会議資料からの月次データ（pl_month）を見る画面。
-// 「経費のどこが動いているか」と「その結果いくら残ったか」の2点に絞っている。
+// 経費タブ。上に月次会議サマリー（会議で配る表と同じ並び）、下に会議資料からの月次の推移（pl_month）。
+// 推移は「経費のどこが動いているか」と「その結果いくら残ったか」の2点に絞っている。
 import { el, clear } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state } from "../../core/state.js";
 import { waMonthLabel as monthLabel } from "../../util/dates.js";
 import { stackedSga, kiguVsOp, k, kf } from "./charts.js";
+import { importMeetingFile, loadMeetings, renderMeeting } from "./meeting.js";
+import { errorToast } from "../../core/errors.js";
 
 const narrow = () => window.matchMedia("(max-width: 700px)").matches;
 const pct = (v) => (v == null || !isFinite(v) ? "—" : (v * 100).toFixed(1) + "%");
@@ -29,12 +31,52 @@ const ITEM = [
 
 let range = "12"; // "12" = 直近12か月 / "all" = 全期間
 
+let selYm = null; // 表示中の会議サマリーの月度
+
 export async function mount(host) {
   clear(host);
   host.appendChild(el("div", { class: "view-title" }, [
     el("h1", { text: "経費" }),
-    el("small", { text: "会議資料（店舗別営業実績表）の月次データ" }),
+    el("small", { text: "月次会議サマリーと、会議資料の月次の推移" }),
   ]));
+
+  // ---- 月次会議サマリー ----
+  const file = el("input", { type: "file", accept: ".xlsx", style: "display:none", onchange: async () => {
+    const f = file.files[0]; file.value = "";
+    if (!f) return;
+    try {
+      const r = await importMeetingFile(f);
+      selYm = r.ym;
+      for (const w of r.warnings) console.warn(w);
+      mount(host);
+    } catch (e) { errorToast(e); }
+  } });
+  const bar = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px" });
+  host.appendChild(bar);
+  const meetHost = el("div", { class: "col" });
+  host.appendChild(meetHost);
+  let meetings = [];
+  try { meetings = await loadMeetings(); } catch { meetings = []; }
+  if (meetings.length) {
+    if (!meetings.some((m) => m.ym === selYm)) selYm = meetings[0].ym;
+    const sel = el("select", { class: "inp", style: "width:auto", onchange: (e) => { selYm = e.target.value; renderMeeting(meetHost, meetings.find((m) => m.ym === selYm)); } },
+      meetings.map((m) => el("option", { value: m.ym, text: `令和${Number(m.ym.slice(0, 4)) - 2018}年${Number(m.ym.slice(5, 7))}月度`, selected: m.ym === selYm ? "selected" : null })));
+    bar.append(el("label", { class: "lbl", style: "margin:0", text: "会議サマリー" }), sel);
+    renderMeeting(meetHost, meetings.find((m) => m.ym === selYm));
+  } else {
+    meetHost.appendChild(el("div", { class: "placeholder" }, [
+      el("div", { text: "月次会議サマリー（Excel）をまだ取り込んでいません。" }),
+      el("div", { class: "hint", style: "margin-top:6px", text: "「会議サマリーを取込」から TOHO_月次会議サマリー_YYYY-MM.xlsx を選ぶと、会議の表と同じ並びでここに出ます。" }),
+    ]));
+  }
+  bar.append(el("button", { class: "btn primary sm", text: "会議サマリーを取込（Excel）", onclick: () => file.click() }), file);
+
+  // ---- 月次の推移（pl_month） ----
+  const trend = el("details", { class: "card mt-trend", open: meetings.length ? null : "open" }, [
+    el("summary", { class: "mt-h", text: "月次の推移（これまでに取り込んだ月）" }),
+  ]);
+  host.appendChild(trend);
+  host = trend;
 
   let rows;
   try {
@@ -47,7 +89,7 @@ export async function mount(host) {
   if (!rows.length) {
     host.appendChild(el("div", { class: "placeholder" }, [
       el("div", { text: "まだ月次のデータがありません。" }),
-      el("div", { class: "hint", style: "margin-top:6px", text: "会議資料から作ったCSVを「取込」タブで読み込むとここに出ます。" }),
+      el("div", { class: "hint", style: "margin-top:6px", text: "会議サマリーを取り込むか、会議資料のPDF・CSVを「取込」タブで読み込むとここに出ます。" }),
       el("div", { style: "margin-top:10px" }, el("button", { class: "btn sm", text: "取込タブへ", onclick: () => { location.hash = "import"; } })),
     ]));
     return;
