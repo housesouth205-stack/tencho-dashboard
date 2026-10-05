@@ -87,18 +87,14 @@ export function renderMeeting(host, S) {
   }
   if (S.progress) left.appendChild(card(S.progressTitle || "② 途中経過", [progressTable(S.progress)]));
   if (S.rates?.length) left.appendChild(card(S.ratesTitle || "③ レート別", S.rates.map((b) => genericTable(b))));
-  if (S.machines) left.appendChild(card("④ 機械入替", [genericTable(S.machines)]));
   if (S.sga?.length) right.appendChild(card(`⑤ 一般管理費 明細（${mo}月・千円）`, sgaBlock(S.sga)));
-  if (S.notes?.length) right.appendChild(card(`所見・改善案${store ? `（${store}）` : ""}`, notesBlock(S.notes)));
-
-  if (S.stores || S.storeNotes?.length) {
-    const g2 = el("div", { class: "mt-grid" });
-    const l2 = el("div", { class: "col mt-col" }), r2 = el("div", { class: "col mt-col" });
-    g2.append(l2, r2);
-    if (S.stores) l2.appendChild(card("4店比較", [storesTable(S.stores)]));
-    if (S.storeNotes?.length) r2.appendChild(card("所見・改善案（4店）", notesBlock(S.storeNotes)));
-    host.appendChild(g2);
-  }
+  // ④は小さい表なので、⑤の下に置いて左右の列の高さをそろえる（片側だけ長いと下が空く）
+  if (S.machines) right.appendChild(card("④ 機械入替", [genericTable(S.machines)]));
+  // 所見は文章が長く縦に伸びるので、表の列に入れると隣が大きく空く。表の下に全幅で置き、
+  // 中を2段組みにして縦の長さを抑える
+  if (S.notes?.length) host.appendChild(card(`所見・改善案${store ? `（${store}）` : ""}`, [el("div", { class: "mt-cols2" }, notesBlock(S.notes))]));
+  if (S.stores) host.appendChild(card("4店比較", [storesTable(S.stores)]));
+  if (S.storeNotes?.length) host.appendChild(card("所見・改善案（4店）", [el("div", { class: "mt-cols2" }, notesBlock(S.storeNotes))]));
 }
 
 // ① 損益：予算・実績・予算比・達成バー・前年・前年比・前年差
