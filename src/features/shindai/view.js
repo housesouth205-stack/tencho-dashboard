@@ -87,7 +87,7 @@ function render(body) {
 // ---------------------------------------------------------------- 全店舗の新台（導入日ごと）
 function renderAll(body) {
   if (!D.byShop.size) { body.appendChild(el("div", { class: "placeholder", html: "まだ記録がありません。「今すぐ更新」で取得するか、「店舗の設定」からPCアプリの記録を取り込んでください。" })); return; }
-  const search = el("input", { type: "text", value: query, placeholder: "機種名で絞り込み（例：モンキーターン）", class: "sd-search" });
+  const search = el("input", { type: "text", value: query, placeholder: "機種名で絞り込み", class: "sd-search" });
   const list = el("div");
   body.append(el("div", { class: "sd-row" }, [search, el("span", { class: "hint", text: "新しい導入日が上。増台・減台は各日の一番下にまとめています。" })]), list);
   const draw = () => {

@@ -295,6 +295,13 @@
 }
 :root[data-theme="dq"] input:focus,
 :root[data-theme="dq"] select:focus { border-color: var(--accent); box-shadow: none; }
+/* 幅をpxで指定された小さい入力欄は、左右の余白を詰める。
+   幅はJSが通常テーマの文字サイズ前提で決めている（出玉率の設定欄は62px）。ここでは文字が18pxで
+   左右に12pxずつ余白があるので、数字に使えるのが32pxしか残らず「97.3」が「97.」に欠けていた。
+   選択欄は幅指定を外して、いちばん長い選択肢に合わせる（「設定1」が「設」だけになっていた）。 */
+:root[data-theme="dq"] input[style*="width"],
+:root[data-theme="dq"] select[style*="width"] { padding-left: 4px; padding-right: 4px; }
+:root[data-theme="dq"] select.inp[style*="width"] { width: auto !important; }
 
 /* ---- 表 ---- */
 :root[data-theme="dq"] table.grid th,

@@ -131,7 +131,8 @@ function rowFor(s, redraw, daiText, daiInputs, onDaiInput) {
   };
   const keyCell = el("td", { class: "txt", text: s.key });
   const nameInp = el("input", { type: "text", value: s.label, onchange: (e) => save({ label: e.target.value }) });
-  const typeSel = el("select", { class: "inp", onchange: (e) => save({ ptype: e.target.value }) }, [
+  // .inp は幅100%なので、狭い列だと「スロット(S)」が欠ける。選択肢の長さに合わせる
+  const typeSel = el("select", { class: "inp", style: "width:auto", onchange: (e) => save({ ptype: e.target.value }) }, [
     el("option", { value: "S", text: "スロット(S)", selected: s.ptype === "S" ? "selected" : null }),
     el("option", { value: "P", text: "パチンコ(P)", selected: s.ptype === "P" ? "selected" : null }),
   ]);

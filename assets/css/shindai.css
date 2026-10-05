@@ -1,11 +1,17 @@
 /* 新台タブ */
+/* 新台を目立たせる緑の地と、その上の文字。
+   通常テーマの --ok（明るい緑）に白文字だと薄く、ドラクエ風は蛍光緑に白文字で数字が読めなかった。
+   通常は深緑に白、ドラクエ風は蛍光緑に黒にする。 */
+:root { --sd-hl-bg: #1f9d70; --sd-hl-fg: #fff; }
+:root[data-theme="dq"] { --sd-hl-bg: var(--ok); --sd-hl-fg: #000; }
 .sd-bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
 .sd-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
 .sd-wrap { flex-wrap: wrap; gap: 5px; }
 .sd-seg { appearance: none; cursor: pointer; border: 1px solid var(--line); background: var(--panel);
   color: var(--fg-dim); padding: 6px 14px; border-radius: 999px; font-weight: 600; }
 .sd-seg:hover { color: var(--fg); }
-.sd-seg.on { background: var(--fg); border-color: var(--fg); color: #fff; }
+/* 選択中の地は文字色、文字は地の色で反転させる。#fff 固定だとドラクエ風（文字色が白）で白地に白になる */
+.sd-seg.on { background: var(--fg); border-color: var(--fg); color: var(--panel); }
 .sd-seg.sm { padding: 3px 11px; font-size: 12px; }
 .sd-search { max-width: 320px; }
 .sd-right { margin-left: auto; }
@@ -23,7 +29,7 @@
 .sd-day[open] > summary::before { transform: rotate(90deg); }
 .sd-day.quiet > summary { opacity: .6; }
 .sd-date { font-size: 15px; font-weight: 700; }
-.sd-newbadge { background: var(--ok); color: #fff; font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; }
+.sd-newbadge { background: var(--sd-hl-bg); color: var(--sd-hl-fg); font-size: 12px; font-weight: 700; padding: 1px 10px; border-radius: 999px; }
 .sd-daybody { padding: 0 14px 12px; }
 
 .sd-type { display: flex; align-items: center; gap: 7px; font-weight: 700; margin: 10px 0 4px; }
@@ -59,17 +65,17 @@
 .sd-tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; box-shadow: var(--shadow); color: var(--fg-dim); }
 .sd-tile small { display: block; font-weight: 600; }
 .sd-tile b { font-size: 22px; color: var(--fg); margin-right: 2px; }
-.sd-tile.new { background: var(--ok); border-color: var(--ok); color: #e6fff2; }
-.sd-tile.new b { color: #fff; font-size: 26px; }
+.sd-tile.new { background: var(--sd-hl-bg); border-color: var(--sd-hl-bg); color: var(--sd-hl-fg); }
+.sd-tile.new b { color: var(--sd-hl-fg); font-size: 26px; }
 .sd-tile b.up { color: var(--blue); } .sd-tile b.rm { color: var(--bad); } .sd-tile b.mv { color: #8a63c9; }
 .sd-lineup { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 @media (max-width: 800px) { .sd-lineup { grid-template-columns: 1fr; } .sd-chips { margin-left: 0; } }
 
-.sd-next { background: var(--ok); color: #fff; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px; }
+.sd-next { background: var(--sd-hl-bg); color: var(--sd-hl-fg); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px; }
 .sd-next > div:first-child { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
 .sd-next b { font-size: 17px; }
-.sd-when { background: #fff; color: var(--ok); font-weight: 700; font-size: 12px; padding: 1px 10px; border-radius: 999px; }
-.sd-nrow { background: rgba(255,255,255,.95); color: var(--fg); border-radius: 8px; padding: 5px 10px; margin-top: 4px; display: flex; align-items: center; }
+.sd-when { background: var(--sd-hl-fg); color: var(--sd-hl-bg); font-weight: 700; font-size: 12px; padding: 1px 10px; border-radius: 999px; }
+.sd-nrow { background: var(--panel); color: var(--fg); border-radius: 8px; padding: 5px 10px; margin-top: 4px; display: flex; align-items: center; }
 .sd-nrow b { font-size: 13.5px; font-weight: 600; }
 .sd-month { margin: 16px 0 6px; padding-bottom: 4px; border-bottom: 2px solid var(--line); }
 .sd-calday { display: flex; gap: 12px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
@@ -78,4 +84,4 @@
 .sd-calcol { width: 80px; flex: none; font-weight: 700; }
 .sd-calcol small { color: var(--fg-dim); margin-left: 3px; }
 .sd-calcol i { display: block; font-style: normal; font-size: 10px; background: var(--panel-2); color: var(--fg-dim); border-radius: 999px; padding: 0 7px; width: fit-content; }
-.sd-calcol i.nx { background: var(--ok); color: #fff; }
+.sd-calcol i.nx { background: var(--sd-hl-bg); color: var(--sd-hl-fg); }

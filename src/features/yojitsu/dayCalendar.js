@@ -108,7 +108,7 @@ export async function renderDayCalendar(host, { fy, month, sections, onChanged }
       const count = m?.count;
       const pc = planCalc(p, count);
       const ac = actualCalc(a, count);
-      const color = kind === "sun" || kind === "holiday" ? "var(--accent-hi)" : kind === "sat" ? "var(--blue)" : "var(--fg)";
+      const color = kind === "sun" || kind === "holiday" ? "var(--bad)" : kind === "sat" ? "var(--blue)" : "var(--fg)";
       const dayCell = el("td", { class: "txt", style: `color:${color}`, title: holidayName(cy, month, d) || "" },
         `${d}${KIND_JP[kind] ? " " + KIND_JP[kind] : ""}`);
       const cells = [
