@@ -4,6 +4,7 @@ import { fiscalYearOptions } from "./util/dates.js";
 import { el } from "./util/dom.js";
 import { currentSession, signIn, signOut, authErrorMessage } from "./core/auth.js";
 import { mountFreshnessBar } from "./core/freshness.js";
+import { renderQuickImport } from "./core/quickImport.js";
 import { authRequired, AUTH_EMAIL, STORE_NAME } from "./core/config.js";
 import { onThemeChange } from "./core/theme.js";
 import { refreshHeatPalette } from "./calc/heat.js";
@@ -40,7 +41,11 @@ function startApp() {
   if (authRequired()) addLogoutButton();
   // データが古いままになっていないかをタブ直下に常時表示（描画は待たない）
   const nav = document.getElementById("tabs");
-  mountFreshnessBar(nav.parentNode.insertBefore(el("div"), nav.nextSibling));
+  // 右端に、そのタブで使う資料の取込ボタンを出す（中身は router が切り替える）
+  const sub = nav.parentNode.insertBefore(el("div", { class: "subbar" }), nav.nextSibling);
+  mountFreshnessBar(sub.appendChild(el("div", { class: "subbar-fresh" })));
+  sub.appendChild(el("div", { id: "quickImport", class: "row" }));
+  renderQuickImport(location.hash.slice(1));
 
   // 見た目を切り替えたとき、CSSだけでは追いつかないものをここで面倒みる。
   // ヒートの色はJSがCSS変数を読んで保持しているので捨てさせ、グラフ（SVG）は

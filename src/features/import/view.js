@@ -81,75 +81,80 @@ export async function mount(host) {
   host.appendChild(history);
   renderHistory(history);
 
-  async function handle(files) {
-    files = files.filter((f) => /\.csv$/i.test(f.name));
-    if (!files.length) return;
-    try {
-      const secByKey = new Map(state.sections.map((s) => [s.key, s]));
-      const parsed = [];
-      for (const f of files) {
-        const p = parseKtacsKoben(await f.arrayBuffer(), f.name);
-        parsed.push({ name: f.name, ...p });
-      }
-      const period = parsed.find((p) => p.period?.start)?.period || { start: null, end: null };
-      const label = period.start ? `${period.start}〜${period.end}` : new Date().toLocaleDateString("ja-JP");
+  async function handle(files) { await importKtacsFiles(files, { result, history }); }
+}
 
-      // 区分は台番から決める。ホールコンの出力は全レート1ファイルになり、
-      // ファイル冒頭のレート表記（20円など）が付かないことがあるため。
-      // 表記がある古いファイルは、台番で決まらなかった台の受け皿として使う。
-      const assign = [];      // { row, sec, byDai }
-      const unassigned = [];  // どの区分にも入らない台番
-      const mismatch = [];    // 台番判定とファイルのレート表記が食い違う台番
-      for (const p of parsed) {
-        const fileSec = p.sectionKey ? secByKey.get(p.sectionKey) : null;
-        for (const r of p.rows) {
-          const key = rateKeyOfDai(r.dai_no);
-          const sec = (key && secByKey.get(key)) || fileSec;
-          if (!sec) { unassigned.push(r.dai_no); continue; }
-          if (fileSec && key && sec.id !== fileSec.id) mismatch.push(r.dai_no);
-          assign.push({ row: r, sec });
-        }
-      }
-      // 未割当は「捨てて取り込む」と後で数が合わない事故になる。書き込む前に止める。
-      if (unassigned.length) {
-        renderUnassigned(result, unassigned, label);
-        toast(`どの区分にも入らない台が ${unassigned.length}台 あります`, "err");
-        return;
-      }
-      if (!assign.length) { toast("取り込める台がありませんでした", "err"); return; }
+// 台別CSVの取込本体。取込タブのほか、各タブの「取込」ボタンからも呼ぶ。
+// result: 結果を出す場所 / history: 取込履歴の表（無ければ更新しない）
+export async function importKtacsFiles(files, { result, history } = {}) {
+  await loadSections();
+  files = files.filter((f) => /\.csv$/i.test(f.name));
+  if (!files.length) return;
+  try {
+    const secByKey = new Map(state.sections.map((s) => [s.key, s]));
+    const parsed = [];
+    for (const f of files) {
+      const p = parseKtacsKoben(await f.arrayBuffer(), f.name);
+      parsed.push({ name: f.name, ...p });
+    }
+    const period = parsed.find((p) => p.period?.start)?.period || { start: null, end: null };
+    const label = period.start ? `${period.start}〜${period.end}` : new Date().toLocaleDateString("ja-JP");
 
-      setSaveState("saving");
-      // 既存 is_current を解除
-      const currents = await repo.select("snapshot_period", { eq: { store_id: state.storeId, is_current: true } });
-      for (const c of currents) await repo.upsert("snapshot_period", { ...c, is_current: false }, { onConflict: ["id"] });
-      // 新規スナップショット期間
-      const [periodRow] = await repo.upsert("snapshot_period", {
-        store_id: state.storeId, label, start_date: toDate(period.start), end_date: toDate(period.end), is_current: true,
-      }, { onConflict: ["id"] });
+    // 区分は台番から決める。ホールコンの出力は全レート1ファイルになり、
+    // ファイル冒頭のレート表記（20円など）が付かないことがあるため。
+    // 表記がある古いファイルは、台番で決まらなかった台の受け皿として使う。
+    const assign = [];      // { row, sec, byDai }
+    const unassigned = [];  // どの区分にも入らない台番
+    const mismatch = [];    // 台番判定とファイルのレート表記が食い違う台番
+    for (const p of parsed) {
+      const fileSec = p.sectionKey ? secByKey.get(p.sectionKey) : null;
+      for (const r of p.rows) {
+        const key = rateKeyOfDai(r.dai_no);
+        const sec = (key && secByKey.get(key)) || fileSec;
+        if (!sec) { unassigned.push(r.dai_no); continue; }
+        if (fileSec && key && sec.id !== fileSec.id) mismatch.push(r.dai_no);
+        assign.push({ row: r, sec });
+      }
+    }
+    // 未割当は「捨てて取り込む」と後で数が合わない事故になる。書き込む前に止める。
+    if (unassigned.length) {
+      renderUnassigned(result, unassigned, label);
+      toast(`どの区分にも入らない台が ${unassigned.length}台 あります`, "err");
+      return;
+    }
+    if (!assign.length) { toast("取り込める台がありませんでした", "err"); return; }
 
-      const snaps = assign.map(({ row: r, sec }) => ({
-        period_id: periodRow.id, dai_no: r.dai_no, store_id: state.storeId, section_id: sec.id,
-        model_name: r.model, out_val: r.out, sa_val: r.sa, payout: r.payout, big_count: r.big, sales: r.sales, gross: r.gross,
-      }));
-      // 結果は区分ごとにまとめる（1ファイルに全レートが入るので、ファイル単位では意味がない）
-      const byLabel = new Map();
-      for (const a of assign) byLabel.set(a.sec.label, (byLabel.get(a.sec.label) || 0) + 1);
-      const summary = [...byLabel].map(([lbl, dai]) => ({ label: lbl, dai }));
-      const warnings = parsed.flatMap((p) => p.warnings || []);
-      if (mismatch.length) {
-        warnings.push(`ファイルのレート表記と台番の設定が食い違う台が ${mismatch.length}台 あります（${mismatch.slice(0, 8).join(", ")}${mismatch.length > 8 ? " ほか" : ""}）。台番の設定を優先しました。`);
-      }
-      if (warnings.length) summary.push({ label: "注意", dai: "", warnings });
-      for (const p of parsed) {
-        await repo.upsert("import_log", { store_id: state.storeId, kind: "ktacs_csv", filename: p.name, row_count: p.rows.length, status: "ok", message: label }, { onConflict: ["id"] });
-      }
-      for (let i = 0; i < snaps.length; i += 200) await repo.upsert("machine_snapshot", snaps.slice(i, i + 200), { onConflict: ["period_id", "dai_no"] });
-      setSaveState("saved");
-      renderResult(result, label, summary, snaps.length);
-      renderHistory(history);
-      toast(`${snaps.length}台を取込みました`, "ok");
-    } catch (e) { errorToast(e); }
-  }
+    setSaveState("saving");
+    // 既存 is_current を解除
+    const currents = await repo.select("snapshot_period", { eq: { store_id: state.storeId, is_current: true } });
+    for (const c of currents) await repo.upsert("snapshot_period", { ...c, is_current: false }, { onConflict: ["id"] });
+    // 新規スナップショット期間
+    const [periodRow] = await repo.upsert("snapshot_period", {
+      store_id: state.storeId, label, start_date: toDate(period.start), end_date: toDate(period.end), is_current: true,
+    }, { onConflict: ["id"] });
+
+    const snaps = assign.map(({ row: r, sec }) => ({
+      period_id: periodRow.id, dai_no: r.dai_no, store_id: state.storeId, section_id: sec.id,
+      model_name: r.model, out_val: r.out, sa_val: r.sa, payout: r.payout, big_count: r.big, sales: r.sales, gross: r.gross,
+    }));
+    // 結果は区分ごとにまとめる（1ファイルに全レートが入るので、ファイル単位では意味がない）
+    const byLabel = new Map();
+    for (const a of assign) byLabel.set(a.sec.label, (byLabel.get(a.sec.label) || 0) + 1);
+    const summary = [...byLabel].map(([lbl, dai]) => ({ label: lbl, dai }));
+    const warnings = parsed.flatMap((p) => p.warnings || []);
+    if (mismatch.length) {
+      warnings.push(`ファイルのレート表記と台番の設定が食い違う台が ${mismatch.length}台 あります（${mismatch.slice(0, 8).join(", ")}${mismatch.length > 8 ? " ほか" : ""}）。台番の設定を優先しました。`);
+    }
+    if (warnings.length) summary.push({ label: "注意", dai: "", warnings });
+    for (const p of parsed) {
+      await repo.upsert("import_log", { store_id: state.storeId, kind: "ktacs_csv", filename: p.name, row_count: p.rows.length, status: "ok", message: label }, { onConflict: ["id"] });
+    }
+    for (let i = 0; i < snaps.length; i += 200) await repo.upsert("machine_snapshot", snaps.slice(i, i + 200), { onConflict: ["period_id", "dai_no"] });
+    setSaveState("saved");
+    renderResult(result, label, summary, snaps.length);
+    if (history) renderHistory(history);
+    toast(`${snaps.length}台を取込みました`, "ok");
+  } catch (e) { errorToast(e); }
 }
 
 // 月次の損益・経費CSVを取り込む。同じ月度が既にあれば上書きする（読み直しても増えない）。
@@ -182,7 +187,7 @@ async function importPlCsv(file, msgHost) {
 }
 
 // 会議資料の取込。PDFはそのまま読み、CSVは今までどおり。
-async function importPl(file, msgHost) {
+export async function importPl(file, msgHost) {
   if (!file) return;
   if (/\.xlsx$/i.test(file.name)) return importMeetingXlsx(file, msgHost);
   return /\.pdf$/i.test(file.name) ? importPlPdf(file, msgHost) : importPlCsv(file, msgHost);

@@ -107,7 +107,7 @@ table.grid th.col-min, table.grid td.col-min { width: 1%; white-space: nowrap; }
 .chart-legend { display: flex; gap: 14px; margin-top: 6px; font-size: 11px; color: var(--fg-dim); }
 
 /* 予実タブ：グラフどうし・表どうしを左右に並べる（広い画面だけ。狭いと上下に積む） */
-.yj-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 12px; align-items: start; }
+.yj-pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; margin-top: 12px; align-items: stretch; }
 @media (min-width: 1100px) { .yj-pair { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .yj-pair .col { gap: 6px; }
 .yj-pair h2 { margin: 0; }
@@ -117,10 +117,23 @@ table.grid th.col-min, table.grid td.col-min { width: 1%; white-space: nowrap; }
 .yj-tables .hint { margin: 2px 0 0; }
 
 /* 日別の実績：合計の数字を左に縦並び、グラフを右に（広い画面だけ） */
-.yj-side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; }
+.yj-side { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: stretch; }
 @media (min-width: 1100px) { .yj-side { grid-template-columns: minmax(300px, 1fr) minmax(0, 2.4fr); } }
 .yj-totals { display: flex; flex-direction: column; gap: 4px; }
 .yj-total { padding: 6px 8px; border-radius: 6px; }
 .yj-total-v { font-size: 18px; font-weight: 800; white-space: nowrap; line-height: 1.3; }
 .yj-total-s { display: flex; gap: 10px; font-size: 11.5px; white-space: nowrap; }
 .yj-total-s .hint { font-size: 11.5px; }
+
+/* タブ直下の行：左に鮮度表示、右にそのタブの取込ボタン */
+.subbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 12px; }
+.subbar-fresh { flex: 1 1 auto; min-width: 0; }
+#quickImport { gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* 左右に並べた枠は下端をそろえる。片方だけ短いと、下に半端な空きができて雑に見える。
+   列（.col）の中に枠が縦に積まれている場合は、いちばん下の枠を伸ばして高さを合わせる。 */
+.eq-cols { align-items: stretch !important; }
+.eq-cols > .col > :last-child,
+.yj-pair > .col > :last-child,
+.yj-side > .col > :last-child { flex: 1 1 auto; }
+.yj-tables > .col > .table-wrap { flex: 0 0 auto; }

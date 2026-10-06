@@ -1,4 +1,5 @@
 import { el, clear } from "../util/dom.js";
+import { renderQuickImport } from "./quickImport.js";
 
 // タブ定義。loadは遅延importでビューモジュールを読む（未実装は準備中表示）。
 const TABS = [
@@ -10,7 +11,6 @@ const TABS = [
   { id: "payout", label: "出玉率", load: () => import("../features/payout/view.js") },
   { id: "shindai", label: "新台", load: () => import("../features/shindai/view.js") },
   { id: "expense", label: "経費", load: () => import("../features/expense/view.js") },
-  { id: "capex", label: "増台計画", load: () => import("../features/capex/view.js") },
   { id: "import", label: "取込", load: () => import("../features/import/view.js") },
   { id: "settings", label: "設定", load: () => import("../features/settings/view.js") },
 ];
@@ -38,6 +38,7 @@ async function navigate(id) {
   const seq = ++navSeq;
   const tab = TABS.find((t) => t.id === id || (t.alias || []).includes(id)) || TABS[0];
   document.querySelectorAll(".tab").forEach((b) => b.classList.toggle("active", b.dataset.id === tab.id));
+  renderQuickImport(tab.id);
   const view = document.getElementById("view");
 
   let mod = null;

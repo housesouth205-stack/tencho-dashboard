@@ -225,7 +225,7 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   const bars = hbars(agg.perSection.map((r) => ({ label: r.section.label, plan: r.plan.gross, actual: r.actual.gross, color: sectionColor(r.section) })), { title: "区分別 計画vs実績（粗利）" });
   const right = el("div", { class: "col", style: "flex:1;min-width:300px;gap:12px" }, [bars, goalPanel(t, opts)]);
 
-  host.appendChild(el("div", { class: "row", style: "flex-wrap:wrap;gap:14px;align-items:stretch" }, [left, right]));
+  host.appendChild(el("div", { class: "row eq-cols", style: "flex-wrap:wrap;gap:14px;align-items:stretch" }, [left, right]));
   // 推移は2段構え。上=累計で「このままで届くか」、下=日別の過不足で「どこで落としたか」。
   const unit = gran === "year" ? "月" : "日";
   // 2つのグラフは左右に並べる。横幅いっぱいに1つずつだと、横長に引き伸ばされて文字だけ大きくなり、

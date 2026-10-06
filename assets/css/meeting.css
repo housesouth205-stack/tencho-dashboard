@@ -2,7 +2,9 @@
 .mt-head { padding: 12px 16px; margin-bottom: 12px; }
 .mt-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
 /* 2列にするのは表が横スクロールなしで収まる幅があるときだけ。狭いと1列に積む */
-.mt-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: start; margin-bottom: 12px; }
+.mt-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; align-items: stretch; margin-bottom: 12px; }
+/* 左右の列の下端をそろえる（いちばん下の枠を伸ばす） */
+.mt-grid > .mt-col > .mt-card:last-child { flex: 1 1 auto; }
 @media (min-width: 1500px) { .mt-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
 .mt-col { gap: 12px; }
 .mt-card { padding: 10px 12px; margin-bottom: 12px; }
