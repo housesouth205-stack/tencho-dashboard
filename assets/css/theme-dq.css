@@ -344,8 +344,17 @@
 :root[data-theme="dq"] #loginBg input { border-radius: 0 !important; }
 
 /* 予実の並べた表：テーマの table.grid.compact th より強い指定で、文字と余白を詰める */
+/* 数字は18px（ドット文字がにじまない大きさ）。13pxだと小さすぎて読みにくかった */
 :root[data-theme="dq"] .yj-tables table.grid.compact th { font-size: 12px; padding: 3px 5px; white-space: normal; }
-:root[data-theme="dq"] .yj-tables table.grid.compact td { font-size: 13px; padding: 2px 4px; }
+:root[data-theme="dq"] .yj-tables table.grid.compact td { font-size: 18px; padding: 2px 5px; }
+/* 18pxの数字だと、表2つを左右に並べるには1500px以上の幅が要る。狭いときは上下に積む */
+@media (max-width: 1499px) { :root[data-theme="dq"] .yj-pair.yj-tables { grid-template-columns: minmax(0, 1fr); } }
+/* 添えもの（グラフの見出し・凡例・注記・合計の見出し）は12pxで1行。18pxだと折り返して帯が2段になった */
+:root[data-theme="dq"] .chart-head > .hint,
+:root[data-theme="dq"] .chart-head .chart-legend,
+:root[data-theme="dq"] .yj-tables .hint,
+:root[data-theme="dq"] .yj-total-head b,
+:root[data-theme="dq"] .yj-total-head .hint { font-size: 12px; }
 
 :root[data-theme="dq"] .yj-total-s, :root[data-theme="dq"] .yj-total-s .hint { font-size: 12px; }
 :root[data-theme="dq"] .yj-total-v { font-size: 18px; }

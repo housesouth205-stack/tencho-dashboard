@@ -292,12 +292,13 @@ export function renderDailyDetail(host, { fy, month, sections, maps, prevMaps })
     };
     const head = acc.last == null ? "" : `${month}/${acc.last}まで の合計`;
     const sub = cmp === "prev"
-      ? `実績${acc.days}日／昨年${acc.baseDays}日ぶん（同じ日にちで突き合わせ）`
-      : `実績${acc.days}日ぶん。同じ日の計画と比べています（月ぶん全部の計画とは違います）`;
+      ? `実績${acc.days}日／昨年${acc.baseDays}日・同じ日にちで比較`
+      : `実績${acc.days}日ぶん・同じ日の計画と比較`;
     return el("div", { class: "card", style: `border-top:3px solid ${C.color};background:${tint(C.color, 0.04)}` }, [
-      el("div", { class: "row", style: "align-items:baseline;gap:8px;margin-bottom:6px" }, [
-        el("b", { style: "font-size:13px", text: head }),
-        el("span", { class: "hint", style: "font-size:11px", text: sub }),
+      // 見出しは1行に収める（折り返すと左の列だけ縦に伸びる）。大きさはクラスで決める
+      el("div", { class: "yj-total-head" }, [
+        el("b", { text: head }),
+        el("span", { class: "hint", text: sub }),
       ]),
       el("div", { class: "yj-totals" }, ["sales", "gross", "out"].map(cell)),
     ]);

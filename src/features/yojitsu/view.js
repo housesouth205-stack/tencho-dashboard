@@ -231,7 +231,8 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
   // 2つのグラフは左右に並べる。横幅いっぱいに1つずつだと、横長に引き伸ばされて文字だけ大きくなり、
   // 縦も2枚ぶん長くなっていた（広い画面のときだけ。狭い画面は今までどおり上下）
   host.appendChild(el("div", { class: "yj-pair" }, [
-    cumLine(series, { title: `粗利の累計 予実｜点線は着地見込み（残りの${unit}は計画どおりの場合）` }),
+    // 見出しは1行に収まる長さにする。点線の意味は凡例の「着地見込み（点線）」に出ている
+    cumLine(series, { title: "粗利の累計 予実" }),
     diffBars(series, { title: `${unit}別の過不足（実績−計画・粗利）` }),
   ]));
 
