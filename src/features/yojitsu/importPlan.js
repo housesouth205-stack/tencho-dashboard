@@ -12,19 +12,21 @@ const CONFLICT = ["store_id", "ymd", "section_id"];
 
 // 「月計画表を取込」ファイル選択→解析→プレビュー→確定upsert。
 export function pickMonthlyPlan({ fy, sections, onDone }) {
-  const input = el("input", { type: "file", accept: ".xlsx,.xls", style: "display:none" });
-  input.addEventListener("change", async () => {
-    const file = input.files[0];
-    if (!file) return;
-    try {
-      const buf = await file.arrayBuffer();
-      const { rows, warnings } = await parseMonthlyPlan(buf, { fy, sections });
-      showPreview(file.name, rows, warnings, onDone, fy);
-    } catch (e) { errorToast(e); }
-  });
+  const input = el("input", { type: "file", accept: ".xlsx,.xls,.xlsm,.ods", style: "display:none" });
+  input.addEventListener("change", () => importMonthlyPlanFile(input.files[0], { fy, sections, onDone }));
   document.body.appendChild(input);
   input.click();
   setTimeout(() => input.remove(), 0);
+}
+
+// ファイルを渡して取り込む入口。取込タブの「なんでも取込」からも呼ぶ。
+export async function importMonthlyPlanFile(file, { fy, sections, onDone }) {
+  if (!file) return;
+  try {
+    const buf = await file.arrayBuffer();
+    const { rows, warnings } = await parseMonthlyPlan(buf, { fy, sections });
+    showPreview(file.name, rows, warnings, onDone, fy);
+  } catch (e) { errorToast(e); }
 }
 
 function showPreview(filename, rows, warnings, onDone, fy) {

@@ -91,7 +91,7 @@ export async function mount(host) {
   // どの資料の機種名で並んでいるかを出す。島図と台別CSVで機種が食い違うと、片方にしか無い機種が消えて見えるため
   host.appendChild(el("div", { class: "hint", style: "margin:6px 0 8px", text: useIsland
     ? `機種一覧は島図（${islandMeta.effectiveFrom || "日付不明"}から適用・${Object.keys(islandModels).length}台）に合わせています。島図を取り込むと入れ替わり、新しい機種は出玉率を自動で埋めます。`
-    : `機種一覧は台別CSV（${period.label || ""}）から作っています。島図を取り込むと島図の機種に切り替わります。` }));
+    : `機種一覧は台別データ（${period.label || ""}）から作っています。島図を取り込むと島図の機種に切り替わります。` }));
 
   const tableHost = el("div", { style: "overflow:auto;max-height:66vh" });
   host.appendChild(tableHost);

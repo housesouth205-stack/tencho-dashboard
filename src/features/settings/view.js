@@ -28,7 +28,7 @@ export async function mount(host) {
   const backup = el("div", { class: "card col" }, [
     el("h2", { text: "バックアップ" }),
     el("p", { class: "hint", style: "margin:0", text:
-      "予実（計画・実績・台数・目標）／機種分析（取込スナップショット）／島図（配置・設備）／出玉率（機種×設定）／シミュレーター保存 の全データをJSONファイルに保存します。月に1回など定期的な取得をおすすめします。" }),
+      "予実（計画・実績・台数・目標）／機種分析（取込スナップショット）／島図（配置・設備）／出玉率（機種×設定）／シミュレーター保存／経費（月次の損益・会議サマリー） の全データをJSONファイルに保存します。月に1回など定期的な取得をおすすめします。" }),
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("button", { class: "btn primary", text: "⬇ バックアップを保存(JSON)", onclick: exportJson }),
       el("label", { class: "btn ghost" }, [
@@ -52,13 +52,19 @@ const TABLES = [
   ["budget_year", ["store_id", "fy", "section_id"]],
   ["budget_month", ["store_id", "fy", "month", "section_id"]],
   ["snapshot_period", ["id"]],
-  ["machine_snapshot", ["id"]],
+  // machine_snapshot に id 列は無い（主キーは期間×台番）。["id"] で戻すとDBが弾き、
+  // 機種分析のデータだけ復元できなかった。
+  ["machine_snapshot", ["period_id", "dai_no"]],
   ["layout_cell", ["store_id", "dai_no"]],
   ["fixture", ["id"]],
   ["model_spec", ["model_name", "setting"]],
   ["sim_session", ["id"]],
   ["app_setting", ["store_id", "key"]],
+  // 経費タブの月次推移。会議資料から入れた数字で、取り直すには資料を探し直すことになるので残す。
+  ["pl_month", ["store_id", "ym", "kind"]],
 ];
+// 後から足したテーブル。DB側に作っていない環境でもバックアップ全体は止めない。
+const OPTIONAL = new Set(["pl_month"]);
 
 async function exportJson() {
   try {
@@ -66,7 +72,7 @@ async function exportJson() {
     const dump = { _meta: { app: "tencho-dashboard", exportedAt: new Date().toISOString(), version: 2 } };
     let total = 0;
     for (const [t] of TABLES) {
-      const rows = await repo.select(t, {});
+      const rows = await repo.select(t, {}).catch((e) => { if (OPTIONAL.has(t)) return []; throw e; });
       dump[t] = rows; total += rows.length;
     }
     const blob = new Blob([JSON.stringify(dump)], { type: "application/json" });

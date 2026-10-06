@@ -126,7 +126,9 @@ table.grid th.col-min, table.grid td.col-min { width: 1%; white-space: nowrap; }
 .yj-total-s .hint { font-size: 11.5px; }
 
 /* タブ直下の行：左に鮮度表示、右にそのタブの取込ボタン */
-.subbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 12px; }
+/* 折り返したとき取込ボタンの行が画面の左端に貼りつかないよう、左にも余白を取る */
+.subbar { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding: 0 12px 0 0; }
+#quickImport { padding-left: 12px; }
 .subbar-fresh { flex: 1 1 auto; min-width: 0; }
 #quickImport { gap: 6px; align-items: center; flex-wrap: wrap; }
 

@@ -17,7 +17,7 @@ export function decodeText(arrayBuffer) {
   catch { return new TextDecoder("shift_jis").decode(arrayBuffer); }
 }
 
-export function parseCsv(text) {
+export function parseCsv(text, delim = ",") {
   const rows = [];
   let row = [], field = "", inQ = false;
   for (let i = 0; i < text.length; i++) {
@@ -26,7 +26,7 @@ export function parseCsv(text) {
       if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQ = false; }
       else field += c;
     } else if (c === '"') inQ = true;
-    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
     else if (c === "\r") { /* skip */ }
     else field += c;
@@ -40,4 +40,19 @@ export function findCol(header, names) {
   const norm = header.map((h) => String(h).trim());
   for (const n of names) { const i = norm.indexOf(n); if (i >= 0) return i; }
   return -1;
+}
+
+// 区切り文字を見分ける。Excelの「テキスト（タブ区切り）」で保存したものや、
+// 表をそのままコピーして貼ったもの（タブ区切りになる）も、CSVと同じ口で読めるようにする。
+// 多くの行で同じ数だけ出てくる文字を区切りとみなす（1行だけ多いのは中身のカンマ等）。
+export function sniffDelimiter(text) {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim()).slice(0, 30);
+  let best = ",", bestScore = -1;
+  for (const d of [",", "\t", ";"]) {
+    const freq = new Map();
+    for (const l of lines) { const n = l.split(d).length - 1; if (n > 0) freq.set(n, (freq.get(n) || 0) + 1); }
+    const score = Math.max(0, ...freq.values());
+    if (score > bestScore) { best = d; bestScore = score; }
+  }
+  return best;
 }
