@@ -24,7 +24,7 @@ function toNum(s) {
 
 // セルは1文字ずつ別々に来ることがある（PDFは字送りごとに描くため）。
 // 近い文字はつないで1つの語にする。
-function words(cells, gap = 6) {
+export function words(cells, gap = 6) {
   const out = [];
   for (const c of cells) {
     const last = out[out.length - 1];

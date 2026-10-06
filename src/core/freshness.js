@@ -10,9 +10,9 @@ import { waMonthLabel } from "../util/dates.js";
 // unit:"month" のものは日数ではなく「何か月ぶん未取込か」で見る。
 const RULES = {
   actual: { warn: 2, bad: 4, label: "日次実績", tab: "yojitsu", hint: "予実タブで入力" },
-  snapshot: { warn: 14, bad: 21, label: "台別CSV", tab: "import", hint: "取込タブでCSVを取込" },
+  snapshot: { warn: 14, bad: 21, label: "台別データ", tab: "import", hint: "取込タブで台別データ（CSV・Excel）を取込" },
   // 会議資料は月1回しか出ない。日数で見ると常に古い扱いになるので月で数える。
-  plmonth: { warn: 2, bad: 3, label: "月次経費", tab: "expense", unit: "month", hint: "会議資料をもらったら取込タブで月次CSVを取込" },
+  plmonth: { warn: 2, bad: 3, label: "月次経費", tab: "expense", unit: "month", hint: "会議資料（PDF・Excel・CSV）をもらったら取込タブで取込" },
 };
 
 const DAY = 86400000;
@@ -89,8 +89,23 @@ export async function mountFreshnessBar(host) {
     style: "gap:6px;align-items:center;flex-wrap:wrap;padding:4px 12px;font-size:12px",
   });
   host.appendChild(bar);
+  await drawFreshness(bar);
+  // 取り込んだ直後も「未取込」のまま出ていた（起動時に1回描くだけだったため）。
+  // タブを移るたびと、見ている表に書き込みがあったときに読み直す。
+  window.addEventListener("hashchange", () => drawFreshness(bar));
+  // 書き込みが続けて来る（200行ずつ保存など）ので、落ち着いてから1回だけ読み直す
+  let t = null;
+  window.addEventListener("dash:datachange", () => { clearTimeout(t); t = setTimeout(() => drawFreshness(bar), 800); });
+  return bar;
+}
+
+let drawSeq = 0;
+async function drawFreshness(bar) {
+  const seq = ++drawSeq;
   try {
     const items = await loadFreshness();
+    if (seq !== drawSeq) return; // 続けて呼ばれたら新しいほうだけ描く
+    bar.replaceChildren();
     for (const it of items) bar.appendChild(chip(it));
     const worst = items.some((i) => i.level === "bad") ? "bad"
       : items.some((i) => i.level === "warn") ? "warn" : "ok";
@@ -101,7 +116,6 @@ export async function mountFreshnessBar(host) {
       }));
     }
   } catch {
-    bar.remove(); // 鮮度表示のためにアプリ全体を止めない
+    if (seq === drawSeq) bar.replaceChildren(); // 鮮度表示のためにアプリ全体を止めない
   }
-  return bar;
 }

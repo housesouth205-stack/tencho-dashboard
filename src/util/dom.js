@@ -20,9 +20,12 @@ export function el(tag, attrs = {}, children = []) {
 export function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
 
 // 簡易モーダル。closeを返す。
-export function modal(title, bodyNode, footerNode) {
+// onClose は✕・背景クリック・close() のどれで閉じても1回だけ呼ぶ（答えを待つ側が
+// 「閉じられた」ことを知れないと、待ったまま次の処理に進めなくなる）。
+export function modal(title, bodyNode, footerNode, { onClose } = {}) {
   const bg = el("div", { class: "modal-bg" });
-  const close = () => bg.remove();
+  let closed = false;
+  const close = () => { if (closed) return; closed = true; bg.remove(); onClose?.(); };
   const head = el("h2", {}, [title, el("button", { class: "btn ghost sm close", onclick: close, text: "✕" })]);
   const box = el("div", { class: "modal" }, [head, bodyNode, footerNode].filter(Boolean));
   bg.appendChild(box);
