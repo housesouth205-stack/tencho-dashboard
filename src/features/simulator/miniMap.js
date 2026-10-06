@@ -213,8 +213,8 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
     }
     box.appendChild(cell);
   }
-  return opts.cellW ? grid
-    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel)" }, grid);
+  return opts.cellW && !opts.compact ? grid
+    : el("div", { style: "border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--panel);overflow-x:auto" }, grid);
   }
 }
 
@@ -222,10 +222,14 @@ export function buildPlacementFloor(layout, placement, floor, opts = {}) {
 // opts.cellW 指定時はズーム対象としてまとめた中身だけを返す（枠は呼び出し側が付ける）。
 export function buildPlacementMap(layout, placement, opts = {}) {
   const floors = floorsOf(layout);
-  const zoomed = !!opts.cellW;
-  // スマホ（固定幅）では階ごとに列数が違うと左右の端がそろわない。
+  // fixed = マスを決まった大きさで描く（画面幅に引き伸ばさない）。
+  // zoomed = スマホのズーム枠の中身として返す（見出しを大きく・凡例は呼び出し側）。
+  // PCの compact は fixed だけ使う：島図Excelと同じくらいの縮尺で、横に引き伸ばさない。
+  const fixed = !!opts.cellW;
+  const zoomed = fixed && !opts.compact;
+  // 固定幅では階ごとに列数が違うと左右の端がそろわない。
   // いちばん広い階の幅に合わせ、足りないぶんは通路が伸びて吸収する。
-  if (zoomed) {
+  if (fixed) {
     const all = layout.map(tweakCell);
     const geom = cellGeom(opts.cellW, placement.some((p) => p.metric != null));
     const W = geom.head;
@@ -243,7 +247,7 @@ export function buildPlacementMap(layout, placement, opts = {}) {
     };
     opts = { ...opts, targetW: Math.max(...floors.map(widthOf)) };
   }
-  const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : "gap:8px" });
+  const wrap = el("div", { class: zoomed ? "placement-all" : "col", style: zoomed ? "width:max-content" : fixed ? "gap:6px;width:max-content;max-width:100%" : "gap:8px" });
   if (!zoomed) wrap.appendChild(buildLegend(placement));
   // 1FとBFを続けて並べるので、階の変わり目がはっきり分かるようにする
   floors.forEach((fl, i) => {

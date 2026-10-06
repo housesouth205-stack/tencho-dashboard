@@ -27,8 +27,10 @@ function parseSetup(aoa) {
   return m;
 }
 
+// 見出しは全角で書かれていることがある（「１Fフロア」）。NFKCで半角にそろえてから照合する。
+// そろえずに照合すると1Fの見出しが見つからず、1Fの台が丸ごと取り込まれなかった。
 function rowOfText(aoa, re) {
-  for (let r = 0; r < aoa.length; r++) if (aoa[r].some((c) => typeof c === "string" && re.test(c))) return r;
+  for (let r = 0; r < aoa.length; r++) if (aoa[r].some((c) => typeof c === "string" && re.test(c.normalize("NFKC")))) return r;
   return -1;
 }
 

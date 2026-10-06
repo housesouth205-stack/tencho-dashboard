@@ -350,6 +350,9 @@
 :root[data-theme="dq"] .yj-total-s, :root[data-theme="dq"] .yj-total-s .hint { font-size: 12px; }
 :root[data-theme="dq"] .yj-total-v { font-size: 18px; }
 
+:root[data-theme="dq"] .btn.sm.sim-setbtn { min-height: 0; height: 30px; width: 40px; padding: 0; font-size: 16px; }
+:root[data-theme="dq"] .sim-note { font-size: 12px; }
+
 /* ---- 角をドットで欠く（サンプルB-1：1段1pxの2段の階段） ----
    角を直角のままにすると硬く、角丸(border-radius)だとドット絵に見えない。
    四隅を1px×2段の階段で切り落として、ドットのまま少しだけ丸く見せる。

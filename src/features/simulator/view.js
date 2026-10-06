@@ -22,6 +22,8 @@ const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パ�
 const guessType = (model) => (AT_HINT.test(String(model).normalize("NFKC")) ? "Aタイプ" : "AT機");
 const groupOf = (model, saved) => (((saved || guessType(model)) === "Aタイプ") ? "Aタイプ" : "AT機");
 
+const mobileNow = () => window.matchMedia("(max-width: 700px)").matches;
+
 export async function mount(host) {
   await loadSections();
   clear(host);
@@ -329,7 +331,7 @@ export async function mount(host) {
   function buildPicker() {
     const p = st.pick;
     const opt = (list, cur) => list.map(([v, t]) => el("option", { value: v, text: t, selected: String(v) === String(cur) ? "selected" : null }));
-    const preview = el("span", { class: "hint", style: "font-size:11.5px" });
+    const preview = el("span", { class: "hint sim-note" });
     // 選び直すたびに対象台数だけ出し直す（島図まで描き直すと入力欄から手が離れる）
     const refresh = () => {
       const c = pickUnits();
@@ -341,7 +343,7 @@ export async function mount(host) {
     const jugBox = el("input", { type: "checkbox", style: "cursor:pointer",
       onchange: (e) => { p.skipJug = e.target.checked; refresh(); } });
     jugBox.checked = p.skipJug;
-    const jugChk = el("label", { style: "display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:12px",
+    const jugChk = el("label", { class: "sim-note", style: "display:inline-flex;align-items:center;gap:4px;cursor:pointer",
       title: `${bulkExcludeLabel()}番。チェックを外すとこの島も対象に含めます` },
       [jugBox, el("span", { text: "ジャグラー島は変更しない" })]);
     refresh();
@@ -349,7 +351,8 @@ export async function mount(host) {
     // 2行に分けておく。PCでも意味の区切りが分かりやすい。
     const line = (children) => el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, children);
     const mobile = window.matchMedia("(max-width: 700px)").matches;
-    const inner = el("div", { class: "col", style: "gap:6px" }, [
+    // PCは横幅があるので1行にまとめる（2行だと縦に場所を取る）。スマホは2行のまま
+    const inner = el(mobile ? "div" : "span", { class: mobile ? "col" : "row", style: mobile ? "gap:6px" : "gap:6px;align-items:center;flex-wrap:wrap" }, [
       line([
         mobile ? null : el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "実績で選んで投入" }),
         pick(92, [["*", "全レート"], ...sSections.map((s) => [s.key, s.label])], "rate"),
@@ -482,37 +485,41 @@ export async function mount(host) {
       style: "gap:6px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin:6px 0" +
         (sticky ? ";position:sticky;top:52px;z-index:10" : ""),
     }, [
-      el("div", { class: "row", style: "gap:4px;align-items:center" }, [
+      el("div", { class: "row sim-palette", style: "gap:4px;align-items:center;flex-wrap:wrap" }, [
         el("span", { class: "hint", style: "font-weight:700;white-space:nowrap", text: "投入する設定" }),
+        // 数字だけの細いボタン（アイコンを付けると幅を取る）。選択中は枠色と太字で示す。
         ...[1, 2, 3, 4, 5, 6].map((s) => el("button", {
-          class: "btn sm",
+          class: "btn sm sim-setbtn",
           title: `設定${s}を選ぶ`,
-          // 選択中は枠色と太字で示す（✓を足すと6行目が折り返して高さが揃わなかった）。
-          // PCで間延びしないよう max-width も付ける。
-          style: `flex:1;min-width:0;max-width:120px;height:36px;line-height:1;padding:0;text-align:center;white-space:nowrap;overflow:hidden;` +
-            `background:${SET_COLORS[s]};color:#333a46;` +
+          style: `background:${SET_COLORS[s]};color:#333a46;` +
             `border:2px solid ${s === st.brush ? "var(--accent)" : "var(--line)"};` +
             `box-shadow:${s === st.brush ? "0 0 0 2px var(--accent-dim)" : "none"};` +
-            `font-weight:${s === st.brush ? "900" : "700"};font-size:${s === st.brush ? "17px" : "15px"}`,
-          text: `${s}${TROPHY[s] || ""}`,
+            `font-weight:${s === st.brush ? "900" : "700"}`,
+          text: String(s),
           onclick: () => { st.brush = s; render(); },
         })),
-      ]),
-      el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, [
+        el("span", { style: "width:8px" }),
+      ].concat(mobileNow() ? [] : paletteTail())),
+      mobileNow() ? el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, paletteTail()) : null,
+    ].filter(Boolean));
+
+    // 背景・据え置きの操作。PCは設定ボタンと同じ行に並べ、スマホは次の行に回す
+    function paletteTail() { return [
+      el("span", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, [
         // 実績ヒートを背景に重ねられるようにする。数字の良し悪しを見ながら設定を置ける。
         el("span", { class: "hint", style: "font-weight:700", text: "背景" }),
         el("select", { class: "inp", style: "width:130px", title: "台の背景に実績（機種分析の値）のヒートを重ねる",
           onchange: (e) => { st.heat = e.target.value; render(); } },
           HEATS.map(([v, t]) => el("option", { value: v, text: t, selected: v === st.heat ? "selected" : null }))),
-        el("span", { class: "hint", style: "font-size:11.5px",
+        el("span", { class: "hint sim-note",
           text: st.holdMode ? "据え置き選択中：タップで🔒の付け外し（設定は変わりません）"
             : window.matchMedia("(max-width: 700px)").matches
               ? `タップで設定${st.brush}を投入`
-              : `台をタップすると設定${st.brush}が入ります（全区分そのまま編集できます）` }),
+              : `台をタップで設定${st.brush}を投入（全区分）` }),
       ]),
       // 据え置き（前日のまま触らない台）の指定。マスにチェックボックスを置くと
       // 台番と設定で窮屈になりスマホで誤タップも増えるため、モードで切り替える。
-      el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
+      el("span", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, [
         el("button", {
           class: "btn sm " + (st.holdMode ? "primary" : "ghost"),
           style: st.holdMode ? "" : "border-color:var(--accent);color:var(--accent)",
@@ -520,12 +527,13 @@ export async function mount(host) {
           text: st.holdMode ? "🔒 据え置き選択中（終了）" : "🔒 据え置きを選ぶ",
           onclick: () => { st.holdMode = !st.holdMode; render(); },
         }),
-        el("span", { class: "hint", style: "font-size:11.5px",
-          text: `据え置き ${holdCount()}台：一括操作（実績で選んで投入・全台リセット）の対象外。個別タップでは変更できます` }),
+        el("span", { class: "hint sim-note",
+          title: "据え置きの台は一括操作（実績で選んで投入・全台リセット）の対象外。個別タップでは変更できます",
+          text: `据え置き ${holdCount()}台（一括操作の対象外・個別タップは可）` }),
         holdCount() ? el("button", { class: "btn sm ghost", text: "全解除",
           onclick: () => { st.hold = {}; render(); } }) : null,
       ]),
-    ]);
+    ]; }
 
     // ヒート表示中は色の意味が変わるので凡例を出す
     if (st.heat) {
@@ -582,7 +590,11 @@ export async function mount(host) {
       const mapOpts = {
         // 区分を切り替えなくても全台に投入できる。20スロ/5スロ/2スロを行き来する手間をなくす。
         editable: (dai) => unitByDai.has(dai),
-        cellW: mobile ? "44px" : null,
+        // PCは島図Excelと同じくらいの縮尺の固定マス（画面幅に引き伸ばすと台が間延びして縦も長くなる）
+        cellW: mobile ? "44px" : "30px",
+        compact: !mobile,
+        pad: mobile ? null : "4px",
+        rateGap: mobile ? null : "22px",
         onCellClick: (dai) => {
           const u = unitByDai.get(dai);
           if (!u) return;
