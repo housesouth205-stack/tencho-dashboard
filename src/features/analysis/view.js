@@ -1,6 +1,6 @@
 import { el, clear } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
-import { num, pct, shortModel } from "../../util/format.js";
+import { num, pct } from "../../util/format.js";
 import { heatColor, heatPoint, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
 import { printContent } from "../../print/printService.js";
@@ -122,7 +122,7 @@ export async function mount(host) {
     const cols = [
       // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
       // バッジが71px必要。どの列もこれを下回ると見出しか中身が切れる。
-      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 200], ["secLabel", "区分", "", 74],
+      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 300], ["secLabel", "区分", "", 74],
       ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 56], ["gross", "台粗利", "heat", 76],
       ["rate", "利益率", "", 62], ["points", "ランク", "", 56],
     ];
@@ -149,9 +149,11 @@ export async function mount(host) {
       };
       tb.appendChild(el("tr", {}, [
         el("td", { text: num(r.dai_no) }),
-        // 幅を固定したので、長い機種名は末尾を省略する（全文はカーソルを乗せると出る）
+        // 機種名は出玉率タブと同じくCSVのままのフルネームで出す。頭の「L」「S」などを
+        // 落とすと、出玉率タブや本部資料の機種名と並べたとき同じ機種か見分けにくい。
+        // 短くするのは島図（マスが狭い）だけ。幅に収まらない分は末尾を省略し、全文はカーソルで出る。
         el("td", { class: "txt", style: "white-space:nowrap;overflow:hidden;text-overflow:ellipsis",
-          title: r.model, text: shortModel(r.model) }),
+          title: r.model, text: r.model }),
         el("td", {}, el("span", { class: "badge " + r.sec.ptype.toLowerCase(), style: "white-space:nowrap", text: r.sec.label })),
         heatCell("out"), heatCell("coin"), heatCell("gross"),
         el("td", { text: r.rate == null ? "—" : pct(r.rate) }),
