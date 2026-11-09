@@ -52,7 +52,26 @@ async function runKind(kind, file, msgHost, onDone) {
   } else if (kind === "plan") {
     const { importMonthlyPlanFile } = await import("../yojitsu/importPlan.js");
     await importMonthlyPlanFile(file, { fy: state.fy, sections: state.sections, onDone });
+  } else if (kind === "payout") {
+    await importPayoutFile(file, msgHost, onDone);
   }
+}
+
+// 出玉率表。読めたシートのうち機種のいちばん多いものを使い、店の機種に当てて確認画面を出す
+export async function importPayoutFile(file, msgHost, onDone, { silent = false } = {}) {
+  const [{ parsePayoutTable }, { importPayoutTable }] = await Promise.all([
+    import("../../import/payoutTable.js"), import("../payout/tableSource.js"),
+  ]);
+  const { sheets } = await readAnyFile(file);
+  let best = null;
+  for (const sh of sheets) {
+    const r = parsePayoutTable(sh.rows, file.name);
+    if (!best || r.entries.length > best.entries.length) best = r;
+  }
+  if (!best?.entries.length) { note(msgHost, best?.warnings[0] || `${file.name}: 出玉率の入った機種が見つかりません`, true); return null; }
+  for (const w of best.warnings) note(msgHost, w, true);
+  note(msgHost, `${file.name}: 出玉率表として ${best.entries.length}機種を読みました`);
+  return importPayoutTable({ entries: best.entries, file: file.name, lastModified: file.lastModified || null, silent, onDone });
 }
 
 // 種類を決める。分かりきっているときは聞かない。

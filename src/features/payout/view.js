@@ -10,12 +10,14 @@ import { dbCandidates, dbMeta } from "./localdb.js";
 import { buildMinSetting, MIN_CHOICES } from "../simulator/minSetting.js";
 import { guessType, resultToSpec, AUTO_SCORE, DB_AUTO_SCORE } from "./autofill.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
+import { loadTable, importPayoutTable } from "./tableSource.js";
+import { linkSupported, pickAndLink, readLinked, unlink } from "./linkedFile.js";
 
 const SRC_LABEL = {
   manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定",
   "db-per6": "機種DB", "db-range": "機種DB推定", default: "未登録",
   // 保存済みの由来（model_spec.source）。島図取込の自動補完で入ったものを「手動」と見せないため
-  db: "機種DB", web: "Web",
+  db: "機種DB", web: "Web", file: "出玉率表",
 };
 const SITE_LABEL = { "1geki": "一撃", dmm: "DMM", db: "機種DB" };
 
@@ -39,7 +41,9 @@ export async function mount(host) {
     : await loadSnapshotRows(period.id);
   const specs = await repo.select("model_spec", {});
   const specMap = new Map();
-  const specSrc = new Map(specs.filter((x) => x.source === "db" || x.source === "web").map((x) => [x.model_name, x.source]));
+  const specSrc = new Map(specs.filter((x) => ["db", "web", "file"].includes(x.source)).map((x) => [x.model_name, x.source]));
+  // 出玉率表から入れた機種は、どの表のどの機種名に当てたかを残しておく（状態列のカーソルで見える）
+  const specUrl = new Map(specs.filter((x) => x.source_url).map((x) => [x.model_name, x.source_url]));
   for (const s of specs) { const a = specMap.get(s.model_name) || new Array(6).fill(null); if (s.setting >= 1 && s.setting <= 6) a[s.setting - 1] = round1(s.payout_rate); specMap.set(s.model_name, a); }
   const typeSetting = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "settei_types" } }))[0]?.value || {};
   const dmmMap = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "dmm_map" } }))[0]?.value || {}; // {model: dmm_id}
@@ -63,7 +67,7 @@ export async function mount(host) {
     const registered = !!saved && saved.some((x) => x != null);
     const type = typeSetting[g.model] || guessType(g.model);
     const payout = registered ? saved : [...TYPES[type]];
-    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? (specSrc.get(g.model) || "manual") : "default", dmmId: dmmMap[g.model] || null, min: minSetting.of(g.model) };
+    return { model: g.model, secs: [...g.secs].join("/"), count: g.count, minDai: g.minDai ?? 9999, type, payout, registered, source: registered ? (specSrc.get(g.model) || "manual") : "default", sourceUrl: specUrl.get(g.model) || null, note: specSrc.get(g.model) === "file" ? `出玉率表: ${specUrl.get(g.model) || ""}` : null, dmmId: dmmMap[g.model] || null, min: minSetting.of(g.model) };
   }).sort((a, b) => a.minDai - b.minDai);
 
   const bar = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px" });
@@ -92,6 +96,8 @@ export async function mount(host) {
   host.appendChild(el("div", { class: "hint", style: "margin:6px 0 8px", text: useIsland
     ? `機種一覧は島図（${islandMeta.effectiveFrom || "日付不明"}から適用・${Object.keys(islandModels).length}台）に合わせています。島図を取り込むと入れ替わり、新しい機種は出玉率を自動で埋めます。`
     : `機種一覧は台別データ（${period.label || ""}）から作っています。島図を取り込むと島図の機種に切り替わります。` }));
+
+  host.appendChild(await tableCard());
 
   const tableHost = el("div", { style: "overflow:auto;max-height:66vh" });
   host.appendChild(tableHost);
@@ -259,9 +265,9 @@ export async function mount(host) {
         types[r.model] = r.type; mins[r.model] = r.min;
         const s0 = String(r.source);
         // 由来を残す。機種DB由来は出典URLも一緒に保存しておくと、後から根拠を辿れる。
-        const src = s0.startsWith("db") ? "db" : s0.startsWith("dmm") || s0 === "web" ? "web" : "manual";
+        const src = s0.startsWith("db") ? "db" : s0.startsWith("dmm") || s0 === "web" ? "web" : s0 === "file" ? "file" : "manual";
         for (let s = 0; s < 6; s++) {
-          specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src, source_url: src === "db" ? r.sourceUrl || null : null });
+          specsOut.push({ model_name: r.model, setting: s + 1, payout_rate: round1(r.payout[s]), source: src, source_url: src === "db" || src === "file" ? r.sourceUrl || null : null });
         }
       }
       for (let i = 0; i < specsOut.length; i += 200) await repo.upsert("model_spec", specsOut.slice(i, i + 200), { onConflict: ["model_name", "setting"] });
@@ -302,3 +308,81 @@ function pickCandidate(model, ranked) {
 }
 
 function chip(label, isOn, onClick) { const b = el("button", { class: "btn sm chip " + (isOn() ? "primary" : "ghost"), text: label, onclick: onClick }); return b; }
+
+// ---------------------------------------------------------------- 出玉率表（手元のファイル）
+// 店長が作っている出玉率表を、取り込んだもの・参照しているファイルの両方からここで扱う。
+const AUTO_KEY = "tencho.payoutAutoApply";
+const autoOn = () => { try { return localStorage.getItem(AUTO_KEY) !== "0"; } catch { return true; } };
+const setAuto = (v) => { try { localStorage.setItem(AUTO_KEY, v ? "1" : "0"); } catch { /* 覚えられなくても動く */ } };
+const rerender = () => window.dispatchEvent(new HashChangeEvent("hashchange"));
+const ymdhm = (t) => { if (!t) return "—"; const d = new Date(t); return isNaN(d) ? "—" : `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`; };
+
+async function tableCard() {
+  const saved = await loadTable().catch(() => null);
+  const card = el("div", { class: "card", style: "margin:8px 0;padding:10px 12px;border-left:4px solid var(--ok)" });
+  const status = el("div", { class: "col", style: "gap:2px" });
+  const btns = el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center" });
+  card.append(el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
+    el("div", { style: "font-weight:700", text: "📄 出玉率表" }),
+    el("span", { class: "hint", text: "店長の出玉率表（機種名・設定1〜6）。機種DB・Webより優先して使い、島図の入替で入った機種も表から先に埋めます" }),
+  ]), status, btns);
+
+  status.appendChild(el("div", { class: "hint", text: saved
+    ? `最後に反映した表：${saved.file}（${saved.entries.length}機種・${ymdhm(saved.importedAt)} 取込${saved.lastModified ? `・ファイル更新 ${ymdhm(saved.lastModified)}` : ""}）`
+    : "まだ出玉率表を取り込んでいません。右上の「📂 取込」に入れるか、下のボタンで手元のファイルを参照してください。" }));
+  if (saved) {
+    btns.appendChild(el("button", { class: "btn sm", text: "保存済みの表を機種に当て直す", title: "入替で機種が変わったときや、要確認の機種を選び直すとき",
+      onclick: () => importPayoutTable({ entries: saved.entries, file: saved.file, lastModified: saved.lastModified, onDone: rerender }).catch(errorToast) }));
+  }
+
+  if (!linkSupported()) {
+    status.appendChild(el("div", { class: "hint", text: "このブラウザはPCのファイルを覚えておけません（iPhone・Safari など）。PCのChrome・Edgeで開くと、デスクトップの出玉率表を自動で参照できます。" }));
+    return card;
+  }
+  const link = await readLinked();
+  const linkLine = el("div", { class: "hint" });
+  status.appendChild(linkLine);
+  const readNow = async () => {
+    try {
+      const r = await readLinked({ interactive: true });
+      if (r.state !== "ok") { toast(r.state === "missing" ? `「${r.name}」が見つかりません。移動・名前変更したなら選び直してください` : "ファイルを読む許可がありません", "err"); return; }
+      const { importPayoutFile } = await import("../import/anyImport.js");
+      await importPayoutFile(r.file, null, rerender);
+    } catch (e) { errorToast(e); }
+  };
+  if (link.state === "none") {
+    linkLine.textContent = "参照するファイル：未設定（デスクトップの出玉率表を選ぶと、次からはこのタブを開くだけで更新を取り込みます）";
+    btns.appendChild(el("button", { class: "btn sm primary", text: "📁 参照するファイルを選ぶ", onclick: async () => {
+      try { await pickAndLink(); await readNow(); } catch (e) { if (e?.name !== "AbortError") errorToast(e); }
+    } }));
+    return card;
+  }
+  const changed = link.state === "ok" && (!saved || saved.file !== link.file.name || (link.file.lastModified || 0) > (saved.lastModified || 0));
+  linkLine.textContent = `参照するファイル：${link.name}` + ({
+    ok: `（更新 ${ymdhm(link.file?.lastModified)}${changed ? "・まだ反映していない更新があります" : "・反映済み"}）`,
+    prompt: "（ブラウザを開き直したので、読む許可がいります。「今すぐ読み込む」を押してください）",
+    denied: "（読む許可がありません。「今すぐ読み込む」で許可してください）",
+    missing: "（ファイルが見つかりません。移動・名前変更したなら選び直してください）",
+  }[link.state] || "");
+  if (changed) linkLine.style.color = "#c77700";
+  const auto = el("input", { type: "checkbox", checked: autoOn() ? "" : null, onchange: (e) => setAuto(e.target.checked) });
+  btns.append(
+    el("button", { class: "btn sm primary", text: "今すぐ読み込む", onclick: readNow }),
+    el("button", { class: "btn sm ghost", text: "参照するファイルを変更", onclick: async () => {
+      try { await pickAndLink(); await readNow(); } catch (e) { if (e?.name !== "AbortError") errorToast(e); }
+    } }),
+    el("button", { class: "btn sm ghost", text: "参照をやめる", onclick: async () => { await unlink(); rerender(); } }),
+    el("label", { class: "row hint", style: "gap:4px;align-items:center" }, [auto, "開いたとき、更新されていれば自動で反映"]),
+  );
+  // タブを開いたとき、ファイルが更新されていれば聞かずに反映する（自動で当たる機種だけ）。
+  // 許可が切れているときは読めないので、上の案内とボタンに任せる。
+  if (changed && autoOn()) {
+    setTimeout(async () => {
+      try {
+        const { importPayoutFile } = await import("../import/anyImport.js");
+        await importPayoutFile(link.file, null, rerender, { silent: true });
+      } catch (e) { errorToast(e); }
+    }, 0);
+  }
+  return card;
+}

@@ -13,7 +13,7 @@ import { normName, similarity } from "./dmm.js";
 // 機種名の一部ではないので、DB側・店側の両方から同じ規則で落としてから比べる。
 // 片側だけ落とすと「①スマスロ モンキーターンV」が「スマスロモンキーターンV」に
 // 当たらなくなるため、必ず両側に同じ処理をかける。
-function matchKey(s) {
+export function matchKey(s) {
   let t = String(s || "").replace(/^[①-⑳]+/, ""); // NFKCで数字になる前に落とす
   t = t.normalize("NFKC").replace(/^[\s/]*[SLP]\s*/i, "");
   return normName(t);
@@ -89,7 +89,7 @@ export async function dbMeta() {
 // 「ゴジラ」は「ゴジラVSエヴァンゲリオン」に含まれるが別機種で、
 // そのまま採ると片方の出玉率をもう片方に付けてしまう。
 // 文字数が離れているほど確信を下げ、自動確定の閾値には届かないようにする。
-function scoreOf(key, cand) {
+export function scoreOf(key, cand) {
   const raw = Math.max(...cand.keys.map((k) => similarity(key, k)));
   if (raw >= 0.999) return raw;
   const len = Math.max(...cand.keys.map((k) => k.length));
