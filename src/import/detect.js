@@ -67,7 +67,8 @@ export function detectKinds({ format, sheets }) {
   // 月次の損益: 費目の名前と月の表記が両方ある
   const plNames = new Set(PL_COLS.flatMap(([, ns]) => ns.map(normKey)));
   const plHits = new Set(text.map(normKey).filter((k) => plNames.has(k) || plNames.has(k.replace(/合計$/, ""))));
-  const months = text.filter((c) => parseMonthLabel(c)).length;
+  // 月は表の見出しのほか、表題の中（「店舗別営業実績表（令和8年8月度）」）に書かれていることもある
+  const months = text.filter((c) => parseMonthLabel(c) || /(?:令和|R)\s*\d{1,2}\s*年\s*\d{1,2}\s*月|\d{4}\s*年\s*\d{1,2}\s*月/.test(c)).length;
   if (plHits.size >= 2 && months) {
     out.push({ kind: "pl", score: 3 + Math.min(plHits.size, 8), reason: `費目 ${plHits.size}種類・月の表記` });
   }
