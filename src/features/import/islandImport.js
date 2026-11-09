@@ -101,10 +101,10 @@ async function fillNewModels(models) {
   try {
     const r = await autoFillModels(models, (msg) => { status.textContent = `出玉率を探しています… ${msg}`; });
     if (!r.targets.length) { close(); return; }
-    status.textContent = `新しい機種 ${r.targets.length}機種のうち、機種DBで ${r.db.length}機種・Webで ${r.web.length}機種を自動で入れました。`;
+    status.textContent = `新しい機種 ${r.targets.length}機種のうち、${r.file.length ? `出玉率表で ${r.file.length}機種・` : ""}機種DBで ${r.db.length}機種・Webで ${r.web.length}機種を自動で入れました。`;
     const list = (title, arr) => arr.length ? el("div", {}, [el("b", { text: `${title}（${arr.length}）` }),
       el("ul", { style: "margin:4px 0 0;padding-left:1.2em;line-height:1.6" }, arr.map((m) => el("li", { text: m })))]) : null;
-    [list("機種DBから", r.db), list("Webから", r.web), list("見つからなかった・名前が曖昧（出玉率タブで選んでください）", r.left)]
+    [list("出玉率表から", r.file), list("機種DBから", r.db), list("Webから", r.web), list("見つからなかった・名前が曖昧（出玉率タブで選んでください）", r.left)]
       .filter(Boolean).forEach((n) => body.appendChild(n));
     body.appendChild(el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:6px" }, [
       el("button", { class: "btn ghost", text: "閉じる", onclick: () => close() }),

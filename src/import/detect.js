@@ -6,6 +6,7 @@
 import { findHeader, normKey } from "./anyTable.js";
 import { KTACS_FIELDS } from "./ktacsCsv.js";
 import { COLS as PL_COLS, parseMonthLabel } from "./plCsv.js";
+import { looksLikePayoutTable } from "./payoutTable.js";
 
 // 資料の種類。formats は読める形式（ここに無い形式で選ばれたら理由を出して止める）
 export const KINDS = {
@@ -14,6 +15,7 @@ export const KINDS = {
   island: { label: "島図（配置図）", formats: ["excel"], hint: "島図＋設定表シート。配置が変わったときに入れます" },
   meeting: { label: "月次会議サマリー", formats: ["excel"], hint: "会議で配るサマリー表。経費タブに出ます" },
   pl: { label: "月次の損益・経費", formats: ["csv", "excel", "pdf"], hint: "会議資料（店舗別営業実績表）など。経費タブの推移に使います" },
+  payout: { label: "出玉率表（機種×設定）", formats: ["csv", "excel"], hint: "機種名と設定1〜6の機械割。出玉率タブ・シミュレーターに使います" },
 };
 
 const allText = (sheets, maxRows = 60) => sheets.flatMap((s) => s.rows.slice(0, maxRows).flat()).map((c) => String(c).normalize("NFKC"));
@@ -48,6 +50,12 @@ export function detectKinds({ format, sheets }) {
     const rate = has(/\d+(\.\d+)?\s*(スロ|ｽﾛ|円スロ|パチ)/);
     if (monthSheets >= 2 && rate) out.push({ kind: "plan", score: 4 + Math.min(monthSheets, 6), reason: `月ごとのシート ${monthSheets}枚・レートの見出し` });
     else if (monthSheets && rate && has(/計画/)) out.push({ kind: "plan", score: 4, reason: "月のシート・レートの見出し・「計画」" });
+  }
+
+  // 出玉率表: 機種名と「設定1〜6」の列。台別データにも機種名はあるが、設定の列が並ぶ表は他に無い
+  for (const sh of sheets) {
+    const n = looksLikePayoutTable(sh.rows);
+    if (n) { out.push({ kind: "payout", score: 6 + n, reason: `「機種名」と設定の列 ${n}本`, sheet: sh.name }); break; }
   }
 
   // 台別データ: 台番号と投入（アウト）の列がそろう

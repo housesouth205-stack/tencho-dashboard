@@ -6,6 +6,7 @@ import { state } from "../../core/state.js";
 import { TYPES, payoutFromDmm, round1 } from "../simulator/economics.js";
 import { dmmSearch, rankCandidates, searchKeyword } from "./dmm.js";
 import { dbCandidates } from "./localdb.js";
+import { fromSavedTable } from "./tableSource.js";
 
 const AT_HINT = /ジャグラー|ハナビ|クレア|ゲッターマウス|パルサー|バーサス|ドンちゃん|ハッピー|マイジャグ|ファンキー|ゴーゴー|ミスター|沖ドキ|ディスクアップ|アイムジャグ|ジャグ/;
 export const guessType = (m) => (AT_HINT.test(String(m).normalize("NFKC")) ? "Aタイプ" : "AT機");
@@ -47,6 +48,12 @@ export function resultToSpec(res, type) {
 
 // 1機種ぶん。迷う候補しか無ければ null（勝手に入れず、出玉率タブで選んでもらう）。
 async function findOne(model, type) {
+  // 店長の出玉率表を最優先にする。自分で確かめて作った表なので、機種DBやWebより確か
+  const t = await fromSavedTable(model).catch(() => null);
+  if (t) {
+    return { type, payout: t.payout, source: "file", via: "file", sourceUrl: `${t.file}｜${t.name}`,
+      note: `出玉率表「${t.file}」の「${t.name}」（一致${Math.round(t.score * 100)}%）`, matchScore: t.score, dmmId: null };
+  }
   const list = await dbCandidates(model).catch(() => []);
   if (list.length && list[0].score >= DB_AUTO_SCORE) {
     const x = resultToSpec(list[0], type);
@@ -66,13 +73,13 @@ async function findOne(model, type) {
 /**
  * 出玉率が未登録の機種だけを埋めて保存する。登録済みの機種（手で直した値を含む）には触らない。
  * @param {string[]} models 機種名の一覧（重複可）
- * @returns {{targets: string[], db: string[], web: string[], left: string[]}}
+ * @returns {{targets: string[], file: string[], db: string[], web: string[], left: string[]}}
  */
 export async function autoFillModels(models, onProgress = () => {}) {
   const specs = await repo.select("model_spec", {});
   const registered = new Set(specs.filter((s) => s.payout_rate != null).map((s) => s.model_name));
   const targets = [...new Set(models.filter(Boolean))].filter((m) => !registered.has(m));
-  const out = { targets, db: [], web: [], left: [] };
+  const out = { targets, file: [], db: [], web: [], left: [] };
   if (!targets.length) return out;
 
   const get = async (key) => (await repo.select("app_setting", { eq: { store_id: state.storeId, key } }))[0]?.value || {};
@@ -87,13 +94,13 @@ export async function autoFillModels(models, onProgress = () => {}) {
     out[x.via].push(m);
     types[m] = x.type;
     if (x.dmmId) dmmMap[m] = x.dmmId;
-    const src = x.via === "db" ? "db" : "web";
+    const src = x.via;
     for (let s = 0; s < 6; s++) {
-      rows.push({ model_name: m, setting: s + 1, payout_rate: round1(x.payout[s]), source: src, source_url: src === "db" ? x.sourceUrl : null });
+      rows.push({ model_name: m, setting: s + 1, payout_rate: round1(x.payout[s]), source: src, source_url: src === "web" ? null : x.sourceUrl });
     }
   }
   for (let i = 0; i < rows.length; i += 200) await repo.upsert("model_spec", rows.slice(i, i + 200), { onConflict: ["model_name", "setting"] });
-  if (out.db.length || out.web.length) {
+  if (out.file.length || out.db.length || out.web.length) {
     await repo.upsert("app_setting", { store_id: state.storeId, key: "settei_types", value: types }, { onConflict: ["store_id", "key"] });
     await repo.upsert("app_setting", { store_id: state.storeId, key: "dmm_map", value: dmmMap }, { onConflict: ["store_id", "key"] });
   }
