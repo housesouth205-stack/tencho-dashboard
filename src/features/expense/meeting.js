@@ -25,6 +25,7 @@ export async function importMeetingFile(file) {
   await repo.upsert("import_log", { store_id: state.storeId, kind: "meeting_xlsx", filename: file.name, row_count: plRows.length,
     status: warnings.length ? "warn" : "ok", message: summary.title }, { onConflict: ["id"] }).catch(() => {});
   setSaveState("saved");
+  window.dispatchEvent(new CustomEvent("dash:meeting-imported", { detail: ym }));
   toast(`${ym.slice(0, 7).replace("-", "年")}月度の会議サマリーを取り込みました`, "ok");
   return { ym, summary, warnings };
 }

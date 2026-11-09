@@ -5,8 +5,7 @@ import { repo } from "../../core/repo.js";
 import { state } from "../../core/state.js";
 import { waMonthLabel as monthLabel } from "../../util/dates.js";
 import { stackedSga, kiguVsOp, k, kf } from "./charts.js";
-import { importMeetingFile, loadMeetings, renderMeeting } from "./meeting.js";
-import { errorToast } from "../../core/errors.js";
+import { loadMeetings, renderMeeting } from "./meeting.js";
 
 const narrow = () => window.matchMedia("(max-width: 700px)").matches;
 const pct = (v) => (v == null || !isFinite(v) ? "—" : (v * 100).toFixed(1) + "%");
@@ -32,6 +31,8 @@ const ITEM = [
 let range = "12"; // "12" = 直近12か月 / "all" = 全期間
 
 let selYm = null; // 表示中の会議サマリーの月度
+// 会議サマリーを取り込んだら、その月を開いて見せる（前に見ていた月のままだと入ったか分からない）
+window.addEventListener("dash:meeting-imported", (e) => { selYm = e.detail; });
 
 export async function mount(host) {
   clear(host);
@@ -41,16 +42,6 @@ export async function mount(host) {
   ]));
 
   // ---- 月次会議サマリー ----
-  const file = el("input", { type: "file", accept: ".xlsx", style: "display:none", onchange: async () => {
-    const f = file.files[0]; file.value = "";
-    if (!f) return;
-    try {
-      const r = await importMeetingFile(f);
-      selYm = r.ym;
-      for (const w of r.warnings) console.warn(w);
-      mount(host);
-    } catch (e) { errorToast(e); }
-  } });
   const bar = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px" });
   host.appendChild(bar);
   const meetHost = el("div", { class: "col" });
@@ -66,10 +57,9 @@ export async function mount(host) {
   } else {
     meetHost.appendChild(el("div", { class: "placeholder" }, [
       el("div", { text: "月次会議サマリー（Excel）をまだ取り込んでいません。" }),
-      el("div", { class: "hint", style: "margin-top:6px", text: "「会議サマリーを取込」から TOHO_月次会議サマリー_YYYY-MM.xlsx を選ぶと、会議の表と同じ並びでここに出ます。" }),
+      el("div", { class: "hint", style: "margin-top:6px", text: "右上の「📂 取込」で TOHO_月次会議サマリー_YYYY-MM.xlsx を入れると、会議の表と同じ並びでここに出ます。" }),
     ]));
   }
-  bar.append(el("button", { class: "btn primary sm", text: "会議サマリーを取込（Excel）", onclick: () => file.click() }), file);
 
   // ---- 月次の推移（pl_month） ----
   const trend = el("details", { class: "card mt-trend", open: meetings.length ? null : "open" }, [
@@ -89,8 +79,7 @@ export async function mount(host) {
   if (!rows.length) {
     host.appendChild(el("div", { class: "placeholder" }, [
       el("div", { text: "まだ月次のデータがありません。" }),
-      el("div", { class: "hint", style: "margin-top:6px", text: "会議サマリーを取り込むか、会議資料のPDF・CSVを「取込」タブで読み込むとここに出ます。" }),
-      el("div", { style: "margin-top:10px" }, el("button", { class: "btn sm", text: "取込タブへ", onclick: () => { location.hash = "import"; } })),
+      el("div", { class: "hint", style: "margin-top:6px", text: "右上の「📂 取込」で会議サマリーか会議資料（PDF・Excel・CSV）を入れるとここに出ます。" }),
     ]));
     return;
   }
