@@ -24,31 +24,43 @@ export async function mount(host) {
     el("small", { text: "台別データ・島図・月計画表・会議資料。CSV・Excel・PDFのどれでも、中身を見て種類を判定します" }),
   ]));
 
-  // どの資料もここに落とせばよい。種類と形式は中身から決める（anyImport.js）。
-  // 下の資料ごとのボタンは、判定に頼らず種類を指定して入れたいとき用に残す。
-  const zone = el("div", { class: "placeholder drop-any", style: "cursor:pointer;padding:28px 16px" }, [
-    el("div", { style: "font-weight:700;font-size:15px;color:var(--fg)", text: "ファイルをここにドラッグ＆ドロップ、またはクリックして選択" }),
-    el("div", { style: "margin-top:6px", text: "台別データ（K-TACs等）・島図Excel・月計画表・会議資料（PDF/Excel）・損益のCSV。複数まとめても可" }),
-    el("div", { style: "margin-top:2px;font-size:12px", text: "見出しの言い方が違う表は、列を選び直せば読めます（選んだ対応は次回から自動）" }),
-  ]);
-  const input = el("input", { type: "file", accept: ".csv,.tsv,.txt,.xlsx,.xlsm,.xls,.ods,.pdf", multiple: true, style: "display:none",
-    onchange: () => { const fs = [...input.files]; input.value = ""; handle(fs); } });
-  zone.appendChild(input);
-  zone.addEventListener("click", (e) => { if (e.target !== input) input.click(); });
-  ["dragover", "dragenter"].forEach((e) => zone.addEventListener(e, (ev) => { ev.preventDefault(); zone.style.borderColor = "var(--accent)"; }));
-  ["dragleave", "drop"].forEach((e) => zone.addEventListener(e, () => (zone.style.borderColor = "")));
-  zone.addEventListener("drop", (ev) => { ev.preventDefault(); handle([...ev.dataTransfer.files]); });
-  host.appendChild(zone);
+  // 資料の入口はこの枠1つ。種類と形式は中身から決める（anyImport.js）。
+  // 各タブの「取込」ボタンも同じ枠を開く。
+  const { buildDropZone } = await import("./anyImport.js");
+  host.appendChild(buildDropZone((fs) => handle(fs)));
 
   const anyMsg = el("div", { class: "col", style: "margin-top:8px;gap:2px" });
   host.appendChild(anyMsg);
   const result = el("div", { class: "col", style: "margin-top:14px" });
   host.appendChild(result);
 
+  // ファイルではない入れ方。紙のスキャンで機械が読めない会議資料や、
+  // NotebookLM等で起こした文字を貼るとき用。ファイルの枠とは別に、いつでも見える所に置く。
+  const plMsg = el("div", { class: "col", style: "margin-top:6px" });
+  host.appendChild(el("div", { class: "card", style: "margin-top:14px;padding:10px 12px" }, [
+    el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
+      el("div", { style: "font-weight:700", text: "ファイル以外で入れる" }),
+      el("span", { class: "hint", text: "月次の損益・経費（会議資料）を、文字の貼り付けか手入力で" }),
+      el("div", { class: "grow" }),
+      // スマホだとファイルを作るほうが手間なので、貼り付けの口を用意しておく。
+      el("button", { class: "btn sm ghost", text: "表を貼り付けて取込", onclick: () => importPlPaste(plMsg) }),
+      el("button", { class: "btn sm ghost", text: "手入力", onclick: () => openPlManual(plMsg) }),
+      el("button", { class: "btn sm ghost", text: "📅 島図の入替履歴", onclick: showIslandHistory }),
+    ]),
+    plMsg,
+  ]));
+
+  // 種類を指定して入れる口。ふだんは上の枠だけで足りるので畳んでおく。
+  // 自動判定が外れたとき（新しい形の資料など）の逃げ道として残す。
+  const manual = el("details", { class: "card", style: "margin-top:10px;padding:10px 12px" }, [
+    el("summary", { style: "cursor:pointer;font-weight:700", text: "種類を指定して入れる（自動判定がうまくいかないとき）" }),
+  ]);
+  host.appendChild(manual);
+
   // 台別データ（種類を指定して入れる口）
   const csvInput = el("input", { type: "file", accept: ".csv,.tsv,.txt,.xlsx,.xls,.xlsm,.ods", multiple: true, style: "display:none",
     onchange: () => { const fs = [...csvInput.files]; csvInput.value = ""; importKtacsFiles(fs, { result, history }); } });
-  host.appendChild(el("div", { class: "card", style: "margin-top:18px;padding:10px 12px" }, [
+  manual.appendChild(el("div", { style: "margin-top:10px" }, [
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("div", { style: "font-weight:700", text: "台別データ" }),
       el("span", { class: "hint", text: "K-TACs 遊技台個別CSV（全レート1ファイルでも、レート別でも可）。Excelに保存し直したものも可" }),
@@ -62,43 +74,34 @@ export async function mount(host) {
   // 統合したため、取込・履歴という管理作業はこの取込タブにまとめる。
   const islandInput = el("input", { type: "file", accept: ".xlsx", style: "display:none",
     onchange: () => importIslandXlsx(islandInput.files[0], () => { islandInput.value = ""; mount(host); }) });
-  host.appendChild(el("div", { class: "card", style: "margin-top:10px;padding:10px 12px" }, [
+  manual.appendChild(el("div", { style: "margin-top:10px" }, [
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("div", { style: "font-weight:700", text: "島図（配置図）" }),
       el("span", { class: "hint", text: "島図Excel（島図＋設定表シート）。入替で配置が変わったときに取り込みます" }),
       el("div", { class: "grow" }),
       islandInput,
       el("button", { class: "btn sm", text: "島図Excelを取込", onclick: () => islandInput.click() }),
-      el("button", { class: "btn sm ghost", text: "📅 入替履歴", onclick: showIslandHistory }),
     ]),
   ]));
 
   // 月次の損益・経費。会議資料は月1回・PDFで出るので、PDFのまま入れられるようにする。
   // 読み取ったCSVも今までどおり受ける（PDFの作りが変わって読めないときの逃げ道）。
-  const plMsg = el("div", { class: "col", style: "margin-top:6px" });
   const plInput = el("input", {
     type: "file", accept: ".pdf,.csv,.tsv,.txt,.xlsx,.xls,.xlsm,.ods", style: "display:none",
     onchange: () => importPl(plInput.files[0], plMsg).finally(() => { plInput.value = ""; }),
   });
-  host.appendChild(el("div", { class: "card", style: "margin-top:14px;padding:10px 12px" }, [
+  manual.appendChild(el("div", { style: "margin-top:10px" }, [
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("div", { style: "font-weight:700", text: "月次の損益・経費" }),
       el("span", { class: "hint", text: "会議資料のPDF・月次会議サマリーのExcel・損益の表（Excel/CSV、月が縦でも横でも可）。月1回、資料をもらったときに入れます" }),
       el("div", { class: "grow" }),
       plInput,
       el("button", { class: "btn sm", text: "会議資料を取込", onclick: () => plInput.click() }),
-      // NotebookLM等でPDFをCSVに起こしたとき、ファイルに保存しなくても入れられるように。
-      // スマホだとファイルを作るほうが手間なので、貼り付けの口を用意しておく。
-      el("button", { class: "btn sm ghost", text: "CSVを貼り付けて取込", onclick: () => importPlPaste(plMsg) }),
-      // 資料が紙のスキャンだと機械では読めない。そのときの入り口をここに置く。
-      el("button", { class: "btn sm ghost", text: "手入力", onclick: () => openPlManual(plMsg) }),
-      el("button", { class: "btn sm ghost", text: "経費タブを見る", onclick: () => { location.hash = "expense"; } }),
     ]),
-    plMsg,
   ]));
 
-  // 月計画表。予実タブにも同じボタンがあるが、資料の取込をここで一通り済ませられるように置く
-  host.appendChild(el("div", { class: "card", style: "margin-top:10px;padding:10px 12px" }, [
+  // 月計画表。取込先の年度はヘッダーで選んでいる年度になるので、それを見せておく
+  manual.appendChild(el("div", { style: "margin-top:10px" }, [
     el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
       el("div", { style: "font-weight:700", text: "月計画表" }),
       el("span", { class: "hint", text: `月計画表Excel（日別の計画と実績）。取込先は ${state.fy}年度（ヘッダーの年度）です` }),
@@ -121,7 +124,7 @@ export async function mount(host) {
   }
 }
 
-// 台別CSVの取込本体。取込タブのほか、各タブの「取込」ボタンからも呼ぶ。
+// 台別データの取込本体。取込の枠（取込タブ・各タブの「取込」ボタン）から呼ぶ。
 // result: 結果を出す場所 / history: 取込履歴の表（無ければ更新しない）
 export async function importKtacsFiles(files, { result, history } = {}) {
   await loadSections();
@@ -314,7 +317,7 @@ async function savePlRows(rows, warnings, file, kind, msgHost) {
 }
 
 // CSVの文字を貼って取り込む。中身はファイル版とまったく同じパーサを通す。
-async function importPlPaste(msgHost) {
+export async function importPlPaste(msgHost) {
   const ta = el("textarea", { rows: "8", spellcheck: "false",
     placeholder: "月度,総売上高,売上原価,…\nR8.07,114535,95667,…",
     style: "width:100%;box-sizing:border-box;font-size:12px;line-height:1.5;font-family:monospace" });

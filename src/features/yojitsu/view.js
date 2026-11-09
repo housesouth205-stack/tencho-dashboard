@@ -7,7 +7,6 @@ import { yen, pct, num } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
 import { loadMonthMaps, loadMonthMapsWithPrev, loadFiscalMonthMaps } from "./monthData.js";
 import { renderDayCalendar } from "./dayCalendar.js";
-import { pickMonthlyPlan } from "./importPlan.js";
 import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
@@ -66,7 +65,6 @@ export async function mount(host) {
     ctrl.appendChild(el("button", { class: "btn", text: "📋 日報", onclick: () => openDailyReport({ fy: state.fy, month, sections: state.sections }) }));
   }
   ctrl.appendChild(el("button", { class: "btn", text: gran === "year" ? "年間目標" : "月間目標", onclick: () => openBudgetInput({ mode: gran, fy: state.fy, month, sections: state.sections, onDone: refresh }) }));
-  ctrl.appendChild(el("button", { class: "btn ghost", text: "月計画表を取込", onclick: () => pickMonthlyPlan({ fy: state.fy, sections: state.sections, onDone: refresh }) }));
   host.appendChild(ctrl);
 
   const summary = el("div", { class: "col" });
@@ -103,7 +101,7 @@ export async function mount(host) {
       prev = {
         title: `📅 昨年同月（${prevMaps.cy}年${month}月）`, unitLabel: "営業日数",
         cur: agg.total, base: prevAgg.total,
-        empty: "昨年同月の実績がありません。「月計画表を取込」で昨年度のぶんを入れると増減が出ます。",
+        empty: "昨年同月の実績がありません。右上の「📂 取込」で昨年度の月計画表を入れると増減が出ます。",
       };
     }
     const target = await loadBudgetTotals({ mode: gran, fy: state.fy, month });
