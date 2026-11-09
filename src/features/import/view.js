@@ -281,20 +281,48 @@ export async function importPl(file, msgHost) {
   return importPlTable(file, read.sheets, msgHost);
 }
 
-// CSV・Excelの損益表。いちばん多く月が読めたシートを使う。
-// 単位は確認画面で選んでもらう（ここでは資料の数字のまま読む）。
+// CSV・Excelの損益表。読めたシートをすべて月ごとに重ねる。
+// 損益（売上〜経常利益）と経費明細（人件費〜減価償却）が別シートの資料があるので、
+// 1シートだけ選ぶと片方が抜ける。同じ費目が2つのシートにあれば先に読めたほうを使い、
+// 値が食い違うときは注意を出す。単位は確認画面で選んでもらう（ここでは資料の数字のまま）。
 async function importPlTable(file, sheets, msgHost) {
-  let best = null;
+  const byYm = new Map();
+  const warnings = [], used = [], misses = [];
   for (const sh of sheets) {
-    const r = parsePlTable(sh.rows, sheets.length > 1 ? `${file.name}「${sh.name}」` : file.name, { unit: 1 });
-    if (!best || r.rows.length > best.rows.length) best = { ...r, sheet: sh };
+    const name = sheets.length > 1 ? `「${sh.name}」` : file.name;
+    const r = parsePlTable(sh.rows, name, { unit: 1 });
+    if (!r.rows.length) { misses.push(r.warnings[0]); continue; }
+    used.push(sh.name);
+    for (const w of r.warnings) if (!warnings.includes(w)) warnings.push(w);
+    for (const row of r.rows) {
+      const cur = byYm.get(row.ym);
+      if (!cur) { byYm.set(row.ym, { ...row }); continue; }
+      for (const [k] of PL_COLS) {
+        if (row[k] == null) continue;
+        if (cur[k] == null) cur[k] = row[k];
+        else if (cur[k] !== row[k]) warnings.push(`${cur.label}の${PL_COLS.find(([x]) => x === k)[1][0]}がシートによって違います（${cur[k].toLocaleString()} と ${row[k].toLocaleString()}）。先に読めたほうを使いました`);
+      }
+    }
   }
-  if (!best?.rows.length) {
-    msgHost.appendChild(el("div", { class: "hint", style: "color:var(--accent)", text: best?.warnings[0] || "取り込める月が見つかりませんでした" }));
+  const rows = [...byYm.values()].sort((x, y) => x.ym.localeCompare(y.ym));
+  if (!rows.length) {
+    msgHost.appendChild(el("div", { class: "hint", style: "color:var(--accent)", text: misses[0] || "取り込める月が見つかりませんでした" }));
     return;
   }
-  const sheetNote = sheets.length > 1 ? `「${best.sheet.name}」シート` : "";
-  confirmPl(file, best.rows, best.warnings, msgHost, /\.csv$|\.tsv$|\.txt$/i.test(file.name) ? "pl_csv" : "pl_xlsx", { note: sheetNote });
+  // 一般管理費が無いと言われても、別のシートで埋まっていれば注意は要らない
+  const filtered = warnings.filter((w) => !(/「一般管理費」の列がありません/.test(w) && rows.every((r) => r.sga != null)));
+  const note = sheets.length > 1 ? `${used.map((n) => `「${n}」`).join("")}シート` : "";
+  confirmPl(file, rows, filtered, msgHost, /\.(csv|tsv|txt)$/i.test(file.name) ? "pl_csv" : "pl_xlsx", { note });
+}
+
+// 月次会議サマリーExcel。サマリー（経費タブの表）と月次の推移（pl_month）の両方に入れる
+async function importMeetingXlsx(file, msgHost) {
+  clear(msgHost);
+  try {
+    const { summary, warnings } = await importMeetingFile(file);
+    msgHost.appendChild(el("div", { class: "hint", text: `${summary.title} を取込みました。経費タブで見られます。` }));
+    for (const w of warnings) msgHost.appendChild(el("div", { class: "hint", style: "color:var(--warn,#c77700)", text: "⚠ " + w }));
+  } catch (e) { errorToast(e); }
 }
 
 // pl_month への書き込み。CSVもPDFも最後はここを通る。

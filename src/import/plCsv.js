@@ -68,9 +68,11 @@ const blank = (r) => !r.some((c) => String(c ?? "").trim() !== "");
 
 /**
  * 表（文字の2次元配列）から月次の損益を読む。CSV・Excel・貼り付けのどれもここを通す。
- * 向きは2通り受ける:
+ * 形は3通り受ける:
  *   縦持ち … 1行＝1か月（「月度,総売上高,…」の見出し）。こちらで作るCSVの形
  *   横持ち … 1行＝1費目、月が列に並ぶ（会議資料・本部のExcelはこちらが多い）
+ *   1か月 … 1行＝1費目、「予算・実績・前年」が列に並び、月は表題に書いてある
+ *            （店舗別営業実績表・経費明細の形）
  * @param unit 資料の単位。既定は千円（会議資料に合わせる）。円の資料は 1 を渡す
  */
 export function parsePlTable(table, filename = "", { unit = 1000 } = {}) {
@@ -81,8 +83,8 @@ export function parsePlTable(table, filename = "", { unit = 1000 } = {}) {
   let hi = table.findIndex((r, i) => i < 20 && findCol(r, MONTH_NAMES) >= 0);
   const pre = [];
   if (hi < 0) {
-    const t = transposeByMonth(table, pre);
-    if (!t) return { rows: [], warnings: [`${filename}: 「月度」の列も、月が横に並んだ見出しも見つかりません`] };
+    const t = transposeByMonth(table, pre) || singleMonth(table, pre);
+    if (!t) return { rows: [], warnings: [`${filename}: 「月度」の列も、月が横に並んだ見出しも、「実績」の列も見つかりません`] };
     table = t; hi = 0;
   }
   const res = readVertical(table.slice(hi), filename, unit);
@@ -129,6 +131,55 @@ function transposeByMonth(table, warnings) {
   }
   if (!names.length) return null;
   return [["月度", ...names], ...cols.map((j, k) => [table[head][j], ...values[k]])];
+}
+
+// 1か月ぶんの表（費目が縦、予算・実績・前年が横、月は表題）を縦持ちにする。
+// 「実績」の列だけを使う。予算や前年の列を取ると、それが実績として静かに入ってしまう。
+// 当月と累計が同じ表に並ぶ資料（「期間」列が当月／累計）は、当月の行だけを使う。
+const MONTH_IN_TEXT = /(?:令和|[RrＲｒ])\s*\d{1,2}\s*年\s*\d{1,2}\s*月|\d{4}\s*年\s*\d{1,2}\s*月|\d{4}[\/\-]\d{1,2}(?![\/\-]\d)/;
+function singleMonth(table, warnings) {
+  // 実績の見出し
+  let hr = -1, ac = -1;
+  for (let i = 0; i < Math.min(30, table.length) && hr < 0; i++) {
+    const j = table[i].findIndex((c) => /^(当月)?実績(\(千円\)|（千円）)?$/.test(fieldKey(c)));
+    if (j >= 0) { hr = i; ac = j; }
+  }
+  if (hr < 0) return null;
+  // 月は表題などの文章の中から拾う（表の上の数行を優先）
+  let ym = null, label = "";
+  for (const r of [...table.slice(0, hr + 1), ...table.slice(hr + 1)]) {
+    for (const c of r) {
+      const m = String(c).normalize("NFKC").match(MONTH_IN_TEXT);
+      if (m && parseMonthLabel(m[0])) { ym = parseMonthLabel(m[0]); label = m[0].replace(/\s+/g, ""); break; }
+    }
+    if (ym) break;
+  }
+  if (!ym) { warnings.push("表題などに「令和◯年◯月」が見つからず、何月の資料か分かりませんでした"); return null; }
+  const known = COLS.flatMap(([, names]) => names.map(fieldKey));
+  const isKnown = (c) => { const k = fieldKey(c).replace(/(小計|計)$/, ""); return known.includes(fieldKey(c)) || known.includes(k) || known.includes(k.replace(/合計$/, "")); };
+  // 費目名の列：実績の列より左で、知っている費目名が「何種類」出てくるかで選ぶ。
+  // 行数で数えると、経費明細の「区分」列（人件費・人件費・…と明細ごとに繰り返す）が選ばれ、
+  // 従業員給料の実績が人件費として入ってしまった。
+  let lc = -1, best = 0;
+  for (let j = 0; j < ac; j++) {
+    const hits = new Set(table.slice(hr + 1).filter((r) => isKnown(r[j])).map((r) => fieldKey(r[j]))).size;
+    if (hits > best) { best = hits; lc = j; }
+  }
+  if (lc < 0) return null;
+  // 当月／累計の列があれば当月だけ
+  const pc = table[hr].findIndex((c, j) => j < ac && /^(期間|区分)$/.test(fieldKey(c)) && table.slice(hr + 1).some((r) => /^(当月|累計)$/.test(fieldKey(r[j]))));
+  const names = [], vals = [];
+  for (const r of table.slice(hr + 1)) {
+    if (pc >= 0 && fieldKey(r[pc]) && fieldKey(r[pc]) !== "当月") continue;
+    if (!isKnown(r[lc]) || names.some((n) => fieldKey(n) === fieldKey(r[lc]))) continue;
+    // 「人件費 小計」は COLS の呼び方（人件費）にそろえる
+    names.push(String(r[lc]).replace(/\s*(小計)$/, ""));
+    vals.push(r[ac] ?? "");
+  }
+  if (!names.length) return null;
+  const other = table[hr].filter((c, j) => j !== ac && /予算|前年/.test(c)).length;
+  if (other) warnings.push(`「${table[hr][ac]}」の列を使いました（予算・前年の列は使っていません）`);
+  return [["月度", ...names], [label, ...vals]];
 }
 
 function readVertical(table, filename, unit) {
