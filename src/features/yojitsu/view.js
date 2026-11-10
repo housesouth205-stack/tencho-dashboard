@@ -5,7 +5,7 @@ import { fiscalMonths, daysInMonth, calendarYear, fiscalYearOptions } from "../.
 import { monthAggregate, monthDailySeries, fyAggregate, sameDaysMaps, fyMonthlyTotals, sumMonths } from "../../calc/aggregate.js";
 import { yen, pct, num } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
-import { loadMonthMaps, loadMonthMapsWithPrev, loadFiscalMonthMaps } from "./monthData.js";
+import { loadMonthMapsWithPrev, loadFiscalMonthMaps } from "./monthData.js";
 import { renderDayCalendar } from "./dayCalendar.js";
 import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";

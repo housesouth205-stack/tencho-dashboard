@@ -117,7 +117,6 @@ const oi = (k) => (D.order.has(k) ? D.order.get(k) : 9999);
 
 // 1導入日分。multi=true は全店舗（機種ごとにどの店に何台）、false は1店舗分
 function dateEntryHtml(e, open, multi) {
-  const s = e.summary || {};
   const map = new Map();
   for (const x of e.new) {
     const m = map.get(x.name) || { name: x.name, type: x.type, total: 0, minIdx: 9999, rows: [] };

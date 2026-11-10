@@ -2,7 +2,7 @@ import { el, clear, modal } from "../../util/dom.js";
 import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
-import { yen, pct, num, shortModel, modelKey } from "../../util/format.js";
+import { yen, pct, num, shortModel } from "../../util/format.js";
 import { planCalc } from "../../calc/planCalc.js";
 import { localYmd, addDays } from "../../util/dates.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
@@ -273,7 +273,6 @@ export async function mount(host) {
     }
     return { gross, sales, n, rate: sales ? gross / sales : 0, bySet };
   }
-  const totals = () => totalsFor(st.section.key);
 
   // 全区分まとめての合計（保存内容の要約用）。
   function totalsAll(assign, targets = st.targets) {
@@ -649,33 +648,6 @@ export async function mount(host) {
     requestAnimationFrame(() => { if (document.scrollingElement) document.scrollingElement.scrollTop = sy; });
   }
 
-  // 島（列）の判定: 基本は島図の行(grid_row)でまとめる。
-  // ただし縦向きの島(台212〜219のように1台ずつ別行に並ぶ)は行がバラけて
-  // 「1台の島」が乱立し投入が偏るため、少数(3台未満)の行同士が台番連番で
-  // 隣接している場合は1つの島に統合する。
-  function islandsOf(units) {
-    const rowOf = new Map(st.layout.map((l) => [l.dai_no, `${l.floor}:${l.grid_row}`]));
-    // 1) まず行ごとにまとめる
-    const byRow = new Map();
-    for (const u of units) {
-      const k = rowOf.get(u.dai) || "その他";
-      if (!byRow.has(k)) byRow.set(k, []);
-      byRow.get(k).push(u);
-    }
-    const groups = [...byRow.values()].map((g) => g.sort((a, b) => a.dai - b.dai));
-    groups.sort((a, b) => a[0].dai - b[0].dai);
-    // 2) 小さい行(3台未満)が台番連続で隣り合うなら統合（縦置き島の復元）
-    const merged = [];
-    for (const g of groups) {
-      const last = merged[merged.length - 1];
-      const smallPair = last && last.length < 3 && g.length < 3;
-      const contiguous = last && g[0].dai - last[last.length - 1].dai === 1;
-      if (smallPair && contiguous) last.push(...g);
-      else merged.push([...g]);
-    }
-    return merged;
-  }
-
 
 
 
@@ -748,11 +720,18 @@ export async function mount(host) {
   // idを持たない新規行が毎回作られて重複していくため、同じ日の行を消してから入れ直す。
   async function saveDay(date, assign, targets = st.targets, hold = st.hold) {
     const g = totalsAll(assign, targets);
-    await repo.remove("sim_session", { store_id: state.storeId, target_date: date });
+    // 先に消してから入れると、入れるほうが通信で失敗したときにその日の保存が無くなる
+    // （画面には設定が出ているのに、開き直すと前の日の設定に戻っている）。
+    // その日の行が1つならその行を書き換え、無ければ足す。消すのは、古い重複が残っている日だけ。
+    const same = await repo.select("sim_session", { eq: { store_id: state.storeId, target_date: date } });
+    if (same.length > 1) await repo.remove("sim_session", { store_id: state.storeId, target_date: date });
     await repo.upsert("sim_session", {
+      ...(same.length === 1 ? { id: same[0].id } : {}),
       store_id: state.storeId, target_date: date, plan_gross: Math.round(g.tgt),
       allocation: { L: st.L, K: st.K, assign, hold, expectedGross: Math.round(g.gross), expectedSales: Math.round(g.sales), bySet: g.bySet },
       reason: `全区分: 予想粗利${Math.round(g.gross)}/計画${Math.round(g.tgt)}`, status: "draft",
+      // 書き換えのときも保存時刻を進める（「保存済み」の時刻と、同じ日の新旧の判定に使っている）
+      created_at: new Date().toISOString(),
     }, { onConflict: ["id"] });
   }
 
@@ -893,13 +872,6 @@ export async function mount(host) {
   reload();
 }
 
-function kpi(label, value, sub, color) {
-  return el("div", { class: "card", style: `flex:1;min-width:150px;border-left:4px solid ${color}` }, [
-    el("div", { class: "hint", text: label }),
-    el("div", { style: `font-size:20px;font-weight:700;margin-top:3px;color:${color}`, text: value }),
-    sub ? el("div", { class: "hint", text: sub }) : null,
-  ]);
-}
 function numI(value, onchange, step = "any", w = 90) {
   return el("input", { type: "number", step, value, style: `width:${w}px;text-align:right`, onchange: (e) => onchange(Number(e.target.value)) });
 }

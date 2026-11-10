@@ -253,7 +253,6 @@ export function dailyBars(series, { title, color = C.pos, unit = "", baseLabel =
   const n = series.length;
   const w = 640, h = 168, padL = 46, padB = 20, padT = 14, padR = 10;
   const iw = w - padL - padR, ih = h - padB - padT;
-  const vals = series.map((d) => d.actual);
   const max = Math.max(1, ...series.map((d) => Math.max(d.plan || 0, d.actual || 0)));
   const y = (v) => padT + ih - (ih * v) / max;
   const x = (i) => padL + (iw * (i + 0.5)) / Math.max(1, n);

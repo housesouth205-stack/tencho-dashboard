@@ -8,6 +8,7 @@ import { renderQuickImport, enableDropAnywhere } from "./core/quickImport.js";
 import { authRequired, AUTH_EMAIL, STORE_NAME } from "./core/config.js";
 import { onThemeChange } from "./core/theme.js";
 import { refreshHeatPalette } from "./calc/heat.js";
+import { hasPending, flushAll } from "./core/autosave.js";
 
 function initFySelector() {
   const sel = document.getElementById("fySelect");
@@ -47,6 +48,10 @@ function startApp() {
   sub.appendChild(el("div", { id: "quickImport", class: "row" }));
   renderQuickImport(location.hash.slice(1));
   enableDropAnywhere();
+  // 日別入力は打ってから0.7秒後にまとめて保存する。その前にタブを閉じると入力が消えるので、
+  // 保存待ちが残っている間は閉じる前に確認を出し、裏に回ったとき（スマホのアプリ切替）にも保存する。
+  window.addEventListener("beforeunload", (e) => { if (hasPending()) { e.preventDefault(); e.returnValue = ""; } });
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && hasPending()) flushAll(); });
 
   // 見た目を切り替えたとき、CSSだけでは追いつかないものをここで面倒みる。
   // ヒートの色はJSがCSS変数を読んで保持しているので捨てさせ、グラフ（SVG）は

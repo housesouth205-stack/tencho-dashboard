@@ -22,8 +22,18 @@ async function flush(qk) {
   try {
     await repo.upsert(q.table, rows, { onConflict: q.onConflict });
     setSaveState("saved");
-  } catch (e) { errorToast(e); }
+  } catch (e) {
+    // 失敗した行は待ち行列に戻す。捨てると、画面には入力した数字が出ているのに保存されておらず、
+    // 開き直したときに消える（電波の切れ目で起きる）。その間に同じ行を打ち直していれば新しいほうを残す。
+    const keyOf = (r) => q.onConflict.map((k) => r[k]).join("|");
+    for (const r of rows) if (!q.rows.has(keyOf(r))) q.rows.set(keyOf(r), r);
+    setSaveState("error");
+    errorToast(new Error("保存できませんでした。通信を確認してください（入力は残っています。次の入力か画面の移動のときにもう一度保存します）: " + (e?.message || e)));
+  }
 }
+
+// 保存待ちが残っているか（画面を閉じる前の確認用）
+export const hasPending = () => [...queues.values()].some((q) => q.rows.size > 0);
 
 export async function flushAll() {
   for (const qk of queues.keys()) { clearTimeout(queues.get(qk).timer); await flush(qk); }
