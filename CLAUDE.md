@@ -96,6 +96,13 @@ Edit ツール（一致しなければ失敗する）を優先し、スクリプ
 - 背景に実績（アウト／台売上／台粗利）を出すと、設定ブロックの下段にその数字も入る。
   マスの高さは `cellGeom(cellW, withMetric)` が決めるので、幅の計算をする側も同じ引数で呼ぶこと
 
+### 島図の取込 `src/features/import/islandImport.js`
+
+- 取込は台のレイアウト（`layout_cell`・`fixture`）と機種（`island_models`）を丸ごと置き換える。
+  **置き換える前に必ず `app_setting.island_backups` に控えを取る**（最大5件）。取込直後の警告と入替履歴から戻せる
+- 島図シート・設定表・「1F/BFフロア」の見出しのどれも無いブックは読まない（整数のセルを台番と読むので、
+  出玉率表でも27台の島図ができてしまった）。今の島図より2割以上減るときは赤字で確認する
+
 ### 出玉率管理 `src/features/payout/`
 
 - `model_spec(model_name, setting, payout_rate, source, source_url)` に保存

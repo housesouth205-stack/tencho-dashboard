@@ -52,11 +52,27 @@ export async function showIslandHistory() {
     el("td", { style: "color:var(--fg-dim)", text: i === 0 ? "現在" : "" }),
   ])));
   t.appendChild(tb);
-  modal("島図の入替履歴", el("div", { class: "col" }, [
+  // 控え（取り込む前の島図）。ここから台のレイアウトと機種をまとめて戻せる
+  const backups = await loadBackups().catch(() => []);
+  let close = () => {};
+  const bk = el("div", { class: "col", style: "gap:6px;margin-top:6px" }, [
+    el("h3", { style: "margin:4px 0 0", text: "前の島図に戻す" }),
+    el("p", { class: "hint", style: "margin:0", text: backups.length
+      ? "島図を取り込む前の台のレイアウトと機種を、新しい順に最大5件残しています。間違ったファイルを取り込んだときに使います。"
+      : "まだ控えがありません（この仕組みを入れた後に島図を取り込むと、取り込む前の状態が残ります）。" }),
+    ...backups.map((b) => el("div", { class: "row card", style: "gap:8px;align-items:center;flex-wrap:wrap;margin:0;padding:6px 10px" }, [
+      el("b", { text: `${b.effectiveFrom || "日付不明"}から適用の島図` }),
+      el("span", { class: "hint", text: `${b.total}台（1F ${b.f1}／BF ${b.bf}）・${b.file || "ファイル不明"}・控え ${(b.savedAt || "").slice(0, 16).replace("T", " ")}（${b.reason || ""}）` }),
+      el("div", { class: "grow" }),
+      el("button", { class: "btn sm", text: "この島図に戻す", onclick: async () => { if (await restoreBackup(b)) close(); } }),
+    ])),
+  ]);
+  close = modal("島図の入替履歴", el("div", { class: "col" }, [
     el("p", { class: "hint", style: "margin:0", text: rows.length
       ? "取込のたびに記録されます。使われるのは最新（先頭行）の島図です。"
       : "まだ島図Excelを取り込んでいません。" }),
-    el("div", { style: "overflow:auto;max-height:60vh" }, t),
+    el("div", { style: "overflow:auto;max-height:40vh" }, t),
+    bk,
   ]), null);
 }
 
@@ -74,18 +90,13 @@ export async function importIslandXlsx(file, onDone) {
   if (!effectiveFrom) return; // キャンセル
   try {
     setSaveState("saving");
-    await repo.remove("layout_cell", { store_id: state.storeId });
-    await repo.remove("fixture", { store_id: state.storeId });
+    await backupCurrent(`${file.name} を取り込む前`);
     const lc = lay.map((l) => ({ store_id: state.storeId, dai_no: l.dai_no, floor: l.floor, grid_row: l.grid_row, grid_col: l.grid_col }));
-    for (let i = 0; i < lc.length; i += 200) await repo.upsert("layout_cell", lc.slice(i, i + 200), { onConflict: ["store_id", "dai_no"] });
-    const frows = fx.map((f) => ({ store_id: state.storeId, ...f }));
-    if (frows.length) await repo.upsert("fixture", frows, { onConflict: ["id"] });
-    await repo.upsert("app_setting", { store_id: state.storeId, key: "island_models", value: mdl }, { onConflict: ["store_id", "key"] });
     // 適用開始日と入替履歴を保存（同じ適用日で取り直した場合は上書き）
     const entry = { effectiveFrom, importedAt: new Date().toISOString(), total: counts.total, f1: counts.f1, bf: counts.bf, file: file.name };
     const history = [...(meta.history || []).filter((h) => h.effectiveFrom !== effectiveFrom), entry]
       .sort((a, b) => (a.effectiveFrom < b.effectiveFrom ? -1 : 1));
-    await repo.upsert("app_setting", { store_id: state.storeId, key: "island_meta", value: { ...entry, history } }, { onConflict: ["store_id", "key"] });
+    await writeIsland({ layout: lay, fixtures: fx, models: mdl, meta: { ...entry, history } });
     setSaveState("saved");
     toast(`${counts.total}台を配置（1F ${counts.f1} / BF ${counts.bf}）・${effectiveFrom}から適用${warnings.length ? "・警告" + warnings.length : ""}`, "ok");
     // 島図の見た目調整は台番の範囲で書いてあるため、配置が変わると黙ってずれる。
@@ -103,7 +114,9 @@ export async function importIslandXlsx(file, onDone) {
             `多くの台番が見つかりません（読めたのは${counts.total}台）。取り込んだファイルが島図Excelでない可能性があります。正しい島図Excelを取り込み直してください。` })
           : el("p", { class: "hint", style: "margin:0;font-size:11.5px", text:
             "島図の表示は崩れますが、設定の投入や保存には影響しません。調整の台番を直してもらうよう伝えてください。" }),
-      ]), null);
+      ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [
+        el("button", { class: "btn", text: "取り込む前の島図に戻す", onclick: async () => { await restoreLatest(); onDone?.(); } }),
+      ]));
     }
     await fillNewModels(Object.values(mdl));
     onDone?.();
@@ -129,4 +142,68 @@ async function fillNewModels(models) {
       el("button", { class: "btn primary", text: "出玉率タブで確認", onclick: () => { close(); location.hash = "payout"; } }),
     ]));
   } catch (e) { close(); errorToast(e); }
+}
+
+// ---------------------------------------------------------------- 控えと戻す
+// 島図の取込は台のレイアウト（layout_cell・設備）と機種（island_models）を丸ごと置き換える。
+// 以前は置き換える前の状態をどこにも残しておらず、島図でない表を取り込んだとき元に戻せなかった。
+// 置き換える前に必ず控えを取り、取込の直後や入替履歴から「前の島図に戻す」ができるようにする。
+const BACKUP_KEY = "island_backups";
+const BACKUP_KEEP = 5; // 1回あたり台300ほどなので数件なら軽い。古いものから捨てる
+
+async function loadBackups() {
+  return (await repo.select("app_setting", { eq: { store_id: state.storeId, key: BACKUP_KEY } }))[0]?.value || [];
+}
+
+async function backupCurrent(reason) {
+  const layout = await repo.select("layout_cell", { eq: { store_id: state.storeId } });
+  if (!layout.length) return; // まだ島図が無ければ控えるものも無い
+  const fixtures = await repo.select("fixture", { eq: { store_id: state.storeId } });
+  const models = (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "island_models" } }))[0]?.value || {};
+  const meta = await loadMeta();
+  const b = {
+    savedAt: new Date().toISOString(), reason,
+    effectiveFrom: meta.effectiveFrom || null, file: meta.file || null,
+    total: layout.length, f1: layout.filter((c) => c.floor === "1F").length, bf: layout.filter((c) => c.floor === "BF").length,
+    layout: layout.map(({ dai_no, floor, grid_row, grid_col }) => ({ dai_no, floor, grid_row, grid_col })),
+    fixtures: fixtures.map(({ floor, grid_row, grid_col, row_span, col_span, kind, label }) => ({ floor, grid_row, grid_col, row_span, col_span, kind, label })),
+    models, meta,
+  };
+  const list = [b, ...(await loadBackups())].slice(0, BACKUP_KEEP);
+  await repo.upsert("app_setting", { store_id: state.storeId, key: BACKUP_KEY, value: list }, { onConflict: ["store_id", "key"] });
+}
+
+// 台のレイアウト・設備・機種・適用日をまとめて書く。取込と戻すで同じ道を通す
+async function writeIsland({ layout, fixtures, models, meta }) {
+  await repo.remove("layout_cell", { store_id: state.storeId });
+  await repo.remove("fixture", { store_id: state.storeId });
+  const lc = layout.map((l) => ({ store_id: state.storeId, dai_no: l.dai_no, floor: l.floor, grid_row: l.grid_row, grid_col: l.grid_col }));
+  for (let i = 0; i < lc.length; i += 200) await repo.upsert("layout_cell", lc.slice(i, i + 200), { onConflict: ["store_id", "dai_no"] });
+  const frows = fixtures.map((f) => ({ store_id: state.storeId, ...f }));
+  if (frows.length) await repo.upsert("fixture", frows, { onConflict: ["id"] });
+  await repo.upsert("app_setting", { store_id: state.storeId, key: "island_models", value: models }, { onConflict: ["store_id", "key"] });
+  await repo.upsert("app_setting", { store_id: state.storeId, key: "island_meta", value: meta }, { onConflict: ["store_id", "key"] });
+}
+
+// 控えに戻す。戻す前の状態も控えに積むので、戻したこと自体も取り消せる
+async function restoreBackup(b) {
+  if (!confirm(`${b.effectiveFrom || "日付不明"}の島図（${b.total}台：1F ${b.f1}／BF ${b.bf}）に戻します。\n今の島図は控えに残ります。よろしいですか？`)) return false;
+  try {
+    setSaveState("saving");
+    const rest = (await loadBackups()).filter((x) => x.savedAt !== b.savedAt);
+    await repo.upsert("app_setting", { store_id: state.storeId, key: BACKUP_KEY, value: rest }, { onConflict: ["store_id", "key"] });
+    await backupCurrent("戻す前");
+    // 入替履歴は控えを取った時点のものに戻す（取り消した取込の記録は残さない）
+    await writeIsland({ layout: b.layout, fixtures: b.fixtures, models: b.models, meta: b.meta || {} });
+    setSaveState("saved");
+    toast(`島図を戻しました（${b.total}台）`, "ok");
+    window.dispatchEvent(new HashChangeEvent("hashchange"));
+    return true;
+  } catch (e) { errorToast(e); return false; }
+}
+
+async function restoreLatest() {
+  const [b] = await loadBackups();
+  if (!b) { toast("戻せる控えがありません。正しい島図Excelを取り込み直してください", "err"); return; }
+  await restoreBackup(b);
 }
