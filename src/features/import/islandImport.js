@@ -14,17 +14,25 @@ const loadMeta = async () =>
   (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "island_meta" } }))[0]?.value || {};
 
 // 取込前に「いつからの島図か」を聞く。既定は今日。
-function askEffectiveFrom(fileName) {
+// 読めた台数もここで見せる。今の島図より大きく減るときは、置き換える前に必ず目に入るようにする
+// （島図でない表を入れると、台が数十台しかない島図に黙って置き換わったことがあった）。
+function askEffectiveFrom(fileName, counts, current) {
   return new Promise((resolve) => {
+    let done = false;
+    const finish = (v) => { if (!done) { done = true; resolve(v); } };
+    const shrink = current > 0 && counts.total < current * 0.8;
     const inp = el("input", { type: "date", value: localYmd(), style: "width:170px;font-size:15px;padding:6px" });
-    const ok = el("button", { class: "btn primary", text: "この日付で取込む", onclick: () => { const v = inp.value; close(); resolve(v || null); } });
-    const cancel = el("button", { class: "btn ghost", text: "やめる", onclick: () => { close(); resolve(null); } });
+    const ok = el("button", { class: "btn primary", text: shrink ? "それでも置き換える" : "この日付で取込む", onclick: () => { finish(inp.value || null); close(); } });
+    const cancel = el("button", { class: "btn ghost", text: "やめる", onclick: () => close() });
     const close = modal("島図の適用開始日", el("div", { class: "col", style: "gap:10px" }, [
       el("p", { class: "hint", style: "margin:0", text: `取込むファイル: ${fileName}` }),
+      el("p", { style: "margin:0", text: `読めた台数：${counts.total}台（1F ${counts.f1}／BF ${counts.bf}）${current ? `　今の島図：${current}台` : ""}` }),
+      shrink ? el("div", { class: "card", style: "margin:0;border-left:3px solid #e35d6a;color:#e35d6a;font-weight:700", text:
+        `今の島図（${current}台）より大きく減ります。島図Excelではないファイル（出玉率表など）を選んでいないか確かめてください。置き換えると今の配置は消えます。` }) : null,
       el("p", { style: "margin:0" }, [el("b", { text: "この島図はいつからの配置ですか？" })]),
       el("div", {}, [el("label", { class: "lbl", text: "適用開始日（入替日）" }), inp]),
       el("p", { class: "hint", style: "margin:0;font-size:11.5px", text: "記録した日付は入替履歴として残ります。" }),
-    ]), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [cancel, ok]));
+    ].filter(Boolean)), el("div", { class: "row", style: "justify-content:flex-end;gap:8px;margin-top:12px" }, [cancel, ok]), { onClose: () => finish(null) });
     setTimeout(() => inp.focus(), 50);
   });
 }
@@ -56,11 +64,16 @@ export async function showIslandHistory() {
 export async function importIslandXlsx(file, onDone) {
   if (!file) return;
   const meta = await loadMeta();
-  const effectiveFrom = await askEffectiveFrom(file.name);
+  // 先に読む。読めないファイルに適用日を聞いても仕方がなく、台数を見せてから決めてもらいたい
+  let parsed;
+  try { parsed = await parseIslandXlsx(await file.arrayBuffer()); }
+  catch (e) { errorToast(e); return; }
+  const { layout: lay, fixtures: fx, models: mdl, warnings, counts } = parsed;
+  const current = (await repo.select("layout_cell", { eq: { store_id: state.storeId } }).catch(() => [])).length;
+  const effectiveFrom = await askEffectiveFrom(file.name, counts, current);
   if (!effectiveFrom) return; // キャンセル
   try {
     setSaveState("saving");
-    const { layout: lay, fixtures: fx, models: mdl, warnings, counts } = await parseIslandXlsx(await file.arrayBuffer());
     await repo.remove("layout_cell", { store_id: state.storeId });
     await repo.remove("fixture", { store_id: state.storeId });
     const lc = lay.map((l) => ({ store_id: state.storeId, dai_no: l.dai_no, floor: l.floor, grid_row: l.grid_row, grid_col: l.grid_col }));
@@ -83,8 +96,13 @@ export async function importIslandXlsx(file, onDone) {
         el("p", { class: "hint", style: "margin:0", text:
           "島図の見た目を整えるために、台番の範囲を指定した調整が入っています。新しい配置と合わなくなりました。" }),
         el("ul", { style: "margin:0;padding-left:1.2em;line-height:1.7" }, ruleWarn.map((w) => el("li", { text: w }))),
-        el("p", { class: "hint", style: "margin:0;font-size:11.5px", text:
-          "島図の表示は崩れますが、設定の投入や保存には影響しません。調整の台番を直してもらうよう伝えてください。" }),
+        // 範囲がまるごと無い指定が半分を超えるなら、調整がずれたのではなく台がそもそも足りない。
+        // 実際には島図でない表を取り込んだときにこうなった。直す先を取り違えないよう書き分ける。
+        ruleWarn.filter((w) => /この台番が島図にありません/.test(w)).length * 2 > ruleWarn.length
+          ? el("p", { style: "margin:0;color:#e35d6a;font-weight:700", text:
+            `多くの台番が見つかりません（読めたのは${counts.total}台）。取り込んだファイルが島図Excelでない可能性があります。正しい島図Excelを取り込み直してください。` })
+          : el("p", { class: "hint", style: "margin:0;font-size:11.5px", text:
+            "島図の表示は崩れますが、設定の投入や保存には影響しません。調整の台番を直してもらうよう伝えてください。" }),
       ]), null);
     }
     await fillNewModels(Object.values(mdl));

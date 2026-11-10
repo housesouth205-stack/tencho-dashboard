@@ -41,6 +41,12 @@ export async function parseIslandXlsx(arrayBuffer) {
   const setSheet = wb.Sheets["設定表"];
   const warnings = [];
   const aoaMap = XLSX.utils.sheet_to_json(mapSheet, { header: 1, raw: true, blankrows: true, defval: null });
+  // 島図Excelでないブックを止める。この読み方は「整数のセル＝台番」なので、どんな表からでも
+  // 何かしら台を拾ってしまう。実際に出玉率表を島図として取り込み、「台数」列の1〜8や97〜114を
+  // 台番と読んで27台だけの島図に置き換わった。島図シートもフロアの見出しも無ければ読まない。
+  if (!wb.Sheets["島図"] && !setSheet && rowOfText(aoaMap, /(1F|BF).?フロア/) < 0) {
+    throw new Error("「島図」シートも「1Fフロア／BFフロア」の見出しも見つかりません。島図Excelではないようです（取り込みは行っていません）");
+  }
   const setupMap = setSheet ? parseSetup(XLSX.utils.sheet_to_json(setSheet, { header: 1, raw: true, defval: null })) : new Map();
   if (!setupMap.size) warnings.push("「設定表」シートが読めませんでした（機種名照合なしで座標を取ります）");
 
