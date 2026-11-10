@@ -85,12 +85,16 @@ export async function mount(host) {
   const regSpan = el("span", { class: "hint" });
   bar.appendChild(regSpan);
 
-  const info = el("div", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px", html:
+  // 使い方の説明は畳んでおく。毎回開く画面の上に長い説明があると、肝心の表が下に押しやられる
+  const info = el("details", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px;padding:8px 12px" }, [
+    el("summary", { style: "cursor:pointer;font-weight:700", text: "出玉率の埋め方（出玉率表・機種DB・Web・空欄の意味）" }),
+    el("div", { style: "margin-top:6px", html:
     "出玉率(機械割)を機種×設定で登録すると、シミュレーターが自動で使います。<br>" +
+    "📄 <b>出玉率表</b>: 店長の表（機種名・設定1〜6）。<b>いちばん優先</b>。下の「出玉率表」欄か、右上の📂取込から。<br>" +
     "📚 <b>機種DB</b>(同梱・通信不要): スマスロ／6号機の出玉率を出典URL・信頼度つきで収録。設定別の表から取れた機種は<b>機種DB</b>、機械割のレンジしか無い機種はタイプ標準カーブで補間して<b>機種DB推定</b>。<b>まずこれを試すのが速い</b>。状態列にカーソルを乗せると信頼度・出典・照合相手が出ます。<br>" +
     "　一括適用は名前の一致率30%以上を自動で入れます。店舗の機種名が型式名でも照合できます（例「S/新ﾊﾅﾋﾞR/HA」）。完全一致でなかった機種は状態列に<b>一致率</b>を橙色で出すので、そこだけ見直してください。<br>" +
     "🌐 <b>Web取得</b>: 機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジから補間(<b>Web推定</b>)。<br>" +
-    "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" });
+    "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" })]);
   host.appendChild(info);
   // どの資料の機種名で並んでいるかを出す。島図と台別CSVで機種が食い違うと、片方にしか無い機種が消えて見えるため
   host.appendChild(el("div", { class: "hint", style: "margin:6px 0 8px", text: useIsland

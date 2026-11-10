@@ -31,6 +31,7 @@ button, input, select { font-family: inherit; font-size: inherit; color: inherit
 .savestate { font-size: 12px; color: var(--fg-dim); min-width: 68px; text-align: right; }
 .savestate.saving { color: var(--warn); }
 .savestate.saved { color: var(--ok); }
+.savestate.error { color: var(--bad, #e35d6a); font-weight: 700; }
 
 /* ---- tabs ---- */
 .tabs {

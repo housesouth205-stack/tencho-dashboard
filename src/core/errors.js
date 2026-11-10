@@ -17,7 +17,7 @@ export function setSaveState(state) {
   const el = document.getElementById("saveState");
   if (!el) return;
   el.className = "savestate " + state;
-  el.textContent = state === "saving" ? "保存中…" : state === "saved" ? "保存済み" : "—";
+  el.textContent = state === "saving" ? "保存中…" : state === "saved" ? "保存済み" : state === "error" ? "⚠ 未保存" : "—";
   if (state === "saved") setTimeout(() => {
     if (el.textContent === "保存済み") { el.className = "savestate"; el.textContent = "—"; }
   }, 1500);

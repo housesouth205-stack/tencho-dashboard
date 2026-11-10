@@ -93,6 +93,7 @@ Edit ツール（一致しなければ失敗する）を優先し、スクリプ
 - 「全台を最低設定に戻す」は画面上だけ。以降の日の保存は消さないので、引き継ぎは古い設定を拾い続ける。
   断ち切るのは「この日から仕切り直す」（削除対象の日付を一覧で見せてから実行）
 - 未保存の変更がある状態で日付を移動するときは必ず確認する。黙って破棄すると事故になる
+- 保存は「その日の行を書き換える」。先に消してから入れると、通信で失敗したときその日の保存が無くなる
 - 背景に実績（アウト／台売上／台粗利）を出すと、設定ブロックの下段にその数字も入る。
   マスの高さは `cellGeom(cellW, withMetric)` が決めるので、幅の計算をする側も同じ引数で呼ぶこと
 
@@ -106,7 +107,7 @@ Edit ツール（一致しなければ失敗する）を優先し、スクリプ
 ### 出玉率管理 `src/features/payout/`
 
 - `model_spec(model_name, setting, payout_rate, source, source_url)` に保存
-- 埋め方は3つ: 手動 ／ 📚 機種DB（同梱JSON、通信不要） ／ 🌐 Web取得（一撃・DMM）
+- 埋め方は4つ: 📄 出玉率表（最優先） ／ 📚 機種DB（同梱JSON、通信不要） ／ 🌐 Web取得（一撃・DMM） ／ 手動
 - **店舗の遊技台CSVの機種名は検定型式名**（例 `S/新ﾊﾅﾋﾞR/HA`）。機種名だけで照合すると当たらない。
   `localdb.js` は機種名・別表記・型式名すべてを照合キーにしている
 - 一括適用は一致率30%以上で自動確定。完全一致でないものは状態列に一致率を橙色で出す
@@ -151,6 +152,10 @@ Edit ツール（一致しなければ失敗する）を優先し、スクリプ
 
 ### 予実管理 `src/features/yojitsu/`
 
+- 日別入力は `core/autosave.js` が0.7秒後にまとめて保存する。**失敗した行は待ち行列に戻す**（捨てると入力が消える）。
+  表は入力のたびに作り直すので、作り直した後に同じ位置の欄へカーソルを戻している（Tabで続けて打てるように）
+- `machines_day.count` は空を持てない。台数を消したときは行ごと削除する
+
 - `plan_day` / `actual_day` / `machines_day` を `(ymd|section_id)` のMapで持つ
 - 集計は `src/calc/aggregate.js`。月サマリー・日次系列・日別明細
 - **達成率を出すときは分母に注意。** 実績20日ぶんを計画31日ぶんで割ると未達に見える。
@@ -180,17 +185,15 @@ Edit ツール（一致しなければ失敗する）を優先し、スクリプ
 パッケージレジストリが遮断された環境だったため、`pandas`/`openpyxl`/`beautifulsoup4`/`lxml` は
 標準ライブラリ実装（`minihtml.py`／`minixlsx.py`）に置き換えてある。**元に戻さない。**
 
-### 派生物の作り直し忘れを検出する
+### 派生物の作り直しを忘れない
 
-原本 `data/machines.json` を変えたら、そこから派生するもの（`output/`・
-`src/data/payout-db.json`・READMEの実績値）も作り直す。手で覚えておく話にせず、
+原本 `data/machines.json` を変えたら、ダッシュボードが読む `src/data/payout-db.json` も作り直す:
 
 ```bash
-python3 pachislot-db/scripts/check_all.py --fix
+python3 pachislot-db/scripts/export_for_dashboard.py
 ```
 
-を通す。READMEの実績値は `readme_stats.py` が生成するので**手で書き換えない**
-（手打ちしていた頃に2回古いまま出した）。
+（以前ここに書いてあった `check_all.py`・`readme_stats.py` はリポジトリに無い。READMEの実績値は手で合わせる）
 
 ### スクレイピング
 
@@ -201,23 +204,26 @@ robots.txt を必ず確認し、同一ホストへ**最低2.5秒間隔・並列�
 
 ## 検証のやり方
 
-CIは無い。手元で確認してからコミットする。
+CIは無い。コミット前に必ず通す:
 
 ```bash
-node --check <file.js>                      # 構文
-python3 pachislot-db/scripts/check_all.py   # DBのテスト＋派生物のズレ
+sh tools/check/run.sh
 ```
 
-**画面の変更はChromiumで実際に描画して確認する。** Playwrightは未インストールだがChromiumは同梱:
+中身は4つ。どれかが落ちたらコミットしない。
 
-```bash
-/opt/pw-browsers/chromium-1194/chrome-linux/chrome --headless=new --no-sandbox \
-  --virtual-time-budget=9000 --dump-dom http://localhost:8000/<test>.html
-# --screenshot=/tmp/x.png で見た目も確認できる
-```
+1. `node --check`（構文）
+2. `tools/check/imports.mjs` — import した名前が相手に export されているか、どこからも読まれないファイルが無いか。
+   **関数を消したまま呼び出しが残り、会議サマリーの取込が本番で止まったことがある**（構文チェックでは見つからない）
+3. 機種DBのテスト（`pachislot-db/scripts/test_extract.py`・`test_merge.py`）
+4. `tools/check/smoke.mjs` — Supabaseの代わりにブラウザ内保存で動かし、全タブを「空／仮データ × PC幅／スマホ幅」で
+   描画して、エラー・空の画面・横はみ出しが無いことを見る
 
-Supabaseに繋がらなくても、合成データを渡して描画モジュールだけ動かせば検証できる
-（`aggregate.js` や `miniMap.js` は repo/state に依存していない）。
+**画面を変えたら、その操作そのものもChromiumで動かして確かめる**（smoke は開くだけ）。Playwrightは
+`npm root -g` の下、Chromiumは `/opt/pw-browsers/` にある（版は環境で変わるので smoke.mjs の探し方に倣う）。
+本番のSupabaseには開発環境から繋がらない。保存まで含めた確認はマージ後に本番で行う。
+
+仕様の全体像は `docs/仕様書.md`。機能を足したり決まりを変えたら、そちらも直す。
 
 ---
 

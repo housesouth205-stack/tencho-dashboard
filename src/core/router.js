@@ -15,10 +15,6 @@ const TABS = [
   { id: "settings", label: "設定", load: () => import("../features/settings/view.js") },
 ];
 
-const PLACEHOLDER = {
-  simulator: "設定投入シミュレーター（フェーズP5で実装）",
-};
-
 let navSeq = 0;
 
 export function initRouter() {
@@ -41,17 +37,25 @@ async function navigate(id) {
   renderQuickImport(tab.id);
   const view = document.getElementById("view");
 
-  let mod = null;
-  try { mod = await tab.load(); } catch { mod = null; }
-  if (seq !== navSeq) return; // 後発のナビゲーションに追い越されたら破棄（二重描画防止）
-
-  clear(view);
+  // 読み込みや描画で失敗したら、何が起きたかを画面に出す。以前は失敗をすべて「準備中」と
+  // 表示していたので、通信が切れただけなのか、コードの不具合なのかが画面から分からなかった。
   try {
-    if (mod && typeof mod.mount === "function") { await mod.mount(view); return; }
-    throw new Error("no mount");
-  } catch {
+    const mod = await tab.load();
+    if (seq !== navSeq) return; // 後発のナビゲーションに追い越されたら破棄（二重描画防止）
+    clear(view);
+    await mod.mount(view);
+  } catch (e) {
+    console.error(e);
     if (seq !== navSeq) return;
     clear(view);
-    view.appendChild(el("div", { class: "placeholder", text: PLACEHOLDER[tab.id] || "準備中" }));
+    const net = /fetch|network|Failed to|load failed|通信/i.test(String(e?.message || e));
+    view.appendChild(el("div", { class: "placeholder" }, [
+      el("div", { style: "font-weight:700;color:var(--fg)", text: `「${tab.label}」を表示できませんでした` }),
+      el("div", { style: "margin-top:6px", text: net
+        ? "通信に失敗しました。電波・Wi-Fiを確認して、もう一度開いてください。"
+        : "画面の処理でエラーが起きました。下の内容を開発担当に伝えてください。" }),
+      el("div", { class: "hint", style: "margin-top:6px;word-break:break-all", text: String(e?.message || e) }),
+      el("div", { style: "margin-top:12px" }, el("button", { class: "btn sm primary", text: "もう一度開く", onclick: () => navigate(id) })),
+    ]));
   }
 }

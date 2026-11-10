@@ -1,11 +1,13 @@
 import { el, clear } from "../../util/dom.js";
 import { state } from "../../core/state.js";
-import { queueUpsert } from "../../core/autosave.js";
+import { queueUpsert, flushAll } from "../../core/autosave.js";
+import { repo } from "../../core/repo.js";
+import { errorToast } from "../../core/errors.js";
 import { daysInMonth, ymd } from "../../util/dates.js";
 import { dayKind, holidayName, isWeekend } from "../../util/holiday.js";
 import { planCalc } from "../../calc/planCalc.js";
 import { actualCalc } from "../../calc/actualCalc.js";
-import { num as fnum, pct } from "../../util/format.js";
+import { num as fnum } from "../../util/format.js";
 import { loadMonthMaps } from "./monthData.js";
 
 const CONFLICT = ["store_id", "ymd", "section_id"];
@@ -25,7 +27,27 @@ export async function renderDayCalendar(host, { fy, month, sections, onChanged }
   let undoing = false;
   let bulkMode = false;
   const rec = (fn) => { if (!undoing) undoStack.push(fn); };
-  const afterEdit = () => { onChanged?.(); if (!bulkMode) draw(); };
+  // 入力のたびに表を作り直すので、そのままだとTabで次の欄へ移った瞬間にカーソルが消える
+  // （打ち込みの途中で毎回マウスに持ち替えることになる）。移動先の欄が決まってから作り直し、
+  // 同じ位置の欄にカーソルを戻す。
+  let redrawTimer = null;
+  const redrawKeepFocus = () => {
+    clearTimeout(redrawTimer);
+    redrawTimer = setTimeout(() => {
+      const before = [...wrap.querySelectorAll("input")];
+      const idx = before.indexOf(document.activeElement);
+      const typed = idx >= 0 ? before[idx].value : null;
+      draw();
+      if (idx < 0) return;
+      const after = wrap.querySelectorAll("input")[idx];
+      if (!after) return;
+      // 作り直しまでの一瞬に打ち始めた文字を捨てない
+      if (typed !== null && typed !== after.value) after.value = typed;
+      after.focus();
+      if (typed === null || typed === after.defaultValue) after.select();
+    }, 0);
+  };
+  const afterEdit = () => { onChanged?.(); if (!bulkMode) redrawKeepFocus(); };
   const onKey = (e) => {
     if (!host.isConnected) { document.removeEventListener("keydown", onKey); return; }
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
@@ -68,7 +90,15 @@ export async function renderDayCalendar(host, { fy, month, sections, onChanged }
   function saveM(sec, d, count) {
     const k = `${ymd(cy, month, d)}|${sec.id}`; const r = ensure("machines", k, sec, d);
     rec(() => saveM(sec, d, r.count == null ? "" : r.count));
-    r.count = count === "" ? null : Number(count); queueUpsert("machines_day", r, CONFLICT); afterEdit();
+    if (count === "") {
+      // 台数を消したときは行ごと消す。machines_day.count は空を持てない列なので、
+      // 空のまま保存に回すとDBが弾き、そのたびにエラーが出て他の入力の保存まで巻き添えになる。
+      maps.machines.delete(k);
+      flushAll().then(() => repo.remove("machines_day", { store_id: state.storeId, ymd: r.ymd, section_id: sec.id })).catch(errorToast);
+    } else {
+      r.count = Number(count); queueUpsert("machines_day", r, CONFLICT);
+    }
+    afterEdit();
   }
   function saveP(sec, d, patch) {
     const k = `${ymd(cy, month, d)}|${sec.id}`; const r = ensure("plan", k, sec, d);
@@ -181,4 +211,3 @@ export async function renderDayCalendar(host, { fy, month, sections, onChanged }
 }
 
 const pctVal = (r) => (r == null ? "" : +(r * 100).toFixed(2));
-const achieveColor = (r) => (r == null ? "" : "color:" + (r >= 1 ? "var(--ok)" : r >= 0.9 ? "var(--warn)" : "var(--bad)"));

@@ -22,6 +22,10 @@
 
 詳細と取得ルールは [`pachislot-db/README.md`](pachislot-db/README.md) を参照。
 
+## 仕様書
+
+画面ごとの決まり・取込のしくみ・データの置き場所・困ったときの戻し方は [`docs/仕様書.md`](docs/仕様書.md)。
+
 ## 技術構成
 
 - フロントエンド: 素のHTML/CSS/JavaScript（ESモジュール、ビルド工程なし）

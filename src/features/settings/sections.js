@@ -31,9 +31,11 @@ export async function renderSectionEditor(host) {
   const currentMap = () => Object.fromEntries([...daiInputs].map(([k, i]) => [k, i.value.trim()]));
 
   const draw = () => {
+    // 表示名や貸単価を直すと表を作り直す。打ちかけ（未保存）の台番はそのまま残す
+    const typing = daiInputs.size ? currentMap() : {};
     clear(body);
     daiInputs.clear();
-    const saved = daiRangeText();
+    const saved = { ...daiRangeText(), ...typing };
     for (const s of state.sections) body.appendChild(rowFor(s, redraw, saved[s.key] || "", daiInputs, checkDai));
     checkDai();
   };
