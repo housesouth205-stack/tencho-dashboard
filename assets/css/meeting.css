@@ -9,17 +9,14 @@
 .mt-col { gap: 12px; }
 .mt-card { padding: 10px 12px; margin-bottom: 12px; }
 .mt-col > .mt-card { margin-bottom: 0; }
-.mt-h { font-size: 14.5px; font-weight: 700; margin: 0 0 8px; padding-left: 8px; border-left: 4px solid var(--accent); }
+.mt-h { font-size: 14.5px; font-weight: 700; margin: 0 0 8px; padding-left: 8px; border-left: 4px solid var(--primary); }
 .mt-sub { font-size: 12.5px; font-weight: 700; color: var(--fg-dim); margin: 8px 0 3px; }
 /* 表は枠の中に収める（横スクロールを出さない）。数字は折り返さず、見出しだけ折り返して幅を詰める */
 table.grid.mt-table th, table.grid.mt-table td { padding: 3px 6px; font-size: 12.5px; }
 table.grid.mt-table td { white-space: nowrap; }
 table.grid.mt-table th { white-space: normal; line-height: 1.3; }
 /* ドラクエ風は表の文字・余白・折り返しを table.grid で決めているので、それより強い指定で上書きする */
-:root[data-theme="dq"] table.grid.mt-table th, :root[data-theme="dq"] table.grid.mt-table td { font-size: 13px; padding: 2px 4px; }
-:root[data-theme="dq"] table.grid.mt-table th { white-space: normal; }
 /* 見出しの白帯は12px（ドット文字の原寸）。テーマ側の table.grid.compact th より強い指定で上書きする */
-:root[data-theme="dq"] table.grid.compact.mt-table th { font-size: 12px; padding: 3px 6px; line-height: 1.25; }
 @media (min-width: 701px) { .mt-card .table-wrap { overflow-x: visible; } }
 /* 所見を2段組みに（節の途中で段が割れないように） */
 .mt-cols2 { columns: 2 440px; column-gap: 28px; }

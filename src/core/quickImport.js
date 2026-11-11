@@ -17,14 +17,23 @@ async function openImport(files) {
       import("../features/import/plManual.js"),
     ]);
     const msg = el("div", { class: "col", style: "gap:4px" });
-    let changed = false;
+    // 取り込んだあと画面を描き直す。確認画面（単位の選択など）を経て保存される資料は、
+    // 取込の処理が戻った後に書き込まれるので、書き込みの知らせ（dash:datachange）でも描き直す。
+    let timer = null;
+    const refreshSoon = () => { clearTimeout(timer); timer = setTimeout(rerender, 600); };
+    const stopWatch = () => window.removeEventListener("dash:datachange", refreshSoon);
     const run = async (fs) => {
       if (!fs.length) return;
       msg.replaceChildren();
-      await importAnyFiles(fs, { msgHost: msg, ktacsOpts: { result: msg }, onDone: () => { changed = true; } });
-      changed = true;
+      window.addEventListener("dash:datachange", refreshSoon);
+      setTimeout(stopWatch, 5 * 60 * 1000); // 確認画面を開いたまま放置しても、見張りを残さない
+      await importAnyFiles(fs, { msgHost: msg, ktacsOpts: { result: msg }, onDone: refreshSoon });
+      refreshSoon();
+      // 取り込めたら窓は閉じる（結果は右下の通知と、描き直した画面で分かる）。
+      // 読んでほしい注意や「取り込めませんでした」が出ているときだけ開いたままにする。
+      if (!msg.querySelector("[data-keep-open]")) close();
     };
-    modal("資料の取込", el("div", { class: "col", style: "gap:10px;min-width:min(620px,100%)" }, [
+    const close = modal("資料の取込", el("div", { class: "col", style: "gap:10px;min-width:min(620px,100%)" }, [
       buildDropZone(run),
       msg,
       // ファイルが無いとき（紙の資料・文字起こしを貼る）の入口も同じ窓に置く
@@ -33,7 +42,7 @@ async function openImport(files) {
         el("button", { class: "btn sm ghost", text: "表を貼り付けて取込", onclick: () => importPlPaste(msg) }),
         el("button", { class: "btn sm ghost", text: "手入力", onclick: () => openPlManual(msg) }),
       ]),
-    ]), null, { onClose: () => { if (changed) rerender(); } });
+    ]), null);
     if (files?.length) run(files);
   } catch (e) { errorToast(e); }
 }

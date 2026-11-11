@@ -95,7 +95,8 @@ async function decideKind(file, msgHost) {
 }
 
 function note(host, text, bad) {
-  if (host) host.appendChild(el("div", { class: "hint", style: bad ? "color:var(--accent)" : "", text: (bad ? "⚠ " : "") + text }));
+  // data-keep-open: 読んでほしい注意。取込の窓はこれが残っている間は自動で閉じない
+  if (host) host.appendChild(el("div", { class: "hint", style: bad ? "color:var(--bad-fg)" : "", "data-keep-open": bad ? "1" : null, text: (bad ? "⚠ " : "") + text }));
   else if (bad) toast(text, "err");
 }
 
@@ -161,7 +162,7 @@ export function buildDropZone(onFiles) {
     input,
   ]);
   zone.addEventListener("click", (e) => { if (e.target !== input) input.click(); });
-  ["dragover", "dragenter"].forEach((e) => zone.addEventListener(e, (ev) => { ev.preventDefault(); zone.style.borderColor = "var(--accent)"; }));
+  ["dragover", "dragenter"].forEach((e) => zone.addEventListener(e, (ev) => { ev.preventDefault(); zone.style.borderColor = "var(--primary)"; }));
   ["dragleave", "drop"].forEach((e) => zone.addEventListener(e, () => (zone.style.borderColor = "")));
   zone.addEventListener("drop", (ev) => { ev.preventDefault(); onFiles([...ev.dataTransfer.files]); });
   return zone;

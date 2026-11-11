@@ -7,10 +7,10 @@ import { yen, pct, num } from "../../util/format.js";
 import { sectionColor, tint } from "../../util/colors.js";
 import { loadMonthMapsWithPrev, loadFiscalMonthMaps } from "./monthData.js";
 import { renderDayCalendar } from "./dayCalendar.js";
-import { openBudgetInput, loadBudgetTotals } from "./budgetInput.js";
+import { openBudgetInput } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
-import { hbars, cumLine, diffBars, dailyBars, cumCompare } from "./charts.js";
+import { cumLine, diffBars, dailyBars, cumCompare } from "./charts.js";
 import { renderDailyDetail } from "./dailyTable.js";
 
 let month = new Date().getMonth() + 1;
@@ -37,35 +37,31 @@ export async function mount(host) {
     mount(host);
   };
   document.addEventListener("keydown", keyHandler);
-  host.appendChild(el("div", { class: "view-title" }, [
-    el("h1", { text: "予実管理" }),
-    el("small", { text: `${state.fy}年度` }),
-  ]));
-
-  const ctrl = el("div", { class: "row", style: "align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px" });
+  // タイトルの行に操作を並べる。以前はタイトル・ラベル付きの選択欄・ボタンが3段に分かれ、
+  // 数字が出るまでに縦を使っていた。
   // 年度はヘッダーにもあるが、スマホでは隠れて押しづらい。過去年度を見返すのは
-  // この画面なので、月の選択と同じ場所にも置く（値はヘッダーと同期させる）。
-  const fySel = el("select", { class: "inp", style: "width:104px", onchange: (e) => {
+  // この画面なので、ここにも置く（値はヘッダーと同期させる）。
+  const fySel = el("select", { class: "inp", title: "年度", onchange: (e) => {
     state.fy = Number(e.target.value);
     const head = document.getElementById("fySelect");
     if (head) head.value = state.fy;
     mount(host);
   } }, fiscalYearOptions().map((y) => el("option", { value: y, text: `${y}年度`, selected: y === state.fy ? "selected" : null })));
-  ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "年度" }), fySel]));
-  const granBtns = el("div", { class: "row", style: "gap:2px" }, ["month", "year"].map((g) =>
-    el("button", { class: "btn sm " + (g === gran ? "primary" : "ghost"), text: g === "month" ? "月" : "年度", onclick: () => { gran = g; mount(host); } })));
-  ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "粒度" }), granBtns]));
-  const monthSel = el("select", { class: "inp", style: "width:90px", onchange: (e) => { month = Number(e.target.value); refresh(); } },
+  const monthSel = el("select", { class: "inp", title: "月", onchange: (e) => { month = Number(e.target.value); refresh(); } },
     fiscalMonths().map((m) => el("option", { value: m, text: `${m}月`, selected: m === month ? "selected" : null })));
-  if (gran === "month") ctrl.appendChild(el("div", {}, [el("label", { class: "lbl", text: "月" }), monthSel]));
-
-  if (gran === "month") {
-    ctrl.appendChild(el("button", { class: "btn primary", text: "日別入力", onclick: openCalendar }));
-    ctrl.appendChild(el("button", { class: "btn", text: "🎯 目標粗利→計画", onclick: () => openTargetPlanner({ fy: state.fy, month, sections: state.sections, onDone: refresh }) }));
-    ctrl.appendChild(el("button", { class: "btn", text: "📋 日報", onclick: () => openDailyReport({ fy: state.fy, month, sections: state.sections }) }));
-  }
-  ctrl.appendChild(el("button", { class: "btn", text: gran === "year" ? "年間目標" : "月間目標", onclick: () => openBudgetInput({ mode: gran, fy: state.fy, month, sections: state.sections, onDone: refresh }) }));
-  host.appendChild(ctrl);
+  const granBtn = (g, label) => el("button", { class: "btn" + (g === gran ? " on" : ""), text: label, onclick: () => { gran = g; mount(host); } });
+  const subTitle = el("span", { class: "sub" });
+  host.appendChild(el("div", { class: "view-head" }, [
+    el("h1", { text: "予実管理" }), subTitle,
+    el("div", { class: "ops" }, [
+      granBtn("month", "月"), granBtn("year", "年度"), fySel,
+      gran === "month" ? monthSel : null,
+      gran === "month" ? el("button", { class: "btn primary", text: "日別入力", onclick: openCalendar }) : null,
+      gran === "month" ? el("button", { class: "btn", text: "日報", onclick: () => openDailyReport({ fy: state.fy, month, sections: state.sections }) }) : null,
+      gran === "month" ? el("button", { class: "btn", text: "目標から計画を作る", onclick: () => openTargetPlanner({ fy: state.fy, month, sections: state.sections, onDone: refresh }) }) : null,
+      el("button", { class: "btn", text: gran === "year" ? "年間目標" : "月間目標", onclick: () => openBudgetInput({ mode: gran, fy: state.fy, month, sections: state.sections, onDone: refresh }) }),
+    ].filter(Boolean)),
+  ]));
 
   const summary = el("div", { class: "col" });
   host.appendChild(summary);
@@ -104,9 +100,12 @@ export async function mount(host) {
         empty: "昨年同月の実績がありません。右上の「📂 取込」で昨年度の月計画表を入れると増減が出ます。",
       };
     }
-    const target = await loadBudgetTotals({ mode: gran, fy: state.fy, month });
     const opts = gran === "month" ? { daysTotal: daysInMonth(calendarYear(state.fy, month), month) } : {};
-    renderSummary(summary, agg, series, target, showAverages, { ...opts, prev, prevMonthly });
+    const days = agg.total.actualDays || 0;
+    subTitle.textContent = gran === "month"
+      ? `${calendarYear(state.fy, month)}年${month}月（${days ? `実績 ${days}日ぶん` : "実績なし"}）`
+      : `${state.fy}年度`;
+    renderSummary(summary, agg, series, showAverages, { ...opts, prev, prevMonthly });
     // 日別の実績は月モードだけ。年モードは1点が1ヶ月なので日別の表に意味がない。
     if (maps) renderDailyDetail(summary, { fy: state.fy, month, sections: state.sections, maps, prevMaps });
   }
@@ -129,21 +128,6 @@ export async function mount(host) {
 const MC = { sales: "#4f8ff7", gross: "#2fb888", target: "#f0a12e", land: "#a56cf0" };
 const GC = { plan: "#6b7f9e", actual: "#1f9d70", prev: "#8a91a3" };
 
-// 金額は「¥122,760,000」まで伸びるが折り返せない。箱を content より狭くすると
-// はみ出して隣の数字と重なるので、折り返し前提の幅を持たせる（スマホで実際に潰れていた）。
-function miniKpi(label, value, color, sub) {
-  return el("div", { class: "kpi-item" }, [
-    el("div", { class: "hint", text: label }),
-    el("div", { class: "kpi-value", style: `color:${color}`, text: value }),
-    sub ? el("div", { class: "hint", text: sub }) : null,
-  ]);
-}
-function groupPanel(title, accent, items) {
-  return el("div", { class: "card", style: `flex:1;min-width:300px;border-top:3px solid ${accent};background:${tint(accent, 0.05)}` }, [
-    el("div", { class: "panel-title", style: `color:${accent}`, text: title }),
-    el("div", { class: "row", style: "gap:14px;flex-wrap:wrap" }, items),
-  ]);
-}
 const secBadge = (sec) => { const c = sectionColor(sec); return el("span", { class: "badge", style: `background:${tint(c, 0.16)};color:${c};font-weight:700`, text: sec.label }); };
 const dec = (v, d = 2) => (v == null || isNaN(v) ? "—" : Number(v).toFixed(d));
 
@@ -198,32 +182,122 @@ function prevPanel(prev) {
   ]);
 }
 
-function renderSummary(host, agg, series, target, showAverages, opts = {}) {
-  clear(host);
-  const t = agg.total;
-  // 左列: 計画→実績を縦に並べる（枠色で分離）。売上=青 / 粗利=緑 で統一
+// 万円表記（要点の数字用）。1万未満は円のまま出す
+const man = (v) => (v == null || isNaN(v) ? "—" : Math.abs(v) >= 10000 ? `${Math.round(v / 10000).toLocaleString("ja-JP")}万` : yen(v));
+const rateCls = (r) => (r == null ? "none" : r >= 1 ? "ok" : r >= 0.9 ? "warn" : "bad");
+const rateBadge = (r) => el("span", { class: "rate " + rateCls(r), text: r == null ? "—" : pct(r) });
+// 比較の1項目。「計画比 103.2%」のようにラベルは薄く、数字は太く
+const cmp = (label, text, cls) => el("span", {}, [label + " ", el("b", { class: cls || "", text })]);
+const signPct = (r) => (r == null ? "—" : `${r >= 0 ? "+" : "▲"}${(Math.abs(r) * 100).toFixed(1)}%`);
+
+function kpiCard(label, value, color, cmps) {
+  return el("div", { class: "card kpi" }, [
+    el("div", { class: "kpi-lbl", text: label }),
+    el("div", { class: "kpi-num", style: color ? `color:${color}` : "", text: value }),
+    el("div", { class: "kpi-cmp" }, cmps.filter(Boolean)),
+  ]);
+}
+
+// 要点の4枠。計画比は「実績のある日の計画」と比べ、前年比は同じ日にちで比べる（どちらも
+// 月・年度の途中で、1か月ぶん・1年ぶんと比べて未達に見えるのを避けるため）。
+function kpiRow(t, opts) {
+  const p = opts.prev;
+  const hasPrev = p && (p.unitLabel === "実績月数" ? p.base.months : p.base.actualDays);
+  const yo = (k) => (hasPrev ? yoy(p.cur.actual[k], p.base.actual[k]) : null);
+  const vs = (r) => (r == null ? null : cmp("計画比", pct(r), r >= 1 ? "up" : "down"));
+  const prevCmp = (r) => (r == null ? null : cmp("前年比", signPct(r), r >= 0 ? "up" : "down"));
   const planRate = t.plan.sales ? t.plan.gross / t.plan.sales : null;
   const actualRate = t.actual.sales ? t.actual.gross / t.actual.sales : null;
-  // 粗利率は粗利の下ではなく横に並べる。下に置くとカードが1行ぶん高くなり、
-  // 計画・実績・昨年同月と3枚重なるぶんだけ縦に伸びる。
-  const planPanel = groupPanel("📋 計画", GC.plan, [
-    miniKpi("売上", yen(t.plan.sales), MC.sales),
-    miniKpi("粗利", yen(t.plan.gross), MC.gross),
-    planRate == null ? null : miniKpi("粗利率", pct(planRate), MC.gross),
-  ].filter(Boolean));
-  const actualPanel = groupPanel("✅ 実績", GC.actual, [
-    miniKpi("売上", yen(t.actual.sales), MC.sales),
-    miniKpi("粗利", yen(t.actual.gross), MC.gross),
-    actualRate == null ? null : miniKpi("粗利率", pct(actualRate), MC.gross),
-  ].filter(Boolean));
-  const left = el("div", { class: "col", style: "flex:1.25;min-width:300px;gap:12px" },
-    [planPanel, actualPanel, opts.prev ? prevPanel(opts.prev) : null].filter(Boolean));
+  const prevRate = hasPrev ? p.base.grossRate : null;
 
-  // 右列: 区分別バー（上）＋達成状況（下、実績の右に位置）
-  const bars = hbars(agg.perSection.map((r) => ({ label: r.section.label, plan: r.plan.gross, actual: r.actual.gross, color: sectionColor(r.section) })), { title: "区分別 計画vs実績（粗利）" });
-  const right = el("div", { class: "col", style: "flex:1;min-width:300px;gap:12px" }, [bars, goalPanel(t, opts)]);
+  const need = (t.plan.gross || 0) - (t.actual.gross || 0);
+  const elapsed = t.actualDays || 0;
+  const remain = opts.daysTotal != null ? Math.max(0, opts.daysTotal - elapsed) : null;
+  const perDay = need > 0 && remain ? need / remain : null;
+  const goalLabel = opts.daysTotal != null ? "月計画まで（粗利）" : "年度計画まで（粗利）";
+  const goal = !t.plan.gross
+    ? kpiCard(goalLabel, "計画なし", "var(--fg-dim)", [])
+    : need > 0
+      ? kpiCard(goalLabel, `あと ${man(need)}`, null, [
+        perDay != null ? cmp("1日あたり", man(perDay), t.avgGrossDay != null && perDay > t.avgGrossDay ? "down" : "") : null,
+        remain != null ? cmp("残り", `${remain}日`) : null,
+        cmp("着地見込", man(t.landing.gross)),
+      ])
+      : kpiCard(goalLabel, `達成 +${man(-need)}`, "#1f9d70", [cmp("着地見込", man(t.landing.gross))]);
 
-  host.appendChild(el("div", { class: "row eq-cols", style: "flex-wrap:wrap;gap:14px;align-items:stretch" }, [left, right]));
+  const none = !elapsed;
+  return el("div", { class: "kpis" }, [
+    kpiCard("売上（実績）", none ? "—" : yen(t.actual.sales), MC.sales, [vs(t.paceSales), prevCmp(yo("sales"))]),
+    kpiCard("粗利（実績）", none ? "—" : yen(t.actual.gross), MC.gross, [vs(t.paceGross), prevCmp(yo("gross"))]),
+    kpiCard("粗利率", actualRate == null ? "—" : pct(actualRate), null, [
+      planRate == null ? null : cmp("計画", pct(planRate)),
+      prevRate == null ? null : cmp("前年", pct(prevRate)),
+    ]),
+    goal,
+  ]);
+}
+
+// 粗利の進み具合。店全体で横長のバー1本にして、区分を色でつなぐ（右端＝計画の合計）。
+// 以前は区分ごとに別々のバーで、長さを最大の区分に合わせていたため、2スロのバーが
+// 数ミリになって進み具合が読めなかった。区分ごとの数字はバーの下に並べる。
+// 黒い線は「実績のある日までの計画」。色がこの線を越えていれば計画どおり。
+function progressCard(agg, t, opts) {
+  const plan = t.plan.gross || 0;
+  const scope = opts.daysTotal != null ? "月計画" : "年度計画";
+  if (!plan) {
+    return el("div", { class: "card prog" }, [
+      el("h2", { text: "粗利の進み具合" }),
+      el("div", { class: "hint", text: "計画が入っていません。「日別入力」か右上の「📂 取込」（月計画表）で計画を入れると、ここに進み具合が出ます。" }),
+    ]);
+  }
+  const secs = agg.perSection;
+  const sumActual = Math.max(0, t.actual.gross || 0);
+  // 計画を超えたときはバーの全長を実績に合わせる（色がはみ出さないように）
+  const full = Math.max(plan, sumActual);
+  const w = (v) => `${Math.max(0, v) / full * 100}%`;
+  const bar = el("div", { class: "prog-bar" }, [
+    ...secs.filter((r) => r.actual.gross > 0).map((r) => {
+      const share = r.actual.gross / full;
+      // 細い区間には文字を入れない（はみ出して隣に重なる）。数字はバーの下にある
+      const text = share > 0.14 ? `${r.section.label} ${man(r.actual.gross)}` : share > 0.055 ? man(r.actual.gross) : "";
+      return el("span", { style: `width:${w(r.actual.gross)};background:${sectionColor(r.section)}`, title: `${r.section.label} ${yen(r.actual.gross)}`, text });
+    }),
+    plan > sumActual ? el("span", { class: "rest", text: `残り ${man(plan - sumActual)}` }) : null,
+  ].filter(Boolean));
+  const paceAt = t.planElapsed?.gross ? Math.min(t.planElapsed.gross / full, 1) : null;
+  // 期間の終わり（線が右端）では線を出さない。バーの端と重なって意味が無い
+  const mark = paceAt == null || !t.actualDays || paceAt > 0.985 ? null
+    : el("div", { class: "prog-mark", style: `left:${Math.min(Math.max(paceAt * 100, 6), 94)}%`, "data-label": `ここまでの計画 ${man(t.planElapsed.gross)}` });
+  return el("div", { class: "card prog" }, [
+    el("div", { class: "prog-head" }, [
+      el("h2", { text: `粗利の進み具合（${scope} ${man(plan)} に対して）` }),
+      el("div", { class: "prog-legend" }, [
+        ...secs.map((r) => el("span", {}, [el("i", { style: `background:${sectionColor(r.section)}` }), r.section.label])),
+        el("span", {}, [el("i", { style: "background:#e6ebf3" }), "計画の残り"]),
+      ]),
+    ]),
+    el("div", { class: "prog-track" }, [bar, mark].filter(Boolean)),
+    el("div", { class: "prog-scale" }, [
+      el("span", { text: "0" }),
+      el("span", {}, ["実績合計 ", el("b", { text: `${man(t.actual.gross)}（${pct(t.actual.gross / plan)}）` })]),
+      el("span", { text: `計画 ${man(plan)}` }),
+    ]),
+    el("div", { class: "prog-secs" }, secs.map((r) => el("div", { class: "prog-sec", style: `border-color:${sectionColor(r.section)}` }, [
+      el("span", { class: "nm", text: r.section.label }),
+      el("b", { text: man(r.actual.gross) }),
+      el("span", { class: "of", text: `/ ${man(r.plan.gross)}` }),
+      r.paceGross == null ? null : el("span", { class: "rate " + rateCls(r.paceGross), title: "実績のある日の計画に対する比", text: `計画比 ${pct(r.paceGross)}` }),
+    ].filter(Boolean)))),
+  ]);
+}
+
+function renderSummary(host, agg, series, showAverages, opts = {}) {
+  clear(host);
+  const t = agg.total;
+  host.appendChild(kpiRow(t, opts));
+  host.appendChild(progressCard(agg, t, opts));
+  // 昨年の内訳（アウト/台・営業日数など）は要点の枠に入りきらないので、ここに残す
+  if (opts.prev) host.appendChild(prevPanel(opts.prev));
   // 推移は2段構え。上=累計で「このままで届くか」、下=日別の過不足で「どこで落としたか」。
   const unit = gran === "year" ? "月" : "日";
   // 2つのグラフは左右に並べる。横幅いっぱいに1つずつだと、横長に引き伸ばされて文字だけ大きくなり、
@@ -246,40 +320,11 @@ function renderSummary(host, agg, series, target, showAverages, opts = {}) {
     ]));
   }
 
-  // 予実テーブルと実績平均・進捗（月モードのみ）は左右に並べて縦を詰める
-  host.appendChild(showAverages
-    ? el("div", { class: "yj-pair yj-tables" }, [sectionTable(agg, t), averagesTable(agg, t)])
-    : el("div", { class: "yj-tables", style: "margin-top:12px" }, sectionTable(agg, t)));
+  // 表は横幅いっぱいに1つずつ置く。左右に並べると列が詰まり、数字を小さくするしかなかった
+  host.appendChild(el("div", { class: "col", style: "margin-top:12px;gap:12px" },
+    [sectionTable(agg, t), showAverages ? averagesTable(agg, t) : null].filter(Boolean)));
 }
 
-// 🎯 達成状況: 粗利があといくら足りないか・残り日数で1日いくら必要かを一目で。
-function goalPanel(t, { daysTotal }) {
-  const ach = t.achieveGross;
-  const hex = achieveHex(ach);
-  const need = (t.plan.gross || 0) - (t.actual.gross || 0);
-  const elapsed = t.actualDays || 0;
-  const remainDays = daysTotal != null ? Math.max(0, daysTotal - elapsed) : null;
-  const perDay = need > 0 && remainDays ? need / remainDays : null;
-  // 進捗バー（円グラフの代わり）: 計画粗利に対する実績の到達度
-  const bar = el("div", { style: "height:12px;background:var(--panel-2);border-radius:6px;overflow:hidden;border:1px solid var(--line)" },
-    el("div", { style: `height:100%;width:${Math.min(Math.max(ach || 0, 0), 1) * 100}%;background:${hex};transition:width .3s` }));
-  const items = [
-    miniKpi("達成率（粗利）", ach == null ? "—" : pct(ach), hex, achieveLabel(ach) + (daysTotal != null ? `（${elapsed}/${daysTotal}日 経過）` : "")),
-    need > 0
-      ? miniKpi("残り必要粗利", yen(need), MC.target, remainDays != null ? `残り${remainDays}日` : "")
-      : miniKpi("計画達成！超過分", yen(-need), "#43b483"),
-    perDay != null
-      ? miniKpi("1日あたり必要", yen(perDay), perDay > (t.avgGrossDay || 0) ? "#e35d6a" : "#43b483",
-          t.avgGrossDay != null ? `現在の日平均 ${yen(t.avgGrossDay)}` : "")
-      : null,
-    miniKpi("着地見込", yen(t.landing.gross), MC.land, "実績＋残計画"),
-  ].filter(Boolean);
-  return el("div", { class: "card", style: `flex:1;border-top:3px solid ${hex};background:${tint(hex, 0.05)}` }, [
-    el("div", { class: "panel-title", style: `color:${hex}`, text: "🎯 達成状況（粗利）" }),
-    bar,
-    el("div", { class: "row", style: "gap:14px;flex-wrap:wrap;margin-top:10px" }, items),
-  ]);
-}
 
 // スマホでは列の多い表が画面幅に収まらない。横スクロールさせるとグラフや達成状況と
 // 見た目の幅が合わないため、区分ごとのカードに組み替えて縦に積む（横移動なしで読める）。
@@ -346,75 +391,58 @@ function averagesCards(agg, t) {
 
 function sectionTable(agg, t) {
   if (narrow()) return sectionCards(agg, t);
-  const table = el("table", { class: "grid mono compact" });
-  const gBg = (c) => `background:${tint(c, 0.08)}`;
-  // 2段ヘッダー: 計画/実績のグループ + 売上(青)/粗利(緑)
-  table.appendChild(el("thead", {}, [
-    el("tr", {}, [
-      el("th", { class: "txt", rowspan: 2, text: "区分" }),
-      el("th", { colspan: 2, style: `${gBg(GC.plan)};color:${GC.plan};text-align:center`, text: "📋 計画" }),
-      el("th", { colspan: 2, style: `${gBg(GC.actual)};color:${GC.actual};text-align:center`, text: "✅ 実績" }),
-      el("th", { rowspan: 2, text: "達成率(粗利)" }),
-    ]),
-    el("tr", {}, [
-      el("th", { style: `${gBg(GC.plan)};color:${MC.sales}`, text: "売上" }),
-      el("th", { style: `${gBg(GC.plan)};color:${MC.gross}`, text: "粗利" }),
-      el("th", { style: `${gBg(GC.actual)};color:${MC.sales}`, text: "売上" }),
-      el("th", { style: `${gBg(GC.actual)};color:${MC.gross}`, text: "粗利" }),
-    ]),
-  ]));
+  // 計画比は進み具合のバーと同じく「実績のある日の計画」との比。月の計画全体と比べると、
+  // 月の途中は必ず未達に見える。
+  const table = el("table", { class: "sum" });
+  table.appendChild(el("thead", {}, el("tr", {}, [
+    el("th", { text: "区分" }), el("th", { text: "計画売上" }), el("th", { text: "実績売上" }),
+    el("th", { text: "計画粗利" }), el("th", { class: "hl", text: "実績粗利" }),
+    el("th", { text: "粗利率" }), el("th", { text: "計画比（粗利）" }),
+  ])));
   const body = el("tbody");
-  const dataRow = (label, r, isTotal) => el("tr", { style: isTotal ? "font-weight:700" : "" }, [
-    el("td", { class: "txt" }, isTotal ? "合計" : secBadge(r.section)),
-    el("td", { style: gBg(GC.plan), text: yen(r.plan.sales) }),
-    el("td", { style: gBg(GC.plan), text: yen(r.plan.gross) }),
-    el("td", { style: gBg(GC.actual), text: yen(r.actual.sales) }),
-    el("td", { style: gBg(GC.actual), text: yen(r.actual.gross) }),
-    el("td", { style: achieveColor(r.achieveGross), text: r.achieveGross == null ? "—" : pct(r.achieveGross) }),
+  const dataRow = (r, isTotal) => el("tr", { class: isTotal ? "tot" : "" }, [
+    el("td", {}, isTotal ? "合計" : el("b", { text: r.section.label })),
+    el("td", { text: yen(r.plan.sales) }),
+    el("td", { text: r.actualDays ? yen(r.actual.sales) : "—" }),
+    el("td", { text: yen(r.plan.gross) }),
+    el("td", { class: "hl" }, el("b", { text: r.actualDays ? yen(r.actual.gross) : "—" })),
+    el("td", { text: r.grossRate == null ? "—" : pct(r.grossRate) }),
+    el("td", {}, rateBadge(r.paceGross)),
   ]);
-  for (const r of agg.perSection) body.appendChild(dataRow(null, r, false));
-  body.appendChild(dataRow(null, t, true));
+  for (const r of agg.perSection) body.appendChild(dataRow(r, false));
+  body.appendChild(dataRow(t, true));
   table.appendChild(body);
-  // スマホでは6列が画面幅に収まらないので表の中だけスクロールさせる（グラフと幅を揃える）
-  // 隣の「実績平均・進捗」と見出しの高さをそろえるため、こちらにも見出しを付ける
-  return el("div", { class: "col" }, [el("h2", { style: "font-size:15px", text: "区分別 計画・実績" }), el("div", { class: "table-wrap" }, table)]);
+  return el("div", { class: "card", style: "padding:0;overflow:hidden" }, [
+    el("div", { class: "table-wrap" }, table),
+    el("div", { class: "hint", style: "padding:6px 16px", text: "計画売上・計画粗利は期間全体の計画。計画比は、実績が入っている日の計画と比べた値です。" }),
+  ]);
 }
 
 function averagesTable(agg, t) {
-  const wrap = el("div", { class: "col" }, el("h2", { style: "font-size:15px", text: "実績平均・進捗" }));
+  const wrap = el("div", { class: "col", style: "gap:6px" }, el("h2", { style: "margin:0", text: "1日・1台あたりの実績" }));
   if (narrow()) {
     wrap.appendChild(averagesCards(agg, t));
     wrap.appendChild(el("p", { class: "hint", text: "進捗ペース＝実績 ÷ 計画（実績のある経過日数分）。100%以上＝順調、90%未満＝計画に対して不足ペース。" }));
     return wrap;
   }
-  const table = el("table", { class: "grid mono compact" });
-  table.appendChild(el("thead", {}, el("tr", {}, ["区分", "平均アウト", "日平均売上", "日平均粗利", "粗利率", "玉単価", "玉粗利", "進捗ペース"].map((h, i) =>
-    el("th", { class: i === 0 ? "txt" : "", text: h })))));
+  const table = el("table", { class: "sum" });
+  table.appendChild(el("thead", {}, el("tr", {}, ["区分", "平均アウト", "日平均売上", "日平均粗利", "玉単価", "玉粗利"].map((h) => el("th", { text: h })))));
   const body = el("tbody");
-  const rowFor = (label, r, isTotal) => el("tr", { style: isTotal ? "font-weight:700" : "" }, [
-    el("td", { class: "txt" }, isTotal ? "合計" : secBadge(r.section)),
+  const rowFor = (r, isTotal) => el("tr", { class: isTotal ? "tot" : "" }, [
+    el("td", {}, isTotal ? "合計" : el("b", { text: r.section.label })),
     el("td", { text: num(r.avgOut) }),
     el("td", { text: yen(r.avgSalesDay) }),
     el("td", { text: yen(r.avgGrossDay) }),
-    el("td", { text: r.grossRate == null ? "—" : pct(r.grossRate) }),
     el("td", { text: dec(r.coinPrice, 2) }),
     el("td", { text: dec(r.coinGross, 3) }),
-    paceCell(r.paceGross),
   ]);
-  for (const r of agg.perSection) body.appendChild(rowFor(null, r, false));
-  body.appendChild(rowFor(null, t, true));
+  for (const r of agg.perSection) body.appendChild(rowFor(r, false));
+  body.appendChild(rowFor(t, true));
   table.appendChild(body);
-  wrap.appendChild(el("div", { class: "table-wrap" }, table));
-  wrap.appendChild(el("p", { class: "hint", text: "進捗ペース＝実績 ÷ 計画（実績のある経過日数分）。100%以上＝順調、90%未満＝計画に対して不足ペース。" }));
+  wrap.appendChild(el("div", { class: "card", style: "padding:0;overflow:hidden" }, el("div", { class: "table-wrap" }, table)));
   return wrap;
 }
 
-function paceCell(r) {
-  if (r == null) return el("td", { text: "—" });
-  const hex = achieveHex(r), label = r >= 1 ? "順調" : r >= 0.9 ? "やや遅れ" : "未達ペース";
-  return el("td", { style: `background:${tint(hex, 0.16)};color:${hex};font-weight:700` }, `${pct(r)}  ${label}`);
-}
 
 const achieveHex = (r) => (r == null ? "#8a91a3" : r >= 1 ? "#43b483" : r >= 0.9 ? "#e0a52e" : "#e35d6a");
 const achieveColor = (r) => (r == null ? "" : "color:" + achieveHex(r) + ";font-weight:600");
-const achieveLabel = (r) => (r == null ? "" : r >= 1 ? "達成" : r >= 0.9 ? "あと一歩" : "未達");

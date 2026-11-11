@@ -173,7 +173,7 @@ export function sumMonths(rows, keep) {
 // 会計年度集計。monthMaps(month)->maps を受け取り12ヶ月を合算＋月次系列。
 export function fyAggregate(sections, fy, monthMaps) {
   const months = fiscalMonths();
-  const zero = () => ({ plan: { sales: 0, gross: 0, outTotal: 0 }, actual: { sales: 0, gross: 0, outTotal: 0 }, landing: { sales: 0, gross: 0 } });
+  const zero = () => ({ plan: { sales: 0, gross: 0, outTotal: 0 }, actual: { sales: 0, gross: 0, outTotal: 0 }, landing: { sales: 0, gross: 0 }, planElapsed: { sales: 0, gross: 0 }, actualDays: 0 });
   const perMap = new Map(sections.map((s) => [s.id, { section: s, ...zero() }]));
   const total = zero();
   const series = [];
@@ -183,13 +183,22 @@ export function fyAggregate(sections, fy, monthMaps) {
     const agg = monthAggregate(sections, cy, m, maps);
     for (const r of agg.perSection) {
       const acc = perMap.get(r.section.id);
-      for (const g of ["plan", "actual", "landing"]) for (const k of Object.keys(acc[g])) acc[g][k] += r[g][k];
+      for (const g of ["plan", "actual", "landing", "planElapsed"]) for (const k of Object.keys(acc[g])) acc[g][k] += r[g][k];
+      acc.actualDays += r.actualDays;
     }
-    for (const g of ["plan", "actual", "landing"]) for (const k of Object.keys(total[g])) total[g][k] += agg.total[g][k];
+    for (const g of ["plan", "actual", "landing", "planElapsed"]) for (const k of Object.keys(total[g])) total[g][k] += agg.total[g][k];
+    total.actualDays += agg.total.actualDays;
     // 実績のない月は null（0だとグラフが0まで落ちて未経過月が「大幅未達」に見える）
     series.push({ label: `${m}月`, plan: agg.total.plan.gross, actual: agg.total.actualDays ? agg.total.actual.gross : null });
   }
-  const finish = (a) => { a.achieveGross = a.plan.gross ? a.actual.gross / a.plan.gross : null; a.achieveSales = a.plan.sales ? a.actual.sales / a.plan.sales : null; return a; };
+  const finish = (a) => {
+    a.achieveGross = a.plan.gross ? a.actual.gross / a.plan.gross : null; a.achieveSales = a.plan.sales ? a.actual.sales / a.plan.sales : null;
+    // 計画比は月と同じく、実績のある日の計画と比べる（年度の途中で12か月ぶんの計画と比べない）
+    a.paceGross = a.planElapsed.gross ? a.actual.gross / a.planElapsed.gross : null;
+    a.paceSales = a.planElapsed.sales ? a.actual.sales / a.planElapsed.sales : null;
+    a.grossRate = a.actual.sales ? a.actual.gross / a.actual.sales : null;
+    return a;
+  };
   const perSection = [...perMap.values()].map(finish);
   finish(total);
   return { perSection, total, series };
