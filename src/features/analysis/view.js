@@ -1,7 +1,8 @@
 import { el, clear } from "../../util/dom.js";
 import { state, loadSections } from "../../core/state.js";
 import { num, pct } from "../../util/format.js";
-import { heatColor, heatPoint, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
+import { sectionColor } from "../../util/colors.js";
+import { heatColor, minMaxByGroup, groupRange, heatText } from "../../calc/heat.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
 import { printContent } from "../../print/printService.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
@@ -16,16 +17,35 @@ const zoomSt = { zoom: null, pan: null };
 // ヒートの比較単位＝レート。台番号レンジで判定し、範囲外の台のみ取込時の区分で補う。
 const rateOf = (r) => rateKeyOfDai(r.dai_no) || r.sec.key;
 
-// ランク（金🥇≥14 / 銀🥈≥12 / 銅🥉≥10）。点数は非表示、メダルのみ。
-// ヒートは平均が真ん中(3pt)なので、3指標とも平均ちょうどの台は9pt。
-// 銅を10ptからにして「銅＝平均を超えた台」に揃えている（平均並みは無印）。
-const RANKS = [[14, "🥇"], [12, "🥈"], [10, "🥉"]];
-function rankOf(pts) { for (const r of RANKS) if (pts >= r[0]) return r; return null; }
-function rankCell(pts) {
-  const r = rankOf(pts);
-  // メダルが大きいと行の高さがそれに引っ張られるので控えめにする
-  return el("td", { style: "text-align:center;font-size:15px", title: `${pts}pt` }, r ? r[1] : "");
+// ランク A〜E。同じレートの中で台を並べ、上位10%＝A／10〜30%＝B／30〜70%＝C／70〜90%＝D／下位10%＝E。
+// 並べる点数は、アウト・玉単価・台粗利それぞれが「そのレートの中で何%の位置か」を平均したもの。
+// 以前のメダル（ヒート1〜5ptの合計）は同点が多く、上位何%という区切りにできなかった。
+const RANKS = [[10, "A", "#e5484d"], [30, "B", "#f08c00"], [70, "C", "#d4a600"], [90, "D", "#1f9d70"], [100, "E", "#2f6fde"]];
+const rankOf = (topPct) => RANKS.find(([lim]) => topPct <= lim) || RANKS[RANKS.length - 1];
+function rankCell(r) {
+  if (r.topPct == null) return el("td", { text: "—" });
+  const [, letter, color] = rankOf(r.topPct);
+  return el("td", { class: "an-rank" },
+    el("span", { class: "an-rank-box", style: `color:${color};border-color:${color}`, title: `レート内 上位${Math.round(r.topPct)}%`, text: letter }));
 }
+
+// そのレートの中で、値が小さいほうから何割の位置か（0〜1。同じ値は真ん中を取る）。
+// 値の無い台はいちばん下に置く。
+function percentiles(items, valueOf) {
+  const out = new Map();
+  const vals = items.map((it) => valueOf(it)).filter((v) => v != null && !isNaN(v)).sort((a, b) => a - b);
+  for (const it of items) {
+    const v = valueOf(it);
+    if (v == null || isNaN(v) || !vals.length) { out.set(it, 0); continue; }
+    let lo = 0, hi = vals.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (vals[m] < v) lo = m + 1; else hi = m; }
+    let eq = lo; while (eq < vals.length && vals[eq] === v) eq++;
+    out.set(it, (lo + (eq - lo) / 2) / vals.length);
+  }
+  return out;
+}
+// 区分の目印。色の四角に数字（予実タブと同じ）
+const secNum = (sec) => { const m = String(sec?.label || "").match(/\d+(\.\d+)?/); return m ? m[0] : String(sec?.label || "?").slice(0, 2); };
 
 export async function mount(host) {
   await loadSections();
@@ -50,8 +70,9 @@ export async function mount(host) {
   host.appendChild(ctrl);
 
   host.appendChild(el("div", { class: "hint", style: "margin:-4px 0 10px", html:
-    'ランク＝アウト/玉単価/台粗利のヒート合計(各1〜5pt)。' +
-    '🥇 14pt以上 ／ 🥈 12pt以上 ／ 🥉 10pt以上＝平均超え（ランク列クリックで並べ替え）<br>' +
+    'ランク＝同じレートの中での順位（アウト・玉単価・台粗利の位置の平均）。' +
+    '<b style="color:#e5484d">A</b> 上位10%／<b style="color:#f08c00">B</b> 10〜30%／<b style="color:#d4a600">C</b> 30〜70%／' +
+    '<b style="color:#1f9d70">D</b> 70〜90%／<b style="color:#2f6fde">E</b> 下位10%（ランク列クリックで並べ替え）<br>' +
     '色・ランクは<b>同じレート（20スロ/5スロ/2スロ）の中での高い/低い</b>で判定し、' +
     '<b>真ん中の色＝そのレートの平均</b>です（セルにカーソルを乗せると平均値を表示）。' }));
 
@@ -80,11 +101,14 @@ export async function mount(host) {
       coin: minMaxByGroup(list, rateOf, (r) => r.coin),
       gross: minMaxByGroup(list, rateOf, (r) => r.gross),
     };
-    for (const r of list) {
-      r.pOut = heatPoint(r.out, groupRange(heat.out, rateOf(r)));
-      r.pCoin = heatPoint(r.coin, groupRange(heat.coin, rateOf(r)));
-      r.pGross = heatPoint(r.gross, groupRange(heat.gross, rateOf(r)));
-      r.points = r.pOut + r.pCoin + r.pGross;
+    // ランクは全区分を表示していても「同じレートの中」で決める（低貸と20スロを同じ物差しで比べない）
+    const byRate = new Map();
+    for (const r of list) { const k = rateOf(r); if (!byRate.has(k)) byRate.set(k, []); byRate.get(k).push(r); }
+    for (const items of byRate.values()) {
+      const po = percentiles(items, (r) => r.out), pc = percentiles(items, (r) => r.coin), pg = percentiles(items, (r) => r.gross);
+      for (const r of items) r.score = (po.get(r) + pc.get(r) + pg.get(r)) / 3;
+      const sorted = [...items].sort((a, b) => b.score - a.score);
+      sorted.forEach((r, i) => { r.topPct = ((i + 1) / sorted.length) * 100; });
     }
     list.sort((a, b) => ((a[sortCol] ?? -Infinity) - (b[sortCol] ?? -Infinity)) * sortDir);
     return { list, heat };
@@ -121,14 +145,14 @@ export async function mount(host) {
     // 変わって見比べにくかった。全区分でも各レートでも同じ幅になる。
     const cols = [
       // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
-      // バッジが71px必要。どの列もこれを下回ると見出しか中身が切れる。
-      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 300], ["secLabel", "区分", "", 74],
+      // 区分は色の四角（32px）だけなので56pxで足りる。どの列もこれを下回ると見出しか中身が切れる。
+      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 300], ["secLabel", "区分", "", 56],
       ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 56], ["gross", "台粗利", "heat", 76],
-      ["rate", "利益率", "", 62], ["points", "ランク", "", 56],
+      ["rate", "利益率", "", 62], ["score", "ランク", "", 60],
     ];
     const totalW = cols.reduce((a, c) => a + c[3], 0);
     // compact: スマホは余白と見出しを詰めて1行を低くする（拡大して読む前提）
-    const t = el("table", { class: "grid mono" + (mobile ? " compact" : ""),
+    const t = el("table", { class: "grid mono an-table" + (mobile ? " compact" : ""),
       style: `table-layout:fixed;width:${mobile ? totalW + "px" : "100%"}` });
     t.appendChild(el("colgroup", {}, cols.map(([, , , w]) => el("col", { style: `width:${w}px` }))));
     // 並べ替えの矢印は小さく添える。見出しと同じ大きさだと、その幅ぶん
@@ -145,7 +169,9 @@ export async function mount(host) {
       const heatCell = (key) => {
         const g = groupRange(heat[key], rateOf(r));
         const c = heatColor(r[key], g);
-        return el("td", { style: `background:${c};color:${heatText(c)}`, title: `区分平均 ${fmt(key, g.avg)}`, text: fmt(key, r[key]) });
+        // 色は内側の箱に塗って角を丸める（セルに塗ると表の線で四角く区切られる）
+        return el("td", { class: "an-heat", title: `区分平均 ${fmt(key, g.avg)}` },
+          el("span", { style: `background:${c};color:${heatText(c)}`, text: fmt(key, r[key]) }));
       };
       tb.appendChild(el("tr", {}, [
         el("td", { text: num(r.dai_no) }),
@@ -154,10 +180,10 @@ export async function mount(host) {
         // 短くするのは島図（マスが狭い）だけ。幅に収まらない分は末尾を省略し、全文はカーソルで出る。
         el("td", { class: "txt", style: "white-space:nowrap;overflow:hidden;text-overflow:ellipsis",
           title: r.model, text: r.model }),
-        el("td", {}, el("span", { class: "badge " + r.sec.ptype.toLowerCase(), style: "white-space:nowrap", text: r.sec.label })),
+        el("td", { class: "an-sec" }, el("span", { class: "an-sec-sq", style: `background:${sectionColor(r.sec)}`, title: r.sec.label, text: secNum(r.sec) })),
         heatCell("out"), heatCell("coin"), heatCell("gross"),
         el("td", { text: r.rate == null ? "—" : pct(r.rate) }),
-        rankCell(r.points),
+        rankCell(r),
       ]));
     }
     t.appendChild(tb);
