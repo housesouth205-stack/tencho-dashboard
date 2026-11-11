@@ -128,6 +128,10 @@ export async function mount(host) {
 const MC = { sales: "#4f8ff7", gross: "#2fb888", target: "#f0a12e", land: "#a56cf0" };
 const GC = { plan: "#6b7f9e", actual: "#1f9d70", prev: "#8a91a3" };
 
+// 区分は色の四角に数字だけ（20・5・2）。「20スロ」と書くと横に場所を取り、並べたとき読みにくい。
+// 色はバー・グラフと同じ sectionColor なので、四角の色と数字で区分が分かる。
+const secKey = (sec) => { const m = String(sec?.label || "").match(/\d+(\.\d+)?/); return m ? m[0] : String(sec?.label || "?").slice(0, 2); };
+const secChip = (sec) => el("span", { class: "sec-chip", style: `background:${sectionColor(sec)}`, title: sec?.label || "", text: secKey(sec) });
 const secBadge = (sec) => { const c = sectionColor(sec); return el("span", { class: "badge", style: `background:${tint(c, 0.16)};color:${c};font-weight:700`, text: sec.label }); };
 const dec = (v, d = 2) => (v == null || isNaN(v) ? "—" : Number(v).toFixed(d));
 
@@ -218,21 +222,36 @@ function kpiRow(t, opts) {
   const goal = !t.plan.gross
     ? kpiCard(goalLabel, "計画なし", "var(--fg-dim)", [])
     : need > 0
-      ? kpiCard(goalLabel, `あと ${man(need)}`, null, [
-        perDay != null ? cmp("1日あたり", man(perDay), t.avgGrossDay != null && perDay > t.avgGrossDay ? "down" : "") : null,
-        remain != null ? cmp("残り", `${remain}日`) : null,
-        cmp("着地見込", man(t.landing.gross)),
-      ])
+      ? (() => {
+        // 「残り」は小さく、金額を主役に。着地見込みは同じ行の後ろに置き、残りと見比べられるようにする
+        const c = kpiCard(goalLabel, "", null, [
+          perDay != null ? cmp("1日あたり", man(perDay), t.avgGrossDay != null && perDay > t.avgGrossDay ? "down" : "") : null,
+          remain != null ? cmp("あと", `${remain}日`) : null,
+        ]);
+        c.classList.add("goal");
+        c.querySelector(".kpi-num").replaceChildren(
+          el("span", { class: "kpi-pre", text: "残り" }), man(need),
+          el("span", { class: "kpi-post" }, ["着地見込 ", el("b", { text: man(t.landing.gross) })]),
+        );
+        return c;
+      })()
       : kpiCard(goalLabel, `達成 +${man(-need)}`, "#1f9d70", [cmp("着地見込", man(t.landing.gross))]);
 
   const none = !elapsed;
   return el("div", { class: "kpis" }, [
     kpiCard("売上（実績）", none ? "—" : yen(t.actual.sales), MC.sales, [vs(t.paceSales), prevCmp(yo("sales"))]),
     kpiCard("粗利（実績）", none ? "—" : yen(t.actual.gross), MC.gross, [vs(t.paceGross), prevCmp(yo("gross"))]),
-    kpiCard("粗利率", actualRate == null ? "—" : pct(actualRate), null, [
-      planRate == null ? null : cmp("計画", pct(planRate)),
-      prevRate == null ? null : cmp("前年", pct(prevRate)),
-    ]),
+    (() => {
+      const c = kpiCard("粗利率", actualRate == null ? "—" : pct(actualRate), null, [
+        planRate == null ? null : cmp("計画", pct(planRate)),
+        prevRate == null ? null : cmp("前年", pct(prevRate)),
+      ]);
+      // 区分ごとの粗利率。店全体の率だけだと、どのレートが引っ張っているか分からない
+      c.appendChild(el("div", { class: "kpi-secs" }, (opts.perSection || []).map((r) => el("span", {}, [
+        secChip(r.section), el("b", { text: r.grossRate == null ? "—" : pct(r.grossRate) }),
+      ]))));
+      return c;
+    })(),
     goal,
   ]);
 }
@@ -256,13 +275,10 @@ function progressCard(agg, t, opts) {
   const full = Math.max(plan, sumActual);
   const w = (v) => `${Math.max(0, v) / full * 100}%`;
   const bar = el("div", { class: "prog-bar" }, [
-    ...secs.filter((r) => r.actual.gross > 0).map((r) => {
-      const share = r.actual.gross / full;
-      // 細い区間には文字を入れない（はみ出して隣に重なる）。数字はバーの下にある
-      const text = share > 0.14 ? `${r.section.label} ${man(r.actual.gross)}` : share > 0.055 ? man(r.actual.gross) : "";
-      return el("span", { style: `width:${w(r.actual.gross)};background:${sectionColor(r.section)}`, title: `${r.section.label} ${yen(r.actual.gross)}`, text });
-    }),
-    plan > sumActual ? el("span", { class: "rest", text: `残り ${man(plan - sumActual)}` }) : null,
+    // バーの中には数字を入れない。区分は色で分かり、数字は下と上の枠に出ている（二重に書くと読む所が増える）
+    ...secs.filter((r) => r.actual.gross > 0).map((r) =>
+      el("span", { style: `width:${w(r.actual.gross)};background:${sectionColor(r.section)}`, title: `${r.section.label} ${yen(r.actual.gross)}` })),
+    plan > sumActual ? el("span", { class: "rest" }) : null,
   ].filter(Boolean));
   const paceAt = t.planElapsed?.gross ? Math.min(t.planElapsed.gross / full, 1) : null;
   // 期間の終わり（線が右端）では線を出さない。バーの端と重なって意味が無い
@@ -272,7 +288,7 @@ function progressCard(agg, t, opts) {
     el("div", { class: "prog-head" }, [
       el("h2", { text: `粗利の進み具合（${scope} ${man(plan)} に対して）` }),
       el("div", { class: "prog-legend" }, [
-        ...secs.map((r) => el("span", {}, [el("i", { style: `background:${sectionColor(r.section)}` }), r.section.label])),
+        ...secs.map((r) => el("span", {}, [secChip(r.section), r.section.label])),
         el("span", {}, [el("i", { style: "background:#e6ebf3" }), "計画の残り"]),
       ]),
     ]),
@@ -283,7 +299,7 @@ function progressCard(agg, t, opts) {
       el("span", { text: `計画 ${man(plan)}` }),
     ]),
     el("div", { class: "prog-secs" }, secs.map((r) => el("div", { class: "prog-sec", style: `border-color:${sectionColor(r.section)}` }, [
-      el("span", { class: "nm", text: r.section.label }),
+      secChip(r.section),
       el("b", { text: man(r.actual.gross) }),
       el("span", { class: "of", text: `/ ${man(r.plan.gross)}` }),
       r.paceGross == null ? null : el("span", { class: "rate " + rateCls(r.paceGross), title: "実績のある日の計画に対する比", text: `計画比 ${pct(r.paceGross)}` }),
@@ -294,7 +310,7 @@ function progressCard(agg, t, opts) {
 function renderSummary(host, agg, series, showAverages, opts = {}) {
   clear(host);
   const t = agg.total;
-  host.appendChild(kpiRow(t, opts));
+  host.appendChild(kpiRow(t, { ...opts, perSection: agg.perSection }));
   host.appendChild(progressCard(agg, t, opts));
   // 昨年の内訳（アウト/台・営業日数など）は要点の枠に入りきらないので、ここに残す
   if (opts.prev) host.appendChild(prevPanel(opts.prev));
@@ -401,7 +417,7 @@ function sectionTable(agg, t) {
   ])));
   const body = el("tbody");
   const dataRow = (r, isTotal) => el("tr", { class: isTotal ? "tot" : "" }, [
-    el("td", {}, isTotal ? "合計" : el("b", { text: r.section.label })),
+    el("td", {}, isTotal ? "合計" : secChip(r.section)),
     el("td", { text: yen(r.plan.sales) }),
     el("td", { text: r.actualDays ? yen(r.actual.sales) : "—" }),
     el("td", { text: yen(r.plan.gross) }),
@@ -429,7 +445,7 @@ function averagesTable(agg, t) {
   table.appendChild(el("thead", {}, el("tr", {}, ["区分", "平均アウト", "日平均売上", "日平均粗利", "玉単価", "玉粗利"].map((h) => el("th", { text: h })))));
   const body = el("tbody");
   const rowFor = (r, isTotal) => el("tr", { class: isTotal ? "tot" : "" }, [
-    el("td", {}, isTotal ? "合計" : el("b", { text: r.section.label })),
+    el("td", {}, isTotal ? "合計" : secChip(r.section)),
     el("td", { text: num(r.avgOut) }),
     el("td", { text: yen(r.avgSalesDay) }),
     el("td", { text: yen(r.avgGrossDay) }),
