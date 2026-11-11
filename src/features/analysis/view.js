@@ -83,6 +83,14 @@ export async function mount(host) {
     return;
   }
   const rows = await loadSnapshotRows(period.id);
+  // 機種名の列の幅を、店の全台の機種名のうちいちばん長いものに合わせる（表の文字で測る）
+  const longestName = (() => {
+    try {
+      const c = document.createElement("canvas").getContext("2d");
+      c.font = `${getComputedStyle(document.body).fontSize} ${getComputedStyle(document.body).fontFamily}`;
+      return Math.max(0, ...rows.map((r) => c.measureText(String(r.model_name || "")).width));
+    } catch { return 300; }
+  })();
 
   const ctrl = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px" });
   const chip = (key, label) => el("button", { class: "btn sm " + (filterKey === key ? "on" : "ghost"), text: label, onclick: () => { filterKey = key; render(); } });
@@ -179,20 +187,22 @@ export async function mount(host) {
 
   function buildTable(list, heat, mobile, grouped = false) {
     const byModel = filterKey === "MODEL";
-    // 列幅は固定。中身に合わせると、区分を切り替えるたびに台番号や機種名の幅が
-    // 変わって見比べにくかった。全区分でも各レートでも同じ幅になる。
+    // 機種名の列は、店でいちばん長い機種名の幅にする（画面いっぱいに広げると、名前の終わりから
+    // 数字まで大きく空いて、どの数字がどの機種か目で追いにくかった）。表は左に寄せる。
+    // 今表示している機種ではなく店の全台で測るので、区分を切り替えても列の幅は変わらない。
+    const nameW = Math.min(420, Math.max(160, longestName + 24));
     const cols = [
       // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
       // 区分は色の四角（32px）だけなので56pxで足りる。どの列もこれを下回ると見出しか中身が切れる。
-      byModel ? ["count", "台数", "", 60] : ["dai_no", "台番号", "", 60],
-      ["model", "機種名", "txt", 300], ["secKey", "区分", "", 56],
-      ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 56], ["gross", "台粗利", "heat", 76],
+      byModel ? ["count", "台数", "", 76] : ["dai_no", "台番号", "", 76],
+      ["model", "機種名", "txt", nameW], ["secKey", "区分", "", 56],
+      ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 76], ["gross", "台粗利", "heat", 76],
       ["rate", "利益率", "", 62], ["score", "ランク", "", 60],
     ];
     const totalW = cols.reduce((a, c) => a + c[3], 0);
     // compact: スマホは余白と見出しを詰めて1行を低くする（拡大して読む前提）
     const t = el("table", { class: "grid mono an-table" + (mobile ? " compact" : ""),
-      style: `table-layout:fixed;width:${mobile ? totalW + "px" : "100%"}` });
+      style: `table-layout:fixed;width:${totalW}px` });
     t.appendChild(el("colgroup", {}, cols.map(([, , , w]) => el("col", { style: `width:${w}px` }))));
     // 並べ替えの矢印は小さく添える。見出しと同じ大きさだと、その幅ぶん
     // 列を広げないと切れてしまい、ランクなど短い列を詰められなかった。
@@ -202,11 +212,11 @@ export async function mount(host) {
         sortCol === key ? el("span", { style: "font-size:9px;margin-left:1px", text: sortDir < 0 ? "▼" : "▲" }) : null,
       ])))));
     const tb = el("tbody");
-    let curRate = null;
+    let curRate = null, zi = 0;
     for (const r of list) {
       // レートが変わる所に見出しの行を挟む（どこからが5スロかを線と色で分ける）
       if (grouped && rateOf(r) !== curRate) {
-        curRate = rateOf(r);
+        curRate = rateOf(r); zi = 0;
         const n = list.filter((x) => rateOf(x) === curRate).length;
         tb.appendChild(el("tr", { class: "an-group" }, el("td", { colspan: cols.length },
           el("span", { class: "an-group-in", style: `border-color:${sectionColor(r.sec)}` }, [
@@ -223,7 +233,8 @@ export async function mount(host) {
         return el("td", { class: "an-heat", title: `区分平均 ${fmt(key, g.avg)}` },
           el("span", { style: `background:${c};color:${heatText(c)}`, text: fmt(key, r[key]) }));
       };
-      tb.appendChild(el("tr", {}, [
+      // 1行おきに薄い帯。名前と数字の行を目でたどりやすくする（レートの見出しごとに数え直す）
+      tb.appendChild(el("tr", { class: zi++ % 2 ? "" : "z" }, [
         el("td", { text: byModel ? `${r.count}台` : num(r.dai_no) }),
         // 機種名は出玉率タブと同じくCSVのままのフルネームで出す。頭の「L」「S」などを
         // 落とすと、出玉率タブや本部資料の機種名と並べたとき同じ機種か見分けにくい。
