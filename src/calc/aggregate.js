@@ -69,14 +69,15 @@ export function monthDailySeries(sections, year, month, maps) {
   const out = [];
   for (let d = 1; d <= days; d++) {
     let pg = 0, ag = 0, hasA = false;
+    const bySec = {}; // 区分ごとの実績粗利（積み上げ棒用）。実績の無い区分は入れない
     for (const s of sections) {
       const k = key(ymd(year, month, d), s.id);
       const count = maps.machines.get(k)?.count;
       pg += planCalc(maps.plan.get(k), count).gross;
       const aRow = maps.actual.get(k);
-      if (hasActual(aRow)) { ag += actualCalc(aRow, count).gross; hasA = true; }
+      if (hasActual(aRow)) { const g = actualCalc(aRow, count).gross; ag += g; bySec[s.id] = g; hasA = true; }
     }
-    out.push({ label: String(d), plan: pg, actual: hasA ? ag : null });
+    out.push({ label: String(d), plan: pg, actual: hasA ? ag : null, bySec });
   }
   return out;
 }
@@ -189,7 +190,8 @@ export function fyAggregate(sections, fy, monthMaps) {
     for (const g of ["plan", "actual", "landing", "planElapsed"]) for (const k of Object.keys(total[g])) total[g][k] += agg.total[g][k];
     total.actualDays += agg.total.actualDays;
     // 実績のない月は null（0だとグラフが0まで落ちて未経過月が「大幅未達」に見える）
-    series.push({ label: `${m}月`, plan: agg.total.plan.gross, actual: agg.total.actualDays ? agg.total.actual.gross : null });
+    series.push({ label: `${m}月`, plan: agg.total.plan.gross, actual: agg.total.actualDays ? agg.total.actual.gross : null,
+      bySec: Object.fromEntries(agg.perSection.filter((r) => r.actualDays).map((r) => [r.section.id, r.actual.gross])) });
   }
   const finish = (a) => {
     a.achieveGross = a.plan.gross ? a.actual.gross / a.plan.gross : null; a.achieveSales = a.plan.sales ? a.actual.sales / a.plan.sales : null;

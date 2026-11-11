@@ -10,7 +10,7 @@ import { renderDayCalendar } from "./dayCalendar.js";
 import { openBudgetInput } from "./budgetInput.js";
 import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
-import { cumLine, diffBars, dailyBars, cumCompare } from "./charts.js";
+import { cushionChart, stackedDaily, dailyBars, cumCompare } from "./charts.js";
 import { renderDailyDetail } from "./dailyTable.js";
 
 let month = new Date().getMonth() + 1;
@@ -314,14 +314,13 @@ function renderSummary(host, agg, series, showAverages, opts = {}) {
   host.appendChild(progressCard(agg, t, opts));
   // 昨年の内訳（アウト/台・営業日数など）は要点の枠に入りきらないので、ここに残す
   if (opts.prev) host.appendChild(prevPanel(opts.prev));
-  // 推移は2段構え。上=累計で「このままで届くか」、下=日別の過不足で「どこで落としたか」。
+  // 推移は2つ。左＝計画との差の累計で「今いくら貯金（借金）があるか」、右＝日別の実績を区分の色で
+  // 積んで「その日届いたか・どのレートが稼いだか」。以前の「累計の2本線」と「日別の過不足」は
+  // どちらも計画との差を別の形で見せていて、区分の内訳はどちらにも出ていなかった。
   const unit = gran === "year" ? "月" : "日";
-  // 2つのグラフは左右に並べる。横幅いっぱいに1つずつだと、横長に引き伸ばされて文字だけ大きくなり、
-  // 縦も2枚ぶん長くなっていた（広い画面のときだけ。狭い画面は今までどおり上下）
   host.appendChild(el("div", { class: "yj-pair" }, [
-    // 見出しは1行に収まる長さにする。点線の意味は凡例の「着地見込み（点線）」に出ている
-    cumLine(series, { title: "粗利の累計 予実" }),
-    diffBars(series, { title: `${unit}別の過不足（実績−計画・粗利）` }),
+    cushionChart(series, { title: `計画との差の累計（粗利）`, unit }),
+    stackedDaily(series, agg.perSection.map((r) => r.section), sectionColor, { title: `${unit}別の粗利（区分の色で積み上げ・横線＝計画）`, unit }),
   ]));
 
   // 年度モードの前年比較。過去と比べるのは売上（粗利は釘・設定の判断がそのまま出て
