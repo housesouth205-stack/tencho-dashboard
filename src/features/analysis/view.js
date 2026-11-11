@@ -15,7 +15,7 @@ let sortDir = 1;
 const zoomSt = { zoom: null, pan: null };
 
 // ヒートの比較単位＝レート。台番号レンジで判定し、範囲外の台のみ取込時の区分で補う。
-const rateOf = (r) => rateKeyOfDai(r.dai_no) || r.sec.key;
+const rateOf = (r) => r.rateKey || rateKeyOfDai(r.dai_no) || r.sec.key;
 
 // ランク A〜E。同じレートの中で台を並べ、上位10%＝A／10〜30%＝B／30〜70%＝C／70〜90%＝D／下位10%＝E。
 // 並べる点数は、アウト・玉単価・台粗利それぞれが「そのレートの中で何%の位置か」を平均したもの。
@@ -44,6 +44,29 @@ function percentiles(items, valueOf) {
   }
   return out;
 }
+// 機種平均。同じ機種・同じレートの台をまとめる（同じ機種でもレートが違えば別の行。桁が違うので混ぜない）。
+// アウト・台粗利は台の平均、玉単価と利益率は合計どうしの割り算（台ごとの率を平均すると、
+// アウトの少ない台の率に引っ張られる）。並べ替え用の台番は、その機種のいちばん若い台番。
+function modelAverages(units) {
+  const groups = new Map();
+  for (const u of units) {
+    const k = rateOf(u) + "|" + u.model;
+    if (!groups.has(k)) groups.set(k, { model: u.model, sec: u.sec, rateKey: rateOf(u), dai_no: u.dai_no, count: 0, out: 0, gross: 0, sales: 0, nOut: 0, nGross: 0 });
+    const g = groups.get(k);
+    g.count++; g.dai_no = Math.min(g.dai_no, u.dai_no);
+    if (u.out != null) { g.out += u.out; g.nOut++; }
+    if (u.gross != null) { g.gross += u.gross; g.nGross++; }
+    g.sales += u.sales || 0;
+  }
+  return [...groups.values()].map((g) => ({
+    dai_no: g.dai_no, model: g.model, sec: g.sec, secKey: g.sec.sort_order, count: g.count, rateKey: g.rateKey,
+    out: g.nOut ? Math.round(g.out / g.nOut) : null,
+    gross: g.nGross ? Math.round(g.gross / g.nGross) : null,
+    coin: g.out ? +(g.sales / g.out).toFixed(3) : null,
+    rate: g.sales ? g.gross / g.sales : null,
+  }));
+}
+
 // 区分の目印。色の四角に数字（予実タブと同じ）
 const secNum = (sec) => { const m = String(sec?.label || "").match(/\d+(\.\d+)?/); return m ? m[0] : String(sec?.label || "?").slice(0, 2); };
 
@@ -62,9 +85,11 @@ export async function mount(host) {
   const rows = await loadSnapshotRows(period.id);
 
   const ctrl = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px" });
-  const chip = (key, label) => el("button", { class: "btn sm " + (filterKey === key ? "primary" : "ghost"), text: label, onclick: () => { filterKey = key; render(); } });
+  const chip = (key, label) => el("button", { class: "btn sm " + (filterKey === key ? "on" : "ghost"), text: label, onclick: () => { filterKey = key; render(); } });
   ctrl.appendChild(chip("ALL", "全区分"));
   for (const s of state.sections) ctrl.appendChild(chip(s.key, s.label));
+  // 同じ機種の台をまとめた平均。機種の入替・増減台を考えるときは台ごとより機種ごとで見たい
+  ctrl.appendChild(chip("MODEL", "機種平均"));
   ctrl.appendChild(el("div", { class: "grow" }));
   ctrl.appendChild(el("button", { class: "btn sm", text: "🖨 印刷", onclick: doPrint }));
   host.appendChild(ctrl);
@@ -85,15 +110,16 @@ export async function mount(host) {
     for (const r of rows) {
       const sec = secById.get(r.section_id);
       if (!sec) continue;
-      if (filterKey !== "ALL" && sec.key !== filterKey) continue;
+      if (filterKey !== "ALL" && filterKey !== "MODEL" && sec.key !== filterKey) continue;
       list.push({
-        dai_no: r.dai_no, model: r.model_name, sec,
-        out: r.out_val, gross: r.gross,
+        dai_no: r.dai_no, model: r.model_name, sec, secKey: sec.sort_order,
+        out: r.out_val, gross: r.gross, sales: r.sales,
         // 玉単価＝台売上 ÷ アウト。シミュレーターと同じ出し方にそろえている。
         coin: r.out_val ? +(r.sales / r.out_val).toFixed(3) : null,
         rate: r.sales ? r.gross / r.sales : null,
       });
     }
+    if (filterKey === "MODEL") list.splice(0, list.length, ...modelAverages(list));
     // ヒートの基準は区分（レート）ごと。全区分をまとめると桁の大きい低貸に引っ張られ、
     // 20スロが一律で低く見えてしまうため、色もランクも「同じ区分の中での高低」で決める。
     const heat = {
@@ -110,17 +136,28 @@ export async function mount(host) {
       const sorted = [...items].sort((a, b) => b.score - a.score);
       sorted.forEach((r, i) => { r.topPct = ((i + 1) / sorted.length) * 100; });
     }
-    list.sort((a, b) => ((a[sortCol] ?? -Infinity) - (b[sortCol] ?? -Infinity)) * sortDir);
-    return { list, heat };
+    const cmp = (a, b) => {
+      const x = a[sortCol], y = b[sortCol];
+      // 機種名は文字なので引き算では並ばない（以前は機種名の見出しを押しても順番が変わらなかった）
+      if (typeof x === "string" || typeof y === "string") return String(x ?? "").localeCompare(String(y ?? ""), "ja") * sortDir;
+      return ((x ?? -Infinity) - (y ?? -Infinity)) * sortDir;
+    };
+    // 全区分・機種平均はレートごとにまとめて並べる（混ぜると、レートの違う台が交互に出て見比べにくい）
+    const grouped = filterKey === "ALL" || filterKey === "MODEL";
+    const order = new Map(state.sections.map((s, i) => [s.key, i]));
+    list.sort((a, b) => (grouped ? (order.get(rateOf(a)) ?? 99) - (order.get(rateOf(b)) ?? 99) : 0) || cmp(a, b));
+    return { list, heat, grouped };
   }
 
   function render() {
-    for (const b of ctrl.querySelectorAll(".btn.sm")) if (["全区分", ...state.sections.map((s) => s.label)].includes(b.textContent))
-      b.className = "btn sm " + ((b.textContent === "全区分" ? "ALL" : state.sections.find((s) => s.label === b.textContent)?.key) === filterKey ? "primary" : "ghost");
+    // 選択中の切替は薄い青（.on）。主ボタンと同じ濃い青だと、押す先と今の状態の区別がつかない
+    const keyOfBtn = (t) => (t === "全区分" ? "ALL" : t === "機種平均" ? "MODEL" : state.sections.find((s) => s.label === t)?.key);
+    for (const b of ctrl.querySelectorAll(".btn.sm")) if (keyOfBtn(b.textContent))
+      b.className = "btn sm " + (keyOfBtn(b.textContent) === filterKey ? "on" : "ghost");
     clear(tableHost);
-    const { list, heat } = aggregate();
+    const { list, heat, grouped } = aggregate();
     const mobile = window.matchMedia("(max-width: 700px)").matches;
-    const table = buildTable(list, heat, mobile);
+    const table = buildTable(list, heat, mobile, grouped);
     if (!mobile) { tableHost.appendChild(el("div", { class: "table-wrap" }, table)); return; }
     // スマホは横スクロールをやめ、全体を縮めて表示する。細かい数字は指で拡大して読む。
     // 島図と同じ操作にそろえてある（並べ替えの見出しタップもそのまま効く）。
@@ -140,13 +177,15 @@ export async function mount(host) {
     });
   }
 
-  function buildTable(list, heat, mobile) {
+  function buildTable(list, heat, mobile, grouped = false) {
+    const byModel = filterKey === "MODEL";
     // 列幅は固定。中身に合わせると、区分を切り替えるたびに台番号や機種名の幅が
     // 変わって見比べにくかった。全区分でも各レートでも同じ幅になる。
     const cols = [
       // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
       // 区分は色の四角（32px）だけなので56pxで足りる。どの列もこれを下回ると見出しか中身が切れる。
-      ["dai_no", "台番号", "", 60], ["model", "機種名", "txt", 300], ["secLabel", "区分", "", 56],
+      byModel ? ["count", "台数", "", 60] : ["dai_no", "台番号", "", 60],
+      ["model", "機種名", "txt", 300], ["secKey", "区分", "ctr", 56],
       ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 56], ["gross", "台粗利", "heat", 76],
       ["rate", "利益率", "", 62], ["score", "ランク", "", 60],
     ];
@@ -158,12 +197,23 @@ export async function mount(host) {
     // 並べ替えの矢印は小さく添える。見出しと同じ大きさだと、その幅ぶん
     // 列を広げないと切れてしまい、ランクなど短い列を詰められなかった。
     t.appendChild(el("thead", {}, el("tr", {}, cols.map(([key, label, cls]) =>
-      el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis", onclick: () => sortBy(key) }, [
+      el("th", { class: cls === "txt" ? "txt" : "", style: "cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" + (cls === "ctr" ? ";text-align:center" : ""), onclick: () => sortBy(key) }, [
         label,
         sortCol === key ? el("span", { style: "font-size:9px;margin-left:1px", text: sortDir < 0 ? "▼" : "▲" }) : null,
       ])))));
     const tb = el("tbody");
+    let curRate = null;
     for (const r of list) {
+      // レートが変わる所に見出しの行を挟む（どこからが5スロかを線と色で分ける）
+      if (grouped && rateOf(r) !== curRate) {
+        curRate = rateOf(r);
+        const n = list.filter((x) => rateOf(x) === curRate).length;
+        tb.appendChild(el("tr", { class: "an-group" }, el("td", { colspan: cols.length },
+          el("span", { class: "an-group-in", style: `border-color:${sectionColor(r.sec)}` }, [
+            el("span", { class: "an-sec-sq", style: `background:${sectionColor(r.sec)}`, text: secNum(r.sec) }),
+            el("b", { text: r.sec.label }), el("span", { class: "hint", text: byModel ? `${n}機種` : `${n}台` }),
+          ]))));
+      }
       // 玉単価は小数、それ以外は整数で出す
       const fmt = (key, val) => (val == null ? "—" : key === "coin" ? Number(val).toFixed(2) : num(val));
       const heatCell = (key) => {
@@ -174,7 +224,7 @@ export async function mount(host) {
           el("span", { style: `background:${c};color:${heatText(c)}`, text: fmt(key, r[key]) }));
       };
       tb.appendChild(el("tr", {}, [
-        el("td", { text: num(r.dai_no) }),
+        el("td", { text: byModel ? `${r.count}台` : num(r.dai_no) }),
         // 機種名は出玉率タブと同じくCSVのままのフルネームで出す。頭の「L」「S」などを
         // 落とすと、出玉率タブや本部資料の機種名と並べたとき同じ機種か見分けにくい。
         // 短くするのは島図（マスが狭い）だけ。幅に収まらない分は末尾を省略し、全文はカーソルで出る。
@@ -191,7 +241,11 @@ export async function mount(host) {
   }
 
   function sortBy(key) { if (sortCol === key) sortDir *= -1; else { sortCol = key; sortDir = key === "dai_no" ? 1 : -1; } render(); }
-  function doPrint() { const { list, heat } = aggregate(); printContent(buildTable(list, heat), { title: `機種分析 ${period.label}${filterKey === "ALL" ? "" : " / " + filterKey}` }); }
+  function doPrint() {
+    const { list, heat, grouped } = aggregate();
+    const label = filterKey === "ALL" ? "" : filterKey === "MODEL" ? " / 機種平均" : " / " + (state.sections.find((x) => x.key === filterKey)?.label || filterKey);
+    printContent(buildTable(list, heat, false, grouped), { title: `機種分析 ${period.label}${label}` });
+  }
 
   render();
 }
