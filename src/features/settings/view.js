@@ -3,7 +3,6 @@ import { repo } from "../../core/repo.js";
 import { STORE_NAME } from "../../core/config.js";
 import { toast, errorToast } from "../../core/errors.js";
 import { renderSectionEditor } from "./sections.js";
-import { THEMES, currentTheme, setTheme } from "../../core/theme.js";
 
 export async function mount(host) {
   host.appendChild(el("div", { class: "view-title" }, [
@@ -16,7 +15,6 @@ export async function mount(host) {
     : "Supabase 接続中。";
   host.appendChild(el("div", { class: "card", html: `<b>データ保存先:</b> <span class="hint">${backend}</span>` }));
 
-  host.appendChild(themeCard());
 
   const secCard = el("div", { class: "card col" }, el("h2", { text: "区分（レート）" }));
   host.appendChild(secCard);
@@ -104,26 +102,4 @@ async function importJson(e) {
     toast(`復元完了（${total.toLocaleString()}行）`, "ok");
     setTimeout(() => location.reload(), 1200);
   } catch (err) { errorToast(err); }
-}
-
-// 見た目の切替。押した瞬間に変わり、次に開いたときも保たれる。
-function themeCard() {
-  const cur = currentTheme();
-  const btns = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap" });
-  for (const t of THEMES) {
-    btns.appendChild(el("button", {
-      class: "btn" + (t.id === cur ? " primary" : ""),
-      text: t.label,
-      // 切替後の再描画は main.js が onThemeChange で受けてまとめてやる。
-      // ここで location.reload() すると、他のタブで入力中の内容まで消える。
-      onclick: () => { if (t.id !== currentTheme()) setTheme(t.id); },
-    }));
-  }
-  return el("div", { class: "card col" }, [
-    el("h2", { text: "見た目" }),
-    btns,
-    el("p", { class: "hint", style: "margin:0", text: THEMES.find((t) => t.id === cur).desc }),
-    el("p", { class: "hint", style: "margin:0;font-size:11.5px", text:
-      "※この設定はこの端末だけに保存されます（スマホとPCで別々に選べます）。印刷は見た目に関わらず通常の白地で出ます。" }),
-  ]);
 }

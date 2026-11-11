@@ -40,7 +40,7 @@ function showPreview(filename, rows, warnings, onDone, fy) {
   if (ymds.length) {
     const from = ymds[0], to = ymds[ymds.length - 1];
     const days = new Set(ymds).size;
-    body.appendChild(el("div", { class: "card", style: "border-left:3px solid var(--accent,#4f8ff7);font-weight:700" },
+    body.appendChild(el("div", { class: "card", style: "border-left:3px solid var(--primary);font-weight:700" },
       [el("div", { text: `書き込む期間: ${from} 〜 ${to}（${days}日ぶん）` }),
         el("div", { class: "hint", style: "font-weight:400;margin-top:2px",
           text: `取込先の年度は「${fy}年度」です。日付が想定と違う場合は、取り消して年度を切り替えてから取り込み直してください。` })]));

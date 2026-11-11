@@ -494,7 +494,7 @@ function showPdfMiss(file, warnings, sheets, msgHost) {
 // 件数だけ出しても直せないので、番号の範囲まで見せる。
 function renderUnassigned(host, dai, label) {
   clear(host);
-  host.appendChild(el("div", { class: "card col", style: "border-left:3px solid #e35d6a" }, [
+  host.appendChild(el("div", { class: "card col", style: "border-left:3px solid #e35d6a", "data-keep-open": "1" }, [
     el("h2", { text: "取り込めませんでした" }),
     el("div", { style: "font-weight:700", text: `どの区分にも入らない台番が ${dai.length}台 あります（${formatRanges(compressToRanges(dai))}）` }),
     el("p", { class: "hint", style: "margin:0", text:
@@ -512,7 +512,7 @@ function renderResult(host, label, summary, total) {
   ]);
   for (const s of summary) {
     if (s.dai !== "") card.appendChild(el("div", { text: `・${s.label}: ${s.dai}台` }));
-    for (const w of s.warnings || []) card.appendChild(el("div", { class: "hint", style: "color:var(--warn)", text: "⚠ " + w }));
+    for (const w of s.warnings || []) card.appendChild(el("div", { class: "hint", style: "color:var(--warn-fg)", "data-keep-open": "1", text: "⚠ " + w }));
   }
   card.appendChild(el("p", { class: "hint", text: "「機種分析」「島図」タブに反映されます（最新スナップショット）。" }));
   host.appendChild(card);

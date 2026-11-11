@@ -6,8 +6,6 @@ import { currentSession, signIn, signOut, authErrorMessage } from "./core/auth.j
 import { mountFreshnessBar } from "./core/freshness.js";
 import { renderQuickImport, enableDropAnywhere } from "./core/quickImport.js";
 import { authRequired, AUTH_EMAIL, STORE_NAME } from "./core/config.js";
-import { onThemeChange } from "./core/theme.js";
-import { refreshHeatPalette } from "./calc/heat.js";
 import { hasPending, flushAll } from "./core/autosave.js";
 
 function initFySelector() {
@@ -52,14 +50,6 @@ function startApp() {
   // 保存待ちが残っている間は閉じる前に確認を出し、裏に回ったとき（スマホのアプリ切替）にも保存する。
   window.addEventListener("beforeunload", (e) => { if (hasPending()) { e.preventDefault(); e.returnValue = ""; } });
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden" && hasPending()) flushAll(); });
-
-  // 見た目を切り替えたとき、CSSだけでは追いつかないものをここで面倒みる。
-  // ヒートの色はJSがCSS変数を読んで保持しているので捨てさせ、グラフ（SVG）は
-  // 描いた時点の色で固まっているので今の画面を描き直す。
-  onThemeChange(() => {
-    refreshHeatPalette();
-    window.dispatchEvent(new HashChangeEvent("hashchange"));
-  });
 }
 
 // ログイン画面（パスワードのみ）。成功で onOk を呼ぶ。

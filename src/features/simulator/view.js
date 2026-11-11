@@ -491,8 +491,8 @@ export async function mount(host) {
           class: "btn sm sim-setbtn",
           title: `設定${s}を選ぶ`,
           style: `background:${SET_COLORS[s]};color:#333a46;` +
-            `border:2px solid ${s === st.brush ? "var(--accent)" : "var(--line)"};` +
-            `box-shadow:${s === st.brush ? "0 0 0 2px var(--accent-dim)" : "none"};` +
+            `border:2px solid ${s === st.brush ? "var(--primary)" : "var(--line)"};` +
+            `box-shadow:${s === st.brush ? "0 0 0 3px var(--primary-bg)" : "none"};` +
             `font-weight:${s === st.brush ? "900" : "700"}`,
           text: String(s),
           onclick: () => { st.brush = s; render(); },

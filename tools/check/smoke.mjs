@@ -71,7 +71,7 @@ const SEED = `(async () => { try {
   const pad = (n) => String(n).padStart(2, "0");
   const today = new Date(); const lim = today.getFullYear() + "-" + pad(today.getMonth() + 1) + "-" + pad(today.getDate());
   const m = [], p = [], a = []; let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
-  for (let back = 400; back >= 1; back--) {
+  for (let back = 400; back >= -40; back--) {   // 計画は先の日付まで入れる（月の途中の見え方を確かめるため）
     const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - back);
     const ymd = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
     for (const sec of secs) {

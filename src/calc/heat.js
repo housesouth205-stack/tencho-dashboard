@@ -1,7 +1,6 @@
 // アウト/台売上/台粗利のヒートマップ 5段階（低い＝淡い黄 → 高い＝赤）。
 // 色の基準は「同じ区分（レート）の中での高い/低い」で、真ん中（3段階目）が平均。
-// 色そのものはCSS（theme.css / theme-dq.css）の変数に置く。ここに直書きすると
-// テーマを切り替えても島図と機種分析だけ白基調のまま取り残される。
+// 色そのものはCSS（theme.css）の変数に置く。画面の配色を変えるときに1か所で済ませるため。
 // 変数が読めない環境（テスト等）では従来の値をそのまま使う。
 const FALLBACK = {
   heat: ["#fdf6c2", "#fce588", "#f9b234", "#ef6a1c", "#d62828"],
@@ -10,9 +9,8 @@ const FALLBACK = {
 };
 
 // 島図は300マス以上を一度に塗る。マスごとに getComputedStyle を呼ぶと重いので
-// 一度読んだら保持し、テーマを切り替えたときだけ捨てる。
+// 一度読んだら保持する。
 let cache = null;
-export function refreshHeatPalette() { cache = null; }
 
 function palette() {
   if (cache) return cache;

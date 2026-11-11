@@ -5,11 +5,15 @@ body {
   background: var(--bg);
   color: var(--fg);
   font-family: var(--font);
-  font-size: 14px;
+  font-size: var(--fs-body);
   line-height: 1.5;
+  /* 金額や率は桁がそろって見えるように、全画面で等幅の数字にする */
+  font-variant-numeric: tabular-nums;
 }
-h1, h2, h3 { margin: 0 0 .4em; font-weight: 600; }
-a { color: var(--accent-hi); }
+h1, h2, h3 { margin: 0 0 .4em; font-weight: 700; }
+h1 { font-size: var(--fs-title); }
+h2, h3 { font-size: var(--fs-head); }
+a { color: var(--primary); }
 button, input, select { font-family: inherit; font-size: inherit; color: inherit; }
 
 #app { display: flex; flex-direction: column; min-height: 100vh; }
@@ -21,14 +25,14 @@ button, input, select { font-family: inherit; font-size: inherit; color: inherit
   position: sticky; top: 0; z-index: 20; box-shadow: var(--shadow);
 }
 .appbar .brand { font-weight: 700; letter-spacing: .02em; }
-.appbar .brand b { color: var(--accent); }
+.appbar .brand b { color: var(--primary); }
 .appbar .spacer { flex: 1; }
 .appbar .field { display: flex; align-items: center; gap: 6px; color: var(--fg-dim); }
 .appbar select {
   background: var(--panel-2); border: 1px solid var(--line);
   border-radius: 6px; padding: 4px 8px;
 }
-.savestate { font-size: 12px; color: var(--fg-dim); min-width: 68px; text-align: right; }
+.savestate { font-size: var(--fs-note); color: var(--fg-dim); min-width: 68px; text-align: right; }
 .savestate.saving { color: var(--warn); }
 .savestate.saved { color: var(--ok); }
 .savestate.error { color: var(--bad, #e35d6a); font-weight: 700; }
@@ -45,15 +49,15 @@ button, input, select { font-family: inherit; font-size: inherit; color: inherit
 .tab {
   appearance: none; background: transparent; border: none; cursor: pointer;
   color: var(--fg-dim); padding: 9px 16px; border-radius: 8px 8px 0 0;
-  border-bottom: 2px solid transparent; font-weight: 500;
+  border-bottom: 3px solid transparent; font-weight: 500;
 }
 .tab:hover { color: var(--fg); background: var(--panel-2); }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); background: var(--pastel-red); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--primary-bg); font-weight: 700; }
 
 /* ---- main ---- */
 main { flex: 1; width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 16px; }
 .view-title { display: flex; align-items: baseline; gap: 10px; margin-bottom: 14px; }
-.view-title small { color: var(--fg-dim); font-weight: 400; }
+.view-title small { color: var(--fg-dim); font-weight: 400; font-size: var(--fs-note); }
 
 .placeholder {
   border: 2px dashed var(--line); border-radius: var(--radius);
