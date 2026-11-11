@@ -235,7 +235,7 @@ table.sum th.hl { background: #eaf6f0; }
 
 /* ---------- 機種分析の表 ---------- */
 /* ヒートの色は角を丸めた箱に塗り、箱どうしに少し隙間を空ける。区分の四角は箱と同じ高さの正方形 */
-table.grid.an-table { border-collapse: separate; border-spacing: 0 1px; }
+table.grid.an-table { border-collapse: separate; border-spacing: 0 3px; }
 table.grid.an-table th, table.grid.an-table td { border: none; }
 table.grid.an-table th { border-bottom: 1px solid var(--line); }
 table.grid.an-table tbody tr:nth-child(even) td { background: transparent; }
@@ -243,7 +243,8 @@ table.grid.an-table tbody tr:hover td { background: var(--panel-2); }
 table.grid.an-table td.an-heat { padding: 0 2px; }
 table.grid.an-table td { padding-top: 0; padding-bottom: 0; }
 table.grid.an-table td.an-heat > span { display: block; height: 26px; line-height: 26px; padding: 0 8px; border-radius: 6px; white-space: nowrap; }
-table.grid.an-table td.an-sec { padding: 0 4px; text-align: center; }
+/* 区分の四角は数字（アウト）側に寄せる。機種名と数字の間が空くので、目印を数字のすぐ左に置く */
+table.grid.an-table td.an-sec { padding: 0 6px 0 4px; text-align: right; }
 .an-sec-sq { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 6px;
   color: #fff; font-weight: 700; font-size: var(--fs-note); vertical-align: middle; }
 table.grid.an-table td.an-rank { padding: 0 4px; text-align: center; }
