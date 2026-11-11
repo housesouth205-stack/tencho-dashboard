@@ -187,7 +187,6 @@ table.grid th.col-min, table.grid td.col-min { width: 1%; white-space: nowrap; }
 .prog-scale b { color: var(--fg); font-size: 18px; }
 .prog-secs { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px 12px; margin-top: 12px; }
 .prog-sec { border-left: 5px solid; padding: 2px 0 2px 12px; display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.prog-sec .nm { font-weight: 700; font-size: var(--fs-head); min-width: 64px; }
 .prog-sec b { font-size: 24px; white-space: nowrap; }
 .prog-sec .of { color: var(--fg-dim); white-space: nowrap; }
 
@@ -215,3 +214,21 @@ table.sum th.hl { background: #eaf6f0; }
   .chart-head .chart-legend { white-space: normal; flex: 1 1 100%; flex-wrap: wrap; gap: 4px 12px; }
   .view-head .ops { margin-left: 0; }
 }
+
+/* 区分の目印：色の四角に数字（20・5・2）。色はバー・グラフの区分色と同じ */
+.sec-chip { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px; padding: 0 5px;
+  border-radius: 6px; color: #fff; font-weight: 700; font-size: var(--fs-note); line-height: 1; vertical-align: middle; flex: none; }
+.prog-legend .sec-chip { min-width: 24px; height: 20px; font-size: 12px; margin-right: 4px; }
+/* 要点の枠の区分別（粗利率）。主役の数字より控えめに */
+.kpi-secs { display: flex; gap: 6px 16px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+.kpi-secs > span { display: inline-flex; align-items: center; gap: 6px; }
+.kpi-secs b { font-size: var(--fs-head); }
+/* 「残り◯万」の「残り」と、後ろに添える着地見込み */
+.kpi .kpi-pre { font-size: var(--fs-head); font-weight: 700; color: var(--fg-dim); margin-right: 6px; }
+.kpi .kpi-post { font-size: var(--fs-note); font-weight: 400; color: var(--fg-dim); margin-left: 14px; letter-spacing: 0; white-space: nowrap; display: inline-block; }
+.kpi .kpi-post b { font-size: var(--fs-num-sub); color: var(--fg); }
+.kpi.goal .kpi-num { white-space: normal; }
+/* 計画までの枠は「残り」と着地見込みを1行に並べるので、金額を一段小さくする（折り返すと2行に割れて読みにくい） */
+.kpi.goal .kpi-num { font-size: 32px; }
+.kpi.goal .kpi-post { margin-left: 10px; }
+.kpi.goal .kpi-post b { font-size: var(--fs-head); }
