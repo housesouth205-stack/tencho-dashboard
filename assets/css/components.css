@@ -239,7 +239,11 @@ table.grid.an-table { border-collapse: separate; border-spacing: 0 3px; }
 table.grid.an-table th, table.grid.an-table td { border: none; }
 table.grid.an-table th { border-bottom: 1px solid var(--line); }
 table.grid.an-table tbody tr:nth-child(even) td { background: transparent; }
-table.grid.an-table tbody tr:hover td { background: var(--panel-2); }
+/* 1行おきの帯と、カーソルを乗せた行の青。帯は行の両端を丸めて1本の帯に見せる */
+table.grid.an-table tbody tr.z td { background: #eef2f8; }
+table.grid.an-table tbody tr:not(.an-group):hover td { background: var(--primary-bg); }
+table.grid.an-table tbody tr:not(.an-group) td:first-child { border-radius: 6px 0 0 6px; }
+table.grid.an-table tbody tr:not(.an-group) td:last-child { border-radius: 0 6px 6px 0; }
 table.grid.an-table td.an-heat { padding: 0 2px; }
 table.grid.an-table td { padding-top: 0; padding-bottom: 0; }
 table.grid.an-table td.an-heat > span { display: block; height: 26px; line-height: 26px; padding: 0 8px; border-radius: 6px; white-space: nowrap; }
