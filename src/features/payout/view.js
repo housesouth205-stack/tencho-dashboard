@@ -74,8 +74,8 @@ export async function mount(host) {
   host.appendChild(bar);
   bar.appendChild(el("input", { type: "text", value: filterText, placeholder: "機種名で検索", style: "width:200px", oninput: (e) => { filterText = e.target.value; draw(); } }));
   bar.appendChild(chip("未登録のみ", () => onlyUnreg, () => { onlyUnreg = !onlyUnreg; draw(); }));
-  bar.appendChild(el("button", { class: "btn sm", text: "機種名からタイプ自動推定", onclick: () => { rows.forEach((r) => { r.type = guessType(r.model); if (!r.registered) r.payout = [...TYPES[r.type]]; }); draw(); } }));
-  bar.appendChild(el("button", { class: "btn sm ghost", text: "未登録にタイプ既定を適用", onclick: () => { rows.forEach((r) => { if (!r.registered) r.payout = [...TYPES[r.type]]; }); draw(); } }));
+  // 「機種名からタイプ自動推定」「未登録にタイプ既定を適用」のボタンは外した。開いた時点で
+  // タイプは機種名から推定済み、未登録の機種はタイプの標準値で表示済みなので、押しても何も変わらなかった。
   const dbBulkBtn = el("button", { class: "btn sm", style: "border-color:var(--ok);color:var(--ok)", text: "📚 機種DBから一括適用", onclick: bulkFromDb });
   bar.appendChild(dbBulkBtn);
   const dmmBulkBtn = el("button", { class: "btn sm", style: "border-color:var(--blue);color:var(--blue)", text: "🌐 Webから一括取得", onclick: bulkFetch });
@@ -85,25 +85,27 @@ export async function mount(host) {
   const regSpan = el("span", { class: "hint" });
   bar.appendChild(regSpan);
 
-  // 使い方の説明は畳んでおく。毎回開く画面の上に長い説明があると、肝心の表が下に押しやられる
-  const info = el("details", { class: "card", style: "border-left:4px solid var(--blue);font-size:12px;padding:8px 12px" }, [
-    el("summary", { style: "cursor:pointer;font-weight:700", text: "出玉率の埋め方（出玉率表・機種DB・Web・空欄の意味）" }),
-    el("div", { style: "margin-top:6px", html:
-    "出玉率(機械割)を機種×設定で登録すると、シミュレーターが自動で使います。<br>" +
-    "📄 <b>出玉率表</b>: 店長の表（機種名・設定1〜6）。<b>いちばん優先</b>。下の「出玉率表」欄か、右上の📂取込から。<br>" +
-    "📚 <b>機種DB</b>(同梱・通信不要): スマスロ／6号機の出玉率を出典URL・信頼度つきで収録。設定別の表から取れた機種は<b>機種DB</b>、機械割のレンジしか無い機種はタイプ標準カーブで補間して<b>機種DB推定</b>。<b>まずこれを試すのが速い</b>。状態列にカーソルを乗せると信頼度・出典・照合相手が出ます。<br>" +
-    "　一括適用は名前の一致率30%以上を自動で入れます。店舗の機種名が型式名でも照合できます（例「S/新ﾊﾅﾋﾞR/HA」）。完全一致でなかった機種は状態列に<b>一致率</b>を橙色で出すので、そこだけ見直してください。<br>" +
-    "🌐 <b>Web取得</b>: 機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>(設定別実測=<b>Web実測</b>)を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>のレンジから補間(<b>Web推定</b>)。<br>" +
-    "⬜ <b>空欄＝その機種にその設定は無い</b>（設定3が無い・設定1256しかない等）。空欄にすると<b>シミュレーターがその設定を入れなくなり</b>、入れようとすると1つ上の設定に寄せます。機種DBとWeb実測で取れた機種は自動で空欄になります。" })]);
-  host.appendChild(info);
-  // どの資料の機種名で並んでいるかを出す。島図と台別CSVで機種が食い違うと、片方にしか無い機種が消えて見えるため
-  host.appendChild(el("div", { class: "hint", style: "margin:6px 0 8px", text: useIsland
-    ? `機種一覧は島図（${islandMeta.effectiveFrom || "日付不明"}から適用・${Object.keys(islandModels).length}台）に合わせています。島図を取り込むと入れ替わり、新しい機種は出玉率を自動で埋めます。`
-    : `機種一覧は台別データ（${period.label || ""}）から作っています。島図を取り込むと島図の機種に切り替わります。` }));
-
+  // 出玉率表と、埋め方の説明は畳める枠にまとめる。毎回開く画面の上に説明が並ぶと、肝心の表が下に押しやられる。
+  // 機種一覧の出どころ（島図か台別データか）もここに入れる。毎回読む必要は無いが、機種が足りないときの手がかりになる。
+  const listFrom = useIsland
+    ? `機種の一覧は島図（${islandMeta.effectiveFrom || "日付不明"}から・${Object.keys(islandModels).length}台）の機種名です。島図を取り込むと入れ替わり、新しく入った機種は自動で埋めます。`
+    : `機種の一覧は台別データ（${period.label || ""}）の機種名です。島図を取り込むと島図の機種に切り替わります。`;
   host.appendChild(await tableCard());
+  host.appendChild(foldBox("howto", "出玉率の埋め方", null, el("div", { class: "col", style: "gap:6px" }, [
+    el("div", { html:
+      "ここで入れた出玉率を、シミュレーターがそのまま使います。上から順に優先します。" }),
+    el("ol", { style: "margin:0;padding-left:1.4em;display:flex;flex-direction:column;gap:4px", html:
+      "<li>📄 <b>出玉率表</b>：店長の表。上の「出玉率表」から取り込みます。いちばん確か。</li>" +
+      "<li>📚 <b>機種DB</b>：同梱のデータ（通信不要）。「機種DBから一括適用」で埋めます。設定別の値が無い機種はタイプの標準カーブで補って「機種DB推定」と出します。</li>" +
+      "<li>🌐 <b>Web</b>：機種DBに無い機種向け。<a href=\"https://1geki.jp/slot/\" target=\"_blank\">一撃</a>の実測（Web実測）を優先し、無ければ<a href=\"https://p-town.dmm.com/machines/slot\" target=\"_blank\">DMMぱちタウン</a>の幅から補います（Web推定）。</li>" +
+      "<li>✎ <b>手入力</b>：表のマスに直接打って「保存」。</li>" }),
+    el("div", { html: "名前が完全に一致しなかった機種は、状態の列に<b>一致率</b>を橙色で出します。そこだけ見直してください（カーソルを乗せると照合した相手が出ます）。" }),
+    el("div", { html: "<b>空欄＝その機種にその設定は無い</b>。シミュレーターはその設定を入れず、1つ上の設定に寄せます。数字で埋めないでください。" }),
+    el("div", { class: "hint", text: listFrom }),
+  ])));
 
-  const tableHost = el("div", { style: "overflow:auto;max-height:66vh" });
+  // PCは表の中だけ縦に動かす（見出しが見えたまま）。スマホのカードは画面ごと縦に送る
+  const tableHost = el("div", { style: window.matchMedia("(max-width: 700px)").matches ? "" : "overflow:auto;max-height:66vh" });
   host.appendChild(tableHost);
 
   function updateReg() { const reg = rows.filter((r) => r.registered).length; regSpan.textContent = `登録 ${reg}/${rows.length} 機種`; }
@@ -202,61 +204,87 @@ export async function mount(host) {
     } finally { dmmBulkBtn.disabled = false; dmmBulkBtn.textContent = "🌐 Webから一括取得"; }
   }
 
+  const typeSelOf = (r) => el("select", { class: "inp", style: "width:92px", onchange: (e) => { r.type = e.target.value; if (!r.registered) r.payout = [...TYPES[r.type]]; draw(); } },
+    TYPE_KEYS.map((k) => el("option", { value: k, text: k, selected: k === r.type ? "selected" : null })));
+  // 最低設定: 2にするとシミュレーターがこの機種に設定1を割り当てなくなる
+  const minSelOf = (r) => el("select", {
+    // 幅は中身に合わせる。64px固定だと太字（設定2以上）のときに「設定2」の末尾が欠けていた
+    class: "inp", style: `width:auto;min-width:64px${r.min > 1 ? ";border-color:var(--accent);font-weight:700" : ""}`,
+    title: "設定1にするとパネルが消灯する機種は2にする",
+    onchange: (e) => { r.min = Number(e.target.value); draw(); },
+  }, MIN_CHOICES.map((v) => el("option", { value: v, text: `設定${v}`, selected: v === r.min ? "selected" : null })));
+  // 出玉率は常に小数第1位で表示・保持（112 → 112.0、112.53 → 112.5）
+  // 空欄＝その機種にその設定は無い。シミュレーターはその設定を割り当てなくなる。
+  const payoutInp = (r, s, width) => el("input", {
+    type: "number", step: "0.1", inputmode: "decimal", value: r.payout[s] == null ? "" : fmt1(r.payout[s]), placeholder: "なし",
+    title: r.payout[s] == null ? "空欄＝この機種に設定" + (s + 1) + "は無い（投入されません）" : null,
+    style: `width:${width};text-align:right`,
+    onchange: (e) => {
+      r.payout[s] = round1(e.target.value); // 空欄はnull＝設定なし
+      r.registered = true; r.source = "manual";
+      draw();
+    },
+  });
+  // 名前が完全一致でなかった機種は一致率を併記する。取り違えに気づけるようにするため。
+  const statusOf = (r) => {
+    const inexact = r.matchScore != null && r.matchScore < 1;
+    const color = !r.registered ? "var(--warn)" : inexact ? "var(--accent)" : (r.source === "manual" ? "var(--ok)" : "var(--blue)");
+    const text = r.registered ? SRC_LABEL[r.source] + (inexact ? ` ${Math.round(r.matchScore * 100)}%` : "") : "未登録";
+    return { color, text };
+  };
+  const fetchBtns = (r) => [
+    el("button", { class: "btn sm ghost", title: "機種DBから適用", text: "📚", onclick: () => fetchOneFromDb(r) }),
+    el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) }),
+  ];
+
+  function drawCards(list) {
+    const box = el("div", { class: "col", style: "gap:8px" });
+    for (const r of list) {
+      const st = statusOf(r);
+      const grid = el("div", { class: "po-grid" });
+      for (let s = 0; s < 6; s++) {
+        grid.appendChild(el("label", { class: "po-cell" + (r.payout[s] == null ? " none" : "") }, [
+          el("span", { text: `設定${s + 1}` }), payoutInp(r, s, "100%"),
+        ]));
+      }
+      box.appendChild(el("div", { class: "card po-card" }, [
+        el("div", { class: "po-name", text: r.model }),
+        el("div", { class: "po-meta" }, [
+          el("span", { text: `台番 ${r.minDai === 9999 ? "—" : num(r.minDai)}〜・${num(r.count)}台・${r.secs}` }),
+          el("span", { style: `color:${st.color};font-weight:700`, title: r.note || null, text: st.text }),
+        ]),
+        grid,
+        el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, [typeSelOf(r), minSelOf(r), el("div", { class: "grow" }), ...fetchBtns(r)]),
+      ]));
+    }
+    if (!list.length) box.appendChild(el("div", { class: "placeholder", text: "該当する機種がありません" }));
+    tableHost.appendChild(box);
+  }
+
   function draw() {
     for (const b of bar.querySelectorAll(".chip")) b.classList.toggle("primary", onlyUnreg), b.classList.toggle("ghost", !onlyUnreg);
     clear(tableHost);
     const q = filterText.trim().normalize("NFKC");
     const list = rows.filter((r) => (!onlyUnreg || !r.registered) && (!q || r.model.normalize("NFKC").includes(q)));
+    // スマホは1機種1枚のカードにする。14列の表を横に動かすと、機種名と出玉率が同時に見えなかった
+    if (window.matchMedia("(max-width: 700px)").matches) { drawCards(list); return; }
     const t = el("table", { class: "grid mono" });
     t.appendChild(el("thead", {}, el("tr", {}, ["台番", "機種名", "区分", "台数", "タイプ", "最低設定", "設定1", "設定2", "設定3", "設定4", "設定5", "設定6", "状態", ""].map((h, i) =>
       el("th", { class: i === 1 ? "txt" : "", title: h === "最低設定" ? "設定1にするとパネルが消灯する機種は2にする。シミュレーターが設定1を割り当てなくなる。" : null, text: h })))));
     const tb = el("tbody");
     for (const r of list) {
-      const typeSel = el("select", { class: "inp", style: "width:92px", onchange: (e) => { r.type = e.target.value; if (!r.registered) r.payout = [...TYPES[r.type]]; draw(); } },
-        TYPE_KEYS.map((k) => el("option", { value: k, text: k, selected: k === r.type ? "selected" : null })));
-      // 最低設定: 2にするとシミュレーターがこの機種に設定1を割り当てなくなる
-      const minSel = el("select", {
-        // 幅は中身に合わせる。64px固定だと太字（設定2以上）のときに「設定2」の末尾が欠けていた
-        class: "inp", style: `width:auto;min-width:64px${r.min > 1 ? ";border-color:var(--accent);font-weight:700" : ""}`,
-        title: "設定1にするとパネルが消灯する機種は2にする",
-        onchange: (e) => { r.min = Number(e.target.value); draw(); },
-      }, MIN_CHOICES.map((v) => el("option", { value: v, text: `設定${v}`, selected: v === r.min ? "selected" : null })));
       const cells = [
         el("td", { style: "color:var(--fg-dim)", title: "この機種の先頭台番", text: r.minDai === 9999 ? "—" : num(r.minDai) }),
         el("td", { class: "txt", text: r.model }),
-        el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSel), el("td", {}, minSel),
+        el("td", { text: r.secs }), el("td", { text: num(r.count) }), el("td", {}, typeSelOf(r)), el("td", {}, minSelOf(r)),
       ];
-      // 出玉率は常に小数第1位で表示・保持（112 → 112.0、112.53 → 112.5）
-      // 空欄＝その機種にその設定は無い。シミュレーターはその設定を割り当てなくなる。
-      for (let s = 0; s < 6; s++) {
-        const none = r.payout[s] == null;
-        cells.push(el("td", { style: none ? "background:var(--panel-2)" : "" }, el("input", {
-          type: "number", step: "0.1", value: none ? "" : fmt1(r.payout[s]), placeholder: "なし",
-          title: none ? "空欄＝この機種に設定" + (s + 1) + "は無い（投入されません）" : null,
-          style: "width:62px;text-align:right",
-          onchange: (e) => {
-            r.payout[s] = round1(e.target.value); // 空欄はnull＝設定なし
-            r.registered = true; r.source = "manual";
-            draw();
-          },
-        })));
-      }
-      // 名前が完全一致でなかった機種は一致率を併記する。取り違えに気づけるようにするため。
-      const inexact = r.matchScore != null && r.matchScore < 1;
-      const sc = !r.registered ? "var(--warn)"
-        : inexact ? "var(--accent)" : (r.source === "manual" ? "var(--ok)" : "var(--blue)");
-      const label = r.registered
-        ? SRC_LABEL[r.source] + (inexact ? ` ${Math.round(r.matchScore * 100)}%` : "")
-        : "未登録";
-      cells.push(el("td", { style: `color:${sc}`, title: r.note || null, text: label }));
-      cells.push(el("td", { class: "row", style: "gap:4px" }, [
-        el("button", { class: "btn sm ghost", title: "機種DBから適用", text: "📚", onclick: () => fetchOneFromDb(r) }),
-        el("button", { class: "btn sm ghost", title: "Web(一撃/DMM)から取得", text: "🌐", onclick: () => fetchOne(r) }),
-      ]));
+      for (let s = 0; s < 6; s++) cells.push(el("td", { style: r.payout[s] == null ? "background:var(--panel-2)" : "" }, payoutInp(r, s, "62px")));
+      const st = statusOf(r);
+      cells.push(el("td", { style: `color:${st.color}`, title: r.note || null, text: st.text }));
+      cells.push(el("td", { class: "row", style: "gap:4px" }, fetchBtns(r)));
       tb.appendChild(el("tr", {}, cells));
     }
     t.appendChild(tb);
-    // 14列あるのでスマホでは表の中だけ横スクロールさせる
     tableHost.appendChild(el("div", { class: "table-wrap" }, t));
   }
   updateReg(); draw();
@@ -321,26 +349,43 @@ const setAuto = (v) => { try { localStorage.setItem(AUTO_KEY, v ? "1" : "0"); } 
 const rerender = () => window.dispatchEvent(new HashChangeEvent("hashchange"));
 const ymdhm = (t) => { if (!t) return "—"; const d = new Date(t); return isNaN(d) ? "—" : `${d.getMonth() + 1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2, "0")}`; };
 
+// 畳める枠。開け閉めはこの端末に覚える（毎回開き直さなくて済むように）。
+// forceOpen は、読んでほしいこと（ファイルが更新された等）があるときだけ開いて見せる。
+const FOLD_KEY = "tencho.payoutFold.";
+function foldBox(key, title, summaryNote, body, { forceOpen = false, defaultOpen = false } = {}) {
+  let open = defaultOpen;
+  try { const v = localStorage.getItem(FOLD_KEY + key); if (v != null) open = v === "1"; } catch { /* 覚えられなくても動く */ }
+  const note = el("span", { class: "hint po-fold-note" });
+  if (summaryNote) note.append(summaryNote);
+  const d = el("details", { class: "card po-fold", open: open || forceOpen ? "" : null }, [
+    el("summary", {}, [el("b", { text: title }), note]), el("div", { class: "po-fold-body" }, body),
+  ]);
+  d.addEventListener("toggle", () => { try { localStorage.setItem(FOLD_KEY + key, d.open ? "1" : "0"); } catch { /* 同上 */ } });
+  d.setNote = (text, color) => { note.textContent = text; note.style.color = color || ""; };
+  return d;
+}
+
 async function tableCard() {
   const saved = await loadTable().catch(() => null);
-  const card = el("div", { class: "card", style: "margin:8px 0;padding:10px 12px;border-left:4px solid var(--ok)" });
-  const status = el("div", { class: "col", style: "gap:2px" });
-  const btns = el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center" });
-  card.append(el("div", { class: "row", style: "gap:8px;align-items:center;flex-wrap:wrap" }, [
-    el("div", { style: "font-weight:700", text: "📄 出玉率表" }),
-    el("span", { class: "hint", text: "店長の出玉率表（機種名・設定1〜6）。機種DB・Webより優先して使い、島図の入替で入った機種も表から先に埋めます" }),
-  ]), status, btns);
+  const status = el("div", { class: "col", style: "gap:4px" });
+  const btns = el("div", { class: "row", style: "gap:6px;flex-wrap:wrap;align-items:center;margin-top:6px" });
+  const body = el("div", {}, [
+    el("div", { text: "店長が作った出玉率表（機種名＋設定1〜6）。機種DB・Webより優先します。島図の入替で入った機種も、まずこの表から埋めます。" }),
+    status, btns,
+  ]);
+  // 閉じていても今の様子が分かるよう、見出しの横に一言出す
+  const card = foldBox("table", "📄 出玉率表", saved ? `${saved.file}（${saved.entries.length}機種）` : "未取込", body, { defaultOpen: !saved });
 
   status.appendChild(el("div", { class: "hint", text: saved
-    ? `最後に反映した表：${saved.file}（${saved.entries.length}機種・${ymdhm(saved.importedAt)} 取込${saved.lastModified ? `・ファイル更新 ${ymdhm(saved.lastModified)}` : ""}）`
-    : "まだ出玉率表を取り込んでいません。右上の「📂 取込」に入れるか、下のボタンで手元のファイルを参照してください。" }));
+    ? `反映した表：${saved.file}（${saved.entries.length}機種・${ymdhm(saved.importedAt)}に取込${saved.lastModified ? `・ファイルの更新 ${ymdhm(saved.lastModified)}` : ""}）`
+    : "まだ取り込んでいません。右上の「📂 取込」に表を入れるか、下のボタンでPCのファイルを選んでください。" }));
   if (saved) {
-    btns.appendChild(el("button", { class: "btn sm", text: "保存済みの表を機種に当て直す", title: "入替で機種が変わったときや、要確認の機種を選び直すとき",
+    btns.appendChild(el("button", { class: "btn sm", text: "表を機種に当て直す", title: "入替で機種が変わったときや、要確認の機種を選び直すとき",
       onclick: () => importPayoutTable({ entries: saved.entries, file: saved.file, lastModified: saved.lastModified, onDone: rerender }).catch(errorToast) }));
   }
 
   if (!linkSupported()) {
-    status.appendChild(el("div", { class: "hint", text: "このブラウザはPCのファイルを覚えておけません（iPhone・Safari など）。PCのChrome・Edgeで開くと、デスクトップの出玉率表を自動で参照できます。" }));
+    status.appendChild(el("div", { class: "hint", text: "このブラウザ（iPhone・Safari等）はPCのファイルを参照できません。PCのChrome・Edgeで開くと、デスクトップの表の更新を自動で取り込めます。" }));
     return card;
   }
   const link = await readLinked();
@@ -355,7 +400,7 @@ async function tableCard() {
     } catch (e) { errorToast(e); }
   };
   if (link.state === "none") {
-    linkLine.textContent = "参照するファイル：未設定（デスクトップの出玉率表を選ぶと、次からはこのタブを開くだけで更新を取り込みます）";
+    linkLine.textContent = "参照するファイル：未設定。PCの出玉率表を一度選んでおくと、次からはこのタブを開くだけで更新を取り込みます。";
     btns.appendChild(el("button", { class: "btn sm primary", text: "📁 参照するファイルを選ぶ", onclick: async () => {
       try { await pickAndLink(); await readNow(); } catch (e) { if (e?.name !== "AbortError") errorToast(e); }
     } }));
@@ -368,7 +413,10 @@ async function tableCard() {
     denied: "（読む許可がありません。「今すぐ読み込む」で許可してください）",
     missing: "（ファイルが見つかりません。移動・名前変更したなら選び直してください）",
   }[link.state] || "");
-  if (changed) linkLine.style.color = "#c77700";
+  // 手を動かしてほしいときは、閉じていても開いて見せる
+  const needs = changed || link.state !== "ok";
+  if (needs) { linkLine.style.color = "var(--warn-fg)"; card.open = true; }
+  card.setNote(changed ? "更新あり" : link.state === "ok" ? `${link.name}・反映済み` : "要操作", needs ? "var(--warn-fg)" : "");
   const auto = el("input", { type: "checkbox", checked: autoOn() ? "" : null, onchange: (e) => setAuto(e.target.checked) });
   btns.append(
     el("button", { class: "btn sm primary", text: "今すぐ読み込む", onclick: readNow }),

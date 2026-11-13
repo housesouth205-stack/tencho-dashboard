@@ -263,3 +263,23 @@ table.grid.an-table td.an-rank { padding: 0 4px; text-align: center; }
 table.grid.an-table tr.an-group td { padding: 10px 0 4px; background: transparent !important; }
 table.grid.an-table tr.an-group:first-child td { padding-top: 2px; }
 .an-group-in { display: flex; align-items: center; gap: 8px; border-top: 3px solid; padding-top: 6px; font-size: var(--fs-head); }
+
+/* 出玉率管理: 畳める枠（出玉率表・埋め方）。閉じていても見出しの横に今の様子を一言出す */
+.po-fold { margin: 8px 0; padding: 0; border-left: 4px solid var(--primary); font-size: var(--fs-body); }
+.po-fold > summary { cursor: pointer; padding: 10px 12px; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-size: var(--fs-head); }
+.po-fold > summary .po-fold-note { font-weight: 400; }
+.po-fold-body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 6px; line-height: 1.6; }
+
+/* 出玉率管理のスマホ表示。1機種1枚、設定1〜6は3列×2段で、横に動かさずに読めるようにする */
+.po-card { padding: 10px 12px; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.po-name { font-size: var(--fs-head); font-weight: 700; word-break: break-all; }
+.po-meta { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-note); color: var(--fg-dim); }
+.po-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.po-cell { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-note); color: var(--fg-dim); }
+.po-cell input { font-size: var(--fs-body); min-width: 0; box-sizing: border-box; }
+.po-cell.none input { background: var(--panel-2); }
+/* summary を flex にすると開閉の三角が消えるので、自前で付ける */
+.po-fold > summary { list-style: none; }
+.po-fold > summary::-webkit-details-marker { display: none; }
+.po-fold > summary::before { content: "▸"; color: var(--fg-dim); width: 1em; }
+.po-fold[open] > summary::before { content: "▾"; }
