@@ -59,20 +59,6 @@ export function interpolateCurve(lo, hi, type) {
   });
 }
 
-// Web取得結果から設定別出玉率を決める。per6(設定別実測)優先、無ければrange+補間。
-//
-// per6の欠番(null)は「その機種にその設定が無い」という情報そのものなので、埋めずに残す。
-// 設定3が無い機種・設定1256しかない機種があり、シミュレーターはこれを見て
-// 存在しない設定を割り当てないようにしている。
-// レンジ(設定1と6だけ)からの補間では欠番は分からないため、そちらは6つとも埋まる。
-export function payoutFromDmm({ range, per6 }, type) {
-  if (per6 && per6.filter((v) => v != null).length >= 3) {
-    return per6.map((v) => (v == null ? null : Math.round(v * 10) / 10));
-  }
-  if (range && range.length === 2) return interpolateCurve(range[0], range[1], type);
-  return null;
-}
-
 // 欠番を前後の値から埋める。**計算用にだけ**使う。
 // 存在しない設定でも粗利の式が数値を要求する場面があるため穴を塞ぐが、
 // 「使える設定かどうか」の判定には使わない（判定は元の配列の null を見る）。
