@@ -81,10 +81,6 @@ function toEntry(m) {
   return entry;
 }
 
-export async function dbMeta() {
-  return (await load()).meta;
-}
-
 // 短い名前が長い名前に含まれるだけで高score(0.9)になるのを抑える。
 // 「ゴジラ」は「ゴジラVSエヴァンゲリオン」に含まれるが別機種で、
 // そのまま採ると片方の出玉率をもう片方に付けてしまう。
