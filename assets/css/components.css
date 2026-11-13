@@ -270,14 +270,19 @@ table.grid.an-table tr.an-group:first-child td { padding-top: 2px; }
 .po-fold > summary .po-fold-note { font-weight: 400; }
 .po-fold-body { padding: 0 12px 12px; display: flex; flex-direction: column; gap: 6px; line-height: 1.6; }
 
-/* 出玉率管理のスマホ表示。1機種1枚、設定1〜6は3列×2段で、横に動かさずに読めるようにする */
-.po-card { padding: 10px 12px; margin: 0; display: flex; flex-direction: column; gap: 8px; }
-.po-name { font-size: var(--fs-head); font-weight: 700; word-break: break-all; }
-.po-meta { display: flex; justify-content: space-between; gap: 8px; font-size: var(--fs-note); color: var(--fg-dim); }
-.po-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.po-cell { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-note); color: var(--fg-dim); }
-.po-cell input { font-size: var(--fs-body); min-width: 0; box-sizing: border-box; }
-.po-cell.none input { background: var(--panel-2); }
+/* 出玉率管理のスマホ表示。1機種1行で、名前は2行まで折り返す。文字は小さくして機種を多く並べる */
+table.po-mtable { width: 100%; table-layout: fixed; border-collapse: collapse; background: var(--panel); font-size: var(--fs-tiny); }
+table.po-mtable col.po-mname { width: 92px; }
+table.po-mtable col.po-mst { width: 24px; }
+table.po-mtable th { font-size: var(--fs-tiny); color: var(--fg-dim); font-weight: 600; padding: 4px 1px; text-align: right; border-bottom: 1px solid var(--line); }
+table.po-mtable th.txt { text-align: left; }
+table.po-mtable td { padding: 3px 1px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+table.po-mtable tbody tr:nth-child(even) td { background: #f8fafc; }
+.po-mname-in { line-height: 1.25; word-break: break-all; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+table.po-mtable input { width: 100%; min-width: 0; box-sizing: border-box; padding: 4px 1px; font-size: var(--fs-tiny); text-align: right; letter-spacing: -.02em; border-radius: 4px; }
+table.po-mtable td.none input { background: var(--panel-2); }
+table.po-mtable td.po-mst { font-size: var(--fs-tiny); text-align: center; font-weight: 700; padding: 0; }
+
 /* summary を flex にすると開閉の三角が消えるので、自前で付ける */
 .po-fold > summary { list-style: none; }
 .po-fold > summary::-webkit-details-marker { display: none; }

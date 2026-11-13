@@ -131,28 +131,28 @@ export async function mount(host) {
     return { color, text };
   };
 
+  // スマホは1機種1行（名前は2行まで折り返し＋設定1〜6の入力欄）。1枚ずつのカードだと1画面に2機種しか
+  // 入らず、見比べられなかった。文字は小さくなるが、機種の並びを一度に見られるほうを取った。
+  // タイプ・最低設定は滅多に変えないので、スマホでは出さない（PCで変える）。
   function drawCards(list) {
-    const box = el("div", { class: "col", style: "gap:8px" });
+    const t = el("table", { class: "po-mtable" }, [
+      el("colgroup", {}, [el("col", { class: "po-mname" }), ...Array.from({ length: 6 }, () => el("col")), el("col", { class: "po-mst" })]),
+      el("thead", {}, el("tr", {}, [el("th", { class: "txt", text: "機種" }), ...[1, 2, 3, 4, 5, 6].map((n) => el("th", { text: String(n) })), el("th")])),
+    ]);
+    const tb = el("tbody");
     for (const r of list) {
       const st = statusOf(r);
-      const grid = el("div", { class: "po-grid" });
-      for (let s = 0; s < 6; s++) {
-        grid.appendChild(el("label", { class: "po-cell" + (r.payout[s] == null ? " none" : "") }, [
-          el("span", { text: `設定${s + 1}` }), payoutInp(r, s, "100%"),
-        ]));
-      }
-      box.appendChild(el("div", { class: "card po-card" }, [
-        el("div", { class: "po-name", text: r.model }),
-        el("div", { class: "po-meta" }, [
-          el("span", { text: `台番 ${r.minDai === 9999 ? "—" : num(r.minDai)}〜・${num(r.count)}台・${r.secs}` }),
-          el("span", { style: `color:${st.color};font-weight:700`, title: r.note || null, text: st.text }),
-        ]),
-        grid,
-        el("div", { class: "row", style: "gap:6px;align-items:center;flex-wrap:wrap" }, [typeSelOf(r), minSelOf(r)])
+      // 状態は1文字分の幅しか無いので、見てほしいもの（未登録・一致率）だけ短く出す
+      const short = !r.registered ? "未" : r.matchScore != null && r.matchScore < 1 ? `${Math.round(r.matchScore * 100)}%` : "";
+      tb.appendChild(el("tr", {}, [
+        el("td", { class: "txt" }, el("div", { class: "po-mname-in", title: r.model, text: r.model })),
+        ...[0, 1, 2, 3, 4, 5].map((s) => el("td", { class: r.payout[s] == null ? "none" : "" }, payoutInp(r, s, "100%"))),
+        el("td", { class: "po-mst", style: `color:${st.color}`, title: `${st.text}${r.note ? "\n" + r.note : ""}`, text: short }),
       ]));
     }
-    if (!list.length) box.appendChild(el("div", { class: "placeholder", text: "該当する機種がありません" }));
-    tableHost.appendChild(box);
+    t.appendChild(tb);
+    if (!list.length) { tableHost.appendChild(el("div", { class: "placeholder", text: "該当する機種がありません" })); return; }
+    tableHost.appendChild(t);
   }
 
   function draw() {
