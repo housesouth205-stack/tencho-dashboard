@@ -35,6 +35,8 @@
   --warn-fg: #8a6200; --warn-bg: #fbf1d6;
   --bad-fg: #b3261e; --bad-bg: #fde6e8;
   --warn: #e0a52e;
+  /* 当店の新台（機種分析）。赤・黄・緑・青はランクと区分で使っているので、紫にして見分ける */
+  --new: #7c5cd6;
   --bad: #e35d6a;
   --blue: #6f9fe0;
 
