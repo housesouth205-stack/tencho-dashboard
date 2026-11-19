@@ -11,6 +11,7 @@ const TABS = [
   { id: "payout", label: "出玉率", load: () => import("../features/payout/view.js") },
   { id: "shindai", label: "新台", load: () => import("../features/shindai/view.js") },
   { id: "expense", label: "経費", load: () => import("../features/expense/view.js") },
+  { id: "prize", label: "景品", load: () => import("../features/prize/view.js") },
   { id: "import", label: "取込", load: () => import("../features/import/view.js") },
   { id: "settings", label: "設定", load: () => import("../features/settings/view.js") },
 ];
