@@ -54,6 +54,9 @@ async function runKind(kind, file, msgHost, onDone) {
     await importMonthlyPlanFile(file, { fy: state.fy, sections: state.sections, onDone });
   } else if (kind === "payout") {
     await importPayoutFile(file, msgHost, onDone);
+  } else if (kind === "prize") {
+    const { importPrizeFile } = await import("../prize/data.js");
+    await importPrizeFile(file, msgHost, onDone);
   }
 }
 
@@ -157,7 +160,7 @@ export function buildDropZone(onFiles) {
     onchange: () => { const fs = [...input.files]; input.value = ""; onFiles(fs); } });
   const zone = el("div", { class: "placeholder drop-any", style: "cursor:pointer;padding:28px 16px" }, [
     el("div", { style: "font-weight:700;font-size:15px;color:var(--fg)", text: "ファイルをここにドラッグ＆ドロップ、またはクリックして選択" }),
-    el("div", { style: "margin-top:6px", text: "台別データ（K-TACs等）・島図Excel・月計画表・会議資料（PDF/Excel）・損益の表。種類は中身から自動で判定します。複数まとめても可" }),
+    el("div", { style: "margin-top:6px", text: "台別データ（K-TACs等）・島図Excel・月計画表・会議資料（PDF/Excel）・損益の表・景品管理表。種類は中身から自動で判定します。複数まとめても可" }),
     el("div", { style: "margin-top:2px;font-size:12px", text: "見出しの言い方が違う表は、列を選び直せば読めます（選んだ対応は次回から自動）" }),
     input,
   ]);

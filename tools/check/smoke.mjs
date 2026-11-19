@@ -40,7 +40,7 @@ const exe = fs.existsSync("/opt/pw-browsers") && (() => {
 })();
 const browser = await chromium.launch({ args: ["--no-sandbox"], ...(exe ? { executablePath: exe } : {}) });
 
-const TABS = ["yojitsu", "simulator", "analysis", "payout", "shindai", "expense", "import", "settings"];
+const TABS = ["yojitsu", "simulator", "analysis", "payout", "shindai", "expense", "prize", "import", "settings"];
 const fails = [];
 async function run(label, width, seed) {
   const page = await (await browser.newContext({ viewport: { width, height: 900 } })).newPage();
@@ -96,6 +96,14 @@ const SEED = `(async () => { try {
   const { parsePlTable } = await import("/src/import/plCsv.js");
   const { rows } = parsePlTable([["月度", "総売上高", "売上原価", "売上総利益", "一般管理費", "営業利益", "人件費"], ["R8.07", "110000", "95000", "15000", "12000", "3000", "5000"], ["R8.08", "112000", "96000", "16000", "12500", "3500", "5100"]], "t");
   await repo.upsert("pl_month", rows.map((r) => ({ ...r, store_id: state.storeId })), { onConflict: ["store_id", "ym", "kind"] });
+  // 景品管理表: 金景品3つとタバコ3銘柄を10日ぶん（4日目は誤差あり）
+  const pz = { days: {} };
+  for (let d = 1; d <= 10; d++) pz.days["2026-11-" + pad(d)] = { writer: "記入者", items: [
+    ...["大", "中", "小"].map((k, i) => ({ key: k, kind: "gold", name: k, prev: 300, in: d % 3 ? 0 : 600, pick: 0, out: [2, 500, 400][i] + d * 3, zan: 280, pos: 280, err: 0 })),
+    ...[[101, "シヨートホープ"], [107, "セブンスター"], [157, "iQOS ILUMA メンソール"]].map(([c, n], i) => ({ key: String(c), kind: "tobacco", name: n, prev: 100, in: d === 5 ? 40 : 0, pick: 0, out: 3 + i * 3 + (d % 4), zan: 120 - d * (3 + i * 3), pos: 120 - d * (3 + i * 3), err: d === 4 && i === 1 ? -1 : 0 })),
+  ] };
+  await repo.upsert("app_setting", { store_id: state.storeId, key: "prize_2026-11", value: pz }, { onConflict: ["store_id", "key"] });
+  await repo.upsert("app_setting", { store_id: state.storeId, key: "prize_months", value: ["2026-11"] }, { onConflict: ["store_id", "key"] });
   const snaps = await repo.select("machine_snapshot", {});
   if (snaps.length !== 304) return "台別データが " + snaps.length + " 台しか入っていません";
   return "ok";

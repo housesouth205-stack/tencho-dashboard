@@ -7,6 +7,7 @@ import { findHeader, normKey } from "./anyTable.js";
 import { KTACS_FIELDS } from "./ktacsCsv.js";
 import { COLS as PL_COLS, parseMonthLabel } from "./plCsv.js";
 import { looksLikePayoutTable } from "./payoutTable.js";
+import { looksLikePrizeLedger } from "./prizeLedger.js";
 
 // 資料の種類。formats は読める形式（ここに無い形式で選ばれたら理由を出して止める）
 export const KINDS = {
@@ -16,6 +17,7 @@ export const KINDS = {
   meeting: { label: "月次会議サマリー", formats: ["excel"], hint: "会議で配るサマリー表。経費タブに出ます" },
   pl: { label: "月次の損益・経費", formats: ["csv", "excel", "pdf"], hint: "会議資料（店舗別営業実績表）など。経費タブの推移に使います" },
   payout: { label: "出玉率表（機種×設定）", formats: ["csv", "excel"], hint: "機種名と設定1〜6の機械割。出玉率タブ・シミュレーターに使います" },
+  prize: { label: "景品管理表（金景品・タバコ）", formats: ["excel"], hint: "1日1シートの在庫表。景品タブで出庫と入庫を分析します" },
 };
 
 const allText = (sheets, maxRows = 60) => sheets.flatMap((s) => s.rows.slice(0, maxRows).flat()).map((c) => String(c).normalize("NFKC"));
@@ -37,6 +39,9 @@ export function detectKinds({ format, sheets }) {
     if (has(/(1F|BF).?フロア/)) { sc += 3; why.push("フロアの見出し"); }
     if (sc) out.push({ kind: "island", score: sc, reason: why.join("・") });
   }
+
+  // 景品管理表: 表題と「前日残」「本日残」の見出し。ほかの資料には無い言葉なので高めに付ける
+  if (format === "excel" && looksLikePrizeLedger(sheets)) out.push({ kind: "prize", score: 20, reason: "表題「景品管理表」・前日残／本日残の列" });
 
   // 会議サマリー: 表題の言葉
   if (format === "excel" && has(/月次会議サマリー/)) {

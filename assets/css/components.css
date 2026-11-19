@@ -296,3 +296,7 @@ table.po-mtable td.po-mst { font-size: var(--fs-tiny); text-align: center; font-
 .an-new-date { color: var(--new); font-size: var(--fs-note); margin-left: 8px; }
 table.grid.an-table td.an-new-days { color: var(--new); font-weight: 700; }
 .an-new-note { color: var(--new); margin: -4px 0 10px; }
+
+/* 景品タブ。見出しは区切りとして少し大きく、凡例・表の色の点は四角の小さな印 */
+.pz-h { font-size: var(--fs-head); margin: 4px 0 8px; }
+.pz-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
