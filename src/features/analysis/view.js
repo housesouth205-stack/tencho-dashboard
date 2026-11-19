@@ -187,10 +187,10 @@ export async function mount(host) {
 
   function buildTable(list, heat, mobile, grouped = false) {
     const byModel = filterKey === "MODEL";
-    // 機種名の列は、店でいちばん長い機種名の幅にする（画面いっぱいに広げると、名前の終わりから
-    // 数字まで大きく空いて、どの数字がどの機種か目で追いにくかった）。表は左に寄せる。
+    // PCは画面いっぱいに広げる（左に寄せて詰めた形も試したが、横を広く使うほうが見やすいと戻した）。
+    // スマホは全体を縮めて表示するので、機種名の列を店でいちばん長い機種名の幅にして無駄を省く。
     // 今表示している機種ではなく店の全台で測るので、区分を切り替えても列の幅は変わらない。
-    const nameW = Math.min(420, Math.max(160, longestName + 24));
+    const nameW = mobile ? Math.min(420, Math.max(160, longestName + 24)) : 300;
     const cols = [
       // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
       // 区分は色の四角（32px）だけなので56pxで足りる。どの列もこれを下回ると見出しか中身が切れる。
@@ -202,7 +202,7 @@ export async function mount(host) {
     const totalW = cols.reduce((a, c) => a + c[3], 0);
     // compact: スマホは余白と見出しを詰めて1行を低くする（拡大して読む前提）
     const t = el("table", { class: "grid mono an-table" + (mobile ? " compact" : ""),
-      style: `table-layout:fixed;width:${totalW}px` });
+      style: `table-layout:fixed;width:${mobile ? totalW + "px" : "100%"}` });
     t.appendChild(el("colgroup", {}, cols.map(([, , , w]) => el("col", { style: `width:${w}px` }))));
     // 並べ替えの矢印は小さく添える。見出しと同じ大きさだと、その幅ぶん
     // 列を広げないと切れてしまい、ランクなど短い列を詰められなかった。
