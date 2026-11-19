@@ -288,3 +288,11 @@ table.po-mtable td.po-mst { font-size: var(--fs-tiny); text-align: center; font-
 .po-fold > summary::-webkit-details-marker { display: none; }
 .po-fold > summary::before { content: "▸"; color: var(--fg-dim); width: 1em; }
 .po-fold[open] > summary::before { content: "▾"; }
+
+/* 機種分析の新台。名前の前の札・後ろの導入日・導入の列。印刷でも色が出るよう塗りは札だけ */
+.an-new { display: inline-block; background: var(--new); color: #fff; font-weight: 700; border-radius: 4px;
+  padding: 0 6px; margin-right: 6px; font-size: var(--fs-note); line-height: 1.5; vertical-align: 1px; }
+.an-new.an-new-lg { font-size: var(--fs-body); padding: 0 8px; margin-right: 0; }
+.an-new-date { color: var(--new); font-size: var(--fs-note); margin-left: 8px; }
+table.grid.an-table td.an-new-days { color: var(--new); font-weight: 700; }
+.an-new-note { color: var(--new); margin: -4px 0 10px; }

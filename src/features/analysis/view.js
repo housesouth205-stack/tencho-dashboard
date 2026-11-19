@@ -7,6 +7,7 @@ import { rateKeyOfDai } from "../../core/daiSection.js";
 import { printContent } from "../../print/printService.js";
 import { mountZoomBar } from "../../util/pinchZoom.js";
 import { loadCurrentPeriod, loadSnapshotRows } from "../snapshotData.js";
+import { loadIntroDates, dayCount, NEW_DAYS } from "./newMachines.js";
 
 let filterKey = "ALL";
 let sortCol = "dai_no";
@@ -51,15 +52,18 @@ function modelAverages(units) {
   const groups = new Map();
   for (const u of units) {
     const k = rateOf(u) + "|" + u.model;
-    if (!groups.has(k)) groups.set(k, { model: u.model, sec: u.sec, rateKey: rateOf(u), dai_no: u.dai_no, count: 0, out: 0, gross: 0, sales: 0, nOut: 0, nGross: 0 });
+    if (!groups.has(k)) groups.set(k, { model: u.model, sec: u.sec, rateKey: rateOf(u), dai_no: u.dai_no, count: 0, out: 0, gross: 0, sales: 0, nOut: 0, nGross: 0, intro: u.intro, allNew: true });
     const g = groups.get(k);
     g.count++; g.dai_no = Math.min(g.dai_no, u.dai_no);
+    // 新台の印は、その機種の台が全部新台のときだけ付ける（増台で1台だけ足した機種を新台と見せない）
+    if (!u.intro) g.allNew = false;
     if (u.out != null) { g.out += u.out; g.nOut++; }
     if (u.gross != null) { g.gross += u.gross; g.nGross++; }
     g.sales += u.sales || 0;
   }
   return [...groups.values()].map((g) => ({
     dai_no: g.dai_no, model: g.model, sec: g.sec, secKey: g.sec.sort_order, count: g.count, rateKey: g.rateKey,
+    intro: g.allNew ? g.intro : null, introDays: g.allNew && g.intro ? g.intro.days : null,
     out: g.nOut ? Math.round(g.out / g.nOut) : null,
     gross: g.nGross ? Math.round(g.gross / g.nGross) : null,
     coin: g.out ? +(g.sales / g.out).toFixed(3) : null,
@@ -83,6 +87,20 @@ export async function mount(host) {
     return;
   }
   const rows = await loadSnapshotRows(period.id);
+  // 直近1カ月の新台（島図の入替履歴から導入日を出す）。台別データの期間より後に入った台は、
+  // 表の数字がまだ前の機種のものなので新台の印を付けず、台数だけ知らせる。
+  // 期間の途中で入った台は、数字に前の機種の日が混ざるので「期間途中」と添える。
+  const introMap = await loadIntroDates().catch(() => new Map());
+  const pStart = period.start_date || "", pEnd = period.end_date || "";
+  let afterPeriod = 0;
+  const introOf = new Map();
+  for (const [dai, ymd] of introMap) {
+    const days = dayCount(ymd);
+    if (days > NEW_DAYS) continue;
+    if (pEnd && ymd > pEnd) { afterPeriod++; continue; }
+    introOf.set(dai, { ymd, days, partial: !!pStart && ymd > pStart });
+  }
+  const newCount = rows.filter((r) => introOf.has(r.dai_no)).length;
   // 機種名の列の幅を、店の全台の機種名のうちいちばん長いものに合わせる（表の文字で測る）
   const longestName = (() => {
     try {
@@ -93,11 +111,13 @@ export async function mount(host) {
   })();
 
   const ctrl = el("div", { class: "row", style: "gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px" });
-  const chip = (key, label) => el("button", { class: "btn sm " + (filterKey === key ? "on" : "ghost"), text: label, onclick: () => { filterKey = key; render(); } });
+  if (filterKey === "NEW" && !newCount) filterKey = "ALL"; // 前に「新台だけ」を見ていて、今は新台が無いとき
+  const chip = (key, label) => el("button", { class: "btn sm " + (filterKey === key ? "on" : "ghost"), "data-key": key, text: label, onclick: () => { filterKey = key; render(); } });
   ctrl.appendChild(chip("ALL", "全区分"));
   for (const s of state.sections) ctrl.appendChild(chip(s.key, s.label));
   // 同じ機種の台をまとめた平均。機種の入替・増減台を考えるときは台ごとより機種ごとで見たい
   ctrl.appendChild(chip("MODEL", "機種平均"));
+  if (newCount) ctrl.appendChild(chip("NEW", `新台だけ（${newCount}台）`));
   ctrl.appendChild(el("div", { class: "grow" }));
   ctrl.appendChild(el("button", { class: "btn sm", text: "🖨 印刷", onclick: doPrint }));
   host.appendChild(ctrl);
@@ -108,6 +128,9 @@ export async function mount(host) {
     '<b style="color:#1f9d70">D</b> 70〜90%／<b style="color:#2f6fde">E</b> 下位10%（ランク列クリックで並べ替え）<br>' +
     '色・ランクは<b>同じレート（20スロ/5スロ/2スロ）の中での高い/低い</b>で判定し、' +
     '<b>真ん中の色＝そのレートの平均</b>です（セルにカーソルを乗せると平均値を表示）。' }));
+  if (afterPeriod) host.appendChild(el("div", { class: "hint an-new-note", text:
+    `直近1カ月に入れた台のうち ${afterPeriod}台は、台別データの期間（〜${pEnd.slice(5).replace("-", "/")}）より後に入ったので、` +
+    "この表の数字はまだ前の機種のものです（新台の印は付けていません）。新しい台別データを取り込むと出ます。" }));
 
   const tableHost = el("div", { style: "overflow-x:auto" });
   host.appendChild(tableHost);
@@ -118,9 +141,11 @@ export async function mount(host) {
     for (const r of rows) {
       const sec = secById.get(r.section_id);
       if (!sec) continue;
-      if (filterKey !== "ALL" && filterKey !== "MODEL" && sec.key !== filterKey) continue;
+      // 「新台だけ」も、ヒートとランクは全台の中で決めてから絞る（新台どうしで比べても意味が無い）
+      if (filterKey !== "ALL" && filterKey !== "MODEL" && filterKey !== "NEW" && sec.key !== filterKey) continue;
+      const intro = introOf.get(r.dai_no) || null;
       list.push({
-        dai_no: r.dai_no, model: r.model_name, sec, secKey: sec.sort_order,
+        dai_no: r.dai_no, model: r.model_name, sec, secKey: sec.sort_order, intro, introDays: intro ? intro.days : null,
         out: r.out_val, gross: r.gross, sales: r.sales,
         // 玉単価＝台売上 ÷ アウト。シミュレーターと同じ出し方にそろえている。
         coin: r.out_val ? +(r.sales / r.out_val).toFixed(3) : null,
@@ -145,13 +170,16 @@ export async function mount(host) {
       sorted.forEach((r, i) => { r.topPct = ((i + 1) / sorted.length) * 100; });
     }
     const cmp = (a, b) => {
-      const x = a[sortCol], y = b[sortCol];
+      let x = a[sortCol], y = b[sortCol];
+      // 導入は新台が先に来るように、新台でない台をいちばん後ろへ
+      if (sortCol === "introDays") { x = x ?? 9999 * sortDir; y = y ?? 9999 * sortDir; }
       // 機種名は文字なので引き算では並ばない（以前は機種名の見出しを押しても順番が変わらなかった）
       if (typeof x === "string" || typeof y === "string") return String(x ?? "").localeCompare(String(y ?? ""), "ja") * sortDir;
       return ((x ?? -Infinity) - (y ?? -Infinity)) * sortDir;
     };
     // 全区分・機種平均はレートごとにまとめて並べる（混ぜると、レートの違う台が交互に出て見比べにくい）
-    const grouped = filterKey === "ALL" || filterKey === "MODEL";
+    if (filterKey === "NEW") list.splice(0, list.length, ...list.filter((r) => r.intro));
+    const grouped = filterKey === "ALL" || filterKey === "MODEL" || filterKey === "NEW";
     const order = new Map(state.sections.map((s, i) => [s.key, i]));
     list.sort((a, b) => (grouped ? (order.get(rateOf(a)) ?? 99) - (order.get(rateOf(b)) ?? 99) : 0) || cmp(a, b));
     return { list, heat, grouped };
@@ -159,9 +187,7 @@ export async function mount(host) {
 
   function render() {
     // 選択中の切替は薄い青（.on）。主ボタンと同じ濃い青だと、押す先と今の状態の区別がつかない
-    const keyOfBtn = (t) => (t === "全区分" ? "ALL" : t === "機種平均" ? "MODEL" : state.sections.find((s) => s.label === t)?.key);
-    for (const b of ctrl.querySelectorAll(".btn.sm")) if (keyOfBtn(b.textContent))
-      b.className = "btn sm " + (keyOfBtn(b.textContent) === filterKey ? "on" : "ghost");
+    for (const b of ctrl.querySelectorAll(".btn.sm[data-key]")) b.className = "btn sm " + (b.dataset.key === filterKey ? "on" : "ghost");
     clear(tableHost);
     const { list, heat, grouped } = aggregate();
     const mobile = window.matchMedia("(max-width: 700px)").matches;
@@ -195,7 +221,7 @@ export async function mount(host) {
       // 幅は実測で決めた。見出しは小さい矢印込みで55px、区分は「20スロ」の
       // 区分は色の四角（32px）だけなので56pxで足りる。どの列もこれを下回ると見出しか中身が切れる。
       byModel ? ["count", "台数", "", 76] : ["dai_no", "台番号", "", 76],
-      ["model", "機種名", "txt", nameW], ["secKey", "区分", "", 56],
+      ["model", "機種名", "txt", nameW], ["introDays", "導入", "", 72], ["secKey", "区分", "", 56],
       ["out", "アウト", "heat", 80], ["coin", "玉単価", "heat", 76], ["gross", "台粗利", "heat", 76],
       ["rate", "利益率", "", 62], ["score", "ランク", "", 60],
     ];
@@ -212,20 +238,10 @@ export async function mount(host) {
         sortCol === key ? el("span", { style: "font-size:9px;margin-left:1px", text: sortDir < 0 ? "▼" : "▲" }) : null,
       ])))));
     const tb = el("tbody");
-    let curRate = null, zi = 0;
-    for (const r of list) {
-      // レートが変わる所に見出しの行を挟む（どこからが5スロかを線と色で分ける）
-      if (grouped && rateOf(r) !== curRate) {
-        curRate = rateOf(r); zi = 0;
-        const n = list.filter((x) => rateOf(x) === curRate).length;
-        tb.appendChild(el("tr", { class: "an-group" }, el("td", { colspan: cols.length },
-          el("span", { class: "an-group-in", style: `border-color:${sectionColor(r.sec)}` }, [
-            el("span", { class: "an-sec-sq", style: `background:${sectionColor(r.sec)}`, text: secNum(r.sec) }),
-            el("b", { text: r.sec.label }), el("span", { class: "hint", text: byModel ? `${n}機種` : `${n}台` }),
-          ]))));
-      }
-      // 玉単価は小数、それ以外は整数で出す
-      const fmt = (key, val) => (val == null ? "—" : key === "coin" ? Number(val).toFixed(2) : num(val));
+    // 玉単価は小数、それ以外は整数で出す
+    const fmt = (key, val) => (val == null ? "—" : key === "coin" ? Number(val).toFixed(2) : num(val));
+    const md = (ymd) => ymd.slice(5).replace(/^0/, "").replace("-0", "-").replace("-", "/");
+    const row = (r, z) => {
       const heatCell = (key) => {
         const g = groupRange(heat[key], rateOf(r));
         const c = heatColor(r[key], g);
@@ -233,28 +249,63 @@ export async function mount(host) {
         return el("td", { class: "an-heat", title: `区分平均 ${fmt(key, g.avg)}` },
           el("span", { style: `background:${c};color:${heatText(c)}`, text: fmt(key, r[key]) }));
       };
-      // 1行おきに薄い帯。名前と数字の行を目でたどりやすくする（レートの見出しごとに数え直す）
-      tb.appendChild(el("tr", { class: zi++ % 2 ? "" : "z" }, [
+      const nw = r.intro;
+      // 期間の途中で入った台は、数字に前の機種の日が混ざっている
+      const introTitle = nw ? `${md(nw.ymd)}導入・${nw.days}日目${nw.partial ? "（台別データの期間の途中から。数字に前の機種の日を含む）" : ""}` : null;
+      return el("tr", { class: z ? "z" : "" }, [
         el("td", { text: byModel ? `${r.count}台` : num(r.dai_no) }),
         // 機種名は出玉率タブと同じくCSVのままのフルネームで出す。頭の「L」「S」などを
         // 落とすと、出玉率タブや本部資料の機種名と並べたとき同じ機種か見分けにくい。
         // 短くするのは島図（マスが狭い）だけ。幅に収まらない分は末尾を省略し、全文はカーソルで出る。
+        // 新台は名前の前に札、後ろに導入日を添える（表のどこにいても新台と分かるように）
         el("td", { class: "txt", style: "white-space:nowrap;overflow:hidden;text-overflow:ellipsis",
-          title: r.model, text: r.model }),
+          title: nw ? `${r.model}\n${introTitle}` : r.model }, nw ? [
+          el("span", { class: "an-new", text: "新台" }), r.model,
+          el("span", { class: "an-new-date", text: `${md(nw.ymd)}〜${nw.partial ? "・期間途中" : ""}` }),
+        ] : r.model),
+        el("td", { class: nw ? "an-new-days" : "", title: introTitle, text: nw ? `${nw.days}日目` : "—" }),
         el("td", { class: "an-sec" }, el("span", { class: "an-sec-sq", style: `background:${sectionColor(r.sec)}`, title: r.sec.label, text: secNum(r.sec) })),
         heatCell("out"), heatCell("coin"), heatCell("gross"),
         el("td", { text: r.rate == null ? "—" : pct(r.rate) }),
         rankCell(r),
-      ]));
+      ]);
+    };
+    const groupHead = (inner, color) => el("tr", { class: "an-group" }, el("td", { colspan: cols.length },
+      el("span", { class: "an-group-in", style: `border-color:${color}` }, inner)));
+
+    // 新台は表の先頭にもまとめて出す（入替後にまず見たいのは新台の成績なので）。
+    // 下のレート別の表にも同じ台がそのまま残る（そこで周りの台と見比べられるように）。
+    const fresh = filterKey === "NEW" ? [] : list.filter((r) => r.intro);
+    if (fresh.length) {
+      tb.appendChild(groupHead([
+        el("span", { class: "an-new an-new-lg", text: "新台" }), el("b", { text: `直近1カ月に入れた${byModel ? "機種" : "台"}` }),
+        el("span", { class: "hint", text: `${fresh.length}${byModel ? "機種" : "台"}・色とランクは同じレートの中での位置` }),
+      ], "var(--new)"));
+      fresh.forEach((r, i) => tb.appendChild(row(r, i % 2 === 0)));
+    }
+    let curRate = null, zi = 0;
+    for (const r of list) {
+      // レートが変わる所に見出しの行を挟む（どこからが5スロかを線と色で分ける）。
+      // 区分を1つに絞っていても、上に新台をまとめたときは境目が分かるよう見出しを出す
+      if ((grouped || fresh.length) && rateOf(r) !== curRate) {
+        curRate = rateOf(r); zi = 0;
+        const n = list.filter((x) => rateOf(x) === curRate).length;
+        tb.appendChild(groupHead([
+          el("span", { class: "an-sec-sq", style: `background:${sectionColor(r.sec)}`, text: secNum(r.sec) }),
+          el("b", { text: r.sec.label }), el("span", { class: "hint", text: byModel ? `${n}機種` : `${n}台` }),
+        ], sectionColor(r.sec)));
+      }
+      // 1行おきに薄い帯。名前と数字の行を目でたどりやすくする（レートの見出しごとに数え直す）
+      tb.appendChild(row(r, zi++ % 2 === 0));
     }
     t.appendChild(tb);
     return t;
   }
 
-  function sortBy(key) { if (sortCol === key) sortDir *= -1; else { sortCol = key; sortDir = key === "dai_no" ? 1 : -1; } render(); }
+  function sortBy(key) { if (sortCol === key) sortDir *= -1; else { sortCol = key; sortDir = key === "dai_no" || key === "introDays" ? 1 : -1; } render(); }
   function doPrint() {
     const { list, heat, grouped } = aggregate();
-    const label = filterKey === "ALL" ? "" : filterKey === "MODEL" ? " / 機種平均" : " / " + (state.sections.find((x) => x.key === filterKey)?.label || filterKey);
+    const label = filterKey === "ALL" ? "" : filterKey === "MODEL" ? " / 機種平均" : filterKey === "NEW" ? " / 新台だけ" : " / " + (state.sections.find((x) => x.key === filterKey)?.label || filterKey);
     printContent(buildTable(list, heat, false, grouped), { title: `機種分析 ${period.label}${label}` });
   }
 
