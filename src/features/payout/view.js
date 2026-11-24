@@ -9,7 +9,9 @@ import { buildMinSetting, MIN_CHOICES } from "../simulator/minSetting.js";
 import { guessType } from "./autofill.js";
 import { rateKeyOfDai } from "../../core/daiSection.js";
 import { loadTable, importPayoutTable } from "./tableSource.js";
-import { linkSupported, pickAndLink, readLinked, unlink } from "./linkedFile.js";
+import { linkSupported, linkedFile } from "../../core/linkedFile.js";
+// 出玉率表の「参照するファイル」。キーと選択画面の名前は以前のまま（覚えているファイルを失わないため）
+const { pickAndLink, readLinked, unlink } = linkedFile("payoutTable", { pickerId: "payout-table", description: "出玉率表（Excel・CSV）", csv: true });
 
 const SRC_LABEL = {
   manual: "手動", "dmm-per6": "Web実測", "dmm-range": "Web推定",
