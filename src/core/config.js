@@ -38,8 +38,11 @@ export const ISLAND_TWEAKS = [
 // 縦向きの島（145〜148・212〜219）は通路が左右にあるので横に置く。
 export const SETTING_SIDES = [
   { from: 11, to: 17, side: "top" },
+  // 1Fの下端の島と、BFの下端の島（254〜287の下）は、上が通路（店長の指定で上に置く）
+  { from: 38, to: 51, side: "top" },
   { from: 130, to: 144, side: "top" },
   { from: 185, to: 192, side: "top" },
+  { from: 288, to: 304, side: "top" },
   { from: 145, to: 148, side: "right" },
   { from: 212, to: 219, side: "left" },
 ];
