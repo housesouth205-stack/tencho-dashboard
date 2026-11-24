@@ -12,6 +12,7 @@ import { openTargetPlanner } from "./targetPlanner.js";
 import { openDailyReport } from "./reportModal.js";
 import { cushionChart, stackedDaily, dailyBars, cumCompare } from "./charts.js";
 import { renderDailyDetail } from "./dailyTable.js";
+import { planAutoBar } from "./autoPlan.js";
 
 let month = new Date().getMonth() + 1;
 let gran = "month";
@@ -62,6 +63,10 @@ export async function mount(host) {
       el("button", { class: "btn", text: gran === "year" ? "年間目標" : "月間目標", onclick: () => openBudgetInput({ mode: gran, fy: state.fy, month, sections: state.sections, onDone: refresh }) }),
     ].filter(Boolean)),
   ]));
+
+  // 月計画表の自動取込（参照するファイル・自動/手動）。描画を待たせないよう後から差し込む
+  const autoSlot = host.appendChild(el("div"));
+  planAutoBar(() => refresh()).then((b) => { if (b) autoSlot.replaceWith(b); else autoSlot.remove(); }).catch(() => autoSlot.remove());
 
   const summary = el("div", { class: "col" });
   host.appendChild(summary);

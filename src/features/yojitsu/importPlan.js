@@ -100,7 +100,7 @@ function showPreview(filename, rows, warnings, onDone, fy) {
   const close = modal("月計画表の取込プレビュー", body, footer);
 }
 
-async function doImport(rows) {
+export async function doImport(rows) {
   setSaveState("saving");
   // 念のため (ymd, section) で重複排除（後勝ち）＝ upsertのバッチ内二重更新を防ぐ
   const uniq = new Map();

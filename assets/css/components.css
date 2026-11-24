@@ -300,3 +300,8 @@ table.grid.an-table td.an-new-days { color: var(--new); font-weight: 700; }
 /* 景品タブ。見出しは区切りとして少し大きく、凡例・表の色の点は四角の小さな印 */
 .pz-h { font-size: var(--fs-head); margin: 4px 0 8px; }
 .pz-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: 0; }
+
+/* 予実タブ上の「月計画表の自動取込」の1行。狭い画面では折り返す */
+.pa-bar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; padding: 8px 12px; margin-bottom: 12px; }
+.pa-bar .pa-file { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pa-bar .pa-seg { display: inline-flex; gap: 4px; }

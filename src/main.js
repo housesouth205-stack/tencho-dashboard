@@ -46,6 +46,8 @@ function startApp() {
   sub.appendChild(el("div", { id: "quickImport", class: "row" }));
   renderQuickImport(location.hash.slice(1));
   enableDropAnywhere();
+  // 月計画表の自動取込（毎朝の時刻を過ぎたら、どのタブを開いていても取り込む）
+  import("./features/yojitsu/autoPlan.js").then((m) => m.startPlanScheduler()).catch(() => { /* 自動取込が動かなくても画面は使える */ });
   // 日別入力は打ってから0.7秒後にまとめて保存する。その前にタブを閉じると入力が消えるので、
   // 保存待ちが残っている間は閉じる前に確認を出し、裏に回ったとき（スマホのアプリ切替）にも保存する。
   window.addEventListener("beforeunload", (e) => { if (hasPending()) { e.preventDefault(); e.returnValue = ""; } });
