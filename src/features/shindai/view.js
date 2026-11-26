@@ -32,8 +32,9 @@ export async function mount(host) {
   clear(host);
   host.appendChild(el("div", { class: "view-title" }, [el("h1", { text: "新台" }), el("small", { text: "周辺店の新台入替（DMMぱちタウン・毎週月曜に自動取得）" })]));
   const bar = el("div", { class: "sd-bar" });
+  const health = el("div", { class: "sd-health" });
   const body = el("div", { class: "sd-body" }, [el("div", { class: "hint", text: "読み込み中…" })]);
-  host.append(bar, body);
+  host.append(bar, health, body);
 
   const drawBar = () => {
     clear(bar);
@@ -54,6 +55,7 @@ export async function mount(host) {
       btn.disabled = false; btn.textContent = "今すぐ更新";
     } });
     bar.appendChild(btn);
+    drawHealth(health);
   };
 
   try { await reload(); } catch (e) { clear(body); body.appendChild(el("div", { class: "placeholder", text: "読み込みに失敗しました：" + (e.message || e) + "（初期設定のSQLが未実行の可能性）" })); return; }
@@ -70,6 +72,54 @@ async function reload() {
   for (const s of shops) if (s.enabled !== false && byShop.has(s.key)) active.set(s.key, byShop.get(s.key));
   D = { shops, byShop: active, allSnaps: byShop, names, calendar, order: new Map(shops.map((s, i) => [s.key, i])) };
   if (!selShop || !shops.some((s) => s.key === selShop)) selShop = shops[0]?.key || null;
+}
+
+// ---- 自動取得が動いているかの見張り ----
+// 取得は毎週月曜10:10〜18:40にネット側（pg_cron → shindai-fetch）で動く。止まっても誰も気づけないので、
+// 「直近の月曜に、表示している全店の記録があるか」を開くたびに確かめ、無ければ赤で出す。
+const AUTO_END_H = 19; // 月曜の取得が終わる目安（18:40の最後の回のあと）
+function lastMonday(now) {
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return d;
+}
+export function fetchHealth(now = new Date()) {
+  const shops = D.shops.filter((s) => s.enabled !== false);
+  if (!shops.length) return null;
+  const mon = lastMonday(now);
+  const todayIsMon = ymd(mon) === ymd(now);
+  // 月曜の取得時間中は、その日の分はまだ途中。判定は前の週の月曜で行い、今日の進み具合は別に出す
+  const inProgress = todayIsMon && now.getHours() < AUTO_END_H;
+  const due = new Date(mon); if (inProgress) due.setDate(due.getDate() - 7);
+  const dueDay = ymd(due);
+  const latest = (key) => { const a = D.allSnaps.get(key) || []; return a.length ? a[a.length - 1] : null; };
+  const missing = shops.filter((s) => (latest(s.key)?.day || "") < dueDay);
+  const label = `${due.getMonth() + 1}/${due.getDate()}${wd(dueDay)}`;
+  const calAt = D.calendar?.fetched_at ? String(D.calendar.fetched_at).slice(0, 10) : "";
+  const problems = [];
+  if (missing.length === shops.length) problems.push(`${label}の自動取得が動いていません（全${shops.length}店とも記録なし）`);
+  else if (missing.length) problems.push(`${label}の自動取得で${missing.length}店が取れていません：${missing.map((s) => shortName(s.name || s.key)).join("・")}`);
+  if (calAt && calAt < dueDay) problems.push(`新台カレンダーが${label}から更新されていません`);
+  // DMM側が更新していない店は失敗ではない（その週に入替が無かった可能性）。注意として小さく出す
+  const notUpdated = shops.filter((s) => { const l = latest(s.key); return l && l.day === dueDay && l.dmm_updated && l.dmm_updated !== dueDay; });
+  const today = todayIsMon && inProgress ? shops.filter((s) => (latest(s.key)?.day || "") >= ymd(mon)).length : null;
+  return { bad: problems.length > 0, problems, label, count: shops.length, notUpdated, today };
+}
+
+function drawHealth(box) {
+  clear(box);
+  const h = D && fetchHealth();
+  if (!h) return;
+  box.className = "sd-health" + (h.bad ? " bad" : "");
+  if (h.bad) {
+    for (const p of h.problems) box.appendChild(el("div", { text: "⚠ " + p }));
+    box.appendChild(el("div", { class: "hint", text: "「今すぐ更新」で取り直せます。続くようならSupabaseの自動実行（Cron）が止まっていないか確認が必要です" }));
+    return;
+  }
+  box.appendChild(el("span", { text: `自動取得 ${h.label} 全${h.count}店 取得済み` }));
+  if (h.today != null) box.appendChild(el("span", { text: `・今日の取得 ${h.today}/${h.count}店（18:40まで続きます）` }));
+  if (h.notUpdated.length) box.appendChild(el("span", { class: "hint", title: h.notUpdated.map((s) => s.name).join("、"),
+    text: `・DMM側が未更新 ${h.notUpdated.length}店（その週は入替なしの可能性）` }));
 }
 
 function lastFetched() {

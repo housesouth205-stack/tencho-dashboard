@@ -99,3 +99,8 @@
 .sd-newbadge.p { background: transparent; color: var(--fg-dim); border: 1px solid var(--line); }
 /* 日付ブロックの中でスロットとパチンコの間に区切りを入れる */
 .sd-daybody .sd-type ~ .sd-type { border-top: 2px solid var(--line); padding-top: 10px; }
+
+/* 自動取得の見張り。普段は控えめに1行、止まっていたら赤い帯で目立たせる */
+.sd-health { display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; font-size: var(--fs-note); color: var(--fg-dim); margin: -4px 0 10px; }
+.sd-health.bad { display: block; color: var(--bad-fg); background: var(--bad-bg); border: 1px solid var(--bad); border-radius: 8px; padding: 8px 12px; font-weight: 700; }
+.sd-health.bad .hint { font-weight: 400; margin-top: 4px; }
