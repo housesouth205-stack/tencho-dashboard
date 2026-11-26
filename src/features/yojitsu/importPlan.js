@@ -4,11 +4,12 @@ import { state } from "../../core/state.js";
 import { toast, errorToast, setSaveState } from "../../core/errors.js";
 import { yen, num } from "../../util/format.js";
 import { parseMonthlyPlan } from "../../import/monthlyPlanXlsx.js";
+import { planRecords, PLAN_CONFLICT } from "../../import/monthlyPlanRecords.js";
 import { planCalc } from "../../calc/planCalc.js";
 import { ymd } from "../../util/dates.js";
 import { FISCAL_START_MONTH } from "../../core/config.js";
 
-const CONFLICT = ["store_id", "ymd", "section_id"];
+const CONFLICT = PLAN_CONFLICT;
 
 // 「月計画表を取込」ファイル選択→解析→プレビュー→確定upsert。
 export function pickMonthlyPlan({ fy, sections, onDone }) {
@@ -102,17 +103,7 @@ function showPreview(filename, rows, warnings, onDone, fy) {
 
 export async function doImport(rows) {
   setSaveState("saving");
-  // 念のため (ymd, section) で重複排除（後勝ち）＝ upsertのバッチ内二重更新を防ぐ
-  const uniq = new Map();
-  for (const r of rows) uniq.set(r.ymd + "|" + r.sectionId, r);
-  rows = [...uniq.values()];
-  const machines = [], plans = [], actuals = [];
-  for (const r of rows) {
-    const base = { store_id: state.storeId, ymd: r.ymd, section_id: r.sectionId };
-    if (r.count != null) machines.push({ ...base, count: r.count });
-    if (r.hasPlan) plans.push({ ...base, out_per_unit: r.planOut, unit_price: r.planPrice, gross_rate: r.planRate });
-    if (r.hasActual) actuals.push({ ...base, sales: r.actSales, gross: r.actGross, out_per_unit: r.actOut, source: "excel" });
-  }
+  const { machines, plans, actuals } = planRecords(rows, state.storeId);
   const upsert = async (table, arr) => {
     for (let i = 0; i < arr.length; i += 200) await repo.upsert(table, arr.slice(i, i + 200), { onConflict: CONFLICT });
   };

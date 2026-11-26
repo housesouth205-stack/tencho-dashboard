@@ -184,6 +184,12 @@ Edit ツール（一致しなければ失敗する）を優先し、スクリプ
   毎朝9:00を過ぎて今日まだなら確認なしで取り込む。ブラウザの中で動くので、**そのPCのChrome/Edgeで
   ダッシュボードを開いている間だけ**。9時より後に開いたら開いた時点で取り込む。ファイルが変わっていなければ書かない。
   年度は今日の年度（画面の年度切替には合わせない）。自動/手動と最後の取込はこの端末のlocalStorage
+- **本命はPCで動く版**（`tools/plan-auto/`）。上のブラウザ版は開き忘れた日に止まるため、店のPC
+  （WIN-EE7RFB72LQU、共有フォルダの月計画表が見える）のタスクスケジューラ `TenchoPlanAuto` が毎朝9:00に
+  `run.ps1`→`run.mjs` を動かし、ブラウザ無しで取り込む。読み方・書き方は画面と同じ `parseMonthlyPlan` と
+  `monthlyPlanRecords.js` を使う（2通り作らない）。パスワードはWindowsの暗号化（DPAPI）で `%LOCALAPPDATA%\TenchoPlanAuto\cred.txt`。
+  結果は `app_setting.plan_auto_pc` に書き、予実タブの上の行に出す（失敗・今日まだ動いていない、は赤）。
+  プログラムを直したら `setup.ps1` を店のPCで実行し直す（写し直すだけ。パスワードは聞き直さない）
 
 - `plan_day` / `actual_day` / `machines_day` を `(ymd|section_id)` のMapで持つ
 - 集計は `src/calc/aggregate.js`。月サマリー・日次系列・日別明細

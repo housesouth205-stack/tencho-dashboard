@@ -9,6 +9,7 @@
 // 自動のときは確認画面を出さずに書き込む。手動の「今すぐ取り込む」は従来どおり確認画面を出す。
 // 設定（自動/手動・最後に取り込んだ時刻）はファイルの手がかりと同じくこの端末にだけ置く。
 import { el } from "../../util/dom.js";
+import { repo } from "../../core/repo.js";
 import { state, loadSections } from "../../core/state.js";
 import { toast, errorToast } from "../../core/errors.js";
 import { hasPending } from "../../core/autosave.js";
@@ -92,12 +93,16 @@ const hm = (iso) => { if (!iso) return "—"; const d = new Date(iso); return `$
  * @param onDone 手動で取り込んだあと画面を描き直す
  */
 export async function planAutoBar(onDone) {
-  // iPhone等ではファイルを覚えられない。📂取込から入れてもらうので、この行は出さない
-  if (!linkSupported()) return null;
+  // PCで毎朝動く取込（tools/plan-auto）の結果。ブラウザを開いていなくても入るので、こちらが本命
+  const pc = await loadPcStatus();
+  // iPhone等ではファイルを覚えられない。PCの取込の結果だけ出す（それも無ければ行ごと出さない）
+  if (!linkSupported()) return pc ? el("div", { class: "card pa-bar" }, pcLine(pc)) : null;
   const box = el("div", { class: "card pa-bar" });
   const draw = async () => {
     const c = loadCfg();
     const rec = await link.getLinked();
+    // PCの自動取込が動いているなら、この端末でファイルを選ばなくてよい。結果だけ出して終わる
+    if (pc && !rec) { box.replaceChildren(...pcLine(pc)); return; }
     const pick = async () => {
       try { await link.pickAndLink(); saveCfg({ lastModified: null, lastRunDay: null }); await runAuto({ force: true }); }
       catch (e) { if (e?.name !== "AbortError") errorToast(e); }
@@ -126,6 +131,7 @@ export async function planAutoBar(onDone) {
       el("span", { class: "pa-file", title: rec.name, text: rec.name }),
       el("span", { class: "pa-seg" }, [seg("auto", `自動（毎朝${AUTO_TIME}）`), seg("manual", "手動")]),
       el("span", { class: "hint", style: bad ? "color:var(--bad-fg)" : "", text: c.mode === "manual" ? "手動：自動では取り込みません" : lastText }),
+      pc ? pcLine(pc)[1] : null,
       el("span", { class: "grow" }),
       bad && (l.status === "prompt" || l.status === "denied")
         ? el("button", { class: "btn sm primary", text: "許可して取り込む", onclick: async () => {
@@ -151,4 +157,26 @@ export async function planAutoBar(onDone) {
   const onChange = () => { if (box.isConnected) draw(); else window.removeEventListener("dash:planauto", onChange); };
   window.addEventListener("dash:planauto", onChange);
   return box;
+}
+
+// ---- PCで毎朝動く取込（tools/plan-auto/run.mjs）の結果 ----
+// 結果は app_setting の plan_auto_pc に書かれる。黙って止まると「入っていない」に気づけないので、
+// 失敗と「今日まだ動いていない」をここで赤く出す。
+async function loadPcStatus() {
+  try { return (await repo.select("app_setting", { eq: { store_id: state.storeId, key: "plan_auto_pc" } }))[0]?.value || null; }
+  catch { return null; }
+}
+
+function pcLine(pc) {
+  const now = new Date();
+  const [h, m] = AUTO_TIME.split(":").map(Number);
+  // 9:00から1時間たっても今日の記録が無ければ、PCが切れているか予約が止まっている
+  const late = now >= new Date(now.getFullYear(), now.getMonth(), now.getDate(), h + 1, m);
+  const seen = pc.checkedAt && pc.checkedAt > pc.at ? pc.checkedAt : pc.at;
+  const ranToday = seen && localYmd(new Date(seen)) === localYmd(now);
+  const text = pc.status === "error" ? `PCの自動取込が失敗：${pc.message || ""}（${hm(pc.at)}）`
+    : late && !ranToday ? `PCの自動取込が今日まだ動いていません（最後 ${hm(seen)}）。${pc.host || "PC"}が起動しているか確認してください`
+    : `PCの自動取込：${hm(pc.at)} 取込${pc.checkedAt && pc.checkedAt > pc.at ? `・${hm(pc.checkedAt)} 変更なし` : ""}`;
+  const bad = pc.status === "error" || (late && !ranToday);
+  return [el("b", { text: "📄 月計画表" }), el("span", { class: "hint", style: bad ? "color:var(--bad-fg)" : "", title: pc.file || "", text })];
 }
