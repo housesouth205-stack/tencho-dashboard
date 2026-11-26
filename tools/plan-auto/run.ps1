@@ -3,6 +3,8 @@
 # 平文のパスワードはファイルに置かず、動かす間だけ環境変数で node に渡す。
 param([switch]$Force)
 $ErrorActionPreference = "Stop"
+# node はUTF-8で書くので、PowerShell側もUTF-8で受ける（既定のShift_JISだと「失敗:」が文字化けした）
+[Console]::OutputEncoding = [Text.Encoding]::UTF8
 $home2 = Join-Path $env:LOCALAPPDATA "TenchoPlanAuto"
 $cfg = Get-Content (Join-Path $home2 "config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
 $logFile = Join-Path $home2 "log.txt"
